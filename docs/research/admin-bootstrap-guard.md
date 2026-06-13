@@ -38,17 +38,24 @@ Add a table with one row per project prefix:
 
 ```sql
 CREATE TABLE bn_project_admin_bootstraps (
-    prefix     TEXT        NOT NULL PRIMARY KEY REFERENCES bn_projects(prefix) ON DELETE CASCADE,
-    actor      TEXT        NOT NULL,
+    prefix     <prefix key type> NOT NULL PRIMARY KEY REFERENCES bn_projects(prefix) ON DELETE CASCADE,
+    actor      <actor key type>  NOT NULL,
     created_at <dialect timestamp> NOT NULL
 );
 ```
 
+`<prefix key type>` and `<actor key type>` must match the dialect-specific key
+types chosen for `bn_projects.prefix` and `bn_project_admins.actor`. Do not use
+unbounded MySQL `TEXT` as a primary key. Use a bounded string type that preserves
+exact-prefix uniqueness, such as `VARCHAR(<project-prefix-limit>)`, and keep the
+same limit in Go validation and every dialect migration.
+
 Bootstrap should run in one transaction:
 
 1. Validate `targetActor` is non-empty.
-2. Insert the bootstrap claim row `(prefix, targetActor, nowUTC)`.
-3. If the claim insert conflicts on `prefix`, return `ErrUnauthorized`.
+2. Insert the bootstrap claim row `(prefix, targetActor, nowUTC)` with
+   insert-ignore/`ON CONFLICT DO NOTHING` semantics.
+3. If the claim insert affects zero rows, return `ErrUnauthorized`.
 4. Insert `(prefix, targetActor, nowUTC)` into `bn_project_admins`.
 5. Commit.
 
@@ -61,20 +68,39 @@ The bootstrap claim is historical and should not be deleted when admins change.
 This intentionally makes bootstrap a once-per-project operation rather than a
 recovery path after all admins are removed.
 
+The `actor` in `bn_project_admin_bootstraps` is historical metadata. It should
+not foreign-key to `bn_project_admins(prefix, actor)`, because the original
+bootstrap actor may later be removed while the one-time bootstrap claim must
+remain.
+
 ## Last-Admin Removal Rule
 
 Because bootstrap becomes one-time, `RemoveRepoAdmin` must reject removal of the
 last admin for a project. Otherwise a project could become permanently
 unadministrable.
 
-`RemoveRepoAdmin` should run in one transaction:
+`RemoveRepoAdmin` must serialize removals for a prefix before it checks whether
+the target is the final admin. Use the per-prefix bootstrap claim row as the
+portable guard object, and centralize the dialect differences in one store
+helper:
 
-1. Authorize `actor` as a current admin.
-2. Count or query whether more than one admin exists for the prefix.
-3. If `targetActor` is the last admin, return a sentinel error.
-4. Delete `(prefix, targetActor)`.
-5. If no row was deleted, return `ErrNotFound`.
-6. Commit.
+- Postgres/MySQL: select the `bn_project_admin_bootstraps` row for the prefix
+  with a row-level update lock, using GORM's locking clause or dialect-aware raw
+  SQL.
+- SQLite: use a write transaction mode that serializes writers before the admin
+  count is read.
+- If the guard row is missing, treat the database as corrupt or not migrated and
+  return a wrapped conflict/internal error rather than allowing removal.
+
+`RemoveRepoAdmin` should then run in the guarded transaction:
+
+1. Lock the bootstrap claim row for `prefix`.
+2. Re-authorize `actor` inside the transaction.
+3. Count or query admins for the prefix while the guard is held.
+4. If `targetActor` is the last admin, return a sentinel error.
+5. Delete `(prefix, targetActor)`.
+6. If no row was deleted, return `ErrNotFound`.
+7. Commit.
 
 Prefer a new sentinel such as `ErrLastAdmin` so CLI callers can show a clear
 message. If avoiding a new sentinel during the first GORM conversion, wrap
@@ -114,8 +140,17 @@ The schema must preserve:
 - Non-empty actor validation in Go; dialect-specific `CHECK` syntax is optional
   and should not be the only enforcement.
 - UTC timestamp policy from `docs/research/timestamp-sql-strategy.md`.
+- Bounded key-column types for MySQL-compatible primary and foreign keys.
 
 The existing `bn_project_admins` primary key remains `(prefix, actor)`.
+
+Existing databases require a backfill in the same migration that creates the
+claim table. For every prefix with at least one row in `bn_project_admins`,
+insert exactly one bootstrap claim before the new store code is released. Choose
+a deterministic historical actor, such as the actor from the earliest
+`created_at` row with `actor` as a tie-breaker, and set `created_at` to that
+row's timestamp. After backfill, `AddRepoAdmin(..., bootstrap=true)` must return
+`ErrUnauthorized` for every prefix that already had admins before migration.
 
 ## Implementation Checklist
 
@@ -124,11 +159,15 @@ The existing `bn_project_admins` primary key remains `(prefix, actor)`.
 - Add a repo-admin bootstrap model/table for GORM or a per-dialect migration
   entry if the migration strategy keeps SQL files.
 - Change `AddRepoAdmin(..., bootstrap=true)` to insert the claim row before the
-  admin row in the same transaction.
+  admin row in the same transaction and map `RowsAffected == 0` to
+  `ErrUnauthorized`.
 - Remove `pg_advisory_xact_lock(hashtext($1))`.
 - Replace `ON CONFLICT DO NOTHING` with GORM `clause.OnConflict{DoNothing:true}`
   or dialect-aware SQL.
-- Change `RemoveRepoAdmin` to reject deleting the final admin.
+- Add the existing-admin backfill to migrations and an upgraded-database
+  regression test.
+- Change `RemoveRepoAdmin` to lock the per-prefix bootstrap claim row before
+  re-authorizing, counting admins, and rejecting deletion of the final admin.
 - Keep `ListRepoAdmins` ordering by actor.
 - Keep `AuthorizeRepoAdmin` as the authorization gate for non-bootstrap
   mutations.
@@ -141,11 +180,20 @@ The existing `bn_project_admins` primary key remains `(prefix, actor)`.
   exactly one successful call and exactly one admin row.
 - The losing concurrent bootstrap returns or wraps `ErrUnauthorized`.
 - Bootstrap after a prior bootstrap claim returns `ErrUnauthorized`.
+- Upgraded databases with existing `bn_project_admins` rows receive one
+  backfilled bootstrap claim per prefix, and post-upgrade bootstrap returns
+  `ErrUnauthorized`.
 - Removing the last remaining admin fails with the chosen sentinel or conflict
   mapping.
 - Removing one admin from a project with two admins succeeds and leaves the
   other admin authorized.
+- Concurrent removals from a two-admin project, such as Alice removing Bob while
+  Bob removes Alice, leave at least one admin. Exactly one removal may succeed;
+  the losing call should return `ErrLastAdmin`, `ErrNotFound`, or another
+  documented conflict mapping that preserves one remaining admin.
 - Non-bootstrap add remains idempotent for an existing target actor.
+- CLI tests cover the user-facing message for last-admin removal once the new
+  sentinel or conflict mapping exists.
 - Contract tests run against SQLite by default and Postgres/MySQL containers
   when integration tests are enabled.
 
