@@ -1,0 +1,44 @@
+version: "2"
+
+run:
+  go: "1.25"
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  default: none
+  enable:
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell
+    - unconvert
+    - bodyclose
+    - rowserrcheck
+    - sqlclosecheck
+    - copyloopvar
+
+  settings:
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
+          - unparam
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/mattsp1290/beans
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

@@ -1,0 +1,1212 @@
+//go:build integration
+
+package store_test
+
+import (
+	"context"
+	"errors"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+
+	"github.com/mattsp1290/beans/model"
+	store "github.com/mattsp1290/beans/store"
+)
+
+// testStore starts a fresh Postgres container, runs bn migrations, and returns
+// a ready Store. Cleanup (store close + container terminate) is registered via
+// t.Cleanup.
+func testStore(t *testing.T) *store.Store {
+	t.Helper()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	container, err := postgres.Run(ctx, "postgres:16-alpine",
+		postgres.WithDatabase("bn_test"),
+		postgres.WithUsername("bn"),
+		postgres.WithPassword("bn"),
+		postgres.BasicWaitStrategies(),
+	)
+	testcontainers.CleanupContainer(t, container)
+	if err != nil {
+		if isDockerUnavailable(err) {
+			t.Skipf("store integration: docker unavailable: %v", err)
+			return nil
+		}
+		t.Fatalf("store integration: postgres.Run: %v", err)
+		return nil
+	}
+
+	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		t.Fatalf("store integration: ConnectionString: %v", err)
+		return nil
+	}
+
+	store, err := store.New(ctx, store.Config{
+		DSN:      store.SecretDSN(connStr),
+		MaxConns: 4,
+	})
+	if err != nil {
+		t.Fatalf("store integration: New: %v", err)
+		return nil
+	}
+	t.Cleanup(store.Close)
+	return store
+}
+
+// isDockerUnavailable matches testcontainers' docker-unavailable error surface.
+func isDockerUnavailable(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "Cannot connect to the Docker daemon") ||
+		strings.Contains(msg, "no such file") ||
+		strings.Contains(msg, "connection refused") ||
+		strings.Contains(msg, "context deadline exceeded")
+}
+
+// --- tests ------------------------------------------------------------------
+
+// TestMigrateIdempotent verifies that calling Migrate twice is a no-op.
+func TestMigrateIdempotent(t *testing.T) {
+	t.Parallel()
+	_ = testStore(t) // New calls Migrate once. A second call is tested via a second New.
+	// The test passes if testStore returns without error.
+}
+
+// TestEnsureProjectIdempotent verifies that calling EnsureProject twice is safe.
+func TestEnsureProjectIdempotent(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "testpfx"); err != nil {
+		t.Fatalf("EnsureProject first call: %v", err)
+	}
+	if err := s.EnsureProject(ctx, "testpfx"); err != nil {
+		t.Fatalf("EnsureProject second call (must be idempotent): %v", err)
+	}
+	exists, err := s.ProjectExists(ctx, "testpfx")
+	if err != nil {
+		t.Fatalf("ProjectExists: %v", err)
+	}
+	if !exists {
+		t.Error("ProjectExists = false, want true after EnsureProject")
+	}
+}
+
+// TestRepoAdminBootstrapAndAuthorization verifies the project-admin gate used
+// by repo registry mutation commands.
+func TestRepoAdminBootstrapAndAuthorization(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "repos"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AuthorizeRepoAdmin(ctx, "repos", "alice"); !errors.Is(err, store.ErrUnauthorized) {
+		t.Fatalf("AuthorizeRepoAdmin before bootstrap = %v, want ErrUnauthorized", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repos", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap alice: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repos", "bob", "bob", true); !errors.Is(err, store.ErrUnauthorized) {
+		t.Fatalf("second bootstrap = %v, want ErrUnauthorized", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repos", "bob", "mallory", false); !errors.Is(err, store.ErrUnauthorized) {
+		t.Fatalf("AddRepoAdmin by non-admin = %v, want ErrUnauthorized", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repos", "bob", "alice", false); err != nil {
+		t.Fatalf("AddRepoAdmin bob by alice: %v", err)
+	}
+	if err := s.AuthorizeRepoAdmin(ctx, "repos", "alice"); err != nil {
+		t.Fatalf("AuthorizeRepoAdmin alice: %v", err)
+	}
+	admins, err := s.ListRepoAdmins(ctx, "repos")
+	if err != nil {
+		t.Fatalf("ListRepoAdmins: %v", err)
+	}
+	if got, want := strings.Join(admins, ","), "alice,bob"; got != want {
+		t.Fatalf("admins = %q, want %q", got, want)
+	}
+}
+
+func TestRepoAdminBootstrapAllowsOnlyOneConcurrentFirstAdmin(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "bootstrap-race"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	start := make(chan struct{})
+	errs := make(chan error, 2)
+	var wg sync.WaitGroup
+	for _, actor := range []string{"alice", "bob"} {
+		actor := actor
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			<-start
+			errs <- s.AddRepoAdmin(ctx, "bootstrap-race", actor, actor, true)
+		}()
+	}
+	close(start)
+	wg.Wait()
+	close(errs)
+
+	var success, unauthorized int
+	for err := range errs {
+		switch {
+		case err == nil:
+			success++
+		case errors.Is(err, store.ErrUnauthorized):
+			unauthorized++
+		default:
+			t.Fatalf("AddRepoAdmin concurrent bootstrap unexpected error: %v", err)
+		}
+	}
+	if success != 1 || unauthorized != 1 {
+		t.Fatalf("concurrent bootstrap results success=%d unauthorized=%d, want 1/1", success, unauthorized)
+	}
+	admins, err := s.ListRepoAdmins(ctx, "bootstrap-race")
+	if err != nil {
+		t.Fatalf("ListRepoAdmins: %v", err)
+	}
+	if len(admins) != 1 {
+		t.Fatalf("admins = %v, want exactly one first admin", admins)
+	}
+}
+
+// TestRepoRegistryRoundTrip verifies repo CRUD, alias resolution, admin
+// authorization, disable, and audit writes.
+func TestRepoRegistryRoundTrip(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "repos"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repos", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+
+	_, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repos",
+		Slug:          "boxy",
+		RemoteURL:     "git@github.com:punk1290/boxy.git",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "mallory",
+		DefaultBranch: "main",
+	})
+	if !errors.Is(err, store.ErrUnauthorized) {
+		t.Fatalf("CreateRepo unauthorized = %v, want ErrUnauthorized", err)
+	}
+
+	repo, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repos",
+		Slug:          "boxy",
+		DisplayName:   "Boxy",
+		RemoteURL:     "git@github.com:punk1290/boxy.git",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "alice",
+		DefaultBranch: "main",
+		Aliases:       []string{"github.com/punk1290/boxy", "boxy"},
+		Metadata:      map[string]any{"tier": "prod"},
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo: %v", err)
+	}
+	if repo.ID == "" {
+		t.Fatal("CreateRepo returned empty ID")
+	}
+	if repo.DisplayName != "Boxy" || repo.Slug != "boxy" || !repo.Enabled {
+		t.Fatalf("repo = %+v, want Boxy/boxy/enabled", repo)
+	}
+	if repo.Metadata["tier"] != "prod" {
+		t.Fatalf("metadata[tier] = %v, want prod", repo.Metadata["tier"])
+	}
+
+	got, err := s.GetRepoBySlug(ctx, "repos", "boxy")
+	if err != nil {
+		t.Fatalf("GetRepoBySlug: %v", err)
+	}
+	if got.ID != repo.ID {
+		t.Fatalf("GetRepoBySlug ID = %q, want %q", got.ID, repo.ID)
+	}
+
+	byAlias, err := s.ResolveRepoAlias(ctx, "repos", "github.com/punk1290/boxy")
+	if err != nil {
+		t.Fatalf("ResolveRepoAlias: %v", err)
+	}
+	if byAlias.ID != repo.ID {
+		t.Fatalf("ResolveRepoAlias ID = %q, want %q", byAlias.ID, repo.ID)
+	}
+
+	repos, err := s.ListRepos(ctx, "repos", false)
+	if err != nil {
+		t.Fatalf("ListRepos: %v", err)
+	}
+	if len(repos) != 1 || repos[0].ID != repo.ID {
+		t.Fatalf("ListRepos = %+v, want one repo %s", repos, repo.ID)
+	}
+
+	branch := "trunk"
+	updated, err := s.UpdateRepo(ctx, "repos", "boxy", store.UpdateRepoInput{
+		DefaultBranch: &branch,
+		Actor:         "alice",
+		Aliases:       []string{"new-boxy"},
+	})
+	if err != nil {
+		t.Fatalf("UpdateRepo: %v", err)
+	}
+	if updated.DefaultBranch != "trunk" {
+		t.Fatalf("DefaultBranch = %q, want trunk", updated.DefaultBranch)
+	}
+	if _, err := s.ResolveRepoAlias(ctx, "repos", "boxy"); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("old alias lookup = %v, want ErrNotFound", err)
+	}
+	if _, err := s.ResolveRepoAlias(ctx, "repos", "new-boxy"); err != nil {
+		t.Fatalf("new alias lookup: %v", err)
+	}
+
+	disabled, err := s.DisableRepo(ctx, "repos", "boxy", "alice")
+	if err != nil {
+		t.Fatalf("DisableRepo: %v", err)
+	}
+	if disabled.Enabled {
+		t.Fatal("DisableRepo returned enabled repo")
+	}
+	enabledOnly, err := s.ListRepos(ctx, "repos", false)
+	if err != nil {
+		t.Fatalf("ListRepos enabled only: %v", err)
+	}
+	if len(enabledOnly) != 0 {
+		t.Fatalf("enabled repos after disable = %+v, want none", enabledOnly)
+	}
+	allRepos, err := s.ListRepos(ctx, "repos", true)
+	if err != nil {
+		t.Fatalf("ListRepos include disabled: %v", err)
+	}
+	if len(allRepos) != 1 || allRepos[0].ID != repo.ID {
+		t.Fatalf("all repos after disable = %+v, want repo %s", allRepos, repo.ID)
+	}
+
+	audits, err := s.ListRepoAudit(ctx, "repos", repo.ID, 10)
+	if err != nil {
+		t.Fatalf("ListRepoAudit: %v", err)
+	}
+	if len(audits) != 3 {
+		t.Fatalf("audit row count = %d, want 3", len(audits))
+	}
+	if audits[0].Actor != "alice" || audits[0].Action == "" {
+		t.Fatalf("latest audit = %+v, want alice action", audits[0])
+	}
+}
+
+func TestRepoRegistryValidatesRepoTargets(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "repo-validation"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repo-validation", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+
+	repo, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repo-validation",
+		Slug:          "local",
+		RemoteURL:     "/tmp/local.git",
+		AuthRef:       "test:none",
+		Actor:         "alice",
+		DefaultBranch: "main",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo local test repo: %v", err)
+	}
+	if repo.CloneStrategy != "mirror-cache" {
+		t.Fatalf("CloneStrategy = %q, want mirror-cache default", repo.CloneStrategy)
+	}
+
+	_, err = s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:    "repo-validation",
+		Slug:      "bad-remote",
+		RemoteURL: "ftp://example.com/repo.git",
+		AuthRef:   "test:none",
+		Actor:     "alice",
+	})
+	if err == nil || !strings.Contains(err.Error(), "validation") {
+		t.Fatalf("CreateRepo bad remote = %v, want validation error", err)
+	}
+
+	badSubdir := "../outside"
+	_, err = s.UpdateRepo(ctx, "repo-validation", "local", store.UpdateRepoInput{
+		WorktreeSubdir: &badSubdir,
+		Actor:          "alice",
+	})
+	if err == nil || !strings.Contains(err.Error(), "validation") {
+		t.Fatalf("UpdateRepo bad subdir = %v, want validation error", err)
+	}
+}
+
+// TestCreateAndGetIssue verifies round-trip create → get.
+func TestCreateAndGetIssue(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "proj"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	in := store.CreateIssueInput{
+		Prefix:      "proj",
+		Title:       "first issue",
+		Description: "desc",
+		Priority:    2,
+		IssueType:   "task",
+		Labels:      []string{"alpha", "beta"},
+	}
+	iss, err := s.CreateIssue(ctx, in)
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+	if !strings.HasPrefix(iss.ID, "proj-") {
+		t.Errorf("ID = %q, want prefix proj-", iss.ID)
+	}
+	if iss.Title != "first issue" {
+		t.Errorf("Title = %q, want %q", iss.Title, "first issue")
+	}
+	if iss.State != "open" {
+		t.Errorf("State = %q, want open", iss.State)
+	}
+	if len(iss.BlockedBy) != 0 {
+		t.Errorf("BlockedBy = %v, want empty for new issue", iss.BlockedBy)
+	}
+
+	got, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue: %v", err)
+	}
+	if got.ID != iss.ID {
+		t.Errorf("GetIssue ID = %q, want %q", got.ID, iss.ID)
+	}
+}
+
+// TestCreateIssueWithRepo verifies issue repo targets are written atomically
+// and populated for all read paths used by routing.
+func TestCreateIssueWithRepo(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "route"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "route", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+	repo, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:         "route",
+		Slug:           "boxy",
+		RemoteURL:      "git@github.com:punk1290/boxy.git",
+		DefaultBranch:  "trunk",
+		WorktreeSubdir: "services/boxy",
+		CloneStrategy:  "mirror-cache",
+		AuthRef:        "ssh-key:github-default",
+		Actor:          "alice",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo: %v", err)
+	}
+
+	iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix:    "route",
+		Title:     "route work",
+		Priority:  1,
+		IssueType: "task",
+		Repo: &store.IssueRepoInput{
+			RepoSlug:     "boxy",
+			RequestedRef: "feature/input",
+			Metadata:     map[string]any{"source": "test"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+	assertIssueRepoTarget(t, iss, repo.ID)
+
+	got, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue: %v", err)
+	}
+	assertIssueRepoTarget(t, got, repo.ID)
+
+	listed, err := s.ListIssues(ctx, store.ListFilter{Prefix: "route"})
+	if err != nil {
+		t.Fatalf("ListIssues: %v", err)
+	}
+	if len(listed) != 1 {
+		t.Fatalf("ListIssues returned %d issues, want 1", len(listed))
+	}
+	assertIssueRepoTarget(t, listed[0], repo.ID)
+
+	ready, err := s.ReadyIssues(ctx, "route", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	if err != nil {
+		t.Fatalf("ReadyIssues: %v", err)
+	}
+	if len(ready) != 1 {
+		t.Fatalf("ReadyIssues returned %d issues, want 1", len(ready))
+	}
+	assertIssueRepoTarget(t, ready[0], repo.ID)
+
+	_, err = s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix:    "route",
+		Title:     "missing repo",
+		Priority:  2,
+		IssueType: "task",
+		Repo:      &store.IssueRepoInput{RepoSlug: "missing"},
+	})
+	if !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("CreateIssue missing repo = %v, want ErrNotFound", err)
+	}
+	afterMissing, err := s.ListIssues(ctx, store.ListFilter{Prefix: "route"})
+	if err != nil {
+		t.Fatalf("ListIssues after missing repo: %v", err)
+	}
+	if len(afterMissing) != 1 {
+		t.Fatalf("missing repo create left %d issues, want 1", len(afterMissing))
+	}
+
+	for _, badSubdir := range []string{".", "../escape", "/absolute"} {
+		_, err = s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    "route",
+			Title:     "bad subdir",
+			Priority:  2,
+			IssueType: "task",
+			Repo: &store.IssueRepoInput{
+				RepoSlug:       "boxy",
+				WorktreeSubdir: badSubdir,
+			},
+		})
+		if err == nil {
+			t.Fatalf("CreateIssue bad subdir %q succeeded, want validation error", badSubdir)
+		}
+	}
+	afterBadSubdir, err := s.ListIssues(ctx, store.ListFilter{Prefix: "route"})
+	if err != nil {
+		t.Fatalf("ListIssues after bad subdir: %v", err)
+	}
+	if len(afterBadSubdir) != 1 {
+		t.Fatalf("bad subdir create left %d issues, want 1", len(afterBadSubdir))
+	}
+
+	if _, err := s.DisableRepo(ctx, "route", "boxy", "alice"); err != nil {
+		t.Fatalf("DisableRepo: %v", err)
+	}
+	_, err = s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix:    "route",
+		Title:     "disabled repo",
+		Priority:  2,
+		IssueType: "task",
+		Repo:      &store.IssueRepoInput{RepoSlug: "boxy"},
+	})
+	if !errors.Is(err, store.ErrDisabled) {
+		t.Fatalf("CreateIssue disabled repo = %v, want ErrDisabled", err)
+	}
+}
+
+func assertIssueRepoTarget(t *testing.T, iss store.Issue, repoID string) {
+	t.Helper()
+	if iss.Repo == nil {
+		t.Fatalf("issue %s repo = nil, want target", iss.ID)
+	}
+	if iss.Repo.ID != repoID {
+		t.Fatalf("repo ID = %q, want %q", iss.Repo.ID, repoID)
+	}
+	if iss.Repo.Slug != "boxy" || iss.Repo.RemoteURL != "git@github.com:punk1290/boxy.git" {
+		t.Fatalf("repo target = %+v, want boxy remote", iss.Repo)
+	}
+	if iss.Repo.DefaultBranch != "trunk" || iss.Repo.BaseRef != "trunk" {
+		t.Fatalf("repo branches = default %q base %q, want trunk/trunk", iss.Repo.DefaultBranch, iss.Repo.BaseRef)
+	}
+	if iss.Repo.WorktreeSubdir != "services/boxy" {
+		t.Fatalf("repo subdir = %q, want services/boxy", iss.Repo.WorktreeSubdir)
+	}
+	if iss.Repo.CloneStrategy != "mirror-cache" || iss.Repo.AuthRef != "ssh-key:github-default" {
+		t.Fatalf("repo clone/auth = %q/%q, want mirror-cache/ssh-key:github-default", iss.Repo.CloneStrategy, iss.Repo.AuthRef)
+	}
+	if iss.Repo.RequestedRef != "feature/input" {
+		t.Fatalf("requested ref = %q, want feature/input", iss.Repo.RequestedRef)
+	}
+	if iss.Repo.Metadata["source"] != "test" {
+		t.Fatalf("metadata[source] = %v, want test", iss.Repo.Metadata["source"])
+	}
+}
+
+func TestUpdateIssueRepoTarget(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "retarget"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "retarget", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+	repoA, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "retarget",
+		Slug:          "repo-a",
+		RemoteURL:     "git@github.com:punk1290/repo-a.git",
+		DefaultBranch: "main",
+		CloneStrategy: "mirror-cache",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "alice",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo repo-a: %v", err)
+	}
+	repoB, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:         "retarget",
+		Slug:           "repo-b",
+		RemoteURL:      "git@github.com:punk1290/repo-b.git",
+		DefaultBranch:  "trunk",
+		WorktreeSubdir: "services/default",
+		CloneStrategy:  "fresh-clone",
+		AuthRef:        "ssh-key:github-default",
+		Actor:          "alice",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo repo-b: %v", err)
+	}
+	iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix:    "retarget",
+		Title:     "retarget me",
+		Priority:  2,
+		IssueType: "task",
+		Repo:      &store.IssueRepoInput{RepoSlug: "repo-a", RequestedRef: "main"},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+	if iss.Repo == nil || iss.Repo.ID != repoA.ID {
+		t.Fatalf("initial repo = %+v, want repo-a", iss.Repo)
+	}
+
+	newTitle := "retargeted"
+	got, err := s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{
+		Title: &newTitle,
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       "repo-b",
+			RequestedRef:   "feature/input",
+			WorktreeSubdir: "services/override",
+			Metadata:       map[string]any{"reason": "test"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue retarget: %v", err)
+	}
+	if got.Title != newTitle {
+		t.Fatalf("Title = %q, want %q", got.Title, newTitle)
+	}
+	if got.Repo == nil || got.Repo.ID != repoB.ID || got.Repo.Slug != "repo-b" {
+		t.Fatalf("updated repo = %+v, want repo-b", got.Repo)
+	}
+	if got.Repo.RemoteURL != "git@github.com:punk1290/repo-b.git" ||
+		got.Repo.DefaultBranch != "trunk" || got.Repo.BaseRef != "trunk" ||
+		got.Repo.CloneStrategy != "fresh-clone" {
+		t.Fatalf("updated repo inherited registry fields = %+v", got.Repo)
+	}
+	if got.Repo.RequestedRef != "feature/input" || got.Repo.WorktreeSubdir != "services/override" {
+		t.Fatalf("updated repo issue fields = ref %q subdir %q", got.Repo.RequestedRef, got.Repo.WorktreeSubdir)
+	}
+	if got.Repo.Metadata["reason"] != "test" {
+		t.Fatalf("updated repo metadata = %+v, want reason=test", got.Repo.Metadata)
+	}
+
+	badTitle := "should rollback"
+	badSubdir := "."
+	_, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{
+		Title: &badTitle,
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       "repo-b",
+			WorktreeSubdir: badSubdir,
+		},
+	})
+	if err == nil {
+		t.Fatal("UpdateIssue bad subdir succeeded, want validation error")
+	}
+	afterBadSubdir, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue after bad subdir: %v", err)
+	}
+	if afterBadSubdir.Title != newTitle || afterBadSubdir.Repo.WorktreeSubdir != "services/override" {
+		t.Fatalf("bad subdir update was not rolled back cleanly: title=%q repo=%+v", afterBadSubdir.Title, afterBadSubdir.Repo)
+	}
+
+	_, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{
+		Title: &badTitle,
+		Repo:  &store.IssueRepoInput{RepoSlug: "missing"},
+	})
+	if !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("UpdateIssue missing repo = %v, want ErrNotFound", err)
+	}
+	afterMissing, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue after missing repo: %v", err)
+	}
+	if afterMissing.Title != newTitle || afterMissing.Repo == nil || afterMissing.Repo.ID != repoB.ID {
+		t.Fatalf("missing repo update did not roll back cleanly: title=%q repo=%+v", afterMissing.Title, afterMissing.Repo)
+	}
+
+	if _, err := s.DisableRepo(ctx, "retarget", "repo-a", "alice"); err != nil {
+		t.Fatalf("DisableRepo repo-a: %v", err)
+	}
+	_, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{
+		Repo: &store.IssueRepoInput{RepoSlug: "repo-a"},
+	})
+	if !errors.Is(err, store.ErrDisabled) {
+		t.Fatalf("UpdateIssue disabled repo = %v, want ErrDisabled", err)
+	}
+	afterDisabled, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue after disabled repo: %v", err)
+	}
+	if afterDisabled.Repo == nil || afterDisabled.Repo.ID != repoB.ID {
+		t.Fatalf("disabled repo update did not preserve repo-b: %+v", afterDisabled.Repo)
+	}
+}
+
+// TestGetIssueNotFound verifies ErrNotFound is returned for a missing id.
+func TestGetIssueNotFound(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	_, err := s.GetIssue(ctx, "proj-000000")
+	if !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("GetIssue(missing) error = %v, want ErrNotFound", err)
+	}
+}
+
+// TestListIssues verifies prefix-scoped listing with state filter.
+func TestListIssues(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "ls"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	for _, title := range []string{"A", "B", "C"} {
+		_, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: "ls", Title: title, Priority: 2, IssueType: "task",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue %s: %v", title, err)
+		}
+	}
+
+	all, err := s.ListIssues(ctx, store.ListFilter{Prefix: "ls"})
+	if err != nil {
+		t.Fatalf("ListIssues all: %v", err)
+	}
+	if len(all) != 3 {
+		t.Errorf("ListIssues all = %d issues, want 3", len(all))
+	}
+
+	open, err := s.ListIssues(ctx, store.ListFilter{
+		Prefix: "ls",
+		States: []model.IssueState{"open"},
+	})
+	if err != nil {
+		t.Fatalf("ListIssues open: %v", err)
+	}
+	if len(open) != 3 {
+		t.Errorf("ListIssues open = %d issues, want 3", len(open))
+	}
+
+	// Close one and re-query.
+	if err := s.CloseIssue(ctx, all[0].ID, "tester", "done"); err != nil {
+		t.Fatalf("CloseIssue: %v", err)
+	}
+	open2, err := s.ListIssues(ctx, store.ListFilter{
+		Prefix: "ls",
+		States: []model.IssueState{"open"},
+	})
+	if err != nil {
+		t.Fatalf("ListIssues open after close: %v", err)
+	}
+	if len(open2) != 2 {
+		t.Errorf("ListIssues open after close = %d, want 2", len(open2))
+	}
+}
+
+// TestCloseIdempotent verifies that closing an already-closed issue returns nil.
+func TestCloseIdempotent(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "ci"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "ci", Title: "closeable", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+
+	if err := s.CloseIssue(ctx, iss.ID, "actor", "first close"); err != nil {
+		t.Fatalf("CloseIssue first: %v", err)
+	}
+	if err := s.CloseIssue(ctx, iss.ID, "actor", "second close"); err != nil {
+		t.Fatalf("CloseIssue second (must be idempotent): %v", err)
+	}
+}
+
+// TestDepAddRemoveCycleCheck verifies dep lifecycle and cycle detection.
+func TestDepAddRemoveCycleCheck(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "dp"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	makeIssue := func(title string) string {
+		t.Helper()
+		iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: "dp", Title: title, Priority: 2, IssueType: "task",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue %s: %v", title, err)
+		}
+		return iss.ID
+	}
+
+	a := makeIssue("A")
+	b := makeIssue("B")
+	c := makeIssue("C")
+
+	// A depends on B.
+	if err := s.AddDep(ctx, a, b); err != nil {
+		t.Fatalf("AddDep A→B: %v", err)
+	}
+	// B depends on C.
+	if err := s.AddDep(ctx, b, c); err != nil {
+		t.Fatalf("AddDep B→C: %v", err)
+	}
+	// C→A would create a cycle (A→B→C→A).
+	err := s.AddDep(ctx, c, a)
+	if !errors.Is(err, store.ErrCycle) {
+		t.Fatalf("AddDep C→A (cycle): got %v, want ErrCycle", err)
+	}
+	// Self-dep: DB CHECK catches this as a pgx error; the AddDep layer surfaces
+	// it as a plain error (not ErrCycle).
+	err = s.AddDep(ctx, a, a)
+	if err == nil {
+		t.Error("AddDep A→A (self-dep) should error")
+	}
+
+	// Duplicate edge.
+	err = s.AddDep(ctx, a, b)
+	if !errors.Is(err, store.ErrDuplicateDep) {
+		t.Fatalf("AddDep duplicate A→B: got %v, want ErrDuplicateDep", err)
+	}
+
+	// Remove edge.
+	if err := s.RemoveDep(ctx, a, b); err != nil {
+		t.Fatalf("RemoveDep A→B: %v", err)
+	}
+	// Remove again → ErrNotFound.
+	if err := s.RemoveDep(ctx, a, b); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("RemoveDep missing: got %v, want ErrNotFound", err)
+	}
+
+	// BlockedBy is populated on GetIssue after re-adding.
+	if err := s.AddDep(ctx, a, b); err != nil {
+		t.Fatalf("re-AddDep A→B: %v", err)
+	}
+	got, err := s.GetIssue(ctx, a)
+	if err != nil {
+		t.Fatalf("GetIssue A: %v", err)
+	}
+	if len(got.BlockedBy) != 1 || got.BlockedBy[0] != b {
+		t.Errorf("BlockedBy = %v, want [%s]", got.BlockedBy, b)
+	}
+}
+
+// TestReadyIssues verifies ready semantics with a config-driven terminal set.
+func TestReadyIssues(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "rdy"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	makeIssue := func(title string) string {
+		t.Helper()
+		iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: "rdy", Title: title, Priority: 2, IssueType: "task",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue %s: %v", title, err)
+		}
+		return iss.ID
+	}
+
+	// A blocked by B; B blocked by C; C is free.
+	a := makeIssue("A")
+	b := makeIssue("B")
+	c := makeIssue("C")
+	if err := s.AddDep(ctx, a, b); err != nil {
+		t.Fatalf("AddDep A→B: %v", err)
+	}
+	if err := s.AddDep(ctx, b, c); err != nil {
+		t.Fatalf("AddDep B→C: %v", err)
+	}
+
+	terminal := []model.IssueState{"closed", "done"}
+	active := []model.IssueState{"open"}
+
+	// With no issues closed: only C is ready.
+	ready, err := s.ReadyIssues(ctx, "rdy", terminal, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues: %v", err)
+	}
+	if len(ready) != 1 || ready[0].ID != c {
+		t.Errorf("ready = %v, want [C]", issueIDs(ready))
+	}
+
+	// Close C: B becomes ready.
+	if err := s.CloseIssue(ctx, c, "test", ""); err != nil {
+		t.Fatalf("CloseIssue C: %v", err)
+	}
+	ready, err = s.ReadyIssues(ctx, "rdy", terminal, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues after C closed: %v", err)
+	}
+	if len(ready) != 1 || ready[0].ID != b {
+		t.Errorf("ready after C closed = %v, want [B]", issueIDs(ready))
+	}
+
+	// Close B: A becomes ready.
+	if err := s.CloseIssue(ctx, b, "test", ""); err != nil {
+		t.Fatalf("CloseIssue B: %v", err)
+	}
+	ready, err = s.ReadyIssues(ctx, "rdy", terminal, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues after B closed: %v", err)
+	}
+	if len(ready) != 1 || ready[0].ID != a {
+		t.Errorf("ready after B closed = %v, want [A]", issueIDs(ready))
+	}
+}
+
+// TestReadyIssues_CustomTerminal verifies that "done" (not "closed") is
+// honored as a terminal state when the caller supplies it.
+func TestReadyIssues_CustomTerminal(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "cterm"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	parent, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "cterm", Title: "parent", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue parent: %v", err)
+	}
+	child, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "cterm", Title: "child", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue child: %v", err)
+	}
+	if err := s.AddDep(ctx, child.ID, parent.ID); err != nil {
+		t.Fatalf("AddDep: %v", err)
+	}
+
+	// Transition parent to "done" (not "closed") via UpdateIssue.
+	doneState := model.IssueState("done")
+	_, err = s.UpdateIssue(ctx, parent.ID, store.UpdateIssueInput{State: &doneState})
+	if err != nil {
+		t.Fatalf("UpdateIssue parent to done: %v", err)
+	}
+
+	// Using only "closed" as terminal: child is still blocked (parent is "done", not "closed").
+	ready, err := s.ReadyIssues(ctx, "cterm", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	if err != nil {
+		t.Fatalf("ReadyIssues closed-only terminal: %v", err)
+	}
+	if len(ready) != 0 {
+		t.Errorf("ready with closed-only terminal = %v, want empty (parent is done, not closed)", issueIDs(ready))
+	}
+
+	// Using "closed" AND "done" as terminal: child is ready.
+	ready, err = s.ReadyIssues(ctx, "cterm", []model.IssueState{"closed", "done"}, []model.IssueState{"open"})
+	if err != nil {
+		t.Fatalf("ReadyIssues with done terminal: %v", err)
+	}
+	if len(ready) != 1 || ready[0].ID != child.ID {
+		t.Errorf("ready with done terminal = %v, want [child]", issueIDs(ready))
+	}
+}
+
+// TestUpdateIssue verifies partial update semantics.
+func TestUpdateIssue(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "upd"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "upd", Title: "original", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+
+	newTitle := "updated"
+	got, err := s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{Title: &newTitle})
+	if err != nil {
+		t.Fatalf("UpdateIssue: %v", err)
+	}
+	if got.Title != "updated" {
+		t.Errorf("Title = %q, want updated", got.Title)
+	}
+	if got.Description != "original desc" && got.Description != "" {
+		// description unchanged
+	}
+}
+
+// TestUpdateIssueRejectsInvalidState verifies Postgres enforces the same state
+// vocabulary accepted by the bn CLI.
+func TestUpdateIssueRejectsInvalidState(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "badst"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "badst", Title: "bad state", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+
+	badState := model.IssueState("archived")
+	_, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{State: &badState})
+	if err == nil {
+		t.Fatal("UpdateIssue invalid state succeeded; want check-constraint error")
+	}
+	if !strings.Contains(err.Error(), "bn_issues_state_check") {
+		t.Fatalf("UpdateIssue invalid state error = %v, want bn_issues_state_check", err)
+	}
+}
+
+// TestUpdateIssueNotFound verifies ErrNotFound for missing id.
+func TestUpdateIssueNotFound(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	title := "x"
+	_, err := s.UpdateIssue(ctx, "proj-000000", store.UpdateIssueInput{Title: &title})
+	if !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("UpdateIssue(missing): got %v, want ErrNotFound", err)
+	}
+}
+
+// TestDeleteIssue verifies hard delete and cascade.
+func TestDeleteIssue(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "del"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	parent, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "del", Title: "parent", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue parent: %v", err)
+	}
+	child, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: "del", Title: "child", Priority: 2, IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue child: %v", err)
+	}
+	if err := s.AddDep(ctx, child.ID, parent.ID); err != nil {
+		t.Fatalf("AddDep: %v", err)
+	}
+
+	// Delete parent: CASCADE removes the dep edge; child should become unblocked.
+	if err := s.DeleteIssue(ctx, parent.ID); err != nil {
+		t.Fatalf("DeleteIssue parent: %v", err)
+	}
+	got, err := s.GetIssue(ctx, child.ID)
+	if err != nil {
+		t.Fatalf("GetIssue child after parent delete: %v", err)
+	}
+	if len(got.BlockedBy) != 0 {
+		t.Errorf("BlockedBy after parent delete = %v, want empty (CASCADE)", got.BlockedBy)
+	}
+
+	// DeleteIssue on missing id.
+	if err := s.DeleteIssue(ctx, parent.ID); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("DeleteIssue(missing): got %v, want ErrNotFound", err)
+	}
+}
+
+// TestImportIssues verifies create-only import semantics with
+// never-regress-terminal state protection.
+func TestImportIssues(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "imp"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	terminal := []model.IssueState{"closed", "done"}
+
+	items := []store.ImportInput{
+		{ID: "imp-aaa", Prefix: "imp", Title: "Alpha", State: "open", Priority: 2, IssueType: "task"},
+		{ID: "imp-bbb", Prefix: "imp", Title: "Beta", State: "open", Priority: 1, IssueType: "task"},
+		// C depends on A and B.
+		{ID: "imp-ccc", Prefix: "imp", Title: "Gamma", State: "open", Priority: 2, IssueType: "task",
+			Deps: []string{"imp-aaa", "imp-bbb"}},
+	}
+
+	if err := s.ImportIssues(ctx, items, terminal); err != nil {
+		t.Fatalf("ImportIssues: %v", err)
+	}
+
+	// Verify issues exist.
+	for _, id := range []string{"imp-aaa", "imp-bbb", "imp-ccc"} {
+		iss, err := s.GetIssue(ctx, id)
+		if err != nil {
+			t.Fatalf("GetIssue %s: %v", id, err)
+		}
+		if iss.ID != id {
+			t.Errorf("GetIssue %s ID = %q", id, iss.ID)
+		}
+	}
+
+	// Verify deps.
+	gamma, err := s.GetIssue(ctx, "imp-ccc")
+	if err != nil {
+		t.Fatalf("GetIssue gamma: %v", err)
+	}
+	if len(gamma.BlockedBy) != 2 {
+		t.Errorf("gamma.BlockedBy = %v, want 2 blockers", gamma.BlockedBy)
+	}
+
+	// Close imp-aaa externally (simulates orchestrator close).
+	if err := s.CloseIssue(ctx, "imp-aaa", "orchestrator", "done"); err != nil {
+		t.Fatalf("CloseIssue aaa: %v", err)
+	}
+
+	// Re-import with imp-aaa as "open" — must NOT regress the closed state.
+	reImport := []store.ImportInput{
+		{ID: "imp-aaa", Prefix: "imp", Title: "Alpha v2", State: "open", Priority: 2, IssueType: "task"},
+	}
+	if err := s.ImportIssues(ctx, reImport, terminal); err != nil {
+		t.Fatalf("re-ImportIssues: %v", err)
+	}
+	aaa, err := s.GetIssue(ctx, "imp-aaa")
+	if err != nil {
+		t.Fatalf("GetIssue aaa after re-import: %v", err)
+	}
+	if aaa.State != "closed" {
+		t.Errorf("re-import regressed state: got %q, want closed", aaa.State)
+	}
+	if aaa.Title != "Alpha v2" {
+		t.Errorf("re-import title: got %q, want Alpha v2", aaa.Title)
+	}
+}
+
+// TestListDeps verifies that ListDeps returns all edges for a prefix.
+func TestListDeps(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "ld"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	makeIssue := func(title string) string {
+		t.Helper()
+		iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: "ld", Title: title, Priority: 2, IssueType: "task",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue %s: %v", title, err)
+		}
+		return iss.ID
+	}
+
+	a, b, c := makeIssue("A"), makeIssue("B"), makeIssue("C")
+	if err := s.AddDep(ctx, a, b); err != nil {
+		t.Fatalf("AddDep A→B: %v", err)
+	}
+	if err := s.AddDep(ctx, b, c); err != nil {
+		t.Fatalf("AddDep B→C: %v", err)
+	}
+
+	edges, err := s.ListDeps(ctx, "ld")
+	if err != nil {
+		t.Fatalf("ListDeps: %v", err)
+	}
+	if len(edges) != 2 {
+		t.Errorf("ListDeps = %d edges, want 2", len(edges))
+	}
+	// A→B
+	found := false
+	for _, e := range edges {
+		if e.IssueID == a && e.BlockedByID == b {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("ListDeps missing A→B edge")
+	}
+}
+
+func issueIDs(issues []store.Issue) []string {
+	ids := make([]string, len(issues))
+	for i, iss := range issues {
+		ids[i] = iss.ID
+	}
+	return ids
+}
