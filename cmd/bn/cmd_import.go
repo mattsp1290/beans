@@ -37,6 +37,21 @@ type bdExportDep struct {
 	Type      string `json:"type"`          // "blocks" or other
 }
 
+type importSummary struct {
+	DryRun                    bool `json:"dry_run"`
+	Parsed                    int  `json:"parsed"`
+	Warnings                  int  `json:"warnings"`
+	Created                   int  `json:"created"`
+	Updated                   int  `json:"updated"`
+	Skipped                   int  `json:"skipped"`
+	CrossPrefixConflicts      int  `json:"cross_prefix_conflicts"`
+	DepsAdded                 int  `json:"deps_added"`
+	DepsSkippedMissingBlocker int  `json:"deps_skipped_missing_blocker"`
+	DepsSkippedDuplicate      int  `json:"deps_skipped_duplicate"`
+	DepsSkippedSelf           int  `json:"deps_skipped_self"`
+	DepsSkippedCycle          int  `json:"deps_skipped_cycle"`
+}
+
 func newImportCmd(rs *appState) *cobra.Command {
 	var (
 		filePath string
@@ -57,14 +72,20 @@ The bd "status" field maps to state. Priority is 0-indexed in both bd and bn (no
 Dep edges with a blocker not present in the batch or DB are silently skipped (flagged in summary).
 close_reason and owner are not imported.`,
 		Args: cobra.MaximumNArgs(1),
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			if dryRun {
+				prefix, err := resolveProjectPrefix(rs.prefix, false)
+				if err != nil {
+					return err
+				}
+				rs.prefix = prefix
+				return nil
+			}
+			return rs.initConn(cmd.Context())
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
-			}
-
-			// B2: auto-register project so import doesn't FK-fail on first run.
-			if err := rs.store.EnsureProject(cmd.Context(), rs.prefix); err != nil {
-				return fmt.Errorf("import: ensure project: %w", err)
 			}
 
 			// Resolve input source: positional arg > --file flag > stdin.
@@ -85,7 +106,7 @@ close_reason and owner are not imported.`,
 				defer f.Close()
 				r = f
 			default:
-				r = os.Stdin
+				r = cmd.InOrStdin()
 			}
 
 			// Parse mode.
@@ -106,8 +127,17 @@ close_reason and owner are not imported.`,
 			}
 
 			if dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "dry-run: would import %d issues (%d parse warnings)\n", len(items), parseWarnings)
-				return nil
+				summary := importSummary{
+					DryRun:   true,
+					Parsed:   len(items),
+					Warnings: parseWarnings,
+				}
+				return writeImportSummary(cmd, rs.jsonOut, summary)
+			}
+
+			// B2: auto-register project so import doesn't FK-fail on first run.
+			if err := rs.store.EnsureProject(cmd.Context(), rs.prefix); err != nil {
+				return fmt.Errorf("import: ensure project: %w", err)
 			}
 
 			result, err := rs.store.ImportIssuesFull(cmd.Context(), items, store.ImportOptions{
@@ -118,25 +148,12 @@ close_reason and owner are not imported.`,
 				return fmt.Errorf("import: %w", err)
 			}
 
-			if rs.jsonOut {
-				return writeJSON(map[string]int{
-					"created":                      result.Created,
-					"updated":                      result.Updated,
-					"skipped":                      result.Skipped,
-					"deps_added":                   result.DepsAdded,
-					"deps_skipped_missing_blocker": result.DepsSkippedMissingBlocker,
-				})
+			summary := importSummaryFromResult(result, len(items), parseWarnings)
+			if err := writeImportSummary(cmd, rs.jsonOut, summary); err != nil {
+				return err
 			}
-
-			w := cmd.OutOrStdout()
-			fmt.Fprintf(w, "Import complete: created=%d updated=%d skipped=%d deps_added=%d",
-				result.Created, result.Updated, result.Skipped, result.DepsAdded)
-			if result.DepsSkippedMissingBlocker > 0 {
-				fmt.Fprintf(w, " deps_skipped(missing_blocker)=%d", result.DepsSkippedMissingBlocker)
-			}
-			fmt.Fprintln(w)
 			if parseWarnings > 0 {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d lines skipped (parse errors)\n", parseWarnings)
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d lines skipped\n", parseWarnings)
 			}
 			return nil
 		},
@@ -146,6 +163,55 @@ close_reason and owner are not imported.`,
 	cmd.Flags().StringVar(&mode, "mode", "create-only", "import mode: create-only|merge")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "parse and count only, no DB writes")
 	return cmd
+}
+
+func importSummaryFromResult(result store.ImportResult, parsed, warnings int) importSummary {
+	return importSummary{
+		Parsed:                    parsed,
+		Warnings:                  warnings,
+		Created:                   result.Created,
+		Updated:                   result.Updated,
+		Skipped:                   result.Skipped,
+		CrossPrefixConflicts:      result.CrossPrefixConflicts,
+		DepsAdded:                 result.DepsAdded,
+		DepsSkippedMissingBlocker: result.DepsSkippedMissingBlocker,
+		DepsSkippedDuplicate:      result.DepsSkippedDuplicate,
+		DepsSkippedSelf:           result.DepsSkippedSelf,
+		DepsSkippedCycle:          result.DepsSkippedCycle,
+	}
+}
+
+func writeImportSummary(cmd *cobra.Command, jsonOut bool, summary importSummary) error {
+	if jsonOut {
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		enc.SetIndent("", "  ")
+		return enc.Encode(summary)
+	}
+
+	w := cmd.OutOrStdout()
+	if summary.DryRun {
+		fmt.Fprintf(w, "dry-run: would import %d issues (%d warnings)\n", summary.Parsed, summary.Warnings)
+		return nil
+	}
+	fmt.Fprintf(w, "Import complete: created=%d updated=%d skipped=%d deps_added=%d",
+		summary.Created, summary.Updated, summary.Skipped, summary.DepsAdded)
+	if summary.CrossPrefixConflicts > 0 {
+		fmt.Fprintf(w, " cross_prefix_conflicts=%d", summary.CrossPrefixConflicts)
+	}
+	if summary.DepsSkippedMissingBlocker > 0 {
+		fmt.Fprintf(w, " deps_skipped(missing_blocker)=%d", summary.DepsSkippedMissingBlocker)
+	}
+	if summary.DepsSkippedDuplicate > 0 {
+		fmt.Fprintf(w, " deps_skipped(duplicate)=%d", summary.DepsSkippedDuplicate)
+	}
+	if summary.DepsSkippedSelf > 0 {
+		fmt.Fprintf(w, " deps_skipped(self)=%d", summary.DepsSkippedSelf)
+	}
+	if summary.DepsSkippedCycle > 0 {
+		fmt.Fprintf(w, " deps_skipped(cycle)=%d", summary.DepsSkippedCycle)
+	}
+	fmt.Fprintln(w)
+	return nil
 }
 
 // parseImportJSONL parses a bd-export-compatible JSONL stream into ImportInputs.

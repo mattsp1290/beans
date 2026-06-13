@@ -52,6 +52,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newDeleteCmd(rs),
 		newDepCmd(rs),
 		newRepoCmd(rs),
+		newExportCmd(rs),
 		newImportCmd(rs),
 		newRememberCmd(rs),
 		newMemoriesCmd(rs),
