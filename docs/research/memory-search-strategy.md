@@ -37,6 +37,8 @@ Correctness contract shared by all adapters:
   present on the memory.
 - `MemoryFilter.Limit <= 0` uses `defaultMemoryLimit`.
 - Empty query returns recent memories ordered by `created_at DESC, id DESC`.
+- Whitespace-only query strings are normalized to the empty-query path before
+  adapter dispatch.
 - Non-empty query returns only memories that match the backend's text-search
   query semantics.
 - Ties after backend rank are ordered by `created_at DESC, id DESC`.
@@ -60,11 +62,22 @@ Ranking contract:
 
 The adapter owns query construction and any dialect-specific DDL names. The
 store-facing API remains `SearchMemories(ctx, query string, f MemoryFilter)`.
+The `id DESC` tie-break is an intentional tightening over the current Postgres
+implementation, which only sorts equal-rank rows by `created_at DESC`.
+
+MySQL FULLTEXT has server-level stopword and minimum-token behavior. Short terms
+or common stopwords may be ignored even when the memory body visibly contains the
+raw text. That behavior is backend-specific and should be covered by MySQL
+expectation tests; cross-dialect fixtures should use unambiguous searchable terms.
+Queries that reduce to no searchable MySQL terms should return an empty result
+without falling back silently to `LIKE`.
 
 ## Fallback Policy
 
 A portable `LIKE` search may exist only as an explicitly marked degraded mode,
-not the normal path for supported drivers. It is acceptable for:
+for example `MemorySearchModeDegradedLike` selected from an explicit store
+configuration or test hook. It is not the normal path for supported drivers. It
+is acceptable for:
 
 - emergency compatibility when FTS objects are missing and the caller chooses a
   degraded mode;
@@ -100,10 +113,38 @@ CREATE INDEX bn_memory_tags_tag_idx ON bn_memory_tags (tag, memory_id);
 ```
 
 `InsertMemory` should write `bn_memories` and normalized tag rows in the same
-transaction. `SearchMemories` should filter requested tags with a join plus
-`GROUP BY memory_id HAVING COUNT(DISTINCT tag) = ?`, or an equivalent
-dialect-safe subquery. The JSON `tags` column may remain as the API round-trip
-storage for now, but search filtering should not depend on JSON containment.
+transaction. Tags remain case-sensitive, matching the current JSON array
+semantics. Duplicate tags in input or stored JSON should collapse to one
+`(memory_id, tag)` row because the primary key is `(memory_id, tag)`.
+
+`SearchMemories` should filter requested tags through a subquery that returns
+matching memory IDs, then join or `WHERE id IN (...)` in the outer memory search
+query:
+
+```sql
+SELECT memory_id
+FROM bn_memory_tags
+WHERE tag IN (?)
+GROUP BY memory_id
+HAVING COUNT(DISTINCT tag) = ?
+```
+
+Do not select full `bn_memories` columns in the grouped tag query; MySQL
+`ONLY_FULL_GROUP_BY` can reject that shape. The JSON `tags` column may remain as
+the API round-trip storage for now, but search filtering should not depend on
+JSON containment.
+
+Migration/backfill requirement:
+
+- The migration that introduces `bn_memory_tags` must backfill it from every
+  existing `bn_memories.tags` value before search switches to the normalized
+  table.
+- Backfill must be idempotent and preserve current `encodedLabels` semantics:
+  tags are case-sensitive, duplicate stored JSON values produce one tag row, and
+  invalid or non-array payloads fail migration rather than silently dropping
+  tags.
+- Upgrade tests must insert memories through the old JSON-only shape, run the
+  migration, and verify tag-filtered `SearchMemories` still finds the same rows.
 
 This tag decision overlaps `beans-mhs`; if that bead chooses a different
 implementation, this memory-search strategy must still preserve the all-tags
@@ -121,6 +162,10 @@ objects:
 - SQLite: FTS5 virtual table with external-content sync. Use triggers or an
   explicit transaction helper so insert/update/delete of `bn_memories` and FTS
   rows stay consistent.
+- SQLite: the FTS5 table must use `content='bn_memories'` and
+  `content_rowid='id'`, or an equivalent design where FTS `rowid` is always equal
+  to `bn_memories.id`. Triggers or the explicit transaction helper must write FTS
+  rows with `rowid = new.id`.
 - All dialects: `created_at` and `id` are available for deterministic tie-breaks.
 - All dialects: tag index/table supports all-tags filtering.
 
@@ -143,6 +188,15 @@ Adapter implementation rules:
 - Use bound parameters for all user input.
 - Never concatenate raw query terms into FTS expressions.
 - Normalize empty/whitespace-only query strings to the empty-query path.
+- Treat `SearchMemories` input as plain user text for every adapter. PostgreSQL
+  keeps `plainto_tsquery`; MySQL natural-language mode may bind the plain text
+  directly; SQLite must transform plain text into a valid FTS5 query by
+  tokenizing and quoting/escaping terms, or by using a documented helper that
+  returns a safe no-match query for input that cannot be represented.
+- SQLite input containing quotes, boolean operators, `NEAR`, wildcard
+  characters, punctuation, or unmatched syntax must not surface an FTS syntax
+  error for ordinary CLI/store search. Inputs that reduce to no searchable terms
+  return no matches unless the raw input was whitespace-only.
 - Apply scope, type, tags, limit, and tie-break ordering in every adapter.
 - Return `Memory` values with UTC `CreatedAt`, decoded `Tags`, and stable JSON
   output behavior.
@@ -167,19 +221,29 @@ Cross-dialect contract tests:
 - Empty query orders by `created_at DESC, id DESC`.
 - Type filter returns only exact matching `mtype` rows.
 - Tags filter requires all requested tags and does not match partial tag sets.
+- Tags filter works through the normalized tag table under a MySQL
+  `ONLY_FULL_GROUP_BY` configuration.
 - Limit truncates results after filters and ordering.
 - Non-empty query includes matching rows and excludes clearly non-matching rows.
 - Whitespace-only query uses the empty-query path.
 - Results decode tags and normalize `CreatedAt` to UTC.
+- Upgrade/backfill tests preserve tag-filtered search for memories that existed
+  before `bn_memory_tags`.
 
 Dialect expectation tests:
 
 - PostgreSQL: verifies `plainto_tsquery` behavior that the Postgres adapter
   intentionally keeps, including a stable rank fixture with `ts_rank`.
 - MySQL: verifies `MATCH ... AGAINST` returns expected matches and uses
-  backend-specific rank ordering when scores differ.
+  backend-specific rank ordering when scores differ. Include one searchable token,
+  one short-token case, and one stopword/common-word case to document server
+  default behavior.
 - SQLite: verifies FTS5 `MATCH` and `bm25` ordering, plus FTS table sync after
-  inserting memories.
+  inserting memories. Include quotes, punctuation, `AND`/`OR`/`NEAR`, wildcard
+  characters, and unmatched double quotes to prove plain-text normalization does
+  not expose raw FTS5 query syntax. Verify rows returned from FTS have the same
+  `id` and `body` as the base `bn_memories` row after insert and any future
+  update/delete path.
 - Fallback mode, if implemented, escapes wildcard characters and is not used
   silently when FTS objects are missing.
 
