@@ -6,7 +6,16 @@
 set -euo pipefail
 
 if [ ! -d ".beads" ]; then
-  bd init
+  bd init --non-interactive
+fi
+
+if bd ready >/dev/null 2>&1; then
+  existing_count=$(bd list --json 2>/dev/null | jq 'length')
+  if [ "${existing_count:-0}" -gt 0 ]; then
+    echo "Refusing to create duplicate graph: existing beads found." >&2
+    echo "Use 'bd ready' to inspect current work." >&2
+    exit 1
+  fi
 fi
 
 echo "Creating GORM multi-database migration bead graph..."
@@ -61,6 +70,13 @@ CHAR_REPO=$(bd create 'Add characterization tests for repo registry behavior: Cr
 bd dep add "$CHAR_REPO" "$ANALYZE_TESTS"
 bd dep add "$CHAR_REPO" "$DESIGN_ADMIN_BOOTSTRAP_LOCK"
 
+IMPORT_PARSER_TESTS=$(bd create 'Add focused bn import parser and CLI summary tests from docs/prompts/bn-import-plan.md: bd JSONL field mapping, dependency filtering, malformed/missing/invalid rows, blank/comment lines, dry-run JSON shape, command stdin behavior, and no project registration during dry-run. Reservation note: cmd/bn/cmd_import_test.go and cmd/bn/cmd_import.go.' -p 0 --label prep --silent)
+bd dep add "$IMPORT_PARSER_TESTS" "$ANALYZE_TESTS"
+
+IMPORT_STORE_CONTRACT=$(bd create 'Add ImportIssuesFull contract coverage from docs/prompts/bn-import-plan.md: create-only idempotency, merge terminal-state truth table, cross-prefix conflicts, duplicate IDs/edges, missing blockers, self-deps, cycle skips, and DB-effect-based created/updated/skipped/deps counts. Reservation note: store/store_integration_test.go and store/store.go.' -p 0 --label prep --silent)
+bd dep add "$IMPORT_STORE_CONTRACT" "$CHAR_STORE"
+bd dep add "$IMPORT_STORE_CONTRACT" "$DESIGN_CYCLE_ISOLATION"
+
 # ========================================
 # Phase 2: Foundational Implementation
 # ========================================
@@ -104,6 +120,7 @@ bd dep add "$STORE_CORE" "$ERRORS"
 bd dep add "$STORE_CORE" "$API_CONTRACT"
 bd dep add "$STORE_CORE" "$DESIGN_CYCLE_ISOLATION"
 bd dep add "$STORE_CORE" "$INLINE_NOW_PLAN"
+bd dep add "$STORE_CORE" "$IMPORT_STORE_CONTRACT"
 
 REPO_STORE=$(bd create 'Convert store/repo_store.go to GORM: replace pgx transactions, ON CONFLICT/RETURNING, pgx.ErrNoRows, dynamic $N update builder, JSONB metadata/audit scans, and pg_advisory_xact_lock first-admin bootstrap with portable GORM or dialect-aware SQL. Reservation note: store/repo_store.go exclusively.' -p 0 --label impl --silent)
 bd dep add "$REPO_STORE" "$STORE_CORE"
@@ -130,6 +147,7 @@ CONTRACT_SQLITE=$(bd create 'Build default no-Docker SQLite store-contract suite
 bd dep add "$CONTRACT_SQLITE" "$STORE_CORE"
 bd dep add "$CONTRACT_SQLITE" "$REPO_STORE"
 bd dep add "$CONTRACT_SQLITE" "$MEMORY_SEARCH"
+bd dep add "$CONTRACT_SQLITE" "$IMPORT_STORE_CONTRACT"
 
 CONTRACT_CONTAINERS=$(bd create 'Generalize store/store_integration_test.go into a dialect-parameterized contract suite for Postgres and MySQL testcontainers plus SQLite: one storeContractTest(t, openFn) with dialect expectation hooks for FTS ranking, isolation, timestamp precision, and constraint/error text.' -p 0 --label testing --silent)
 bd dep add "$CONTRACT_CONTAINERS" "$CONTRACT_SQLITE"

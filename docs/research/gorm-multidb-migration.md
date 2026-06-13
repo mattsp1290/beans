@@ -42,6 +42,11 @@ pool via `db.DB()` → `SetMaxOpenConns` / `SetMaxIdleConns`.
 
 ## The two hard problems
 
+This section covers the FTS and tag-containment design space in detail. The
+full migration inventory also needs the repo-admin bootstrap lock, schema
+session locking, pool/config/error normalization, inline timestamp SQL, command
+help text, and timezone behavior called out in the task graph.
+
 ### 1. Full-text search (`bn_memories` / `SearchMemories`)
 
 This is the single feature with **no GORM abstraction**. Postgres uses a `tsv`

@@ -90,8 +90,10 @@ in-process).
   prune now-unused `pgx`/`puddle` if fully removed.
 
 ### Success Criteria
-1. All three backends (PostgreSQL, MySQL, SQLite) pass the **same** store-contract
-   integration suite — identical assertions, parameterized only by dialector.
+1. All three backends (PostgreSQL, MySQL, SQLite) pass the same store-contract
+   suite harness. Assertions are shared for backend-independent semantics, while
+   documented dialect expectation hooks cover FTS ranking, isolation/concurrency
+   behavior, timestamp precision, and dialect-specific error text.
 2. Existing Postgres behavior is **semantically** preserved (idempotent close,
    never-regress-terminal import, cycle rejection, ready-issue semantics, memory
    search). Note this is *semantic* preservation, not "every current test passes
