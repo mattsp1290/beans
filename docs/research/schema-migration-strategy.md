@@ -68,15 +68,24 @@ validation.
 
 ## Migration API
 
-`schema.Migrate` should accept the opened SQL/GORM handle and explicit driver:
+`schema.Migrate` should accept the opened SQL/GORM handle and explicit driver.
+Use a package-local driver type to avoid a `schema -> store -> schema` import
+cycle:
 
 ```go
-func Migrate(ctx context.Context, db *sql.DB, driver store.Driver) error
+type Driver string
+
+const (
+	DriverPostgres Driver = "postgres"
+	DriverMySQL    Driver = "mysql"
+	DriverSQLite   Driver = "sqlite"
+)
+
+func Migrate(ctx context.Context, db *sql.DB, driver Driver) error
 ```
 
-or an equivalent package-local driver type if importing `store` from `schema`
-would create a cycle. The driver value must come from `store.Config.Driver`; do
-not infer the dialect again from the DSN in `schema`.
+`store.Config.Driver` should be converted to `schema.Driver` at the call site.
+Do not infer the dialect again from the DSN in `schema`.
 
 Responsibilities:
 
@@ -98,11 +107,16 @@ dialects in this repo version. The runner should use:
 | --- | --- | --- |
 | `postgres` | `goose.DialectPostgres` | Existing Postgres session locker or goose-supported Postgres locking. |
 | `mysql` | `goose.DialectMysql` | Goose-supported MySQL locking if available; otherwise a repo-local lock table or named-lock helper documented in code. |
-| `sqlite` | `goose.DialectSQLite3` or current goose SQLite dialect constant | No process-global lock is required for single-process tests; production/file SQLite should rely on SQLite writer serialization or a simple repo-local lock table if goose supports none. |
+| `sqlite` | `goose.DialectSQLite3` or current goose SQLite dialect constant | Migrations must run under a runner-level SQLite write lock acquired before goose checks/applies versions, for example `BEGIN IMMEDIATE` on the migration connection with busy-timeout/retry handling, or a repo-local lock table if goose cannot provide that boundary. |
 
 Do not keep a Postgres advisory locker for non-Postgres drivers. If goose's lock
 support is insufficient for MySQL or SQLite, implement a small migration lock
 adapter rather than weakening the migration contract.
+
+The migration version table must be package-owned and explicit, for example
+`bn_schema_versions`. Do not rely on a shared/default `goose_db_version` table
+unless a compatibility migration deliberately chooses and documents that name.
+Tests must assert the selected version metadata table for every driver.
 
 ## Dialect DDL Requirements
 
@@ -115,7 +129,7 @@ The per-dialect migrations must preserve the semantic schema, not textual SQL.
 | Timestamps | `TIMESTAMPTZ` or app-side UTC fields | `DATETIME`/`TIMESTAMP` with UTC policy and `parseTime=true&loc=UTC` | UTC text/datetime convention with scan normalization |
 | State validation | Postgres `CHECK` or app-side validation | MySQL-compatible `CHECK` only if enforced for supported versions; app-side validation remains required | SQLite `CHECK` where portable; app-side validation remains required |
 | Regex path checks | Postgres POSIX regex | Move to Go validation or dialect-specific `REGEXP` only with known support | Move to Go validation |
-| Memory FTS | `tsvector`/GIN or expression index | InnoDB `FULLTEXT` | FTS5 virtual table and sync triggers/helper |
+| Memory FTS | `tsvector`/GIN or expression index | InnoDB `FULLTEXT` | FTS5 external-content table with `content='bn_memories'` and `content_rowid='id'`, or an equivalent documented invariant where FTS `rowid` always equals `bn_memories.id`; sync triggers/helpers must preserve inserts, updates, deletes, and rebuild/backfill paths |
 | Memory tags | `bn_memory_tags` with case-sensitive comparison | `bn_memory_tags.tag` with binary/case-sensitive collation | `bn_memory_tags.tag COLLATE BINARY` |
 | Dependency graph guard | `bn_dep_graph_guard` seed row | same semantic table | same semantic table |
 | Repo admin bootstrap | `bn_project_admin_bootstraps` plus backfill | same semantic table with bounded keys | same semantic table |
@@ -123,6 +137,13 @@ The per-dialect migrations must preserve the semantic schema, not textual SQL.
 Constraints that cannot be expressed consistently in DDL must move to Go
 validation and contract tests. DDL constraints are allowed as extra defense, but
 they cannot be the only enforcement when dialect behavior differs.
+
+MySQL DDL must use explicit bounded types for every indexed, primary-key,
+foreign-key, and unique string column. Do not put unbounded `TEXT` columns in
+primary keys, foreign keys, unique constraints, or ordinary B-tree indexes.
+Columns that require byte-for-byte equality, including memory tags, admin
+actors, slugs, aliases, and path-like keys, must use an explicit case-sensitive
+or binary collation where the default database collation may be case-insensitive.
 
 ## Versioning Rules
 
@@ -138,6 +159,32 @@ they cannot be the only enforcement when dialect behavior differs.
   - dialect FTS objects for `bn_memories`
 - Data backfills and cutover validation must live in migrations, not ad hoc
   application startup code.
+- Dialect-only repair migrations are allowed only when a semantic version step
+  is intentionally no-op for other drivers. Keep the same version/name sequence
+  and make no-op files explicit.
+
+## Backfill and Cutover Requirements
+
+The multi-dialect migration plan must make prior decision backfills testable:
+
+- `bn_project_admin_bootstraps`: backfill exactly one deterministic claim row for
+  every prefix that already has admins, before new bootstrap code is released.
+  Reruns must be idempotent, and post-upgrade `--bootstrap` must return
+  `ErrUnauthorized` for those prefixes.
+- `bn_dep_graph_guard`: seed exactly one guard row before dependency writes use
+  the portable graph lock. Missing guard rows at runtime are migration/corruption
+  errors, not an invitation to run unguarded writes.
+- `bn_memory_tags`: backfill all existing memory tags from `bn_memories.tags`,
+  preserve the normalization/case/duplicate rules in
+  `docs/research/memory-tag-containment.md`, tolerate retry after partial
+  failure, and switch `SearchMemories` tag filtering only after validation
+  succeeds.
+- Memory FTS objects: build or rebuild the backend FTS state before search
+  adapters depend on it. SQLite must validate `fts.rowid == bn_memories.id`;
+  MySQL/Postgres must validate the relevant search index/object exists.
+
+For backends where DDL is not transactional, migrations must be rerunnable and
+perform a final validation query before recording the migration version complete.
 
 ## Listing and Tests
 
@@ -156,19 +203,34 @@ Instead they should assert:
 - each driver includes required semantic objects for issues, deps, memories,
   repo registry, issue repo routing, admin bootstrap, dependency guard, and
   memory tags;
+- each driver uses the package-owned migration version table;
 - Postgres-specific SQL appears only in the Postgres directory;
 - MySQL and SQLite directories do not contain `JSONB`, `TIMESTAMPTZ`,
   `BIGSERIAL`, `tsvector`, `GIN`, `NOT VALID`, or Postgres regex operators.
+- MySQL migrations do not put unbounded string types in indexed, primary-key,
+  foreign-key, or unique columns and use explicit case-sensitive collations where
+  required.
 
 Integration tests should run migrations for SQLite by default and for Postgres
 and MySQL under the integration build tag/container suite.
+SQLite migration tests should include concurrent startup against the same
+file-backed database and verify one runner applies migrations while the other
+waits/retries or observes the completed version set.
+Upgrade fixtures should start from pre-migration databases with existing admins,
+dependencies, memories, and memory tags, then assert backfilled rows and
+post-upgrade behavior. SQLite FTS tests must verify FTS `rowid` equals
+`bn_memories.id` after insert, update, delete, and rebuild/backfill paths.
 
 ## Implementation Checklist
 
 - Move existing SQL files to `schema/migrations/postgres/`.
 - Add `schema/migrations/mysql/` and `schema/migrations/sqlite/`.
 - Change the embed pattern to include nested dialect directories.
+- Keep or replace `Migrations() embed.FS` intentionally: either deprecate it in
+  favor of a dialect-aware `Migrations(driver)` helper, or keep it only for
+  low-level tests. Do not expose an ambiguous single-dialect filesystem.
 - Add driver-aware migration directory selection.
+- Return an explicit error for unknown drivers or missing dialect directories.
 - Add driver-aware goose dialect selection.
 - Replace `*pgxpool.Pool` and `stdlib.OpenDBFromPool` with a `*sql.DB` input.
 - Replace the hardcoded Postgres session locker with driver-aware locking.
