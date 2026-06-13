@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -426,6 +427,178 @@ func TestRepoRegistryValidatesRepoTargets(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "validation") {
 		t.Fatalf("UpdateRepo bad subdir = %v, want validation error", err)
 	}
+}
+
+func TestMemoryInsertAndScopedSearch(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	for _, prefix := range []string{"mem", "other"} {
+		if err := s.EnsureProject(ctx, prefix); err != nil {
+			t.Fatalf("EnsureProject %s: %v", prefix, err)
+		}
+	}
+
+	global, err := s.InsertMemory(ctx, store.MemoryInput{
+		Body: "global reference for alpha",
+		Type: "reference",
+		Tags: []string{"global", "shared"},
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory global: %v", err)
+	}
+	if global.Prefix != nil {
+		t.Fatalf("global prefix = %v, want nil", *global.Prefix)
+	}
+	assertMemoryFields(t, global, "global reference for alpha", "reference", []string{"global", "shared"})
+
+	time.Sleep(10 * time.Millisecond)
+	project, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "mem",
+		Body:   "project design note for alpha",
+		Type:   "project",
+		Tags:   []string{"alpha", "design"},
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory project: %v", err)
+	}
+	if project.Prefix == nil || *project.Prefix != "mem" {
+		t.Fatalf("project prefix = %v, want mem", project.Prefix)
+	}
+	assertMemoryFields(t, project, "project design note for alpha", "project", []string{"alpha", "design"})
+
+	time.Sleep(10 * time.Millisecond)
+	other, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "other",
+		Body:   "other project newest alpha",
+		Type:   "project",
+		Tags:   []string{"alpha", "other"},
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory other: %v", err)
+	}
+
+	scoped, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: "mem", Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories scoped empty: %v", err)
+	}
+	if got, want := memoryIDs(scoped), []int64{project.ID, global.ID}; !slices.Equal(got, want) {
+		t.Fatalf("scoped memory IDs = %v, want %v", got, want)
+	}
+
+	all, err := s.SearchMemories(ctx, "", store.MemoryFilter{All: true, Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories all empty: %v", err)
+	}
+	if got, want := memoryIDs(all), []int64{other.ID, project.ID, global.ID}; !slices.Equal(got, want) {
+		t.Fatalf("all memory IDs = %v, want %v", got, want)
+	}
+
+	tagged, err := s.SearchMemories(ctx, "", store.MemoryFilter{
+		Prefix: "mem",
+		Tags:   []string{"alpha", "design"},
+		Limit:  10,
+	})
+	if err != nil {
+		t.Fatalf("SearchMemories tags: %v", err)
+	}
+	if got, want := memoryIDs(tagged), []int64{project.ID}; !slices.Equal(got, want) {
+		t.Fatalf("tagged memory IDs = %v, want %v", got, want)
+	}
+
+	typed, err := s.SearchMemories(ctx, "", store.MemoryFilter{
+		Prefix: "mem",
+		Type:   "reference",
+		Limit:  10,
+	})
+	if err != nil {
+		t.Fatalf("SearchMemories type: %v", err)
+	}
+	if got, want := memoryIDs(typed), []int64{global.ID}; !slices.Equal(got, want) {
+		t.Fatalf("typed memory IDs = %v, want %v", got, want)
+	}
+
+	limited, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: "mem", Limit: 1})
+	if err != nil {
+		t.Fatalf("SearchMemories limit: %v", err)
+	}
+	if got, want := memoryIDs(limited), []int64{project.ID}; !slices.Equal(got, want) {
+		t.Fatalf("limited memory IDs = %v, want %v", got, want)
+	}
+}
+
+func TestMemoryFullTextSearch(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "fts"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	match, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "fts",
+		Body:   "quantum llama search fixture",
+		Type:   "reference",
+		Tags:   []string{"search"},
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory match: %v", err)
+	}
+	if _, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "fts",
+		Body:   "ordinary unrelated note",
+		Type:   "reference",
+		Tags:   []string{"other"},
+	}); err != nil {
+		t.Fatalf("InsertMemory non-match: %v", err)
+	}
+
+	found, err := s.SearchMemories(ctx, "quantum llama", store.MemoryFilter{Prefix: "fts", Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories fts match: %v", err)
+	}
+	if got, want := memoryIDs(found), []int64{match.ID}; !slices.Equal(got, want) {
+		t.Fatalf("fts match memory IDs = %v, want %v", got, want)
+	}
+
+	missing, err := s.SearchMemories(ctx, "nonexistentterm", store.MemoryFilter{Prefix: "fts", Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories fts missing: %v", err)
+	}
+	if len(missing) != 0 {
+		t.Fatalf("fts missing returned %v, want empty", memoryIDs(missing))
+	}
+}
+
+func assertMemoryFields(t *testing.T, m store.Memory, body, typ string, tags []string) {
+	t.Helper()
+	if m.ID == 0 {
+		t.Fatal("memory ID = 0, want generated ID")
+	}
+	if m.Body != body {
+		t.Fatalf("memory body = %q, want %q", m.Body, body)
+	}
+	if m.Type == nil || *m.Type != typ {
+		t.Fatalf("memory type = %v, want %q", m.Type, typ)
+	}
+	if !slices.Equal(m.Tags, tags) {
+		t.Fatalf("memory tags = %v, want %v", m.Tags, tags)
+	}
+	if m.CreatedAt.IsZero() {
+		t.Fatal("memory CreatedAt is zero")
+	}
+	if m.CreatedAt.Location() != time.UTC {
+		t.Fatalf("memory CreatedAt location = %v, want UTC", m.CreatedAt.Location())
+	}
+}
+
+func memoryIDs(memories []store.Memory) []int64 {
+	ids := make([]int64, len(memories))
+	for i, m := range memories {
+		ids[i] = m.ID
+	}
+	return ids
 }
 
 // TestCreateAndGetIssue verifies round-trip create → get.
