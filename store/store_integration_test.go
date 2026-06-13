@@ -522,6 +522,12 @@ func TestRepoAdminRemoveSemantics(t *testing.T) {
 	if got, want := strings.Join(admins, ","), "alice"; got != want {
 		t.Fatalf("admins = %q, want %q", got, want)
 	}
+	if err := s.RemoveRepoAdmin(ctx, "repo-admin-remove", "alice", "alice"); !errors.Is(err, store.ErrConflict) {
+		t.Fatalf("RemoveRepoAdmin last admin = %v, want ErrConflict", err)
+	}
+	if err := s.AuthorizeRepoAdmin(ctx, "repo-admin-remove", "alice"); err != nil {
+		t.Fatalf("AuthorizeRepoAdmin alice after last-admin removal attempt: %v", err)
+	}
 }
 
 func TestRepoAuditDirectInsertAndListing(t *testing.T) {

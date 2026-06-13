@@ -172,14 +172,43 @@ func (s *Store) ListRepoAdmins(ctx context.Context, prefix string) ([]string, er
 // already be an admin; this prevents arbitrary BN_DSN holders from stripping
 // repo registry ownership.
 func (s *Store) RemoveRepoAdmin(ctx context.Context, prefix, targetActor, actor string) error {
-	if err := s.AuthorizeRepoAdmin(ctx, prefix, actor); err != nil {
-		return err
-	}
 	pool, err := s.p.conn()
 	if err != nil {
 		return err
 	}
-	tag, err := pool.Exec(ctx,
+
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("store: RemoveRepoAdmin begin tx: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, prefix); err != nil {
+		return fmt.Errorf("store: RemoveRepoAdmin lock: %w", err)
+	}
+	var authorized bool
+	if err := tx.QueryRow(ctx,
+		`SELECT EXISTS (SELECT 1 FROM bn_project_admins WHERE prefix = $1 AND actor = $2)`,
+		prefix, actor,
+	).Scan(&authorized); err != nil {
+		return fmt.Errorf("store: RemoveRepoAdmin authorize: %w", err)
+	}
+	if !authorized {
+		return ErrUnauthorized
+	}
+
+	var adminCount int
+	if err := tx.QueryRow(ctx,
+		`SELECT count(*) FROM bn_project_admins WHERE prefix = $1`,
+		prefix,
+	).Scan(&adminCount); err != nil {
+		return fmt.Errorf("store: RemoveRepoAdmin count admins: %w", err)
+	}
+	if adminCount <= 1 && targetActor == actor {
+		return fmt.Errorf("store: %w: cannot remove last repo admin", ErrConflict)
+	}
+
+	tag, err := tx.Exec(ctx,
 		`DELETE FROM bn_project_admins WHERE prefix = $1 AND actor = $2`,
 		prefix, targetActor,
 	)
@@ -188,6 +217,9 @@ func (s *Store) RemoveRepoAdmin(ctx context.Context, prefix, targetActor, actor 
 	}
 	if tag.RowsAffected() == 0 {
 		return fmt.Errorf("store: %w: repo admin %s", ErrNotFound, targetActor)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("store: RemoveRepoAdmin commit: %w", err)
 	}
 	return nil
 }
