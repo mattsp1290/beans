@@ -1243,6 +1243,78 @@ func TestImportIssuesFullMergeStateTruthTable(t *testing.T) {
 	if terminal.State != "done" || terminal.Title != "Terminal reopened input" {
 		t.Fatalf("terminal after merge = %+v, want done with updated title", terminal)
 	}
+
+	result, err = s.ImportIssuesFull(ctx, []store.ImportInput{
+		{ID: "impm-terminal", Prefix: "impm", Title: "Terminal closed input", State: "closed", Priority: 3, IssueType: "task"},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeMerge})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull terminal merge: %v", err)
+	}
+	if result.Updated != 1 {
+		t.Fatalf("terminal merge result = %+v, want updated=1", result)
+	}
+	terminal, err = s.GetIssue(ctx, "impm-terminal")
+	if err != nil {
+		t.Fatalf("GetIssue terminal after terminal merge: %v", err)
+	}
+	if terminal.State != "done" || terminal.Title != "Terminal closed input" {
+		t.Fatalf("terminal after terminal merge = %+v, want done preserved with updated title", terminal)
+	}
+}
+
+func TestImportIssuesFullConcurrentCreateOnlyRetriesSerialization(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "impr"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	items := []store.ImportInput{
+		{ID: "impr-parent", Prefix: "impr", Title: "Parent", State: "open", Priority: 2, IssueType: "task"},
+		{ID: "impr-child", Prefix: "impr", Title: "Child", State: "open", Priority: 2, IssueType: "task", Deps: []string{"impr-parent"}},
+	}
+	opts := store.ImportOptions{
+		TerminalStates: []model.IssueState{"closed", "done"},
+		Mode:           store.ImportModeCreateOnly,
+	}
+
+	start := make(chan struct{})
+	errs := make(chan error, 2)
+	results := make(chan store.ImportResult, 2)
+	for range 2 {
+		go func() {
+			<-start
+			result, err := s.ImportIssuesFull(ctx, items, opts)
+			if err != nil {
+				errs <- err
+				return
+			}
+			results <- result
+			errs <- nil
+		}()
+	}
+	close(start)
+
+	for i := 0; i < 2; i++ {
+		if err := <-errs; err != nil {
+			t.Fatalf("ImportIssuesFull concurrent import %d: %v", i, err)
+		}
+	}
+
+	var created, skipped, depsAdded, depsSkippedDuplicate int
+	for i := 0; i < 2; i++ {
+		result := <-results
+		created += result.Created
+		skipped += result.Skipped
+		depsAdded += result.DepsAdded
+		depsSkippedDuplicate += result.DepsSkippedDuplicate
+	}
+	if created != 2 || skipped != 2 || depsAdded != 1 || depsSkippedDuplicate != 0 {
+		t.Fatalf("combined results created=%d skipped=%d deps_added=%d deps_duplicate=%d, want 2/2/1/0",
+			created, skipped, depsAdded, depsSkippedDuplicate)
+	}
 }
 
 func TestImportIssuesFullSkipsCrossPrefixConflicts(t *testing.T) {

@@ -880,7 +880,7 @@ type ImportResult struct {
 
 // ImportIssuesFull loads a batch of issues with configurable mode and returns
 // counts. It resolves B1 (dangling-dep FK abort): pass-2 only inserts edges
-// whose blocked_by_id is either in the import batch or already in the DB.
+// whose blocked_by_id exists in the destination prefix.
 //
 // Deps are inserted in a second pass (all issues first, then edges) to avoid
 // FK forward-reference failures. The entire batch runs in one transaction.
@@ -890,6 +890,21 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 	}
 	items = dedupeImportInputs(items)
 
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		result, err := s.importIssuesFullOnce(ctx, items, opts)
+		if err == nil {
+			return result, nil
+		}
+		if !isSerializationFailure(err) {
+			return ImportResult{}, err
+		}
+		lastErr = err
+	}
+	return ImportResult{}, lastErr
+}
+
+func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, opts ImportOptions) (ImportResult, error) {
 	pool, err := s.p.conn()
 	if err != nil {
 		return ImportResult{}, err
@@ -952,7 +967,6 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 					priority    = EXCLUDED.priority,
 					issue_type  = EXCLUDED.issue_type,
 					state       = CASE WHEN bn_issues.state = ANY($11::text[])
-					                    AND NOT (EXCLUDED.state = ANY($11::text[]))
 					                   THEN bn_issues.state
 					                   ELSE EXCLUDED.state END,
 					labels      = EXCLUDED.labels,
@@ -979,8 +993,8 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 	}
 
 	// Pass 2: insert dep edges for written items only.
-	// Only insert edges where blocked_by_id is in validBlocker (batch or DB)
-	// to avoid FK violations on dangling references.
+	// Only insert edges whose blocker exists in the destination prefix to avoid
+	// FK violations and cross-prefix graph leakage.
 	for _, item := range items {
 		if !written[item.ID] {
 			continue
@@ -1629,6 +1643,14 @@ func isDupKeyConflict(err error) bool {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		return pgErr.Code == "23505"
+	}
+	return false
+}
+
+func isSerializationFailure(err error) bool {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "40001"
 	}
 	return false
 }
