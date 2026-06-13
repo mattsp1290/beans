@@ -469,6 +469,17 @@ func TestMemoryInsertAndScopedSearch(t *testing.T) {
 	assertMemoryFields(t, project, "project design note for alpha", "project", []string{"alpha", "design"})
 
 	time.Sleep(10 * time.Millisecond)
+	partialTag, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "mem",
+		Body:   "project note with only alpha",
+		Type:   "project",
+		Tags:   []string{"alpha"},
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory partial tag: %v", err)
+	}
+
+	time.Sleep(10 * time.Millisecond)
 	other, err := s.InsertMemory(ctx, store.MemoryInput{
 		Prefix: "other",
 		Body:   "other project newest alpha",
@@ -483,15 +494,23 @@ func TestMemoryInsertAndScopedSearch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SearchMemories scoped empty: %v", err)
 	}
-	if got, want := memoryIDs(scoped), []int64{project.ID, global.ID}; !slices.Equal(got, want) {
+	if got, want := memoryIDs(scoped), []int64{partialTag.ID, project.ID, global.ID}; !slices.Equal(got, want) {
 		t.Fatalf("scoped memory IDs = %v, want %v", got, want)
 	}
+	if scoped[0].Prefix == nil || *scoped[0].Prefix != "mem" {
+		t.Fatalf("scoped[0] prefix = %v, want mem", scoped[0].Prefix)
+	}
+	assertMemoryFields(t, scoped[0], "project note with only alpha", "project", []string{"alpha"})
+	if scoped[2].Prefix != nil {
+		t.Fatalf("scoped[2] prefix = %v, want nil global prefix", *scoped[2].Prefix)
+	}
+	assertMemoryFields(t, scoped[2], "global reference for alpha", "reference", []string{"global", "shared"})
 
 	all, err := s.SearchMemories(ctx, "", store.MemoryFilter{All: true, Limit: 10})
 	if err != nil {
 		t.Fatalf("SearchMemories all empty: %v", err)
 	}
-	if got, want := memoryIDs(all), []int64{other.ID, project.ID, global.ID}; !slices.Equal(got, want) {
+	if got, want := memoryIDs(all), []int64{other.ID, partialTag.ID, project.ID, global.ID}; !slices.Equal(got, want) {
 		t.Fatalf("all memory IDs = %v, want %v", got, want)
 	}
 
@@ -523,8 +542,80 @@ func TestMemoryInsertAndScopedSearch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SearchMemories limit: %v", err)
 	}
-	if got, want := memoryIDs(limited), []int64{project.ID}; !slices.Equal(got, want) {
+	if got, want := memoryIDs(limited), []int64{partialTag.ID}; !slices.Equal(got, want) {
 		t.Fatalf("limited memory IDs = %v, want %v", got, want)
+	}
+}
+
+func TestMemoryEmptySearchUsesIDTieBreak(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	connStr := testPostgresDSN(t, ctx)
+	s, err := store.New(ctx, store.Config{
+		DSN:      store.SecretDSN(connStr),
+		MaxConns: 4,
+	})
+	if err != nil {
+		t.Fatalf("store.New: %v", err)
+	}
+	defer s.Close()
+
+	if err := s.EnsureProject(ctx, "tie"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	first, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "tie",
+		Body:   "first equal timestamp",
+		Type:   "project",
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory first: %v", err)
+	}
+	second, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "tie",
+		Body:   "second equal timestamp",
+		Type:   "project",
+	})
+	if err != nil {
+		t.Fatalf("InsertMemory second: %v", err)
+	}
+
+	db, err := sql.Open("pgx", connStr)
+	if err != nil {
+		t.Fatalf("sql.Open: %v", err)
+	}
+	defer db.Close()
+	if _, err := db.ExecContext(ctx,
+		`UPDATE bn_memories SET created_at = $1 WHERE id IN ($2, $3)`,
+		first.CreatedAt, first.ID, second.ID,
+	); err != nil {
+		t.Fatalf("force equal created_at: %v", err)
+	}
+
+	scoped, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: "tie", Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories scoped tie: %v", err)
+	}
+	if got, want := memoryIDs(scoped), []int64{second.ID, first.ID}; !slices.Equal(got, want) {
+		t.Fatalf("scoped tie memory IDs = %v, want %v", got, want)
+	}
+
+	all, err := s.SearchMemories(ctx, "", store.MemoryFilter{All: true, Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories all tie: %v", err)
+	}
+	if got, want := memoryIDs(all), []int64{second.ID, first.ID}; !slices.Equal(got, want) {
+		t.Fatalf("all tie memory IDs = %v, want %v", got, want)
+	}
+
+	limited, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: "tie", Limit: 1})
+	if err != nil {
+		t.Fatalf("SearchMemories tie limit: %v", err)
+	}
+	if got, want := memoryIDs(limited), []int64{second.ID}; !slices.Equal(got, want) {
+		t.Fatalf("limited tie memory IDs = %v, want %v", got, want)
 	}
 }
 
@@ -568,6 +659,18 @@ func TestMemoryFullTextSearch(t *testing.T) {
 	}
 	if len(missing) != 0 {
 		t.Fatalf("fts missing returned %v, want empty", memoryIDs(missing))
+	}
+
+	empty, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: "fts", Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories empty: %v", err)
+	}
+	whitespace, err := s.SearchMemories(ctx, " \t\n ", store.MemoryFilter{Prefix: "fts", Limit: 10})
+	if err != nil {
+		t.Fatalf("SearchMemories whitespace: %v", err)
+	}
+	if got, want := memoryIDs(whitespace), memoryIDs(empty); !slices.Equal(got, want) {
+		t.Fatalf("whitespace memory IDs = %v, want empty-query IDs %v", got, want)
 	}
 }
 

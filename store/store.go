@@ -1130,6 +1130,7 @@ func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter
 	if err != nil {
 		return nil, err
 	}
+	query = strings.TrimSpace(query)
 
 	limit := f.Limit
 	if limit <= 0 {
@@ -1169,9 +1170,9 @@ func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter
 	}
 
 	if query != "" {
-		q += " ORDER BY ts_rank(tsv, plainto_tsquery('english', " + queryPlaceholder + ")) DESC, created_at DESC"
+		q += " ORDER BY ts_rank(tsv, plainto_tsquery('english', " + queryPlaceholder + ")) DESC, created_at DESC, id DESC"
 	} else {
-		q += " ORDER BY created_at DESC"
+		q += " ORDER BY created_at DESC, id DESC"
 	}
 
 	q += fmt.Sprintf(" LIMIT %s", argN(limit))
