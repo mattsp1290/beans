@@ -1,33 +1,6 @@
-# Agent Instructions
+# Project Instructions for AI Agents
 
-## Commands
-
-```bash
-make build
-make test
-make vet
-make lint
-make ci
-go test -tags=integration ./...
-```
-
-Integration tests use testcontainers and require Docker.
-
-## Non-Interactive Shell Commands
-
-Use non-interactive flags for file operations to avoid hanging on confirmation
-prompts:
-
-```bash
-cp -f source dest
-mv -f source dest
-rm -f file
-rm -rf directory
-cp -rf source dest
-```
-
-For remote commands, prefer batch/non-prompting modes such as
-`ssh -o BatchMode=yes` and `scp -o BatchMode=yes`.
+This file provides instructions and context for AI coding agents working on this project.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
@@ -75,3 +48,22 @@ bd close <id>         # Complete work
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
+
+
+## Build & Test
+
+_Add your build and test commands here_
+
+```bash
+# Example:
+# npm install
+# npm test
+```
+
+## Architecture Overview
+
+_Add a brief overview of your project architecture_
+
+## Conventions & Patterns
+
+_Add your project-specific conventions here_
