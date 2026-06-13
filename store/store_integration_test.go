@@ -1155,6 +1155,165 @@ func TestImportIssues(t *testing.T) {
 	}
 }
 
+func TestImportIssuesFullCreateOnlyCountsAreIdempotent(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "impc"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	items := []store.ImportInput{
+		{ID: "impc-parent", Prefix: "impc", Title: "Parent", State: "open", Priority: 2, IssueType: "task"},
+		{ID: "impc-child", Prefix: "impc", Title: "Child", State: "open", Priority: 2, IssueType: "task",
+			Deps: []string{"impc-parent", "impc-parent", "impc-missing"}},
+		{ID: "impc-child", Prefix: "impc", Title: "Child v2", State: "open", Priority: 1, IssueType: "bug"},
+	}
+
+	first, err := s.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: []model.IssueState{"closed", "done"},
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull first: %v", err)
+	}
+	if first.Created != 2 || first.Skipped != 0 || first.DepsAdded != 1 ||
+		first.DepsSkippedDuplicate != 1 || first.DepsSkippedMissingBlocker != 1 {
+		t.Fatalf("first result = %+v, want created=2 dep added/duplicate/missing counts", first)
+	}
+
+	child, err := s.GetIssue(ctx, "impc-child")
+	if err != nil {
+		t.Fatalf("GetIssue child: %v", err)
+	}
+	if child.Title != "Child v2" || child.IssueType != "bug" || child.Priority != model.PriorityHigh {
+		t.Fatalf("deduped child = %+v, want last issue fields", child)
+	}
+
+	second, err := s.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: []model.IssueState{"closed", "done"},
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull second: %v", err)
+	}
+	if second.Created != 0 || second.Skipped != 2 || second.DepsAdded != 0 {
+		t.Fatalf("second result = %+v, want idempotent skip/no deps", second)
+	}
+}
+
+func TestImportIssuesFullMergeStateTruthTable(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "impm"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if _, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+		{ID: "impm-active", Prefix: "impm", Title: "Active", State: "open", Priority: 2, IssueType: "task"},
+		{ID: "impm-terminal", Prefix: "impm", Title: "Terminal", State: "done", Priority: 2, IssueType: "task"},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeMerge}); err != nil {
+		t.Fatalf("ImportIssuesFull seed: %v", err)
+	}
+
+	result, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+		{ID: "impm-active", Prefix: "impm", Title: "Active closed", State: "closed", Priority: 1, IssueType: "bug"},
+		{ID: "impm-terminal", Prefix: "impm", Title: "Terminal reopened input", State: "open", Priority: 3, IssueType: "task"},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeMerge})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull merge: %v", err)
+	}
+	if result.Updated != 2 {
+		t.Fatalf("merge result = %+v, want updated=2", result)
+	}
+
+	active, err := s.GetIssue(ctx, "impm-active")
+	if err != nil {
+		t.Fatalf("GetIssue active: %v", err)
+	}
+	if active.State != "closed" || active.Title != "Active closed" {
+		t.Fatalf("active after merge = %+v, want closed with updated title", active)
+	}
+	terminal, err := s.GetIssue(ctx, "impm-terminal")
+	if err != nil {
+		t.Fatalf("GetIssue terminal: %v", err)
+	}
+	if terminal.State != "done" || terminal.Title != "Terminal reopened input" {
+		t.Fatalf("terminal after merge = %+v, want done with updated title", terminal)
+	}
+}
+
+func TestImportIssuesFullSkipsCrossPrefixConflicts(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	for _, prefix := range []string{"owna", "ownb"} {
+		if err := s.EnsureProject(ctx, prefix); err != nil {
+			t.Fatalf("EnsureProject %s: %v", prefix, err)
+		}
+	}
+	if _, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+		{ID: "shared-id", Prefix: "owna", Title: "Original", State: "open", Priority: 2, IssueType: "task"},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeMerge}); err != nil {
+		t.Fatalf("seed shared-id: %v", err)
+	}
+
+	result, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+		{ID: "shared-id", Prefix: "ownb", Title: "Should not write", State: "closed", Priority: 0, IssueType: "bug"},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeMerge})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull conflict: %v", err)
+	}
+	if result.CrossPrefixConflicts != 1 || result.Updated != 0 || result.Created != 0 {
+		t.Fatalf("result = %+v, want one cross-prefix conflict only", result)
+	}
+	got, err := s.GetIssue(ctx, "shared-id")
+	if err != nil {
+		t.Fatalf("GetIssue shared-id: %v", err)
+	}
+	if got.Title != "Original" || got.State != "open" {
+		t.Fatalf("shared-id mutated: %+v", got)
+	}
+}
+
+func TestImportIssuesFullSkipsInvalidDependencyEdges(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "impd"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	result, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+		{ID: "impd-a", Prefix: "impd", Title: "A", State: "open", Priority: 2, IssueType: "task", Deps: []string{"impd-b", "impd-a"}},
+		{ID: "impd-b", Prefix: "impd", Title: "B", State: "open", Priority: 2, IssueType: "task", Deps: []string{"impd-a"}},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeCreateOnly})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull deps: %v", err)
+	}
+	if result.Created != 2 || result.DepsAdded != 1 || result.DepsSkippedSelf != 1 || result.DepsSkippedCycle != 1 {
+		t.Fatalf("result = %+v, want created=2 added=1 self=1 cycle=1", result)
+	}
+
+	a, err := s.GetIssue(ctx, "impd-a")
+	if err != nil {
+		t.Fatalf("GetIssue impd-a: %v", err)
+	}
+	b, err := s.GetIssue(ctx, "impd-b")
+	if err != nil {
+		t.Fatalf("GetIssue impd-b: %v", err)
+	}
+	if len(a.BlockedBy) != 1 || a.BlockedBy[0] != "impd-b" {
+		t.Fatalf("impd-a blockers = %v, want [impd-b]", a.BlockedBy)
+	}
+	if len(b.BlockedBy) != 0 {
+		t.Fatalf("impd-b blockers = %v, want no cycle edge", b.BlockedBy)
+	}
+}
+
 // TestListDeps verifies that ListDeps returns all edges for a prefix.
 func TestListDeps(t *testing.T) {
 	t.Parallel()

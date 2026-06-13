@@ -870,8 +870,12 @@ type ImportResult struct {
 	Created                   int // issues inserted for the first time
 	Updated                   int // issues that already existed (merge mode only)
 	Skipped                   int // issues skipped because they already existed (create-only)
+	CrossPrefixConflicts      int // issue IDs already owned by another prefix
 	DepsAdded                 int // dep edges successfully inserted
-	DepsSkippedMissingBlocker int // dep edges skipped — blocker not in batch or DB
+	DepsSkippedMissingBlocker int // dep edges skipped — blocker not in destination prefix
+	DepsSkippedDuplicate      int // dep edges skipped because they already existed
+	DepsSkippedSelf           int // dep edges skipped because issue_id == blocked_by_id
+	DepsSkippedCycle          int // dep edges skipped because they would create a cycle
 }
 
 // ImportIssuesFull loads a batch of issues with configurable mode and returns
@@ -884,59 +888,14 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 	if len(items) == 0 {
 		return ImportResult{}, nil
 	}
+	items = dedupeImportInputs(items)
 
 	pool, err := s.p.conn()
 	if err != nil {
 		return ImportResult{}, err
 	}
 
-	terminalSet := make(map[string]bool, len(opts.TerminalStates))
-	for _, st := range opts.TerminalStates {
-		terminalSet[string(st)] = true
-	}
-
-	// Pre-fetch: batch IDs + non-batch blocker IDs so we can (a) count
-	// created/updated/skipped without extra round-trips and (b) pre-filter
-	// pass-2 edges to avoid FK violations on missing referents.
-	batchIDSet := make(map[string]bool, len(items))
-	for _, item := range items {
-		batchIDSet[item.ID] = true
-	}
-
-	// Collect blocker IDs referenced by dep edges that are NOT in the batch.
-	seen := make(map[string]bool)
-	var nonBatchBlockers []string
-	for _, item := range items {
-		for _, dep := range item.Deps {
-			if !batchIDSet[dep] && !seen[dep] {
-				nonBatchBlockers = append(nonBatchBlockers, dep)
-				seen[dep] = true
-			}
-		}
-	}
-
-	// Single pre-fetch for all relevant IDs.
-	queryIDs := make([]string, 0, len(batchIDSet)+len(nonBatchBlockers))
-	for id := range batchIDSet {
-		queryIDs = append(queryIDs, id)
-	}
-	queryIDs = append(queryIDs, nonBatchBlockers...)
-
-	existingInDB, err := s.GetIssueStatesByIDs(ctx, queryIDs)
-	if err != nil {
-		return ImportResult{}, fmt.Errorf("store: ImportIssuesFull precheck: %w", err)
-	}
-
-	// valid blocker set = batch IDs (will exist after pass-1) + existing DB IDs
-	validBlocker := make(map[string]bool, len(batchIDSet)+len(existingInDB))
-	for id := range batchIDSet {
-		validBlocker[id] = true
-	}
-	for id := range existingInDB {
-		validBlocker[id] = true
-	}
-
-	tx, err := pool.Begin(ctx)
+	tx, err := pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
 	if err != nil {
 		return ImportResult{}, fmt.Errorf("store: ImportIssuesFull begin tx: %w", err)
 	}
@@ -950,14 +909,21 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 	// Pass 1: upsert issues.
 	for _, item := range items {
 		labels := encodedLabels(item.Labels)
-		_, alreadyExists := existingInDB[item.ID]
+		existing, alreadyExists, err := s.getImportIssueSnapshot(ctx, tx, item.ID)
+		if err != nil {
+			return ImportResult{}, err
+		}
+		if alreadyExists && existing.Prefix != item.Prefix {
+			result.CrossPrefixConflicts++
+			continue
+		}
 
 		if opts.Mode == ImportModeCreateOnly {
 			if alreadyExists {
 				result.Skipped++
 				continue
 			}
-			_, execErr := tx.Exec(ctx, `
+			tag, execErr := tx.Exec(ctx, `
 				INSERT INTO bn_issues
 					(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
 				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
@@ -969,63 +935,46 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 			if execErr != nil {
 				return ImportResult{}, fmt.Errorf("store: ImportIssuesFull create %s: %w", item.ID, execErr)
 			}
-			result.Created++
-			written[item.ID] = true
-		} else {
-			// Merge mode: same SQL as ImportIssues — never regress terminal state.
-			if terminalSet[item.State] {
-				_, execErr := tx.Exec(ctx, `
-					INSERT INTO bn_issues
-						(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
-					VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-					ON CONFLICT (id) DO UPDATE SET
-						title       = EXCLUDED.title,
-						description = EXCLUDED.description,
-						priority    = EXCLUDED.priority,
-						issue_type  = EXCLUDED.issue_type,
-						labels      = EXCLUDED.labels,
-						branch_name = EXCLUDED.branch_name,
-						url         = EXCLUDED.url,
-						updated_at  = now()`,
-					item.ID, item.Prefix, item.Title, item.Description,
-					item.Priority, issueType(item.IssueType), item.State, labels,
-					nullableStr(item.BranchName), nullableStr(item.URL),
-				)
-				if execErr != nil {
-					return ImportResult{}, fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, execErr)
-				}
-			} else {
-				_, execErr := tx.Exec(ctx, `
-					INSERT INTO bn_issues
-						(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
-					VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-					ON CONFLICT (id) DO UPDATE SET
-						title       = EXCLUDED.title,
-						description = EXCLUDED.description,
-						priority    = EXCLUDED.priority,
-						issue_type  = EXCLUDED.issue_type,
-						state       = CASE WHEN bn_issues.state = ANY($11::text[])
-						                   THEN bn_issues.state
-						                   ELSE EXCLUDED.state END,
-						labels      = EXCLUDED.labels,
-						branch_name = EXCLUDED.branch_name,
-						url         = EXCLUDED.url,
-						updated_at  = now()`,
-					item.ID, item.Prefix, item.Title, item.Description,
-					item.Priority, issueType(item.IssueType), item.State, labels,
-					nullableStr(item.BranchName), nullableStr(item.URL),
-					terminalStateArray(opts.TerminalStates),
-				)
-				if execErr != nil {
-					return ImportResult{}, fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, execErr)
-				}
-			}
-			if alreadyExists {
-				result.Updated++
-			} else {
+			if tag.RowsAffected() > 0 {
 				result.Created++
+				written[item.ID] = true
+			} else {
+				result.Skipped++
 			}
-			written[item.ID] = true
+		} else {
+			tag, execErr := tx.Exec(ctx, `
+				INSERT INTO bn_issues
+					(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
+				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+				ON CONFLICT (id) DO UPDATE SET
+					title       = EXCLUDED.title,
+					description = EXCLUDED.description,
+					priority    = EXCLUDED.priority,
+					issue_type  = EXCLUDED.issue_type,
+					state       = CASE WHEN bn_issues.state = ANY($11::text[])
+					                    AND NOT (EXCLUDED.state = ANY($11::text[]))
+					                   THEN bn_issues.state
+					                   ELSE EXCLUDED.state END,
+					labels      = EXCLUDED.labels,
+					branch_name = EXCLUDED.branch_name,
+					url         = EXCLUDED.url,
+					updated_at  = now()`,
+				item.ID, item.Prefix, item.Title, item.Description,
+				item.Priority, issueType(item.IssueType), item.State, labels,
+				nullableStr(item.BranchName), nullableStr(item.URL),
+				terminalStateArray(opts.TerminalStates),
+			)
+			if execErr != nil {
+				return ImportResult{}, fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, execErr)
+			}
+			if tag.RowsAffected() > 0 {
+				if alreadyExists {
+					result.Updated++
+				} else {
+					result.Created++
+				}
+				written[item.ID] = true
+			}
 		}
 	}
 
@@ -1036,12 +985,30 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 		if !written[item.ID] {
 			continue
 		}
+		seenDeps := make(map[string]bool, len(item.Deps))
 		for _, blockerID := range item.Deps {
-			if !validBlocker[blockerID] {
+			if blockerID == item.ID {
+				result.DepsSkippedSelf++
+				continue
+			}
+			if seenDeps[blockerID] {
+				result.DepsSkippedDuplicate++
+				continue
+			}
+			seenDeps[blockerID] = true
+			if exists, err := s.issueExistsInPrefix(ctx, tx, blockerID, item.Prefix); err != nil {
+				return ImportResult{}, err
+			} else if !exists {
 				result.DepsSkippedMissingBlocker++
 				continue
 			}
-			_, execErr := tx.Exec(ctx, `
+			if cycle, err := s.hasCycle(ctx, tx, item.ID, blockerID); err != nil {
+				return ImportResult{}, err
+			} else if cycle {
+				result.DepsSkippedCycle++
+				continue
+			}
+			tag, execErr := tx.Exec(ctx, `
 				INSERT INTO bn_issue_deps (issue_id, blocked_by_id)
 				VALUES ($1, $2)
 				ON CONFLICT DO NOTHING`,
@@ -1050,7 +1017,11 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 			if execErr != nil {
 				return ImportResult{}, fmt.Errorf("store: ImportIssuesFull dep %s→%s: %w", item.ID, blockerID, execErr)
 			}
-			result.DepsAdded++
+			if tag.RowsAffected() > 0 {
+				result.DepsAdded++
+			} else {
+				result.DepsSkippedDuplicate++
+			}
 		}
 	}
 
@@ -1224,6 +1195,42 @@ func (s *Store) issueExists(ctx context.Context, pool interface {
 		return false, fmt.Errorf("store: issueExists: %w", err)
 	}
 	return exists, nil
+}
+
+func (s *Store) issueExistsInPrefix(ctx context.Context, pool interface {
+	QueryRow(context.Context, string, ...any) pgx.Row
+}, id, prefix string) (bool, error) {
+	var exists bool
+	err := pool.QueryRow(ctx,
+		`SELECT EXISTS (SELECT 1 FROM bn_issues WHERE id = $1 AND prefix = $2)`, id, prefix,
+	).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("store: issueExistsInPrefix: %w", err)
+	}
+	return exists, nil
+}
+
+type importIssueSnapshot struct {
+	Prefix string
+	State  model.IssueState
+}
+
+func (s *Store) getImportIssueSnapshot(ctx context.Context, pool interface {
+	QueryRow(context.Context, string, ...any) pgx.Row
+}, id string) (importIssueSnapshot, bool, error) {
+	var snap importIssueSnapshot
+	var state string
+	err := pool.QueryRow(ctx,
+		`SELECT prefix, state FROM bn_issues WHERE id = $1`, id,
+	).Scan(&snap.Prefix, &state)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return importIssueSnapshot{}, false, nil
+	}
+	if err != nil {
+		return importIssueSnapshot{}, false, fmt.Errorf("store: getImportIssueSnapshot: %w", err)
+	}
+	snap.State = model.IssueState(state)
+	return snap, true, nil
 }
 
 // hasCycle returns true if adding childID→parentID would create a cycle,
@@ -1588,6 +1595,26 @@ func terminalStateArray(states []model.IssueState) []string {
 	out := make([]string, len(states))
 	for i, s := range states {
 		out[i] = string(s)
+	}
+	return out
+}
+
+func dedupeImportInputs(items []ImportInput) []ImportInput {
+	if len(items) < 2 {
+		return items
+	}
+	out := make([]ImportInput, 0, len(items))
+	indexByID := make(map[string]int, len(items))
+	for _, item := range items {
+		if idx, ok := indexByID[item.ID]; ok {
+			deps := append([]string{}, out[idx].Deps...)
+			deps = append(deps, item.Deps...)
+			out[idx] = item
+			out[idx].Deps = deps
+			continue
+		}
+		indexByID[item.ID] = len(out)
+		out = append(out, item)
 	}
 	return out
 }
