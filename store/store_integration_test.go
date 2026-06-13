@@ -429,6 +429,190 @@ func TestRepoRegistryValidatesRepoTargets(t *testing.T) {
 	}
 }
 
+func TestRepoRegistryDuplicateConflicts(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "repo-conflict"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repo-conflict", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+
+	first, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repo-conflict",
+		Slug:          "alpha",
+		RemoteURL:     "git@github.com:punk1290/alpha.git",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "alice",
+		DefaultBranch: "main",
+		Aliases:       []string{"shared"},
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo alpha: %v", err)
+	}
+	_, err = s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repo-conflict",
+		Slug:          "alpha",
+		RemoteURL:     "git@github.com:punk1290/alpha-duplicate.git",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "alice",
+		DefaultBranch: "main",
+	})
+	if !errors.Is(err, store.ErrConflict) {
+		t.Fatalf("CreateRepo duplicate slug = %v, want ErrConflict", err)
+	}
+
+	_, err = s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repo-conflict",
+		Slug:          "beta",
+		RemoteURL:     "git@github.com:punk1290/beta.git",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "alice",
+		DefaultBranch: "main",
+		Aliases:       []string{" shared "},
+	})
+	if !errors.Is(err, store.ErrConflict) {
+		t.Fatalf("CreateRepo duplicate alias = %v, want ErrConflict", err)
+	}
+	if _, err := s.GetRepoBySlug(ctx, "repo-conflict", "beta"); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("GetRepoBySlug beta after alias conflict = %v, want ErrNotFound", err)
+	}
+	byAlias, err := s.ResolveRepoAlias(ctx, "repo-conflict", "shared")
+	if err != nil {
+		t.Fatalf("ResolveRepoAlias shared: %v", err)
+	}
+	if byAlias.ID != first.ID {
+		t.Fatalf("shared alias resolved repo %q, want %q", byAlias.ID, first.ID)
+	}
+}
+
+func TestRepoAdminRemoveSemantics(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "repo-admin-remove"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repo-admin-remove", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repo-admin-remove", "bob", "alice", false); err != nil {
+		t.Fatalf("AddRepoAdmin bob: %v", err)
+	}
+	if err := s.RemoveRepoAdmin(ctx, "repo-admin-remove", "alice", "mallory"); !errors.Is(err, store.ErrUnauthorized) {
+		t.Fatalf("RemoveRepoAdmin by non-admin = %v, want ErrUnauthorized", err)
+	}
+	if err := s.RemoveRepoAdmin(ctx, "repo-admin-remove", "bob", "alice"); err != nil {
+		t.Fatalf("RemoveRepoAdmin bob: %v", err)
+	}
+	if err := s.AuthorizeRepoAdmin(ctx, "repo-admin-remove", "bob"); !errors.Is(err, store.ErrUnauthorized) {
+		t.Fatalf("AuthorizeRepoAdmin bob after removal = %v, want ErrUnauthorized", err)
+	}
+	if err := s.RemoveRepoAdmin(ctx, "repo-admin-remove", "bob", "alice"); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("RemoveRepoAdmin missing bob = %v, want ErrNotFound", err)
+	}
+	admins, err := s.ListRepoAdmins(ctx, "repo-admin-remove")
+	if err != nil {
+		t.Fatalf("ListRepoAdmins: %v", err)
+	}
+	if got, want := strings.Join(admins, ","), "alice"; got != want {
+		t.Fatalf("admins = %q, want %q", got, want)
+	}
+}
+
+func TestRepoAuditDirectInsertAndListing(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "repo-audit"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "repo-audit", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+	repo, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "repo-audit",
+		Slug:          "boxy",
+		RemoteURL:     "git@github.com:punk1290/boxy.git",
+		AuthRef:       "ssh-key:github-default",
+		Actor:         "alice",
+		DefaultBranch: "main",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo: %v", err)
+	}
+
+	first, err := s.InsertRepoAudit(ctx, store.RepoAuditInput{
+		Prefix:    "repo-audit",
+		RepoID:    repo.ID,
+		Action:    "repo.test.first",
+		Actor:     "alice",
+		OldValues: map[string]any{"enabled": true},
+		NewValues: map[string]any{"enabled": false},
+		Command:   "bn repo test first",
+	})
+	if err != nil {
+		t.Fatalf("InsertRepoAudit first: %v", err)
+	}
+	second, err := s.InsertRepoAudit(ctx, store.RepoAuditInput{
+		Prefix:    "repo-audit",
+		RepoID:    repo.ID,
+		Action:    "repo.test.second",
+		Actor:     "bob",
+		OldValues: map[string]any{"slug": "boxy"},
+		NewValues: map[string]any{"slug": "boxy-renamed"},
+		Command:   "bn repo test second",
+	})
+	if err != nil {
+		t.Fatalf("InsertRepoAudit second: %v", err)
+	}
+	projectAudit, err := s.InsertRepoAudit(ctx, store.RepoAuditInput{
+		Prefix:    "repo-audit",
+		Action:    "project.test",
+		Actor:     "system",
+		NewValues: map[string]any{"status": "ok"},
+		Command:   "bn repo project-test",
+	})
+	if err != nil {
+		t.Fatalf("InsertRepoAudit project: %v", err)
+	}
+	if first.RepoID == nil || *first.RepoID != repo.ID || first.OldValues["enabled"] != true || first.NewValues["enabled"] != false {
+		t.Fatalf("first audit = %+v, want repo id and bool values", first)
+	}
+	if projectAudit.RepoID != nil || projectAudit.NewValues["status"] != "ok" {
+		t.Fatalf("project audit = %+v, want nil repo and status", projectAudit)
+	}
+
+	repoAudits, err := s.ListRepoAudit(ctx, "repo-audit", repo.ID, 2)
+	if err != nil {
+		t.Fatalf("ListRepoAudit repo: %v", err)
+	}
+	if got, want := auditIDs(repoAudits), []int64{second.ID, first.ID}; !slices.Equal(got, want) {
+		t.Fatalf("repo audit IDs = %v, want %v", got, want)
+	}
+
+	allAudits, err := s.ListRepoAudit(ctx, "repo-audit", "", 2)
+	if err != nil {
+		t.Fatalf("ListRepoAudit project: %v", err)
+	}
+	if got, want := auditIDs(allAudits), []int64{projectAudit.ID, second.ID}; !slices.Equal(got, want) {
+		t.Fatalf("project audit IDs = %v, want %v", got, want)
+	}
+}
+
+func auditIDs(audits []store.RepoAudit) []int64 {
+	ids := make([]int64, len(audits))
+	for i, audit := range audits {
+		ids[i] = audit.ID
+	}
+	return ids
+}
+
 func TestMemoryInsertAndScopedSearch(t *testing.T) {
 	t.Parallel()
 	s := testStore(t)
