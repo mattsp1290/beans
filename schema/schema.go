@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -10,13 +11,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/pressly/goose/v3/lock"
 )
 
-//go:embed migrations/*.sql
+//go:embed migrations/*/*.sql
 var migrationsFS embed.FS
 
 const migrationsDir = "migrations"
@@ -24,7 +23,21 @@ const migrationsDir = "migrations"
 // migrateAdvisoryLockID is a stable int64 for pg_advisory_lock.
 const migrateAdvisoryLockID int64 = 0x626e74726b72 // "bntrkr"
 
+const (
+	migrationVersionTable = "bn_schema_versions"
+	migrationLockName     = "beans_schema_migrations"
+)
+
 var migrationFilenameRE = regexp.MustCompile(`^([0-9]{4,})_([A-Za-z0-9][A-Za-z0-9_\-]*)\.sql$`)
+
+// Driver is the database dialect used for schema migrations.
+type Driver string
+
+const (
+	DriverPostgres Driver = "postgres"
+	DriverMySQL    Driver = "mysql"
+	DriverSQLite   Driver = "sqlite"
+)
 
 // Migration is one parsed entry from the embedded migrations directory.
 type Migration struct {
@@ -38,11 +51,28 @@ func Migrations() embed.FS {
 	return migrationsFS
 }
 
-// ListMigrations returns every embedded migration sorted ascending by Version.
-func ListMigrations() ([]Migration, error) {
-	entries, err := fs.ReadDir(migrationsFS, migrationsDir)
+// MigrationFS returns the embedded migration filesystem rooted at the driver's directory.
+func MigrationFS(driver Driver) (fs.FS, error) {
+	dir, err := migrationsPath(driver)
 	if err != nil {
-		return nil, fmt.Errorf("schema: read migrations dir: %w", err)
+		return nil, err
+	}
+	migrations, err := fs.Sub(migrationsFS, dir)
+	if err != nil {
+		return nil, fmt.Errorf("schema: migrations fs for %s (%s): %w", driver, dir, err)
+	}
+	return migrations, nil
+}
+
+// ListMigrations returns every embedded migration for driver sorted ascending by Version.
+func ListMigrations(driver Driver) ([]Migration, error) {
+	dir, err := migrationsPath(driver)
+	if err != nil {
+		return nil, err
+	}
+	entries, err := fs.ReadDir(migrationsFS, dir)
+	if err != nil {
+		return nil, fmt.Errorf("schema: read migrations dir for %s (%s): %w", driver, dir, err)
 	}
 
 	out := make([]Migration, 0, len(entries))
@@ -68,7 +98,7 @@ func ListMigrations() ([]Migration, error) {
 		}
 		seen[version] = name
 
-		body, err := fs.ReadFile(migrationsFS, migrationsDir+"/"+name)
+		body, err := fs.ReadFile(migrationsFS, dir+"/"+name)
 		if err != nil {
 			return nil, fmt.Errorf("schema: read %q: %w", name, err)
 		}
@@ -84,35 +114,116 @@ func ListMigrations() ([]Migration, error) {
 }
 
 // Migrate applies all embedded bn migrations using goose's library API.
-func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
-	if pool == nil {
-		return fmt.Errorf("schema: migrate: nil pool")
+func Migrate(ctx context.Context, db *sql.DB, driver Driver) error {
+	if db == nil {
+		return fmt.Errorf("schema: migrate: nil db")
 	}
 
-	db := stdlib.OpenDBFromPool(pool)
-	defer db.Close()
-
-	migrations, err := fs.Sub(migrationsFS, migrationsDir)
+	migrations, err := MigrationFS(driver)
 	if err != nil {
-		return fmt.Errorf("schema: migrations fs: %w", err)
+		return err
 	}
 
-	locker, err := lock.NewPostgresSessionLocker(lock.WithLockID(migrateAdvisoryLockID))
+	dialect, err := gooseDialect(driver)
 	if err != nil {
-		return fmt.Errorf("schema: postgres session locker: %w", err)
+		return err
+	}
+	opts := []goose.ProviderOption{goose.WithTableName(migrationVersionTable)}
+	locker, err := migrationLocker(driver)
+	if err != nil {
+		return err
+	}
+	if locker != nil {
+		opts = append(opts, goose.WithSessionLocker(locker))
 	}
 
 	provider, err := goose.NewProvider(
-		goose.DialectPostgres,
+		dialect,
 		db,
 		migrations,
-		goose.WithSessionLocker(locker),
+		opts...,
 	)
 	if err != nil {
-		return fmt.Errorf("schema: goose provider: %w", err)
+		return fmt.Errorf("schema: goose provider for %s: %w", driver, err)
 	}
 	if _, err := provider.Up(ctx); err != nil {
-		return fmt.Errorf("schema: migrate up: %w", err)
+		return fmt.Errorf("schema: migrate up for %s: %w", driver, err)
+	}
+	return nil
+}
+
+func migrationsPath(driver Driver) (string, error) {
+	switch driver {
+	case DriverPostgres:
+		return migrationsDir + "/postgres", nil
+	case DriverMySQL:
+		return migrationsDir + "/mysql", nil
+	case DriverSQLite:
+		return migrationsDir + "/sqlite", nil
+	default:
+		return "", fmt.Errorf("schema: unsupported migration driver %q", driver)
+	}
+}
+
+func gooseDialect(driver Driver) (goose.Dialect, error) {
+	switch driver {
+	case DriverPostgres:
+		return goose.DialectPostgres, nil
+	case DriverMySQL:
+		return goose.DialectMySQL, nil
+	case DriverSQLite:
+		return goose.DialectSQLite3, nil
+	default:
+		return "", fmt.Errorf("schema: unsupported goose driver %q", driver)
+	}
+}
+
+func migrationLocker(driver Driver) (lock.SessionLocker, error) {
+	switch driver {
+	case DriverPostgres:
+		locker, err := lock.NewPostgresSessionLocker(lock.WithLockID(migrateAdvisoryLockID))
+		if err != nil {
+			return nil, fmt.Errorf("schema: postgres session locker: %w", err)
+		}
+		return locker, nil
+	case DriverMySQL:
+		return mysqlSessionLocker{name: migrationLockName, timeoutSeconds: 60}, nil
+	case DriverSQLite:
+		return nil, fmt.Errorf("schema: sqlite migration locking is not implemented")
+	default:
+		return nil, fmt.Errorf("schema: unsupported migration lock driver %q", driver)
+	}
+}
+
+type mysqlSessionLocker struct {
+	name           string
+	timeoutSeconds int
+}
+
+func (l mysqlSessionLocker) SessionLock(ctx context.Context, conn *sql.Conn) error {
+	var locked sql.NullInt64
+	if err := conn.QueryRowContext(ctx, "SELECT GET_LOCK(?, ?)", l.name, l.timeoutSeconds).Scan(&locked); err != nil {
+		return fmt.Errorf("schema: mysql get migration lock: %w", err)
+	}
+	if !locked.Valid {
+		return fmt.Errorf("schema: mysql get migration lock returned NULL")
+	}
+	if locked.Int64 != 1 {
+		return fmt.Errorf("schema: mysql migration lock timed out")
+	}
+	return nil
+}
+
+func (l mysqlSessionLocker) SessionUnlock(ctx context.Context, conn *sql.Conn) error {
+	var unlocked sql.NullInt64
+	if err := conn.QueryRowContext(ctx, "SELECT RELEASE_LOCK(?)", l.name).Scan(&unlocked); err != nil {
+		return fmt.Errorf("schema: mysql release migration lock: %w", err)
+	}
+	if !unlocked.Valid {
+		return fmt.Errorf("schema: mysql release migration lock returned NULL")
+	}
+	if unlocked.Int64 != 1 {
+		return fmt.Errorf("schema: mysql migration lock was not held")
 	}
 	return nil
 }

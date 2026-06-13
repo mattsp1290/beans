@@ -5,7 +5,7 @@
 -- (prefix IS NULL). Full-text search via a generated tsvector + GIN index.
 --
 -- Per project policy: no IF NOT EXISTS — the runner owns "should this run?"
--- via goose_db_version + a session advisory lock.
+-- via bn_schema_versions + a session advisory lock.
 
 -- +goose Up
 -- +goose StatementBegin

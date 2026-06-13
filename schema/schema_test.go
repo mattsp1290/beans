@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"io/fs"
 	"sort"
 	"strings"
 	"testing"
@@ -11,7 +12,7 @@ import (
 func TestListMigrationsParsesEmbedded(t *testing.T) {
 	t.Parallel()
 
-	migs, err := ListMigrations()
+	migs, err := ListMigrations(DriverPostgres)
 	if err != nil {
 		t.Fatalf("ListMigrations: %v", err)
 	}
@@ -87,7 +88,7 @@ func TestListMigrationsParsesEmbedded(t *testing.T) {
 func TestListMigrationsBodiesAreNonEmpty(t *testing.T) {
 	t.Parallel()
 
-	migs, err := ListMigrations()
+	migs, err := ListMigrations(DriverPostgres)
 	if err != nil {
 		t.Fatalf("ListMigrations: %v", err)
 	}
@@ -95,5 +96,61 @@ func TestListMigrationsBodiesAreNonEmpty(t *testing.T) {
 		if len(strings.TrimSpace(m.SQL)) == 0 {
 			t.Errorf("migration %d (%s) has empty SQL body", m.Version, m.Name)
 		}
+	}
+}
+
+func TestMigrationFSDialectRoot(t *testing.T) {
+	t.Parallel()
+
+	migrations, err := MigrationFS(DriverPostgres)
+	if err != nil {
+		t.Fatalf("MigrationFS: %v", err)
+	}
+	entries, err := fs.ReadDir(migrations, ".")
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("postgres migration fs returned no entries")
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			t.Fatalf("postgres migration fs should be rooted at files, found dir %q", entry.Name())
+		}
+	}
+}
+
+func TestListMigrationsRejectsUnknownDriver(t *testing.T) {
+	t.Parallel()
+
+	if _, err := ListMigrations(Driver("oracle")); err == nil {
+		t.Fatal("ListMigrations with unknown driver returned nil error")
+	}
+	if _, err := MigrationFS(Driver("oracle")); err == nil {
+		t.Fatal("MigrationFS with unknown driver returned nil error")
+	}
+}
+
+func TestMigrationLockerDispatch(t *testing.T) {
+	t.Parallel()
+
+	postgresLocker, err := migrationLocker(DriverPostgres)
+	if err != nil {
+		t.Fatalf("postgres migrationLocker: %v", err)
+	}
+	if postgresLocker == nil {
+		t.Fatal("postgres migrationLocker returned nil")
+	}
+
+	mysqlLocker, err := migrationLocker(DriverMySQL)
+	if err != nil {
+		t.Fatalf("mysql migrationLocker: %v", err)
+	}
+	if mysqlLocker == nil {
+		t.Fatal("mysql migrationLocker returned nil")
+	}
+
+	if _, err := migrationLocker(DriverSQLite); err == nil {
+		t.Fatal("sqlite migrationLocker returned nil error")
 	}
 }

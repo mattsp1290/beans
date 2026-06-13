@@ -5,7 +5,7 @@
 -- are authored through the bn tracker surface.
 --
 -- Per project policy: no IF NOT EXISTS — the runner owns "should this run?"
--- via goose_db_version + a session advisory lock.
+-- via bn_schema_versions + a session advisory lock.
 
 -- +goose Up
 -- +goose StatementBegin

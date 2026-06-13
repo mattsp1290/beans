@@ -12,7 +12,7 @@
 --
 -- Per project policy (see schema/schema.go), versioned
 -- migrations do NOT use IF NOT EXISTS — the runner is responsible for
--- "should this run?" via goose_db_version + a session advisory lock.
+-- "should this run?" via bn_schema_versions + a session advisory lock.
 
 -- +goose Up
 -- +goose StatementBegin
