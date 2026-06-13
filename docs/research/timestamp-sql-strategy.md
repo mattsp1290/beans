@@ -16,14 +16,19 @@ exists. In practice:
 - For GORM models, prefer `autoCreateTime`/`autoUpdateTime` only if the tests
   prove it uses UTC consistently for all dialectors; otherwise set fields
   explicitly before `Create`/`Updates`.
+- Do not rely on `autoUpdateTime` for custom `clause.OnConflict` assignments or
+  map-based `Updates`; every custom conflict/update assignment must include
+  `updated_at: nowUTC` explicitly when the current SQL would have used `now()`.
 - For raw SQL that remains, pass `time.Now().UTC()` as a bound parameter instead
   of spelling `now()` or dialect-specific functions in update statements.
 - For schema defaults, use dialect-specific migration DDL:
   - PostgreSQL: `TIMESTAMPTZ` with `DEFAULT now()` is acceptable.
-  - MySQL: `DATETIME(6)` or `TIMESTAMP(6)` with an explicit UTC connection policy;
-    DSNs must include `parseTime=True`.
-  - SQLite: store UTC timestamps in a tested format, preferably through Go-side
-    values rather than relying on `CURRENT_TIMESTAMP` precision.
+  - MySQL: prefer `DATETIME(6)` for app-supplied UTC values. DSNs must include
+    `parseTime=True`, and any `TIMESTAMP(6)` use must also set an explicit UTC
+    session/location policy.
+  - SQLite: store UTC timestamps consistently as RFC3339Nano text or another
+    explicitly tested format, preferably through Go-side values rather than
+    relying on `CURRENT_TIMESTAMP` precision.
 
 This keeps timestamp semantics independent of database server timezone, SQLite
 string precision, and MySQL session timezone.
@@ -40,6 +45,18 @@ string precision, and MySQL session timezone.
 | `ImportIssuesFull` merge upsert | `store/store.go:975` | Merge updates non-state fields, preserves existing terminal states, and bumps `updated_at` on conflict. | Use GORM `OnConflict` with an explicit `updated_at` assignment to a bound UTC timestamp. Create-only imports must not bump existing rows. |
 | Repo update dynamic SQL | `store/repo_store.go:342` | `UpdateRepo` always bumps `bn_repos.updated_at` and sets `updated_by`, then writes audit in the same transaction. | Set `UpdatedAt: nowUTC` and `UpdatedBy` in a GORM update map inside the transaction; use the same timestamp policy for alias replacement/audit ordering tests. |
 
+## Append-Only Timestamps
+
+Append-only rows should use independent append timestamps, not automatically
+reuse the mutable row operation timestamp:
+
+| Current write | Location | Current behavior | Replacement strategy |
+| --- | --- | --- | --- |
+| Issue creation note insert | `store/store.go:168`, `store/store.go:194` | Creation notes are inserted after the issue row and get their own `bn_issue_notes.created_at` default. | Use an independent append timestamp captured when inserting the note. Do not require it to equal the issue `created_at`. |
+| `UpdateIssue` append note | `store/store.go:542` | Appending a note alone does not bump `bn_issues.updated_at`. | Preserve note-only append behavior: insert the note with its own timestamp and do not bump issue `updated_at` unless issue fields or repo target changed. |
+| `CloseIssue` reason note | `store/store.go:590` | State change bumps issue `updated_at`; reason note is inserted only after the state change succeeds and gets its own default timestamp. | Preserve idempotence. Insert the reason note with an independent append timestamp after the close update succeeds. |
+| Repo audit insert | `store/repo_store.go:280`, `store/repo_store.go:395`, `store/repo_store.go:653` | Audit rows are append-log records written in the same transaction as repo create/update. | Use an independent audit timestamp captured at audit insert time. It does not need to equal `bn_repos.created_at` or `bn_repos.updated_at`; tests should assert the chosen relationship. |
+
 ## Insert and Scan Sites
 
 | Current source | Location | Current behavior | Replacement strategy |
@@ -47,7 +64,7 @@ string precision, and MySQL session timezone.
 | Issue insert `RETURNING created_at, updated_at` | `store/store.go:154`, `store/store.go:186` | Database defaults populate both timestamps, then Go normalizes scans to UTC. | Set both fields to the same `nowUTC` in Go on create, including issue+repo transactional creates. |
 | Memory insert `RETURNING id, created_at` | `store/store.go:1103` | Database default populates immutable `created_at`. | Either keep a dialect default for append-only memories or set `CreatedAt` explicitly in Go; tests should only require UTC and descending order. |
 | Repo create `RETURNING created_at, updated_at` | `store/repo_store.go:259` | Database defaults populate repo timestamps. | Set both fields to one `nowUTC` in Go and preserve atomic create+aliases+audit transaction. |
-| Repo audit insert returning `created_at` | `store/repo_store.go:653` | Database default populates immutable audit timestamp. | Prefer explicit `CreatedAt: nowUTC` when writing audit so audit ordering is independent of dialect precision. |
+| Repo audit insert returning `created_at` | `store/repo_store.go:653` | Database default populates immutable audit timestamp. | Prefer explicit independent `CreatedAt: auditNowUTC` when writing audit so audit ordering is independent of dialect precision. |
 | Scan normalization | `store/store.go:216`, `store/store.go:1117`, `store/store.go:1191`, `store/store.go:1486`, `store/store.go:1525`, `store/repo_store.go:505`, `store/repo_store.go:549`, `store/repo_store.go:691` | Scanned timestamps are converted with `.UTC()`. | Keep UTC normalization at API boundaries even when writes are app-side UTC; add contract tests for UTC location and ordering stability. |
 
 ## Schema Defaults
@@ -62,7 +79,25 @@ string precision, and MySQL session timezone.
 | `bn_repo_aliases.created_at` | `schema/migrations/0004_bn_repos.sql:58` | Append-only alias row within replacement transaction. Explicit Go UTC is preferred for deterministic tests. |
 | `bn_project_admins.created_at` | `schema/migrations/0004_bn_repos.sql:74` | Append-only admin row. Dialect default is acceptable, but explicit Go UTC avoids MySQL/SQLite precision drift. |
 | `bn_repo_audit.created_at` | `schema/migrations/0004_bn_repos.sql:94` | Immutable audit row. Explicit Go UTC is preferred so audit ordering is stable with `ORDER BY created_at DESC, id DESC`. |
-| `bn_issue_repos.created_at`, `bn_issue_repos.updated_at` | `schema/migrations/0005_bn_issue_repos.sql:18`, `0005:19` | Mutable link row. Use application-side UTC when creating/replacing issue repo targets. |
+| `bn_issue_repos.created_at`, `bn_issue_repos.updated_at` | `schema/migrations/0005_bn_issue_repos.sql:18`, `0005:19`; write helper `store/store.go:1372` | Mutable link row. Use application-side UTC when creating/replacing issue repo targets. |
+
+`bn_issue_deps` has no timestamp columns today; dependency-edge history is out
+of scope for this migration.
+
+## CLI/API Timestamp Contract
+
+Current CLI JSON exposes timestamps in two shapes:
+
+- Issue JSON uses `time.Time` values from `cmd/bn/app.go:356` and
+  `cmd/bn/app.go:357`, so `encoding/json` emits RFC3339/RFC3339Nano depending on
+  precision.
+- Repo JSON and memory JSON use second-precision UTC strings in
+  `cmd/bn/cmd_repo.go:512` and `cmd/bn/cmd_memory.go:221`.
+
+Before implementation, decide whether all CLI JSON timestamps should be
+normalized to second-precision bd-compatible strings or whether issue JSON may
+continue exposing fractional seconds. Add CLI JSON contract tests for issue,
+repo, and memory output.
 
 ## Test Contract
 
@@ -71,19 +106,31 @@ Add cross-dialect tests that assert:
 - Created rows return non-zero UTC timestamps.
 - `created_at` and `updated_at` are equal or ordered on create according to the
   chosen model policy.
-- `UpdateIssue`, repo retargeting, `CloseIssue`, `ImportIssuesFull` merge, and
+- `UpdateIssue`, repo retargeting, `CloseIssue`, deprecated `ImportIssues`
+  terminal and active conflict-update branches, `ImportIssuesFull` merge, and
   `UpdateRepo` advance `updated_at`; idempotent `CloseIssue` and create-only
   import skips do not.
-- Memory and repo audit ordering remains deterministic; use secondary ordering
-  (`id DESC`) where precision can tie.
+- Memory ordering queries at `store/store.go:1169` and `store/store.go:1171`
+  remain deterministic; add a secondary ordering such as `id DESC` where
+  precision can tie. Repo audit already orders by `created_at DESC, id DESC`.
 - MySQL DSNs include `parseTime=True`; SQLite tests document accepted precision.
+- Repo audit tests assert whether audit timestamps are independent from or equal
+  to repo row timestamps; this strategy chooses independent append timestamps.
+- CLI JSON tests cover issue, repo, and memory timestamp formatting.
 
 ## Migration Notes
 
 - Introduce one helper or interface for time (`clockNowUTC`) before converting
   call sites. That makes tests deterministic and prevents multiple timestamps
   within a single logical transaction.
+- Postgres `now()` is transaction-stable. For replacement code, capture one
+  `nowUTC` for each mutable-row operation that is meant to preserve that
+  behavior, and capture separate append timestamps for notes/audit rows where the
+  append-log semantics are intentionally independent.
 - Do not rely on GORM's default zero-value omission for timestamp fields. Set the
   fields explicitly or verify generated SQL includes them.
+- In every custom GORM `OnConflict{DoUpdates: ...}` list, include explicit
+  `updated_at = nowUTC`; create-only `DO NOTHING` imports must not touch skipped
+  rows.
 - Avoid `CURRENT_TIMESTAMP` in mutable update SQL unless a dialect-specific raw
   statement remains unavoidable.
