@@ -11,7 +11,7 @@ Postgres-coupled today or missing for behavior that must survive the migration.
 | Area | Files | Current role |
 | --- | --- | --- |
 | Store behavior | `store/store_integration_test.go` | One large Postgres/testcontainers integration suite covering migrations, projects, repos, issues, dependencies, ready queries, imports, and some error sentinels. |
-| Schema inventory | `schema/schema_test.go` | Embedded migration listing and Postgres migration text checks. |
+| Schema inventory | `schema/schema_test.go` | Embedded Postgres migration listing, dialect-rooted `MigrationFS`, unknown-driver rejection, migration locker dispatch, and Postgres migration text checks. |
 | CLI parsing/formatting | `cmd/bn/*_test.go` | Unit tests for config marker parsing, command registration, import/export formatting, JSON output, and dry-run behavior. These mostly avoid the store. |
 
 There are no non-integration store tests. All store coverage currently requires
@@ -21,7 +21,8 @@ Docker and a Postgres container through `testcontainers`.
 
 | Behavior | Current coverage | Gaps before migration |
 | --- | --- | --- |
-| Migrations | `TestMigrateIdempotent`, `TestMigrateBootstrapsLegacyGooseVersionTable` | Covers Postgres fresh and legacy version-table startup. No SQLite default/no-Docker migration test and no MySQL migration test yet. |
+| Store migrations | `TestMigrateIdempotent`, `TestMigrateBootstrapsLegacyGooseVersionTable` | Covers Postgres fresh and legacy version-table startup through `store.New`. `TestMigrateIdempotent` is currently a single-start smoke test despite its name; it does not run migrations twice against the same database. No SQLite default/no-Docker migration test, MySQL migration test, or real same-database migration rerun test exists yet. |
+| Schema migration dispatch | `TestListMigrationsParsesEmbedded`, `TestMigrationFSDialectRoot`, `TestListMigrationsRejectsUnknownDriver`, `TestMigrationLockerDispatch` | Covers Postgres migration listing, driver-rooted filesystem exposure, unknown-driver errors, Postgres/MySQL locker dispatch, and explicit SQLite lock unsupported behavior. Missing direct `Migrate` nil-DB and unsupported-driver tests, MySQL/SQLite migration directory coverage once DDL lands, and non-Postgres version-table/bootstrap assertions. |
 | Projects | `TestEnsureProjectIdempotent` | Covers idempotent creation and existence. Missing invalid prefix and post-close behavior. |
 | Repo admins | `TestRepoAdminBootstrapAndAuthorization`, `TestRepoAdminBootstrapAllowsOnlyOneConcurrentFirstAdmin` | Good coverage for authorization and Postgres advisory-lock bootstrap semantics. Needs a dialect-neutral contract for the exactly-one-first-admin race. |
 | Repo registry | `TestRepoRegistryRoundTrip`, `TestRepoRegistryValidatesRepoTargets` | Covers create, aliases, metadata JSON, listing disabled repos, update, disable, and audit row count. Missing focused duplicate slug/alias conflict assertions, `RemoveRepoAdmin`, direct `InsertRepoAudit`, audit limit/order, and disabled repo lookup behavior. |
@@ -70,15 +71,18 @@ Before rewriting store internals, add focused tests in this order:
 1. Memory behavior: insert round trip, empty query ordering by `created_at`,
    full-text query behavior, prefix/global visibility, tag containment, metadata
    JSON round trip, default and explicit limits.
-2. Store API errors and lifecycle: `Store.Close` idempotence, post-close
+2. Migration rerun behavior: run `store.New` or `schema.Migrate` twice against
+   the same database for each supported dialect, including the Postgres legacy
+   `goose_db_version` bootstrap path.
+3. Store API errors and lifecycle: `Store.Close` idempotence, post-close
    `ErrPoolClosed`, duplicate repo/alias `ErrConflict`, missing repo/admin/issue
    `ErrNotFound`, duplicate dependency `ErrDuplicateDep`.
-3. Repo registry details: duplicate slug and alias conflicts, `RemoveRepoAdmin`,
+4. Repo registry details: duplicate slug and alias conflicts, `RemoveRepoAdmin`,
    `InsertRepoAudit`, `ListRepoAudit` limit/order, disabled repo lookup/listing.
-4. Issue and dependency edge cases: labels/branch/url round trips, close missing
+5. Issue and dependency edge cases: labels/branch/url round trips, close missing
    id, update all mutable fields, cross-prefix dependency rejection, longer cycle
    shapes, concurrent dependency cycle attempts.
-5. Import expansion: repo target import behavior, metadata/labels round trips,
+6. Import expansion: repo target import behavior, metadata/labels round trips,
    rollback on invalid dependency or repo target, and never-regress-terminal
    behavior across create-only and merge modes.
 
