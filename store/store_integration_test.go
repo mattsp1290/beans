@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"slices"
 	"strings"
 	"sync"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/testcontainers/testcontainers-go"
+	tcmysql "github.com/testcontainers/testcontainers-go/modules/mysql"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 
 	"github.com/mattsp1290/beans/model"
@@ -70,6 +72,32 @@ func testPostgresDSN(t *testing.T, ctx context.Context) string {
 	return connStr
 }
 
+func testMySQLDSN(t *testing.T, ctx context.Context) string {
+	t.Helper()
+
+	container, err := tcmysql.Run(ctx, "mysql:8.4",
+		tcmysql.WithDatabase("bn_test"),
+		tcmysql.WithUsername("bn"),
+		tcmysql.WithPassword("bn"),
+	)
+	testcontainers.CleanupContainer(t, container)
+	if err != nil {
+		if isDockerUnavailable(err) {
+			t.Skipf("store integration: docker unavailable: %v", err)
+			return ""
+		}
+		t.Fatalf("store integration: mysql.Run: %v", err)
+		return ""
+	}
+
+	dsn, err := container.ConnectionString(ctx, "parseTime=true", "loc=UTC", "multiStatements=true")
+	if err != nil {
+		t.Fatalf("store integration: mysql ConnectionString: %v", err)
+		return ""
+	}
+	return dsn
+}
+
 // isDockerUnavailable matches testcontainers' docker-unavailable error surface.
 func isDockerUnavailable(err error) bool {
 	msg := err.Error()
@@ -80,6 +108,482 @@ func isDockerUnavailable(err error) bool {
 }
 
 // --- tests ------------------------------------------------------------------
+
+type storeContractDialect struct {
+	name                   string
+	open                   func(t *testing.T) *store.Store
+	timestampTick          time.Duration
+	expectConcurrentWrites bool
+}
+
+func TestStoreContractAcrossDialects(t *testing.T) {
+	dialects := []storeContractDialect{
+		{
+			name:                   "postgres",
+			open:                   openPostgresContractStore,
+			timestampTick:          2 * time.Millisecond,
+			expectConcurrentWrites: true,
+		},
+		{
+			name:                   "mysql",
+			open:                   openMySQLContractStore,
+			timestampTick:          2 * time.Millisecond,
+			expectConcurrentWrites: true,
+		},
+		{
+			name:          "sqlite",
+			open:          openSQLiteContractStore,
+			timestampTick: 2 * time.Millisecond,
+		},
+	}
+	for _, dialect := range dialects {
+		dialect := dialect
+		t.Run(dialect.name, func(t *testing.T) {
+			storeContractTest(t, dialect)
+		})
+	}
+}
+
+func storeContractTest(t *testing.T, dialect storeContractDialect) {
+	t.Helper()
+
+	t.Run("issue_dependencies_and_imports", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "issues")
+		otherPrefix := contractPrefix(dialect, "other")
+		ensureProject(t, s, ctx, prefix)
+		ensureProject(t, s, ctx, otherPrefix)
+
+		parent, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:      prefix,
+			Title:       "Parent",
+			Description: "contract parent",
+			Priority:    0,
+			IssueType:   "task",
+			Labels:      []string{"contract", dialect.name},
+			Actor:       "alice",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue parent: %v", err)
+		}
+		child, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:      prefix,
+			Title:       "Child",
+			Description: "contract child",
+			Priority:    2,
+			IssueType:   "bug",
+			BranchName:  "contract/child",
+			URL:         "https://example.test/child",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue child: %v", err)
+		}
+		assertUTCNonZero(t, parent.CreatedAt)
+		assertUTCNonZero(t, child.UpdatedAt)
+		if child.Priority != model.PriorityMedium {
+			t.Fatalf("child priority = %v, want medium", child.Priority)
+		}
+
+		if err := s.AddDep(ctx, child.ID, parent.ID); err != nil {
+			t.Fatalf("AddDep: %v", err)
+		}
+		if err := s.AddDep(ctx, child.ID, parent.ID); !errors.Is(err, store.ErrDuplicateDep) {
+			t.Fatalf("duplicate AddDep = %v, want ErrDuplicateDep", err)
+		}
+		if err := s.AddDep(ctx, parent.ID, child.ID); !errors.Is(err, store.ErrCycle) {
+			t.Fatalf("cycle AddDep = %v, want ErrCycle", err)
+		}
+		gotChild, err := s.GetIssue(ctx, child.ID)
+		if err != nil {
+			t.Fatalf("GetIssue child: %v", err)
+		}
+		if !slices.Equal(gotChild.BlockedBy, []string{parent.ID}) {
+			t.Fatalf("child blockers = %v, want parent", gotChild.BlockedBy)
+		}
+		ready, err := s.ReadyIssues(ctx, prefix, []model.IssueState{"closed"}, []model.IssueState{"open"})
+		if err != nil {
+			t.Fatalf("ReadyIssues initial: %v", err)
+		}
+		if got, want := issueIDs(ready), []string{parent.ID}; !slices.Equal(got, want) {
+			t.Fatalf("ReadyIssues initial = %v, want %v", got, want)
+		}
+
+		time.Sleep(dialect.timestampTick)
+		if err := s.CloseIssue(ctx, parent.ID, "alice", "done"); err != nil {
+			t.Fatalf("CloseIssue parent: %v", err)
+		}
+		closedParent, err := s.GetIssue(ctx, parent.ID)
+		if err != nil {
+			t.Fatalf("GetIssue closed parent: %v", err)
+		}
+		if closedParent.State != "closed" || !closedParent.UpdatedAt.After(parent.UpdatedAt) {
+			t.Fatalf("closed parent = %+v, want closed and newer updated_at", closedParent)
+		}
+		ready, err = s.ReadyIssues(ctx, prefix, []model.IssueState{"closed"}, []model.IssueState{"open"})
+		if err != nil {
+			t.Fatalf("ReadyIssues after close: %v", err)
+		}
+		if got, want := issueIDs(ready), []string{child.ID}; !slices.Equal(got, want) {
+			t.Fatalf("ReadyIssues after close = %v, want %v", got, want)
+		}
+
+		cross, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: otherPrefix, Title: "Other", Priority: 1, IssueType: "task"})
+		if err != nil {
+			t.Fatalf("CreateIssue other prefix: %v", err)
+		}
+		importResult, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+			{ID: prefix + "-import-parent", Prefix: prefix, Title: "Imported parent", State: "open", Priority: 1, IssueType: "task"},
+			{ID: prefix + "-import-child", Prefix: prefix, Title: "Imported child", State: "open", Priority: 2, IssueType: "bug", Deps: []string{prefix + "-import-parent", prefix + "-missing", prefix + "-import-child", prefix + "-import-parent"}},
+			{ID: cross.ID, Prefix: prefix, Title: "Cross prefix", State: "open", Priority: 1, IssueType: "task"},
+		}, store.ImportOptions{Mode: store.ImportModeCreateOnly, TerminalStates: []model.IssueState{"closed"}})
+		if err != nil {
+			t.Fatalf("ImportIssuesFull create-only: %v", err)
+		}
+		if importResult.Created != 2 || importResult.CrossPrefixConflicts != 1 || importResult.DepsAdded != 1 ||
+			importResult.DepsSkippedMissingBlocker != 1 || importResult.DepsSkippedSelf != 1 || importResult.DepsSkippedDuplicate != 1 {
+			t.Fatalf("ImportIssuesFull result = %+v, want portable create/dependency counters", importResult)
+		}
+	})
+
+	t.Run("repos_audit_and_issue_targets", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "repos")
+		ensureProject(t, s, ctx, prefix)
+		if err := s.AddRepoAdmin(ctx, prefix, "alice", "alice", true); err != nil {
+			t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+		}
+		if err := s.AddRepoAdmin(ctx, prefix, "bob", "alice", false); err != nil {
+			t.Fatalf("AddRepoAdmin bob: %v", err)
+		}
+		if err := s.AuthorizeRepoAdmin(ctx, prefix, "mallory"); !errors.Is(err, store.ErrUnauthorized) {
+			t.Fatalf("AuthorizeRepoAdmin mallory = %v, want ErrUnauthorized", err)
+		}
+
+		repo, err := s.CreateRepo(ctx, store.CreateRepoInput{
+			Prefix:        prefix,
+			Slug:          "core",
+			DisplayName:   "Core",
+			RemoteURL:     "git@github.com:punk1290/core.git",
+			AuthRef:       "ssh-key:github-default",
+			DefaultBranch: "main",
+			Actor:         "alice",
+			Aliases:       []string{"core", "github.com/punk1290/core"},
+			Metadata:      map[string]any{"dialect": dialect.name},
+		})
+		if err != nil {
+			t.Fatalf("CreateRepo: %v", err)
+		}
+		if repo.Metadata["dialect"] != dialect.name {
+			t.Fatalf("repo metadata = %+v, want dialect %s", repo.Metadata, dialect.name)
+		}
+		if _, err := s.CreateRepo(ctx, store.CreateRepoInput{
+			Prefix:        prefix,
+			Slug:          "conflict",
+			RemoteURL:     "git@github.com:punk1290/conflict.git",
+			AuthRef:       "ssh-key:github-default",
+			DefaultBranch: "main",
+			Actor:         "alice",
+			Aliases:       []string{"core"},
+		}); !errors.Is(err, store.ErrConflict) {
+			t.Fatalf("CreateRepo duplicate alias = %v, want ErrConflict", err)
+		}
+		if _, err := s.ResolveRepoAlias(ctx, prefix, "github.com/punk1290/core"); err != nil {
+			t.Fatalf("ResolveRepoAlias: %v", err)
+		}
+
+		time.Sleep(dialect.timestampTick)
+		branch := "trunk"
+		updated, err := s.UpdateRepo(ctx, prefix, "core", store.UpdateRepoInput{
+			DefaultBranch: &branch,
+			Actor:         "alice",
+			Aliases:       []string{"new-core"},
+		})
+		if err != nil {
+			t.Fatalf("UpdateRepo: %v", err)
+		}
+		if updated.DefaultBranch != "trunk" || !updated.UpdatedAt.After(repo.UpdatedAt) {
+			t.Fatalf("updated repo = %+v, want trunk and newer timestamp", updated)
+		}
+		if _, err := s.ResolveRepoAlias(ctx, prefix, "core"); !errors.Is(err, store.ErrNotFound) {
+			t.Fatalf("old alias lookup = %v, want ErrNotFound", err)
+		}
+		if _, err := s.ResolveRepoAlias(ctx, prefix, "new-core"); err != nil {
+			t.Fatalf("new alias lookup: %v", err)
+		}
+
+		issue, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: prefix,
+			Title:  "Targeted issue",
+			Repo: &store.IssueRepoInput{
+				RepoSlug:       "core",
+				RequestedRef:   "feature",
+				BaseRef:        "trunk",
+				WorkBranch:     "work/contract",
+				WorktreeSubdir: "services/core",
+				Metadata:       map[string]any{"dialect": dialect.name},
+			},
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue targeted: %v", err)
+		}
+		gotIssue, err := s.GetIssue(ctx, issue.ID)
+		if err != nil {
+			t.Fatalf("GetIssue targeted: %v", err)
+		}
+		if gotIssue.Repo == nil ||
+			gotIssue.Repo.ID != repo.ID ||
+			gotIssue.Repo.Slug != "core" ||
+			gotIssue.Repo.RequestedRef != "feature" ||
+			gotIssue.Repo.BaseRef != "trunk" ||
+			gotIssue.Repo.WorkBranch != "work/contract" ||
+			gotIssue.Repo.WorktreeSubdir != "services/core" ||
+			gotIssue.Repo.Metadata["dialect"] != dialect.name {
+			t.Fatalf("repo target = %+v, want full target", gotIssue.Repo)
+		}
+
+		if _, err := s.DisableRepo(ctx, prefix, "core", "alice"); err != nil {
+			t.Fatalf("DisableRepo: %v", err)
+		}
+		enabledRepos, err := s.ListRepos(ctx, prefix, false)
+		if err != nil {
+			t.Fatalf("ListRepos enabled: %v", err)
+		}
+		if len(enabledRepos) != 0 {
+			t.Fatalf("enabled repos after disable = %+v, want none", enabledRepos)
+		}
+		audits, err := s.ListRepoAudit(ctx, prefix, repo.ID, 10)
+		if err != nil {
+			t.Fatalf("ListRepoAudit: %v", err)
+		}
+		if got, want := auditActions(audits), []string{"repo.update", "repo.update", "repo.create"}; !slices.Equal(got, want) {
+			t.Fatalf("audit actions = %v, want %v", got, want)
+		}
+		if err := s.RemoveRepoAdmin(ctx, prefix, "bob", "alice"); err != nil {
+			t.Fatalf("RemoveRepoAdmin bob: %v", err)
+		}
+		if err := s.RemoveRepoAdmin(ctx, prefix, "alice", "alice"); !errors.Is(err, store.ErrConflict) {
+			t.Fatalf("RemoveRepoAdmin last admin = %v, want ErrConflict", err)
+		}
+	})
+
+	t.Run("memory_search_and_close_errors", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "memory")
+		otherPrefix := contractPrefix(dialect, "memory-other")
+		ensureProject(t, s, ctx, prefix)
+		ensureProject(t, s, ctx, otherPrefix)
+
+		global, err := s.InsertMemory(ctx, store.MemoryInput{
+			Body: "global contractneedle reference",
+			Type: "reference",
+			Tags: []string{"shared", dialect.name, "shared"},
+		})
+		if err != nil {
+			t.Fatalf("InsertMemory global: %v", err)
+		}
+		weak, err := s.InsertMemory(ctx, store.MemoryInput{
+			Prefix: prefix,
+			Body:   "contractneedle appears once",
+			Type:   "note",
+			Tags:   []string{"rank", dialect.name},
+		})
+		if err != nil {
+			t.Fatalf("InsertMemory weak: %v", err)
+		}
+		time.Sleep(dialect.timestampTick)
+		strong, err := s.InsertMemory(ctx, store.MemoryInput{
+			Prefix: prefix,
+			Body:   "contractneedle contractneedle contractneedle appears often",
+			Type:   "note",
+			Tags:   []string{"rank", dialect.name},
+		})
+		if err != nil {
+			t.Fatalf("InsertMemory strong: %v", err)
+		}
+		if _, err := s.InsertMemory(ctx, store.MemoryInput{
+			Prefix: otherPrefix,
+			Body:   "contractneedle other prefix",
+			Type:   "note",
+			Tags:   []string{"rank", dialect.name},
+		}); err != nil {
+			t.Fatalf("InsertMemory other: %v", err)
+		}
+		assertUTCNonZero(t, strong.CreatedAt)
+		if got, want := strong.Tags, sortedStrings("rank", dialect.name); !slices.Equal(got, want) {
+			t.Fatalf("strong tags = %v, want %v", got, want)
+		}
+
+		scoped, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: prefix, Limit: 10})
+		if err != nil {
+			t.Fatalf("SearchMemories scoped: %v", err)
+		}
+		if got, want := memoryIDs(scoped), []int64{strong.ID, weak.ID, global.ID}; !slices.Equal(got, want) {
+			t.Fatalf("scoped memory IDs = %v, want %v", got, want)
+		}
+		ranked, err := s.SearchMemories(ctx, "contractneedle", store.MemoryFilter{
+			Prefix: prefix,
+			Type:   "note",
+			Tags:   []string{"rank", dialect.name},
+			Limit:  10,
+		})
+		if err != nil {
+			t.Fatalf("SearchMemories ranked: %v", err)
+		}
+		if got, want := memoryIDs(ranked), []int64{strong.ID, weak.ID}; !slices.Equal(got, want) {
+			t.Fatalf("ranked memory IDs = %v, want relevance order %v", got, want)
+		}
+		for _, query := range []string{"contractneedle", `"unterminated`, "%", "_"} {
+			if _, err := s.SearchMemories(ctx, query, store.MemoryFilter{Prefix: prefix, Limit: 10}); err != nil {
+				t.Fatalf("SearchMemories %q: %v", query, err)
+			}
+		}
+
+		s.Close()
+		s.Close()
+		if err := s.EnsureProject(ctx, prefix); !errors.Is(err, store.ErrPoolClosed) {
+			t.Fatalf("EnsureProject after Close = %v, want ErrPoolClosed", err)
+		}
+	})
+
+	if dialect.expectConcurrentWrites {
+		t.Run("concurrent_first_admin_bootstrap", func(t *testing.T) {
+			s := dialect.open(t)
+			ctx := context.Background()
+			prefix := contractPrefix(dialect, "bootstrap")
+			ensureProject(t, s, ctx, prefix)
+
+			start := make(chan struct{})
+			errs := make(chan error, 2)
+			var wg sync.WaitGroup
+			for _, actor := range []string{"alice", "bob"} {
+				actor := actor
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					<-start
+					errs <- s.AddRepoAdmin(ctx, prefix, actor, actor, true)
+				}()
+			}
+			close(start)
+			wg.Wait()
+			close(errs)
+
+			var success, unauthorized int
+			for err := range errs {
+				switch {
+				case err == nil:
+					success++
+				case errors.Is(err, store.ErrUnauthorized):
+					unauthorized++
+				default:
+					t.Fatalf("AddRepoAdmin concurrent bootstrap unexpected error: %v", err)
+				}
+			}
+			if success != 1 || unauthorized != 1 {
+				t.Fatalf("concurrent bootstrap results success=%d unauthorized=%d, want 1/1", success, unauthorized)
+			}
+		})
+	}
+}
+
+func openPostgresContractStore(t *testing.T) *store.Store {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	dsn := testPostgresDSN(t, ctx)
+	s, err := store.New(ctx, store.Config{
+		Driver:   store.DriverPostgres,
+		DSN:      store.SecretDSN(dsn),
+		MaxConns: 4,
+	})
+	if err != nil {
+		t.Fatalf("store integration postgres: New: %v", err)
+	}
+	t.Cleanup(s.Close)
+	return s
+}
+
+func openMySQLContractStore(t *testing.T) *store.Store {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	dsn := testMySQLDSN(t, ctx)
+	s, err := store.New(ctx, store.Config{
+		Driver:   store.DriverMySQL,
+		DSN:      store.SecretDSN(dsn),
+		MaxConns: 4,
+	})
+	if err != nil {
+		t.Fatalf("store integration mysql: New: %v", err)
+	}
+	t.Cleanup(s.Close)
+	return s
+}
+
+func openSQLiteContractStore(t *testing.T) *store.Store {
+	t.Helper()
+	ctx := context.Background()
+	s, err := store.New(ctx, store.Config{
+		Driver: store.DriverSQLite,
+		DSN:    store.SecretDSN(contractSQLiteDSN(t)),
+	})
+	if err != nil {
+		t.Fatalf("store integration sqlite: New: %v", err)
+	}
+	t.Cleanup(s.Close)
+	return s
+}
+
+func contractSQLiteDSN(t *testing.T) string {
+	t.Helper()
+	name := strings.NewReplacer("/", "_", " ", "_").Replace(t.Name())
+	return fmt.Sprintf("file:%s?mode=memory&cache=shared", name)
+}
+
+func contractPrefix(dialect storeContractDialect, suffix string) string {
+	return fmt.Sprintf("%s-%s", dialect.name, suffix)
+}
+
+func ensureProject(t *testing.T, s *store.Store, ctx context.Context, prefix string) {
+	t.Helper()
+	if err := s.EnsureProject(ctx, prefix); err != nil {
+		t.Fatalf("EnsureProject %q: %v", prefix, err)
+	}
+	exists, err := s.ProjectExists(ctx, prefix)
+	if err != nil {
+		t.Fatalf("ProjectExists %q: %v", prefix, err)
+	}
+	if !exists {
+		t.Fatalf("ProjectExists %q = false, want true", prefix)
+	}
+}
+
+func auditActions(audits []store.RepoAudit) []string {
+	actions := make([]string, 0, len(audits))
+	for _, audit := range audits {
+		actions = append(actions, audit.Action)
+	}
+	return actions
+}
+
+func sortedStrings(values ...string) []string {
+	out := slices.Clone(values)
+	slices.Sort(out)
+	return out
+}
+
+func assertUTCNonZero(t *testing.T, ts time.Time) {
+	t.Helper()
+	if ts.IsZero() {
+		t.Fatal("timestamp is zero")
+	}
+	if ts.Location() != time.UTC {
+		t.Fatalf("timestamp location = %v, want UTC", ts.Location())
+	}
+}
 
 // TestMigrateIdempotent verifies that calling Migrate twice is a no-op.
 func TestMigrateIdempotent(t *testing.T) {
