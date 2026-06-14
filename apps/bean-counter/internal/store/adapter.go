@@ -13,9 +13,13 @@ type Store = beansstore.Store
 type Config = beansstore.Config
 type SecretDSN = beansstore.SecretDSN
 type Issue = beansstore.Issue
+type IssueModel = beansmodel.Issue
+type IssueState = beansmodel.IssueState
+type RepoTarget = beansmodel.RepoTarget
 type ListFilter = beansstore.ListFilter
 type CreateIssueInput = beansstore.CreateIssueInput
 type UpdateIssueInput = beansstore.UpdateIssueInput
+type IssueRepoInput = beansstore.IssueRepoInput
 type DepEdge = beansstore.DepEdge
 
 var (
