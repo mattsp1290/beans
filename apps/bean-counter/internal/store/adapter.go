@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	beansmodel "github.com/mattsp1290/beans/model"
@@ -11,6 +10,7 @@ import (
 
 type Store = beansstore.Store
 type Config = beansstore.Config
+type Driver = beansstore.Driver
 type SecretDSN = beansstore.SecretDSN
 type Issue = beansstore.Issue
 type IssueModel = beansmodel.Issue
@@ -23,18 +23,20 @@ type UpdateIssueInput = beansstore.UpdateIssueInput
 type IssueRepoInput = beansstore.IssueRepoInput
 type DepEdge = beansstore.DepEdge
 
-var (
-	ErrNotFound     = beansstore.ErrNotFound
-	ErrCycle        = beansstore.ErrCycle
-	ErrDuplicateDep = beansstore.ErrDuplicateDep
-	ErrConflict     = beansstore.ErrConflict
-	ErrDisabled     = beansstore.ErrDisabled
-	ErrEmptyDSN     = beansstore.ErrEmptyDSN
+const (
+	DriverPostgres = beansstore.DriverPostgres
+	DriverMySQL    = beansstore.DriverMySQL
+	DriverSQLite   = beansstore.DriverSQLite
+)
 
-	// ErrUnsupportedDriver is local compatibility for bean-counter config
-	// validation; github.com/mattsp1290/beans v0.1.0 does not expose a driver
-	// sentinel.
-	ErrUnsupportedDriver = errors.New("store: unsupported database driver")
+var (
+	ErrNotFound          = beansstore.ErrNotFound
+	ErrCycle             = beansstore.ErrCycle
+	ErrDuplicateDep      = beansstore.ErrDuplicateDep
+	ErrConflict          = beansstore.ErrConflict
+	ErrDisabled          = beansstore.ErrDisabled
+	ErrEmptyDSN          = beansstore.ErrEmptyDSN
+	ErrUnsupportedDriver = beansstore.ErrUnsupportedDriver
 )
 
 // NewStore constructs the underlying beans store. beans/store.New owns schema
