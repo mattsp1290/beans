@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { emptyIssueForm, issueFormToCreateRequest, issueFormToUpdateRequest, validateIssueForm } from './form'
+import {
+  emptyIssueForm,
+  issueFormToCreateRequest,
+  issueFormToUpdateRequest,
+  issueToIssueForm,
+  validateIssueForm,
+} from './form'
 
 describe('issue form helpers', () => {
   it('omits blank optional fields for create requests', () => {
@@ -42,6 +48,34 @@ describe('issue form helpers', () => {
     form.issue_type = 'feature'
 
     expect(issueFormToUpdateRequest(form)).not.toHaveProperty('issue_type')
+  })
+
+  it('maps issue detail data into the editable form model', () => {
+    expect(
+      issueToIssueForm({
+        id: 'bc-1',
+        identifier: 'bc-1',
+        title: 'Edit me',
+        description: 'Details',
+        priority: 3,
+        issue_type: 'feature',
+        state: 'open',
+        labels: ['ui', 'api'],
+        blocked_by: [],
+        branch_name: 'feature/bc-1',
+        url: 'https://tracker.example/bc-1',
+        created_at: '2026-06-14T12:00:00Z',
+        updated_at: '2026-06-14T12:00:00Z',
+      }),
+    ).toEqual({
+      title: 'Edit me',
+      description: 'Details',
+      priority: 3,
+      issue_type: 'feature',
+      labels: 'ui, api',
+      branch_name: 'feature/bc-1',
+      url: 'https://tracker.example/bc-1',
+    })
   })
 
   it('validates title and URL constraints', () => {
