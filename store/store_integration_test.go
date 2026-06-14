@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/testcontainers/testcontainers-go"
 	tcmysql "github.com/testcontainers/testcontainers-go/modules/mysql"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -112,6 +113,7 @@ func isDockerUnavailable(err error) bool {
 type storeContractDialect struct {
 	name                   string
 	open                   func(t *testing.T) *store.Store
+	openWithSQL            func(t *testing.T) (*store.Store, *sql.DB)
 	timestampTick          time.Duration
 	acceptSingleWriterLock bool
 }
@@ -121,17 +123,21 @@ func TestStoreContractAcrossDialects(t *testing.T) {
 		{
 			name:          "postgres",
 			open:          openPostgresContractStore,
-			timestampTick: 2 * time.Millisecond,
+			timestampTick: 10 * time.Millisecond,
 		},
 		{
-			name:          "mysql",
-			open:          openMySQLContractStore,
-			timestampTick: 2 * time.Millisecond,
+			name:        "mysql",
+			open:        openMySQLContractStore,
+			openWithSQL: openMySQLContractStoreWithSQL,
+			// MySQL TIMESTAMP columns are microsecond precision; keep the tick
+			// wide enough that future driver/backend precision shifts do not
+			// make advancement assertions depend on scheduler timing.
+			timestampTick: 10 * time.Millisecond,
 		},
 		{
 			name:                   "sqlite",
 			open:                   openSQLiteContractStore,
-			timestampTick:          2 * time.Millisecond,
+			timestampTick:          10 * time.Millisecond,
 			acceptSingleWriterLock: true,
 		},
 	}
@@ -449,6 +455,157 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		}
 	})
 
+	t.Run("timestamps_and_timezone", func(t *testing.T) {
+		var s *store.Store
+		var rawSQL *sql.DB
+		if dialect.openWithSQL != nil {
+			s, rawSQL = dialect.openWithSQL(t)
+		} else {
+			s = dialect.open(t)
+		}
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "timestamps")
+		ensureProject(t, s, ctx, prefix)
+
+		issue, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "Timestamped issue",
+			Priority:  1,
+			IssueType: "task",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue timestamped: %v", err)
+		}
+		assertUTCNonZero(t, issue.CreatedAt)
+		assertUTCNonZero(t, issue.UpdatedAt)
+		if rawSQL != nil {
+			known := time.Date(2024, 3, 10, 7, 30, 0, 123456000, time.UTC)
+			if _, err := rawSQL.ExecContext(ctx, `UPDATE bn_issues SET updated_at = ? WHERE id = ?`, known, issue.ID); err != nil {
+				t.Fatalf("seed known raw updated_at: %v", err)
+			}
+			assertRawMySQLTimestamp(t, ctx, rawSQL, issue.ID, known)
+			gotKnown, err := s.GetIssue(ctx, issue.ID)
+			if err != nil {
+				t.Fatalf("GetIssue known timestamped: %v", err)
+			}
+			if !gotKnown.UpdatedAt.Equal(known) {
+				t.Fatalf("store updated_at = %s, want exact instant %s", gotKnown.UpdatedAt, known)
+			}
+			issue = gotKnown
+		}
+
+		time.Sleep(dialect.timestampTick)
+		title := "Timestamped issue updated"
+		updatedIssue, err := s.UpdateIssue(ctx, issue.ID, store.UpdateIssueInput{Title: &title})
+		if err != nil {
+			t.Fatalf("UpdateIssue timestamped: %v", err)
+		}
+		assertTimestampAdvanced(t, "UpdateIssue updated_at", issue.UpdatedAt, updatedIssue.UpdatedAt)
+
+		time.Sleep(dialect.timestampTick)
+		if err := s.CloseIssue(ctx, issue.ID, "alice", "timestamp done"); err != nil {
+			t.Fatalf("CloseIssue timestamped: %v", err)
+		}
+		closedIssue, err := s.GetIssue(ctx, issue.ID)
+		if err != nil {
+			t.Fatalf("GetIssue closed timestamped: %v", err)
+		}
+		assertTimestampAdvanced(t, "CloseIssue updated_at", updatedIssue.UpdatedAt, closedIssue.UpdatedAt)
+
+		importID := prefix + "-imported"
+		importResult, err := s.ImportIssuesFull(ctx, []store.ImportInput{{
+			ID: importID, Prefix: prefix, Title: "Imported timestamp", State: "open", Priority: 1, IssueType: "task",
+		}}, store.ImportOptions{Mode: store.ImportModeCreateOnly, TerminalStates: []model.IssueState{"closed"}})
+		if err != nil {
+			t.Fatalf("ImportIssuesFull create timestamped: %v", err)
+		}
+		if importResult.Created != 1 {
+			t.Fatalf("import create result = %+v, want created=1", importResult)
+		}
+		imported, err := s.GetIssue(ctx, importID)
+		if err != nil {
+			t.Fatalf("GetIssue imported timestamped: %v", err)
+		}
+		assertUTCNonZero(t, imported.CreatedAt)
+		assertUTCNonZero(t, imported.UpdatedAt)
+
+		time.Sleep(dialect.timestampTick)
+		importResult, err = s.ImportIssuesFull(ctx, []store.ImportInput{{
+			ID: importID, Prefix: prefix, Title: "Imported timestamp updated", State: "open", Priority: 0, IssueType: "bug",
+		}}, store.ImportOptions{Mode: store.ImportModeMerge, TerminalStates: []model.IssueState{"closed"}})
+		if err != nil {
+			t.Fatalf("ImportIssuesFull merge timestamped: %v", err)
+		}
+		if importResult.Updated != 1 {
+			t.Fatalf("import merge result = %+v, want updated=1", importResult)
+		}
+		merged, err := s.GetIssue(ctx, importID)
+		if err != nil {
+			t.Fatalf("GetIssue merged timestamped: %v", err)
+		}
+		assertTimestampAdvanced(t, "ImportIssuesFull merge updated_at", imported.UpdatedAt, merged.UpdatedAt)
+
+		if err := s.AddRepoAdmin(ctx, prefix, "alice", "alice", true); err != nil {
+			t.Fatalf("AddRepoAdmin timestamped: %v", err)
+		}
+		repo, err := s.CreateRepo(ctx, store.CreateRepoInput{
+			Prefix:        prefix,
+			Slug:          "timestamps",
+			RemoteURL:     "git@github.com:punk1290/timestamps.git",
+			AuthRef:       "ssh-key:github-default",
+			DefaultBranch: "main",
+			Actor:         "alice",
+		})
+		if err != nil {
+			t.Fatalf("CreateRepo timestamped: %v", err)
+		}
+		assertUTCNonZero(t, repo.CreatedAt)
+		assertUTCNonZero(t, repo.UpdatedAt)
+
+		time.Sleep(dialect.timestampTick)
+		branch := "trunk"
+		updatedRepo, err := s.UpdateRepo(ctx, prefix, "timestamps", store.UpdateRepoInput{
+			DefaultBranch: &branch,
+			Actor:         "alice",
+		})
+		if err != nil {
+			t.Fatalf("UpdateRepo timestamped: %v", err)
+		}
+		assertTimestampAdvanced(t, "UpdateRepo updated_at", repo.UpdatedAt, updatedRepo.UpdatedAt)
+
+		firstMemory, err := s.InsertMemory(ctx, store.MemoryInput{
+			Prefix: prefix,
+			Body:   "first timestamp memory",
+			Type:   "note",
+			Tags:   []string{"timestamp"},
+		})
+		if err != nil {
+			t.Fatalf("InsertMemory first timestamped: %v", err)
+		}
+		assertUTCNonZero(t, firstMemory.CreatedAt)
+		time.Sleep(dialect.timestampTick)
+		secondMemory, err := s.InsertMemory(ctx, store.MemoryInput{
+			Prefix: prefix,
+			Body:   "second timestamp memory",
+			Type:   "note",
+			Tags:   []string{"timestamp"},
+		})
+		if err != nil {
+			t.Fatalf("InsertMemory second timestamped: %v", err)
+		}
+		assertTimestampAdvanced(t, "InsertMemory created_at", firstMemory.CreatedAt, secondMemory.CreatedAt)
+		memories, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: prefix, Tags: []string{"timestamp"}, Limit: 2})
+		if err != nil {
+			t.Fatalf("SearchMemories timestamped: %v", err)
+		}
+		if got, want := memoryIDs(memories), []int64{secondMemory.ID, firstMemory.ID}; !slices.Equal(got, want) {
+			t.Fatalf("timestamp memory IDs = %v, want newest-first %v", got, want)
+		}
+		for _, memory := range memories {
+			assertUTCNonZero(t, memory.CreatedAt)
+		}
+	})
+
 	t.Run("concurrent_add_dep_cannot_create_cycle", func(t *testing.T) {
 		s := dialect.open(t)
 		ctx := context.Background()
@@ -539,6 +696,31 @@ func openMySQLContractStore(t *testing.T) *store.Store {
 	}
 	t.Cleanup(s.Close)
 	return s
+}
+
+func openMySQLContractStoreWithSQL(t *testing.T) (*store.Store, *sql.DB) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	dsn := testMySQLDSN(t, ctx)
+	rawDB, err := sql.Open("mysql", dsn)
+	if err != nil {
+		t.Fatalf("store integration mysql: sql.Open: %v", err)
+	}
+	t.Cleanup(func() { rawDB.Close() })
+	if err := rawDB.PingContext(ctx); err != nil {
+		t.Fatalf("store integration mysql: raw ping: %v", err)
+	}
+	s, err := store.New(ctx, store.Config{
+		Driver:   store.DriverMySQL,
+		DSN:      store.SecretDSN(dsn),
+		MaxConns: 4,
+	})
+	if err != nil {
+		t.Fatalf("store integration mysql: New: %v", err)
+	}
+	t.Cleanup(s.Close)
+	return s, rawDB
 }
 
 func openSQLiteContractStore(t *testing.T) *store.Store {
@@ -653,6 +835,28 @@ func assertUTCNonZero(t *testing.T, ts time.Time) {
 	}
 	if ts.Location() != time.UTC {
 		t.Fatalf("timestamp location = %v, want UTC", ts.Location())
+	}
+}
+
+func assertTimestampAdvanced(t *testing.T, label string, before, after time.Time) {
+	t.Helper()
+	assertUTCNonZero(t, after)
+	if !after.After(before) {
+		t.Fatalf("%s = %s, want after %s", label, after, before)
+	}
+}
+
+func assertRawMySQLTimestamp(t *testing.T, ctx context.Context, db *sql.DB, issueID string, want time.Time) {
+	t.Helper()
+	var raw time.Time
+	if err := db.QueryRowContext(ctx, `SELECT updated_at FROM bn_issues WHERE id = ?`, issueID).Scan(&raw); err != nil {
+		t.Fatalf("raw MySQL updated_at scan: %v", err)
+	}
+	if raw.Location() != time.UTC {
+		t.Fatalf("raw MySQL updated_at location = %v, want UTC", raw.Location())
+	}
+	if !raw.Equal(want) {
+		t.Fatalf("raw MySQL updated_at = %s, want exact instant %s", raw, want)
 	}
 }
 
