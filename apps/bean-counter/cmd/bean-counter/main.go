@@ -11,6 +11,7 @@ import (
 	"github.com/mattsp1290/bean-counter/internal/config"
 	"github.com/mattsp1290/bean-counter/internal/handlers/deps"
 	"github.com/mattsp1290/bean-counter/internal/handlers/graph"
+	"github.com/mattsp1290/bean-counter/internal/handlers/health"
 	"github.com/mattsp1290/bean-counter/internal/handlers/issues"
 	"github.com/mattsp1290/bean-counter/internal/handlers/ready"
 	"github.com/mattsp1290/bean-counter/internal/server"
@@ -53,6 +54,10 @@ func run() error {
 		CORSOrigin:    cfg.CORSOrigin,
 		CORSOriginSet: true,
 		RegisterAPI: func(api fiber.Router) {
+			health.Register(api, health.Config{
+				Store:         adapter.Store(),
+				ProjectPrefix: cfg.ProjectPrefix,
+			})
 			issues.Register(api, issues.Config{
 				Store:         adapter.Store(),
 				ProjectPrefix: cfg.ProjectPrefix,
