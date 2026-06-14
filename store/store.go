@@ -21,9 +21,9 @@ import (
 	"github.com/mattsp1290/beans/schema"
 )
 
-// Issue is the richer store-layer representation. It embeds model.Issue (which
-// callers and the tracker.Tracker adapter use) and adds IssueType — needed by
-// the bn CLI for --json output.
+// Issue is the richer store-layer representation. It embeds model.Issue (the
+// shared issue-domain shape used by callers) and adds IssueType, which the bn
+// CLI needs for --json output.
 type Issue struct {
 	model.Issue
 	IssueType string
