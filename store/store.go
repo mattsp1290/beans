@@ -9,7 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/mattsp1290/beans/model"
 	repovalidation "github.com/mattsp1290/beans/repo"
@@ -24,18 +26,16 @@ type Issue struct {
 	IssueType string
 }
 
-// Store is the data access layer for the bn tracker. It owns the Postgres
-// pool and all queries. Both the bn CLI (cmd/bn) and the Postgres tracker
-// adapter call it directly — neither surface shells out to the other.
+// Store is the data access layer for the bn tracker. It owns the database pool
+// and all queries. The bn CLI (cmd/bn) calls it directly.
 //
-// Store is safe for concurrent use; the underlying pgxpool handles concurrency.
+// Store is safe for concurrent use; the underlying database pool handles
+// concurrency.
 type Store struct {
 	p *pool
 }
 
 // New dials the configured database, runs migrations, and returns a ready Store.
-// Until the remaining pgx-backed methods are ported, non-Postgres stores are
-// migration-ready but operational methods return ErrUnsupportedDriver.
 // The caller must call Close when done to release pool connections.
 func New(ctx context.Context, cfg Config) (*Store, error) {
 	p, err := newPool(ctx, cfg)
@@ -71,32 +71,29 @@ func (s *Store) Close() {
 // EnsureProject creates the project prefix if it does not exist.
 // Idempotent: calling EnsureProject on an already-registered prefix is a no-op.
 func (s *Store) EnsureProject(ctx context.Context, prefix string) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
-	_, err = pool.Exec(ctx,
-		`INSERT INTO bn_projects (prefix) VALUES ($1) ON CONFLICT (prefix) DO NOTHING`,
-		prefix,
-	)
+	err = db.WithContext(ctx).
+		Clauses(clause.OnConflict{DoNothing: true}).
+		Create(&gormProject{Prefix: prefix, CreatedAt: clockNowUTC()}).
+		Error
 	return wrapExecErr(err, "EnsureProject")
 }
 
 // ProjectExists reports whether a project prefix is registered.
 func (s *Store) ProjectExists(ctx context.Context, prefix string) (bool, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return false, err
 	}
-	var exists bool
-	err = pool.QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM bn_projects WHERE prefix = $1)`,
-		prefix,
-	).Scan(&exists)
+	var count int64
+	err = db.WithContext(ctx).Model(&gormProject{}).Where("prefix = ?", prefix).Count(&count).Error
 	if err != nil {
 		return false, fmt.Errorf("store: ProjectExists: %w", err)
 	}
-	return exists, nil
+	return count > 0, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +128,7 @@ type IssueRepoInput struct {
 // The project prefix must already be registered via EnsureProject.
 // Retries on the rare hash collision (PK violation).
 func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Issue{}, err
 	}
@@ -145,65 +142,47 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 			return Issue{}, fmt.Errorf("store: generate id: %w", genErr)
 		}
 
-		var (
-			createdAt time.Time
-			updatedAt time.Time
-		)
-
 		var repoTarget *model.RepoTarget
-		if in.Repo != nil {
-			tx, beginErr := pool.Begin(ctx)
-			if beginErr != nil {
-				return Issue{}, fmt.Errorf("store: CreateIssue begin tx: %w", beginErr)
-			}
-			err = tx.QueryRow(ctx, `
-				INSERT INTO bn_issues
-					(id, prefix, title, description, priority, issue_type, labels, branch_name, url)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-				RETURNING created_at, updated_at`,
-				id, in.Prefix, in.Title, in.Description,
-				in.Priority, typ, labels,
-				nullableStr(in.BranchName), nullableStr(in.URL),
-			).Scan(&createdAt, &updatedAt)
-			if err == nil {
-				repoTarget, err = insertIssueRepo(ctx, tx, id, in.Prefix, *in.Repo)
-			}
-			if err == nil && in.Actor != "" {
-				_, err = tx.Exec(ctx,
-					`INSERT INTO bn_issue_notes (issue_id, actor, body) VALUES ($1, $2, $3)`,
-					id, in.Actor, fmt.Sprintf("created by %s", in.Actor),
-				)
-				if err != nil {
-					err = fmt.Errorf("store: CreateIssue note: %w", err)
-				}
-			}
-			if err == nil {
-				err = tx.Commit(ctx)
-			}
-			if err != nil {
-				_ = tx.Rollback(ctx)
-			}
-		} else {
-			err = pool.QueryRow(ctx, `
-				INSERT INTO bn_issues
-					(id, prefix, title, description, priority, issue_type, labels, branch_name, url)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-				RETURNING created_at, updated_at`,
-				id, in.Prefix, in.Title, in.Description,
-				in.Priority, typ, labels,
-				nullableStr(in.BranchName), nullableStr(in.URL),
-			).Scan(&createdAt, &updatedAt)
-
-			if err == nil && in.Actor != "" {
-				_, noteErr := pool.Exec(ctx,
-					`INSERT INTO bn_issue_notes (issue_id, actor, body) VALUES ($1, $2, $3)`,
-					id, in.Actor, fmt.Sprintf("created by %s", in.Actor),
-				)
-				if noteErr != nil {
-					return Issue{}, fmt.Errorf("store: CreateIssue note: %w", noteErr)
-				}
-			}
+		now := clockNowUTC()
+		issue := gormIssue{
+			ID:          id,
+			Prefix:      in.Prefix,
+			Title:       in.Title,
+			Description: in.Description,
+			Priority:    in.Priority,
+			IssueType:   typ,
+			State:       "open",
+			Labels:      datatypes.JSON(labels),
+			BranchName:  nullableStr(in.BranchName),
+			URL:         nullableStr(in.URL),
+			CreatedAt:   now,
+			UpdatedAt:   now,
 		}
+
+		err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+			if err := tx.Create(&issue).Error; err != nil {
+				return err
+			}
+			if in.Repo != nil {
+				var repoErr error
+				repoTarget, repoErr = insertIssueRepoGORM(ctx, tx, id, in.Prefix, *in.Repo)
+				if repoErr != nil {
+					return repoErr
+				}
+			}
+			if in.Actor != "" {
+				note := gormIssueNote{
+					IssueID:   id,
+					Actor:     nullableStr(in.Actor),
+					Body:      fmt.Sprintf("created by %s", in.Actor),
+					CreatedAt: clockNowUTC(),
+				}
+				if err := tx.Create(&note).Error; err != nil {
+					return fmt.Errorf("store: CreateIssue note: %w", err)
+				}
+			}
+			return nil
+		})
 
 		if err == nil {
 			return Issue{
@@ -218,8 +197,8 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 					BranchName:  in.BranchName,
 					URL:         in.URL,
 					Repo:        repoTarget,
-					CreatedAt:   createdAt.UTC(),
-					UpdatedAt:   updatedAt.UTC(),
+					CreatedAt:   now,
+					UpdatedAt:   now,
 				},
 				IssueType: typ,
 			}, nil
@@ -235,60 +214,60 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 // GetIssueStatesByIDs returns the current state for each id present in the
 // store. Missing IDs are silently absent from the result map — callers
 // distinguish "not found" from "not requested" by map membership. This is a
-// single batched query (WHERE id = ANY($1)), not one call per ID.
+// single batched query, not one call per ID.
 func (s *Store) GetIssueStatesByIDs(ctx context.Context, ids []string) (map[string]model.IssueState, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := pool.Query(ctx,
-		`SELECT id, state FROM bn_issues WHERE id = ANY($1)`,
-		ids,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("store: GetIssueStatesByIDs: %w", err)
+	var rows []struct {
+		ID    string
+		State string
 	}
-	defer rows.Close()
+	if len(ids) > 0 {
+		err = db.WithContext(ctx).
+			Model(&gormIssue{}).
+			Select("id, state").
+			Where("id IN ?", ids).
+			Find(&rows).
+			Error
+		if err != nil {
+			return nil, fmt.Errorf("store: GetIssueStatesByIDs: %w", err)
+		}
+	}
 
 	result := make(map[string]model.IssueState, len(ids))
-	for rows.Next() {
-		var id, state string
-		if err := rows.Scan(&id, &state); err != nil {
-			return nil, fmt.Errorf("store: GetIssueStatesByIDs scan: %w", err)
-		}
-		result[id] = model.IssueState(state)
+	for _, row := range rows {
+		result[row.ID] = model.IssueState(row.State)
 	}
-	return result, rows.Err()
+	return result, nil
 }
 
 // GetIssue returns a single issue with its BlockedBy list populated.
 // Returns ErrNotFound if no issue with that id exists.
 func (s *Store) GetIssue(ctx context.Context, id string) (Issue, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Issue{}, err
 	}
 
-	row := pool.QueryRow(ctx, `
-		SELECT id, identifier, title, description, priority, issue_type, state,
-		       labels, branch_name, url, created_at, updated_at
-		FROM bn_issues WHERE id = $1`, id)
-
-	iss, err := scanIssue(row)
-	if errors.Is(err, pgx.ErrNoRows) {
+	var row gormIssue
+	err = db.WithContext(ctx).Where("id = ?", id).First(&row).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return Issue{}, fmt.Errorf("store: %w: %s", ErrNotFound, id)
 	}
 	if err != nil {
 		return Issue{}, fmt.Errorf("store: GetIssue: %w", err)
 	}
 
-	iss.BlockedBy, err = s.fetchBlockedBy(ctx, pool, id)
+	iss := issueFromGORM(row)
+	iss.BlockedBy, err = s.fetchBlockedBy(ctx, db, id)
 	if err != nil {
 		return Issue{}, err
 	}
 	issues := []Issue{iss}
-	if err := s.populateIssueRepos(ctx, pool, issues); err != nil {
+	if err := s.populateIssueRepos(ctx, db, issues); err != nil {
 		return Issue{}, err
 	}
 	iss = issues[0]
@@ -304,47 +283,36 @@ type ListFilter struct {
 
 // ListIssues returns issues matching the filter with BlockedBy populated.
 func (s *Store) ListIssues(ctx context.Context, f ListFilter) ([]Issue, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	args := []any{f.Prefix}
-	q := `SELECT id, identifier, title, description, priority, issue_type, state,
-		         labels, branch_name, url, created_at, updated_at
-		  FROM bn_issues WHERE prefix = $1`
-
+	q := db.WithContext(ctx).
+		Where("prefix = ?", f.Prefix).
+		Order("priority ASC").
+		Order("created_at ASC")
 	if len(f.States) > 0 {
 		strs := make([]string, len(f.States))
 		for i, st := range f.States {
-			args = append(args, string(st))
-			strs[i] = fmt.Sprintf("$%d", len(args))
+			strs[i] = string(st)
 		}
-		q += " AND state IN (" + strings.Join(strs, ",") + ")"
+		q = q.Where("state IN ?", strs)
 	}
-
-	q += " ORDER BY priority ASC, created_at ASC"
-
 	if f.Limit > 0 {
-		args = append(args, f.Limit)
-		q += fmt.Sprintf(" LIMIT $%d", len(args))
+		q = q.Limit(f.Limit)
 	}
-
-	rows, err := pool.Query(ctx, q, args...)
-	if err != nil {
+	var rows []gormIssue
+	if err := q.Find(&rows).Error; err != nil {
 		return nil, fmt.Errorf("store: ListIssues: %w", err)
 	}
-	defer rows.Close()
 
-	issues, err := collectIssues(rows)
-	if err != nil {
+	issues := issuesFromGORM(rows)
+
+	if err := s.populateBlockedBy(ctx, db, issues); err != nil {
 		return nil, err
 	}
-
-	if err := s.populateBlockedBy(ctx, pool, issues); err != nil {
-		return nil, err
-	}
-	if err := s.populateIssueRepos(ctx, pool, issues); err != nil {
+	if err := s.populateIssueRepos(ctx, db, issues); err != nil {
 		return nil, err
 	}
 	return issues, nil
@@ -360,7 +328,7 @@ func (s *Store) ListIssues(ctx context.Context, f ListFilter) ([]Issue, error) {
 // issue) are handled by ON DELETE CASCADE — if the blocker is deleted, the
 // edge disappears and the child becomes unblocked automatically.
 func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates []model.IssueState, activeStates []model.IssueState) ([]Issue, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
@@ -369,70 +337,46 @@ func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates [
 		return []Issue{}, nil
 	}
 
-	args := []any{prefix}
-
-	activePlaceholders := make([]string, len(activeStates))
+	active := make([]string, len(activeStates))
 	for i, st := range activeStates {
-		args = append(args, string(st))
-		activePlaceholders[i] = fmt.Sprintf("$%d", len(args))
+		active[i] = string(st)
 	}
 
-	var q string
+	q := db.WithContext(ctx).
+		Where("prefix = ?", prefix).
+		Where("state IN ?", active).
+		Order("priority ASC").
+		Order("created_at ASC")
 	if len(terminalStates) == 0 {
 		// When no states are terminal, every blocker is unsatisfied — so only
 		// issues with no blockers at all are ready. Use the simpler EXISTS
 		// form to avoid the invalid "NOT IN ()" SQL syntax.
-		q = fmt.Sprintf(`
-			SELECT i.id, i.identifier, i.title, i.description, i.priority, i.issue_type,
-			       i.state, i.labels, i.branch_name, i.url, i.created_at, i.updated_at
-			FROM bn_issues i
-			WHERE i.prefix = $1
-			  AND i.state IN (%s)
-			  AND NOT EXISTS (
-			    SELECT 1 FROM bn_issue_deps d WHERE d.issue_id = i.id
-			  )
-			ORDER BY i.priority ASC, i.created_at ASC`,
-			strings.Join(activePlaceholders, ","),
-		)
+		q = q.Where("NOT EXISTS (SELECT 1 FROM bn_issue_deps d WHERE d.issue_id = bn_issues.id)")
 	} else {
-		termPlaceholders := make([]string, len(terminalStates))
+		term := make([]string, len(terminalStates))
 		for i, st := range terminalStates {
-			args = append(args, string(st))
-			termPlaceholders[i] = fmt.Sprintf("$%d", len(args))
+			term[i] = string(st)
 		}
-		q = fmt.Sprintf(`
-			SELECT i.id, i.identifier, i.title, i.description, i.priority, i.issue_type,
-			       i.state, i.labels, i.branch_name, i.url, i.created_at, i.updated_at
-			FROM bn_issues i
-			WHERE i.prefix = $1
-			  AND i.state IN (%s)
-			  AND NOT EXISTS (
+		q = q.Where(`
+			NOT EXISTS (
 			    SELECT 1 FROM bn_issue_deps d
 			    JOIN bn_issues b ON b.id = d.blocked_by_id
-			    WHERE d.issue_id = i.id
-			      AND b.state NOT IN (%s)
-			  )
-			ORDER BY i.priority ASC, i.created_at ASC`,
-			strings.Join(activePlaceholders, ","),
-			strings.Join(termPlaceholders, ","),
-		)
+			    WHERE d.issue_id = bn_issues.id
+			      AND b.state NOT IN ?
+			)`, term)
 	}
 
-	rows, err := pool.Query(ctx, q, args...)
-	if err != nil {
+	var rows []gormIssue
+	if err := q.Find(&rows).Error; err != nil {
 		return nil, fmt.Errorf("store: ReadyIssues: %w", err)
 	}
-	defer rows.Close()
 
-	issues, err := collectIssues(rows)
-	if err != nil {
+	issues := issuesFromGORM(rows)
+
+	if err := s.populateBlockedBy(ctx, db, issues); err != nil {
 		return nil, err
 	}
-
-	if err := s.populateBlockedBy(ctx, pool, issues); err != nil {
-		return nil, err
-	}
-	if err := s.populateIssueRepos(ctx, pool, issues); err != nil {
+	if err := s.populateIssueRepos(ctx, db, issues); err != nil {
 		return nil, err
 	}
 	return issues, nil
@@ -460,104 +404,88 @@ type AppendNotesInput struct {
 // UpdateIssue applies a partial update to an issue. Returns ErrNotFound if
 // the issue does not exist. At least one field must be set.
 func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput) (Issue, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Issue{}, err
 	}
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		return Issue{}, fmt.Errorf("store: UpdateIssue begin tx: %w", err)
-	}
-	committed := false
-	defer func() {
-		if !committed {
-			_ = tx.Rollback(ctx)
-		}
-	}()
-
-	setClauses := []string{}
-	args := []any{}
-
-	argN := func(v any) string {
-		args = append(args, v)
-		return fmt.Sprintf("$%d", len(args))
-	}
-
+	updates := map[string]any{}
 	if in.Title != nil {
-		setClauses = append(setClauses, "title = "+argN(*in.Title))
+		updates["title"] = *in.Title
 	}
 	if in.Description != nil {
-		setClauses = append(setClauses, "description = "+argN(*in.Description))
+		updates["description"] = *in.Description
 	}
 	if in.Priority != nil {
-		setClauses = append(setClauses, "priority = "+argN(*in.Priority))
+		updates["priority"] = *in.Priority
 	}
 	if in.State != nil {
-		setClauses = append(setClauses, "state = "+argN(string(*in.State)))
+		updates["state"] = string(*in.State)
 	}
 	if in.Labels != nil {
-		setClauses = append(setClauses, "labels = "+argN(encodedLabels(in.Labels)))
+		updates["labels"] = datatypes.JSON(encodedLabels(in.Labels))
 	}
 	if in.BranchName != nil {
-		setClauses = append(setClauses, "branch_name = "+argN(nullableStr(*in.BranchName)))
+		updates["branch_name"] = nullableStr(*in.BranchName)
 	}
 	if in.URL != nil {
-		setClauses = append(setClauses, "url = "+argN(nullableStr(*in.URL)))
+		updates["url"] = nullableStr(*in.URL)
 	}
 
-	if len(setClauses) > 0 {
-		setClauses = append(setClauses, "updated_at = now()")
-		args = append(args, id)
-		q := fmt.Sprintf(
-			"UPDATE bn_issues SET %s WHERE id = $%d",
-			strings.Join(setClauses, ", "),
-			len(args),
-		)
-		tag, err := tx.Exec(ctx, q, args...)
-		if err != nil {
-			return Issue{}, fmt.Errorf("store: UpdateIssue: %w", err)
+	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if len(updates) > 0 {
+			updates["updated_at"] = clockNowUTC()
+			res := tx.Model(&gormIssue{}).Where("id = ?", id).Updates(updates)
+			if res.Error != nil {
+				return fmt.Errorf("store: UpdateIssue: %w", res.Error)
+			}
+			if res.RowsAffected == 0 {
+				return fmt.Errorf("store: %w: %s", ErrNotFound, id)
+			}
 		}
-		if tag.RowsAffected() == 0 {
-			return Issue{}, fmt.Errorf("store: %w: %s", ErrNotFound, id)
-		}
-	}
 
-	var prefix string
-	if in.Repo != nil || len(setClauses) == 0 {
-		err := tx.QueryRow(ctx, `SELECT prefix FROM bn_issues WHERE id = $1`, id).Scan(&prefix)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return Issue{}, fmt.Errorf("store: %w: %s", ErrNotFound, id)
+		var prefix string
+		if in.Repo != nil || len(updates) == 0 {
+			var issue gormIssue
+			err := tx.Select("prefix").Where("id = ?", id).First(&issue).Error
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("store: %w: %s", ErrNotFound, id)
+			}
+			if err != nil {
+				return fmt.Errorf("store: UpdateIssue fetch prefix: %w", err)
+			}
+			prefix = issue.Prefix
 		}
-		if err != nil {
-			return Issue{}, fmt.Errorf("store: UpdateIssue fetch prefix: %w", err)
-		}
-	}
 
-	if in.Repo != nil {
-		if _, err := tx.Exec(ctx, `DELETE FROM bn_issue_repos WHERE issue_id = $1`, id); err != nil {
-			return Issue{}, fmt.Errorf("store: UpdateIssue repo delete: %w", err)
+		if in.Repo != nil {
+			if err := tx.Where("issue_id = ?", id).Delete(&gormIssueRepo{}).Error; err != nil {
+				return fmt.Errorf("store: UpdateIssue repo delete: %w", err)
+			}
+			if _, err := insertIssueRepoGORM(ctx, tx, id, prefix, *in.Repo); err != nil {
+				return err
+			}
+			if err := tx.Model(&gormIssue{}).
+				Where("id = ?", id).
+				Update("updated_at", clockNowUTC()).
+				Error; err != nil {
+				return fmt.Errorf("store: UpdateIssue repo timestamp: %w", err)
+			}
 		}
-		if _, err := insertIssueRepo(ctx, tx, id, prefix, *in.Repo); err != nil {
-			return Issue{}, err
+		if in.AppendNotes != nil && strings.TrimSpace(in.AppendNotes.Body) != "" {
+			note := gormIssueNote{
+				IssueID:   id,
+				Actor:     nullableStr(in.AppendNotes.Actor),
+				Body:      in.AppendNotes.Body,
+				CreatedAt: clockNowUTC(),
+			}
+			if err := tx.Create(&note).Error; err != nil {
+				return fmt.Errorf("store: UpdateIssue notes: %w", err)
+			}
 		}
-		if _, err := tx.Exec(ctx, `UPDATE bn_issues SET updated_at = now() WHERE id = $1`, id); err != nil {
-			return Issue{}, fmt.Errorf("store: UpdateIssue repo timestamp: %w", err)
-		}
+		return nil
+	})
+	if err != nil {
+		return Issue{}, err
 	}
-	if in.AppendNotes != nil && strings.TrimSpace(in.AppendNotes.Body) != "" {
-		_, err := tx.Exec(ctx,
-			`INSERT INTO bn_issue_notes (issue_id, actor, body) VALUES ($1, $2, $3)`,
-			id, nullableStr(in.AppendNotes.Actor), in.AppendNotes.Body,
-		)
-		if err != nil {
-			return Issue{}, fmt.Errorf("store: UpdateIssue notes: %w", err)
-		}
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return Issue{}, fmt.Errorf("store: UpdateIssue commit: %w", err)
-	}
-	committed = true
 	return s.GetIssue(ctx, id)
 }
 
@@ -565,23 +493,23 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 // closed issue returns nil without inserting a duplicate note or bumping updated_at.
 // If reason is non-empty it is appended as a note only when the state actually changes.
 func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
 
 	// Only update when the issue is not already closed so that repeated calls don't
 	// accumulate noise notes or churn updated_at.
-	tag, err := pool.Exec(ctx,
-		`UPDATE bn_issues SET state = 'closed', updated_at = now() WHERE id = $1 AND state != 'closed'`,
-		id,
-	)
-	if err != nil {
-		return fmt.Errorf("store: CloseIssue: %w", err)
+	res := db.WithContext(ctx).
+		Model(&gormIssue{}).
+		Where("id = ? AND state <> ?", id, "closed").
+		Updates(map[string]any{"state": "closed", "updated_at": clockNowUTC()})
+	if res.Error != nil {
+		return fmt.Errorf("store: CloseIssue: %w", res.Error)
 	}
-	if tag.RowsAffected() == 0 {
+	if res.RowsAffected == 0 {
 		// Either the issue does not exist, or it was already closed.
-		exists, checkErr := s.issueExists(ctx, pool, id)
+		exists, checkErr := s.issueExists(ctx, db, id)
 		if checkErr != nil {
 			return checkErr
 		}
@@ -593,11 +521,13 @@ func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error 
 	}
 
 	if strings.TrimSpace(reason) != "" {
-		_, err = pool.Exec(ctx,
-			`INSERT INTO bn_issue_notes (issue_id, actor, body) VALUES ($1, $2, $3)`,
-			id, nullableStr(actor), strings.TrimSpace(reason),
-		)
-		if err != nil {
+		note := gormIssueNote{
+			IssueID:   id,
+			Actor:     nullableStr(actor),
+			Body:      strings.TrimSpace(reason),
+			CreatedAt: clockNowUTC(),
+		}
+		if err := db.WithContext(ctx).Create(&note).Error; err != nil {
 			return fmt.Errorf("store: CloseIssue note: %w", err)
 		}
 	}
@@ -607,16 +537,16 @@ func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error 
 // DeleteIssue hard-deletes an issue and its dependent edges/notes via CASCADE.
 // Returns ErrNotFound if the issue does not exist.
 func (s *Store) DeleteIssue(ctx context.Context, id string) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
 
-	tag, err := pool.Exec(ctx, `DELETE FROM bn_issues WHERE id = $1`, id)
-	if err != nil {
-		return fmt.Errorf("store: DeleteIssue: %w", err)
+	res := db.WithContext(ctx).Where("id = ?", id).Delete(&gormIssue{})
+	if res.Error != nil {
+		return fmt.Errorf("store: DeleteIssue: %w", res.Error)
 	}
-	if tag.RowsAffected() == 0 {
+	if res.RowsAffected == 0 {
 		return fmt.Errorf("store: %w: %s", ErrNotFound, id)
 	}
 	return nil
@@ -632,64 +562,64 @@ func (s *Store) DeleteIssue(ctx context.Context, id string) error {
 // All checks and the INSERT run inside a single SERIALIZABLE transaction so
 // concurrent AddDep calls cannot form a cycle via a TOCTOU race.
 func (s *Store) AddDep(ctx context.Context, childID, parentID string) error {
-	pgxPool, err := s.p.conn()
+	if childID == parentID {
+		return fmt.Errorf("store: %w: %s → %s", ErrCycle, childID, parentID)
+	}
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
 
-	tx, err := pgxPool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
-	if err != nil {
-		return fmt.Errorf("store: AddDep begin tx: %w", err)
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-
-	// Verify both issues exist.
-	for _, id := range []string{childID, parentID} {
-		exists, err := s.issueExists(ctx, tx, id)
+	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := lockDepGraphGuard(tx); err != nil {
+			return err
+		}
+		for _, id := range []string{childID, parentID} {
+			exists, err := s.issueExists(ctx, tx, id)
+			if err != nil {
+				return err
+			}
+			if !exists {
+				return fmt.Errorf("store: %w: %s", ErrNotFound, id)
+			}
+		}
+		graph, err := loadDepGraph(tx)
 		if err != nil {
 			return err
 		}
-		if !exists {
-			return fmt.Errorf("store: %w: %s", ErrNotFound, id)
+		if reaches(graph, parentID, childID) {
+			return fmt.Errorf("store: %w: %s → %s", ErrCycle, childID, parentID)
 		}
-	}
-
-	// Cycle check: parentID must not be reachable from childID via existing edges.
-	if cycle, err := s.hasCycle(ctx, tx, childID, parentID); err != nil {
-		return err
-	} else if cycle {
-		return fmt.Errorf("store: %w: %s → %s", ErrCycle, childID, parentID)
-	}
-
-	_, err = tx.Exec(ctx,
-		`INSERT INTO bn_issue_deps (issue_id, blocked_by_id) VALUES ($1, $2)`,
-		childID, parentID,
-	)
-	if err != nil {
-		if isDupKeyConflict(err) {
+		res := tx.Clauses(clause.OnConflict{DoNothing: true}).
+			Create(&gormIssueDep{IssueID: childID, BlockedByID: parentID})
+		if res.Error != nil {
+			if isDupKeyConflict(res.Error) {
+				return ErrDuplicateDep
+			}
+			return fmt.Errorf("store: AddDep: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
 			return ErrDuplicateDep
 		}
-		return fmt.Errorf("store: AddDep: %w", err)
-	}
-	return tx.Commit(ctx)
+		return nil
+	})
 }
 
 // RemoveDep removes a dependency edge. Returns ErrNotFound if the edge does
 // not exist.
 func (s *Store) RemoveDep(ctx context.Context, childID, parentID string) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
 
-	tag, err := pool.Exec(ctx,
-		`DELETE FROM bn_issue_deps WHERE issue_id = $1 AND blocked_by_id = $2`,
-		childID, parentID,
-	)
-	if err != nil {
-		return fmt.Errorf("store: RemoveDep: %w", err)
+	res := db.WithContext(ctx).
+		Where("issue_id = ? AND blocked_by_id = ?", childID, parentID).
+		Delete(&gormIssueDep{})
+	if res.Error != nil {
+		return fmt.Errorf("store: RemoveDep: %w", res.Error)
 	}
-	if tag.RowsAffected() == 0 {
+	if res.RowsAffected == 0 {
 		return fmt.Errorf("store: %w: dep %s → %s", ErrNotFound, childID, parentID)
 	}
 	return nil
@@ -703,33 +633,24 @@ type DepEdge struct {
 
 // ListDeps returns all dependency edges for issues in the given prefix.
 func (s *Store) ListDeps(ctx context.Context, prefix string) ([]DepEdge, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := pool.Query(ctx, `
-		SELECT d.issue_id, d.blocked_by_id
-		FROM bn_issue_deps d
-		JOIN bn_issues i ON i.id = d.issue_id
-		WHERE i.prefix = $1
-		ORDER BY d.issue_id, d.blocked_by_id`,
-		prefix,
-	)
+	var edges []DepEdge
+	err = db.WithContext(ctx).
+		Table("bn_issue_deps AS d").
+		Select("d.issue_id, d.blocked_by_id").
+		Joins("JOIN bn_issues i ON i.id = d.issue_id").
+		Where("i.prefix = ?", prefix).
+		Order("d.issue_id ASC, d.blocked_by_id ASC").
+		Scan(&edges).
+		Error
 	if err != nil {
 		return nil, fmt.Errorf("store: ListDeps: %w", err)
 	}
-	defer rows.Close()
-
-	var edges []DepEdge
-	for rows.Next() {
-		var e DepEdge
-		if err := rows.Scan(&e.IssueID, &e.BlockedByID); err != nil {
-			return nil, fmt.Errorf("store: ListDeps scan: %w", err)
-		}
-		edges = append(edges, e)
-	}
-	return edges, rows.Err()
+	return edges, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -766,90 +687,14 @@ type ImportInput struct {
 // Deps are inserted in a second pass (all issues first, then edges) to avoid
 // FK forward-reference failures. The entire batch runs in one transaction.
 func (s *Store) ImportIssues(ctx context.Context, items []ImportInput, terminalStates []model.IssueState) error {
-	pgxPool, err := s.p.conn()
+	_, err := s.ImportIssuesFull(ctx, items, ImportOptions{
+		TerminalStates: terminalStates,
+		Mode:           ImportModeMerge,
+	})
 	if err != nil {
-		return err
+		return fmt.Errorf("store: ImportIssues: %w", err)
 	}
-
-	terminalSet := make(map[string]bool, len(terminalStates))
-	for _, st := range terminalStates {
-		terminalSet[string(st)] = true
-	}
-
-	tx, err := pgxPool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("store: ImportIssues begin tx: %w", err)
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-
-	// Pass 1: upsert issues.
-	for _, item := range items {
-		labels := encodedLabels(item.Labels)
-		if terminalSet[item.State] {
-			// Insert if absent; if present and terminal, update non-state fields only.
-			_, err = tx.Exec(ctx, `
-				INSERT INTO bn_issues
-					(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-				ON CONFLICT (id) DO UPDATE SET
-					title       = EXCLUDED.title,
-					description = EXCLUDED.description,
-					priority    = EXCLUDED.priority,
-					issue_type  = EXCLUDED.issue_type,
-					labels      = EXCLUDED.labels,
-					branch_name = EXCLUDED.branch_name,
-					url         = EXCLUDED.url,
-					updated_at  = now()`,
-				item.ID, item.Prefix, item.Title, item.Description,
-				item.Priority, issueType(item.IssueType), item.State, labels,
-				nullableStr(item.BranchName), nullableStr(item.URL),
-			)
-		} else {
-			// Insert if absent; if present, update all non-state-terminal fields.
-			// State is only updated if the existing state is NOT terminal.
-			_, err = tx.Exec(ctx, `
-				INSERT INTO bn_issues
-					(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-				ON CONFLICT (id) DO UPDATE SET
-					title       = EXCLUDED.title,
-					description = EXCLUDED.description,
-					priority    = EXCLUDED.priority,
-					issue_type  = EXCLUDED.issue_type,
-					state       = CASE WHEN bn_issues.state = ANY($11::text[])
-					                   THEN bn_issues.state
-					                   ELSE EXCLUDED.state END,
-					labels      = EXCLUDED.labels,
-					branch_name = EXCLUDED.branch_name,
-					url         = EXCLUDED.url,
-					updated_at  = now()`,
-				item.ID, item.Prefix, item.Title, item.Description,
-				item.Priority, issueType(item.IssueType), item.State, labels,
-				nullableStr(item.BranchName), nullableStr(item.URL),
-				terminalStateArray(terminalStates),
-			)
-		}
-		if err != nil {
-			return fmt.Errorf("store: ImportIssues upsert %s: %w", item.ID, err)
-		}
-	}
-
-	// Pass 2: insert dep edges (forward refs resolved because all issues are now present).
-	for _, item := range items {
-		for _, blockerID := range item.Deps {
-			_, err = tx.Exec(ctx, `
-				INSERT INTO bn_issue_deps (issue_id, blocked_by_id)
-				VALUES ($1, $2)
-				ON CONFLICT DO NOTHING`,
-				item.ID, blockerID,
-			)
-			if err != nil {
-				return fmt.Errorf("store: ImportIssues dep %s→%s: %w", item.ID, blockerID, err)
-			}
-		}
-	}
-
-	return tx.Commit(ctx)
+	return nil
 }
 
 // ImportMode controls how ImportIssuesFull handles existing issues.
@@ -910,142 +755,114 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 }
 
 func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, opts ImportOptions) (ImportResult, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return ImportResult{}, err
 	}
 
-	tx, err := pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
-	if err != nil {
-		return ImportResult{}, fmt.Errorf("store: ImportIssuesFull begin tx: %w", err)
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-
-	// Track which items were actually written so pass-2 can skip the rest.
-	written := make(map[string]bool, len(items))
-
 	var result ImportResult
+	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		written := make(map[string]bool, len(items))
+		terminalSet := terminalStateSet(opts.TerminalStates)
 
-	// Pass 1: upsert issues.
-	for _, item := range items {
-		labels := encodedLabels(item.Labels)
-		existing, alreadyExists, err := s.getImportIssueSnapshot(ctx, tx, item.ID)
-		if err != nil {
-			return ImportResult{}, err
-		}
-		if alreadyExists && existing.Prefix != item.Prefix {
-			result.CrossPrefixConflicts++
-			continue
-		}
-
-		if opts.Mode == ImportModeCreateOnly {
-			if alreadyExists {
-				result.Skipped++
+		for _, item := range items {
+			existing, alreadyExists, err := s.getImportIssueSnapshot(ctx, tx, item.ID)
+			if err != nil {
+				return err
+			}
+			if alreadyExists && existing.Prefix != item.Prefix {
+				result.CrossPrefixConflicts++
 				continue
 			}
-			tag, execErr := tx.Exec(ctx, `
-				INSERT INTO bn_issues
-					(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-				ON CONFLICT (id) DO NOTHING`,
-				item.ID, item.Prefix, item.Title, item.Description,
-				item.Priority, issueType(item.IssueType), item.State, labels,
-				nullableStr(item.BranchName), nullableStr(item.URL),
-			)
-			if execErr != nil {
-				return ImportResult{}, fmt.Errorf("store: ImportIssuesFull create %s: %w", item.ID, execErr)
+
+			if opts.Mode == ImportModeCreateOnly {
+				if alreadyExists {
+					result.Skipped++
+					continue
+				}
+				issue := gormIssueFromImport(item, clockNowUTC())
+				res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&issue)
+				if res.Error != nil {
+					return fmt.Errorf("store: ImportIssuesFull create %s: %w", item.ID, res.Error)
+				}
+				if res.RowsAffected > 0 {
+					result.Created++
+					written[item.ID] = true
+				} else {
+					result.Skipped++
+				}
+				continue
 			}
-			if tag.RowsAffected() > 0 {
+
+			if !alreadyExists {
+				issue := gormIssueFromImport(item, clockNowUTC())
+				if err := tx.Create(&issue).Error; err != nil {
+					return fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, err)
+				}
 				result.Created++
 				written[item.ID] = true
-			} else {
-				result.Skipped++
+				continue
 			}
-		} else {
-			tag, execErr := tx.Exec(ctx, `
-				INSERT INTO bn_issues
-					(id, prefix, title, description, priority, issue_type, state, labels, branch_name, url)
-				VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-				ON CONFLICT (id) DO UPDATE SET
-					title       = EXCLUDED.title,
-					description = EXCLUDED.description,
-					priority    = EXCLUDED.priority,
-					issue_type  = EXCLUDED.issue_type,
-					state       = CASE WHEN bn_issues.state = ANY($11::text[])
-					                   THEN bn_issues.state
-					                   ELSE EXCLUDED.state END,
-					labels      = EXCLUDED.labels,
-					branch_name = EXCLUDED.branch_name,
-					url         = EXCLUDED.url,
-					updated_at  = now()`,
-				item.ID, item.Prefix, item.Title, item.Description,
-				item.Priority, issueType(item.IssueType), item.State, labels,
-				nullableStr(item.BranchName), nullableStr(item.URL),
-				terminalStateArray(opts.TerminalStates),
-			)
-			if execErr != nil {
-				return ImportResult{}, fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, execErr)
+
+			updates := importIssueUpdateMap(item, terminalSet[existing.State])
+			res := tx.Model(&gormIssue{}).Where("id = ?", item.ID).Updates(updates)
+			if res.Error != nil {
+				return fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, res.Error)
 			}
-			if tag.RowsAffected() > 0 {
-				if alreadyExists {
-					result.Updated++
-				} else {
-					result.Created++
+			result.Updated++
+			written[item.ID] = true
+		}
+
+		if err := lockDepGraphGuard(tx); err != nil {
+			return err
+		}
+		graph, err := loadDepGraph(tx)
+		if err != nil {
+			return err
+		}
+
+		for _, item := range items {
+			if !written[item.ID] {
+				continue
+			}
+			seenDeps := make(map[string]bool, len(item.Deps))
+			for _, blockerID := range item.Deps {
+				if blockerID == item.ID {
+					result.DepsSkippedSelf++
+					continue
 				}
-				written[item.ID] = true
+				if seenDeps[blockerID] {
+					result.DepsSkippedDuplicate++
+					continue
+				}
+				seenDeps[blockerID] = true
+				if exists, err := s.issueExistsInPrefix(ctx, tx, blockerID, item.Prefix); err != nil {
+					return err
+				} else if !exists {
+					result.DepsSkippedMissingBlocker++
+					continue
+				}
+				if reaches(graph, blockerID, item.ID) {
+					result.DepsSkippedCycle++
+					continue
+				}
+				res := tx.Clauses(clause.OnConflict{DoNothing: true}).
+					Create(&gormIssueDep{IssueID: item.ID, BlockedByID: blockerID})
+				if res.Error != nil {
+					return fmt.Errorf("store: ImportIssuesFull dep %s→%s: %w", item.ID, blockerID, res.Error)
+				}
+				if res.RowsAffected > 0 {
+					result.DepsAdded++
+					graph[item.ID] = append(graph[item.ID], blockerID)
+				} else {
+					result.DepsSkippedDuplicate++
+				}
 			}
 		}
-	}
-
-	// Pass 2: insert dep edges for written items only.
-	// Only insert edges whose blocker exists in the destination prefix to avoid
-	// FK violations and cross-prefix graph leakage.
-	for _, item := range items {
-		if !written[item.ID] {
-			continue
-		}
-		seenDeps := make(map[string]bool, len(item.Deps))
-		for _, blockerID := range item.Deps {
-			if blockerID == item.ID {
-				result.DepsSkippedSelf++
-				continue
-			}
-			if seenDeps[blockerID] {
-				result.DepsSkippedDuplicate++
-				continue
-			}
-			seenDeps[blockerID] = true
-			if exists, err := s.issueExistsInPrefix(ctx, tx, blockerID, item.Prefix); err != nil {
-				return ImportResult{}, err
-			} else if !exists {
-				result.DepsSkippedMissingBlocker++
-				continue
-			}
-			if cycle, err := s.hasCycle(ctx, tx, item.ID, blockerID); err != nil {
-				return ImportResult{}, err
-			} else if cycle {
-				result.DepsSkippedCycle++
-				continue
-			}
-			tag, execErr := tx.Exec(ctx, `
-				INSERT INTO bn_issue_deps (issue_id, blocked_by_id)
-				VALUES ($1, $2)
-				ON CONFLICT DO NOTHING`,
-				item.ID, blockerID,
-			)
-			if execErr != nil {
-				return ImportResult{}, fmt.Errorf("store: ImportIssuesFull dep %s→%s: %w", item.ID, blockerID, execErr)
-			}
-			if tag.RowsAffected() > 0 {
-				result.DepsAdded++
-			} else {
-				result.DepsSkippedDuplicate++
-			}
-		}
-	}
-
-	if commitErr := tx.Commit(ctx); commitErr != nil {
-		return ImportResult{}, fmt.Errorf("store: ImportIssuesFull commit: %w", commitErr)
+		return nil
+	})
+	if err != nil {
+		return ImportResult{}, err
 	}
 	return result, nil
 }
@@ -1086,12 +903,11 @@ const defaultMemoryLimit = 50
 // InsertMemory adds a new memory row. An empty Prefix stores NULL (global).
 // For non-global memories, the prefix must be registered in bn_projects.
 func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Memory{}, err
 	}
 
-	tags := encodedLabels(in.Tags) // reuse the JSON-array encoder
 	var prefix *string
 	if in.Prefix != "" {
 		prefix = &in.Prefix
@@ -1101,25 +917,38 @@ func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error
 		mtype = &in.Type
 	}
 
-	var (
-		id        int64
-		createdAt time.Time
-	)
-	err = pool.QueryRow(ctx,
-		`INSERT INTO bn_memories (prefix, body, mtype, tags) VALUES ($1, $2, $3, $4) RETURNING id, created_at`,
-		prefix, in.Body, mtype, tags,
-	).Scan(&id, &createdAt)
+	memory := gormMemory{
+		Prefix:    prefix,
+		Body:      in.Body,
+		MType:     mtype,
+		Tags:      datatypes.JSON(encodedLabels(in.Tags)),
+		CreatedAt: clockNowUTC(),
+	}
+	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&memory).Error; err != nil {
+			return err
+		}
+		for _, tag := range uniqueStrings(in.Tags) {
+			if tag == "" {
+				continue
+			}
+			if err := tx.Create(&gormMemoryTag{MemoryID: memory.ID, Tag: tag}).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
 		return Memory{}, fmt.Errorf("store: InsertMemory: %w", err)
 	}
 
 	return Memory{
-		ID:        id,
+		ID:        memory.ID,
 		Prefix:    prefix,
 		Body:      in.Body,
 		Type:      mtype,
 		Tags:      in.Tags,
-		CreatedAt: createdAt.UTC(),
+		CreatedAt: memory.CreatedAt.UTC(),
 	}, nil
 }
 
@@ -1128,7 +957,7 @@ func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error
 // recent memories are returned ordered by created_at DESC.
 // Scope: when All=false, returns rows for Prefix + global (prefix IS NULL).
 func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter) ([]Memory, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
@@ -1139,95 +968,65 @@ func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter
 		limit = defaultMemoryLimit
 	}
 
-	args := []any{}
-	argN := func(v any) string {
-		args = append(args, v)
-		return fmt.Sprintf("$%d", len(args))
-	}
-
-	q := `SELECT id, prefix, body, mtype, tags, created_at FROM bn_memories WHERE TRUE`
-
+	q := db.WithContext(ctx).Model(&gormMemory{})
 	if !f.All {
 		// Scope to active project + globals.
 		pfx := f.Prefix
-		q += fmt.Sprintf(" AND (prefix = %s OR prefix IS NULL)", argN(pfx))
+		q = q.Where("prefix = ? OR prefix IS NULL", pfx)
 	}
 
-	// Capture the query placeholder once so both the WHERE and ORDER BY clauses
-	// reference the same positional parameter — type/tag filters added after this
-	// would otherwise shift len(args) and cause ts_rank to rank by the wrong value.
-	var queryPlaceholder string
 	if query != "" {
-		queryPlaceholder = argN(query)
-		q += " AND tsv @@ plainto_tsquery('english', " + queryPlaceholder + ")"
+		for _, term := range strings.Fields(query) {
+			q = q.Where("body LIKE ?", "%"+escapeLike(term)+"%")
+		}
 	}
 
 	if f.Type != "" {
-		q += fmt.Sprintf(" AND mtype = %s", argN(f.Type))
+		q = q.Where("mtype = ?", f.Type)
 	}
 
 	if len(f.Tags) > 0 {
-		tagJSON := encodedLabels(f.Tags)
-		q += fmt.Sprintf(" AND tags @> %s::jsonb", argN(string(tagJSON)))
+		for _, tag := range uniqueStrings(f.Tags) {
+			q = q.Where(
+				"EXISTS (SELECT 1 FROM bn_memory_tags mt WHERE mt.memory_id = bn_memories.id AND mt.tag = ?)",
+				tag,
+			)
+		}
 	}
 
-	if query != "" {
-		q += " ORDER BY ts_rank(tsv, plainto_tsquery('english', " + queryPlaceholder + ")) DESC, created_at DESC, id DESC"
-	} else {
-		q += " ORDER BY created_at DESC, id DESC"
-	}
-
-	q += fmt.Sprintf(" LIMIT %s", argN(limit))
-
-	rows, err := pool.Query(ctx, q, args...)
+	var rows []gormMemory
+	err = q.Order("created_at DESC").Order("id DESC").Limit(limit).Find(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("store: SearchMemories: %w", err)
 	}
-	defer rows.Close()
 
-	var memories []Memory
-	for rows.Next() {
-		var m Memory
-		var tagsBytes []byte
-		err := rows.Scan(&m.ID, &m.Prefix, &m.Body, &m.Type, &tagsBytes, &m.CreatedAt)
-		if err != nil {
-			return nil, fmt.Errorf("store: SearchMemories scan: %w", err)
-		}
-		m.Tags = decodeLabels(tagsBytes)
-		m.CreatedAt = m.CreatedAt.UTC()
-		memories = append(memories, m)
+	memories := make([]Memory, 0, len(rows))
+	for _, row := range rows {
+		memories = append(memories, memoryFromGORM(row))
 	}
-	return memories, rows.Err()
+	return memories, nil
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-func (s *Store) issueExists(ctx context.Context, pool interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, id string) (bool, error) {
-	var exists bool
-	err := pool.QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM bn_issues WHERE id = $1)`, id,
-	).Scan(&exists)
+func (s *Store) issueExists(ctx context.Context, db *gorm.DB, id string) (bool, error) {
+	var count int64
+	err := db.WithContext(ctx).Model(&gormIssue{}).Where("id = ?", id).Count(&count).Error
 	if err != nil {
 		return false, fmt.Errorf("store: issueExists: %w", err)
 	}
-	return exists, nil
+	return count > 0, nil
 }
 
-func (s *Store) issueExistsInPrefix(ctx context.Context, pool interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, id, prefix string) (bool, error) {
-	var exists bool
-	err := pool.QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM bn_issues WHERE id = $1 AND prefix = $2)`, id, prefix,
-	).Scan(&exists)
+func (s *Store) issueExistsInPrefix(ctx context.Context, db *gorm.DB, id, prefix string) (bool, error) {
+	var count int64
+	err := db.WithContext(ctx).Model(&gormIssue{}).Where("id = ? AND prefix = ?", id, prefix).Count(&count).Error
 	if err != nil {
 		return false, fmt.Errorf("store: issueExistsInPrefix: %w", err)
 	}
-	return exists, nil
+	return count > 0, nil
 }
 
 type importIssueSnapshot struct {
@@ -1235,75 +1034,36 @@ type importIssueSnapshot struct {
 	State  model.IssueState
 }
 
-func (s *Store) getImportIssueSnapshot(ctx context.Context, pool interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, id string) (importIssueSnapshot, bool, error) {
-	var snap importIssueSnapshot
-	var state string
-	err := pool.QueryRow(ctx,
-		`SELECT prefix, state FROM bn_issues WHERE id = $1`, id,
-	).Scan(&snap.Prefix, &state)
-	if errors.Is(err, pgx.ErrNoRows) {
+func (s *Store) getImportIssueSnapshot(ctx context.Context, db *gorm.DB, id string) (importIssueSnapshot, bool, error) {
+	var issue gormIssue
+	err := db.WithContext(ctx).Select("prefix", "state").Where("id = ?", id).First(&issue).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return importIssueSnapshot{}, false, nil
 	}
 	if err != nil {
 		return importIssueSnapshot{}, false, fmt.Errorf("store: getImportIssueSnapshot: %w", err)
 	}
-	snap.State = model.IssueState(state)
-	return snap, true, nil
+	return importIssueSnapshot{Prefix: issue.Prefix, State: model.IssueState(issue.State)}, true, nil
 }
 
-// hasCycle returns true if adding childID→parentID would create a cycle,
-// using a recursive CTE to walk the existing dependency graph.
-func (s *Store) hasCycle(ctx context.Context, pool interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, childID, parentID string) (bool, error) {
-	// If childID is reachable from parentID (i.e., parentID depends on
-	// childID directly or transitively), adding childID→parentID creates a cycle.
-	var reachable bool
-	err := pool.QueryRow(ctx, `
-		WITH RECURSIVE ancestors(id) AS (
-			SELECT $1::text
-			UNION ALL
-			SELECT d.blocked_by_id
-			FROM bn_issue_deps d
-			JOIN ancestors a ON a.id = d.issue_id
-		)
-		SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $2)`,
-		parentID, childID,
-	).Scan(&reachable)
-	if err != nil {
-		return false, fmt.Errorf("store: cycle check: %w", err)
-	}
-	return reachable, nil
-}
-
-func (s *Store) fetchBlockedBy(ctx context.Context, pool interface {
-	Query(context.Context, string, ...any) (pgx.Rows, error)
-}, id string) ([]string, error) {
-	rows, err := pool.Query(ctx,
-		`SELECT blocked_by_id FROM bn_issue_deps WHERE issue_id = $1 ORDER BY blocked_by_id`,
-		id,
-	)
+func (s *Store) fetchBlockedBy(ctx context.Context, db *gorm.DB, id string) ([]string, error) {
+	var deps []gormIssueDep
+	err := db.WithContext(ctx).
+		Where("issue_id = ?", id).
+		Order("blocked_by_id ASC").
+		Find(&deps).
+		Error
 	if err != nil {
 		return nil, fmt.Errorf("store: fetchBlockedBy: %w", err)
 	}
-	defer rows.Close()
-
-	var ids []string
-	for rows.Next() {
-		var bid string
-		if err := rows.Scan(&bid); err != nil {
-			return nil, fmt.Errorf("store: fetchBlockedBy scan: %w", err)
-		}
-		ids = append(ids, bid)
+	ids := make([]string, 0, len(deps))
+	for _, dep := range deps {
+		ids = append(ids, dep.BlockedByID)
 	}
-	return ids, rows.Err()
+	return ids, nil
 }
 
-func (s *Store) populateBlockedBy(ctx context.Context, pool interface {
-	Query(context.Context, string, ...any) (pgx.Rows, error)
-}, issues []Issue) error {
+func (s *Store) populateBlockedBy(ctx context.Context, db *gorm.DB, issues []Issue) error {
 	if len(issues) == 0 {
 		return nil
 	}
@@ -1315,32 +1075,26 @@ func (s *Store) populateBlockedBy(ctx context.Context, pool interface {
 		idxByID[iss.ID] = i
 	}
 
-	rows, err := pool.Query(ctx, `
-		SELECT issue_id, blocked_by_id
-		FROM bn_issue_deps
-		WHERE issue_id = ANY($1)
-		ORDER BY issue_id, blocked_by_id`,
-		ids,
-	)
+	var deps []gormIssueDep
+	err := db.WithContext(ctx).
+		Where("issue_id IN ?", ids).
+		Order("issue_id ASC, blocked_by_id ASC").
+		Find(&deps).
+		Error
 	if err != nil {
 		return fmt.Errorf("store: populateBlockedBy: %w", err)
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var issueID, blockerID string
-		if err := rows.Scan(&issueID, &blockerID); err != nil {
-			return fmt.Errorf("store: populateBlockedBy scan: %w", err)
-		}
-		if idx, ok := idxByID[issueID]; ok {
-			issues[idx].BlockedBy = append(issues[idx].BlockedBy, blockerID)
+	for _, dep := range deps {
+		if idx, ok := idxByID[dep.IssueID]; ok {
+			issues[idx].BlockedBy = append(issues[idx].BlockedBy, dep.BlockedByID)
 		}
 	}
-	return rows.Err()
+	return nil
 }
 
-func insertIssueRepo(ctx context.Context, tx pgx.Tx, issueID, prefix string, in IssueRepoInput) (*model.RepoTarget, error) {
-	repo, err := getRepoBySlug(ctx, tx, prefix, in.RepoSlug)
+func insertIssueRepoGORM(ctx context.Context, tx *gorm.DB, issueID, prefix string, in IssueRepoInput) (*model.RepoTarget, error) {
+	repo, err := getRepoBySlugGORM(ctx, tx, prefix, in.RepoSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -1374,23 +1128,27 @@ func insertIssueRepo(ctx context.Context, tx pgx.Tx, issueID, prefix string, in 
 	if err != nil {
 		return nil, fmt.Errorf("store: CreateIssue repo metadata: %w", err)
 	}
+	now := clockNowUTC()
 
-	_, err = tx.Exec(ctx, `
-		INSERT INTO bn_issue_repos
-			(issue_id, repo_id, requested_ref, base_ref, work_branch, worktree_subdir, metadata)
-		VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-		issueID, repo.ID, requestedRef, baseRef, workBranch, worktreeSubdir, metadata,
-	)
-	if err != nil {
+	link := gormIssueRepo{
+		IssueID:        issueID,
+		RepoID:         repo.ID,
+		RequestedRef:   requestedRef,
+		BaseRef:        baseRef,
+		WorkBranch:     workBranch,
+		WorktreeSubdir: worktreeSubdir,
+		Metadata:       datatypes.JSON(metadata),
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
+	if err := tx.WithContext(ctx).Create(&link).Error; err != nil {
 		return nil, fmt.Errorf("store: CreateIssue repo: %w", err)
 	}
 
 	return repoTargetFromIssueRepo(repo, requestedRef, baseRef, workBranch, worktreeSubdir, in.Metadata), nil
 }
 
-func (s *Store) populateIssueRepos(ctx context.Context, pool interface {
-	Query(context.Context, string, ...any) (pgx.Rows, error)
-}, issues []Issue) error {
+func (s *Store) populateIssueRepos(ctx context.Context, db *gorm.DB, issues []Issue) error {
 	if len(issues) == 0 {
 		return nil
 	}
@@ -1402,41 +1160,54 @@ func (s *Store) populateIssueRepos(ctx context.Context, pool interface {
 		idxByID[iss.ID] = i
 	}
 
-	rows, err := pool.Query(ctx, `
-		SELECT ir.issue_id,
-		       r.id, r.slug, r.remote_url, r.default_branch,
-		       ir.requested_ref, ir.base_ref, ir.work_branch,
-		       COALESCE(NULLIF(ir.worktree_subdir, ''), r.worktree_subdir),
-		       r.clone_strategy, r.auth_ref, ir.metadata
-		FROM bn_issue_repos ir
-		JOIN bn_repos r ON r.id = ir.repo_id
-		WHERE ir.issue_id = ANY($1)`,
-		ids,
-	)
+	var rows []struct {
+		IssueID        string
+		ID             string
+		Slug           string
+		RemoteURL      string
+		DefaultBranch  string
+		RequestedRef   string
+		BaseRef        string
+		WorkBranch     string
+		WorktreeSubdir string
+		CloneStrategy  string
+		AuthRef        string
+		Metadata       datatypes.JSON
+	}
+	err := db.WithContext(ctx).
+		Table("bn_issue_repos AS ir").
+		Select(`ir.issue_id,
+			r.id, r.slug, r.remote_url, r.default_branch,
+			ir.requested_ref, ir.base_ref, ir.work_branch,
+			CASE WHEN ir.worktree_subdir = '' THEN r.worktree_subdir ELSE ir.worktree_subdir END AS worktree_subdir,
+			r.clone_strategy, r.auth_ref, ir.metadata`).
+		Joins("JOIN bn_repos r ON r.id = ir.repo_id").
+		Where("ir.issue_id IN ?", ids).
+		Scan(&rows).
+		Error
 	if err != nil {
 		return fmt.Errorf("store: populateIssueRepos: %w", err)
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var (
-			issueID  string
-			target   model.RepoTarget
-			metadata []byte
-		)
-		if err := rows.Scan(
-			&issueID, &target.ID, &target.Slug, &target.RemoteURL, &target.DefaultBranch,
-			&target.RequestedRef, &target.BaseRef, &target.WorkBranch, &target.WorktreeSubdir,
-			&target.CloneStrategy, &target.AuthRef, &metadata,
-		); err != nil {
-			return fmt.Errorf("store: populateIssueRepos scan: %w", err)
+	for _, row := range rows {
+		target := model.RepoTarget{
+			ID:             row.ID,
+			Slug:           row.Slug,
+			RemoteURL:      row.RemoteURL,
+			DefaultBranch:  row.DefaultBranch,
+			RequestedRef:   row.RequestedRef,
+			BaseRef:        row.BaseRef,
+			WorkBranch:     row.WorkBranch,
+			WorktreeSubdir: row.WorktreeSubdir,
+			CloneStrategy:  row.CloneStrategy,
+			AuthRef:        row.AuthRef,
+			Metadata:       decodeJSONObject(row.Metadata),
 		}
-		target.Metadata = decodeJSONObject(metadata)
-		if idx, ok := idxByID[issueID]; ok {
+		if idx, ok := idxByID[row.IssueID]; ok {
 			issues[idx].Repo = &target
 		}
 	}
-	return rows.Err()
+	return nil
 }
 
 func repoTargetFromIssueRepo(repo Repo, requestedRef, baseRef, workBranch, worktreeSubdir string, metadata map[string]any) *model.RepoTarget {
@@ -1458,83 +1229,185 @@ func repoTargetFromIssueRepo(repo Repo, requestedRef, baseRef, workBranch, workt
 	}
 }
 
-// scanIssue scans one issue row (without BlockedBy) from a pgx.Row.
-func scanIssue(row pgx.Row) (Issue, error) {
-	var (
-		id, title, description, issType, state string
-		identifier                             *string
-		priority                               int
-		labels                                 []byte
-		branchName, url                        *string
-		createdAt, updatedAt                   time.Time
-	)
-	err := row.Scan(
-		&id, &identifier, &title, &description,
-		&priority, &issType, &state,
-		&labels, &branchName, &url,
-		&createdAt, &updatedAt,
-	)
-	if err != nil {
-		return Issue{}, err
-	}
-
+func issueFromGORM(row gormIssue) Issue {
 	return Issue{
 		Issue: model.Issue{
-			ID:          id,
-			Identifier:  derefStr(identifier, id),
-			Title:       title,
-			Description: description,
-			Priority:    storePriorityToCore(priority),
-			State:       model.IssueState(state),
-			Labels:      decodeLabels(labels),
-			BranchName:  derefStr(branchName, ""),
-			URL:         derefStr(url, ""),
-			CreatedAt:   createdAt.UTC(),
-			UpdatedAt:   updatedAt.UTC(),
+			ID:          row.ID,
+			Identifier:  derefStr(row.Identifier, row.ID),
+			Title:       row.Title,
+			Description: row.Description,
+			Priority:    storePriorityToCore(row.Priority),
+			State:       model.IssueState(row.State),
+			Labels:      decodeLabels(row.Labels),
+			BranchName:  derefStr(row.BranchName, ""),
+			URL:         derefStr(row.URL, ""),
+			CreatedAt:   row.CreatedAt.UTC(),
+			UpdatedAt:   row.UpdatedAt.UTC(),
 		},
-		IssueType: issType,
-	}, nil
+		IssueType: row.IssueType,
+	}
 }
 
-// collectIssues drains a rows result set into a slice (without BlockedBy).
-func collectIssues(rows pgx.Rows) ([]Issue, error) {
-	var issues []Issue
-	for rows.Next() {
-		var (
-			id, title, description, issType, state string
-			identifier                             *string
-			priority                               int
-			labels                                 []byte
-			branchName, url                        *string
-			createdAt, updatedAt                   time.Time
-		)
-		err := rows.Scan(
-			&id, &identifier, &title, &description,
-			&priority, &issType, &state,
-			&labels, &branchName, &url,
-			&createdAt, &updatedAt,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("store: collectIssues scan: %w", err)
-		}
-		issues = append(issues, Issue{
-			Issue: model.Issue{
-				ID:          id,
-				Identifier:  derefStr(identifier, id),
-				Title:       title,
-				Description: description,
-				Priority:    storePriorityToCore(priority),
-				State:       model.IssueState(state),
-				Labels:      decodeLabels(labels),
-				BranchName:  derefStr(branchName, ""),
-				URL:         derefStr(url, ""),
-				CreatedAt:   createdAt.UTC(),
-				UpdatedAt:   updatedAt.UTC(),
-			},
-			IssueType: issType,
-		})
+func issuesFromGORM(rows []gormIssue) []Issue {
+	issues := make([]Issue, 0, len(rows))
+	for _, row := range rows {
+		issues = append(issues, issueFromGORM(row))
 	}
-	return issues, rows.Err()
+	return issues
+}
+
+func memoryFromGORM(row gormMemory) Memory {
+	return Memory{
+		ID:        row.ID,
+		Prefix:    row.Prefix,
+		Body:      row.Body,
+		Type:      row.MType,
+		Tags:      decodeLabels(row.Tags),
+		CreatedAt: row.CreatedAt.UTC(),
+	}
+}
+
+func getRepoBySlugGORM(ctx context.Context, db *gorm.DB, prefix, slug string) (Repo, error) {
+	var row gormRepo
+	err := db.WithContext(ctx).
+		Where("prefix = ? AND slug = ?", prefix, slug).
+		First(&row).
+		Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return Repo{}, fmt.Errorf("store: %w: repo %s", ErrNotFound, slug)
+	}
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: GetRepoBySlug: %w", err)
+	}
+	return repoFromGORM(row), nil
+}
+
+func repoFromGORM(row gormRepo) Repo {
+	return Repo{
+		ID:             row.ID,
+		Prefix:         row.Prefix,
+		Slug:           row.Slug,
+		DisplayName:    row.DisplayName,
+		RemoteURL:      row.RemoteURL,
+		DefaultBranch:  row.DefaultBranch,
+		WorktreeSubdir: row.WorktreeSubdir,
+		CloneStrategy:  row.CloneStrategy,
+		AuthRef:        row.AuthRef,
+		Enabled:        row.Enabled,
+		Metadata:       decodeJSONObject(row.Metadata),
+		CreatedAt:      row.CreatedAt.UTC(),
+		UpdatedAt:      row.UpdatedAt.UTC(),
+		CreatedBy:      row.CreatedBy,
+		UpdatedBy:      row.UpdatedBy,
+	}
+}
+
+func gormIssueFromImport(item ImportInput, now time.Time) gormIssue {
+	return gormIssue{
+		ID:          item.ID,
+		Prefix:      item.Prefix,
+		Title:       item.Title,
+		Description: item.Description,
+		Priority:    item.Priority,
+		IssueType:   issueType(item.IssueType),
+		State:       item.State,
+		Labels:      datatypes.JSON(encodedLabels(item.Labels)),
+		BranchName:  nullableStr(item.BranchName),
+		URL:         nullableStr(item.URL),
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
+}
+
+func importIssueUpdateMap(item ImportInput, keepState bool) map[string]any {
+	updates := map[string]any{
+		"title":       item.Title,
+		"description": item.Description,
+		"priority":    item.Priority,
+		"issue_type":  issueType(item.IssueType),
+		"labels":      datatypes.JSON(encodedLabels(item.Labels)),
+		"branch_name": nullableStr(item.BranchName),
+		"url":         nullableStr(item.URL),
+		"updated_at":  clockNowUTC(),
+	}
+	if !keepState {
+		updates["state"] = item.State
+	}
+	return updates
+}
+
+func terminalStateSet(states []model.IssueState) map[model.IssueState]bool {
+	out := make(map[model.IssueState]bool, len(states))
+	for _, state := range states {
+		out[state] = true
+	}
+	return out
+}
+
+func lockDepGraphGuard(tx *gorm.DB) error {
+	res := tx.Model(&gormDepGraphGuard{}).
+		Where("id = ?", int16(1)).
+		Update("updated_at", clockNowUTC())
+	if res.Error != nil {
+		return fmt.Errorf("store: dependency graph guard: %w", res.Error)
+	}
+	if res.RowsAffected == 0 {
+		return fmt.Errorf("store: dependency graph guard missing")
+	}
+	return nil
+}
+
+func loadDepGraph(db *gorm.DB) (map[string][]string, error) {
+	var deps []gormIssueDep
+	if err := db.Find(&deps).Error; err != nil {
+		return nil, fmt.Errorf("store: load dependency graph: %w", err)
+	}
+	graph := make(map[string][]string, len(deps))
+	for _, dep := range deps {
+		graph[dep.IssueID] = append(graph[dep.IssueID], dep.BlockedByID)
+	}
+	return graph, nil
+}
+
+func reaches(graph map[string][]string, start, target string) bool {
+	stack := []string{start}
+	seen := map[string]bool{}
+	for len(stack) > 0 {
+		id := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		if id == target {
+			return true
+		}
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+		stack = append(stack, graph[id]...)
+	}
+	return false
+}
+
+func uniqueStrings(values []string) []string {
+	seen := make(map[string]bool, len(values))
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		if seen[value] {
+			continue
+		}
+		seen[value] = true
+		out = append(out, value)
+	}
+	return out
+}
+
+func escapeLike(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `%`, `\%`)
+	return strings.ReplaceAll(value, `_`, `\_`)
+}
+
+func clockNowUTC() time.Time {
+	return time.Now().UTC()
 }
 
 // idGenRetries is the number of attempts CreateIssue makes before giving up on
@@ -1594,15 +1467,6 @@ func encodedLabels(labels []string) []byte {
 // Returns nil on error or empty input.
 func decodeLabels(b []byte) []string {
 	return stringArrayFromJSON(b)
-}
-
-// terminalStateArray converts []model.IssueState to []string for the $N::text[] cast.
-func terminalStateArray(states []model.IssueState) []string {
-	out := make([]string, len(states))
-	for i, s := range states {
-		out[i] = string(s)
-	}
-	return out
 }
 
 func dedupeImportInputs(items []ImportInput) []ImportInput {

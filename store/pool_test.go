@@ -59,8 +59,15 @@ func TestNewSQLitePoolMigratesAndCloses(t *testing.T) {
 	if foreignKeys != 1 {
 		t.Fatalf("sqlite foreign_keys pragma = %d, want 1", foreignKeys)
 	}
-	if err := s.EnsureProject(ctx, "sqlite"); !errors.Is(err, ErrUnsupportedDriver) {
-		t.Fatalf("sqlite EnsureProject = %v, want ErrUnsupportedDriver during pgx transition", err)
+	if err := s.EnsureProject(ctx, "sqlite"); err != nil {
+		t.Fatalf("sqlite EnsureProject: %v", err)
+	}
+	exists, err := s.ProjectExists(ctx, "sqlite")
+	if err != nil {
+		t.Fatalf("sqlite ProjectExists: %v", err)
+	}
+	if !exists {
+		t.Fatal("sqlite ProjectExists = false, want true")
 	}
 
 	s.Close()
