@@ -46,6 +46,13 @@ type gormIssueDep struct {
 
 func (gormIssueDep) TableName() string { return "bn_issue_deps" }
 
+type gormDepGraphGuard struct {
+	ID        int16     `gorm:"column:id;primaryKey"`
+	UpdatedAt time.Time `gorm:"column:updated_at;not null"`
+}
+
+func (gormDepGraphGuard) TableName() string { return "bn_dep_graph_guard" }
+
 type gormIssueNote struct {
 	ID        int64     `gorm:"column:id;primaryKey;autoIncrement"`
 	IssueID   string    `gorm:"column:issue_id;not null"`
@@ -111,6 +118,14 @@ type gormProjectAdmin struct {
 
 func (gormProjectAdmin) TableName() string { return "bn_project_admins" }
 
+type gormProjectAdminBootstrap struct {
+	Prefix    string    `gorm:"column:prefix;primaryKey"`
+	Actor     string    `gorm:"column:actor;not null"`
+	CreatedAt time.Time `gorm:"column:created_at;not null"`
+}
+
+func (gormProjectAdminBootstrap) TableName() string { return "bn_project_admin_bootstraps" }
+
 type gormRepoAudit struct {
 	ID        int64          `gorm:"column:id;primaryKey;autoIncrement"`
 	Prefix    string         `gorm:"column:prefix;not null"`
@@ -147,12 +162,14 @@ var allGORMModels = []gormTableModel{
 	gormProject{},
 	gormIssue{},
 	gormIssueDep{},
+	gormDepGraphGuard{},
 	gormIssueNote{},
 	gormMemory{},
 	gormMemoryTag{},
 	gormRepo{},
 	gormRepoAlias{},
 	gormProjectAdmin{},
+	gormProjectAdminBootstrap{},
 	gormRepoAudit{},
 	gormIssueRepo{},
 }

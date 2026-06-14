@@ -5,7 +5,7 @@
 -- +goose Up
 -- +goose StatementBegin
 
-CREATE TABLE bn_memory_tags (
+CREATE TABLE IF NOT EXISTS bn_memory_tags (
     memory_id BIGINT NOT NULL,
     tag       VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     PRIMARY KEY (memory_id, tag),
@@ -15,14 +15,32 @@ CREATE TABLE bn_memory_tags (
 );
 
 INSERT INTO bn_memory_tags (memory_id, tag)
-SELECT DISTINCT m.id, jt.tag
+SELECT m.id, NULL
+FROM bn_memories m
+WHERE JSON_TYPE(m.tags) <> 'ARRAY'
+UNION ALL
+SELECT m.id, NULL
 FROM bn_memories m
 JOIN JSON_TABLE(
     m.tags,
     '$[*]' COLUMNS (
-        tag VARCHAR(255) PATH '$' ERROR ON EMPTY ERROR ON ERROR
+        tag_json JSON PATH '$' ERROR ON EMPTY ERROR ON ERROR
     )
-) AS jt;
+) AS jt
+WHERE JSON_TYPE(jt.tag_json) <> 'STRING'
+   OR JSON_UNQUOTE(jt.tag_json) = ''
+   OR CHAR_LENGTH(JSON_UNQUOTE(jt.tag_json)) > 255;
+
+INSERT IGNORE INTO bn_memory_tags (memory_id, tag)
+SELECT DISTINCT m.id, JSON_UNQUOTE(jt.tag_json)
+FROM bn_memories m
+JOIN JSON_TABLE(
+    m.tags,
+    '$[*]' COLUMNS (
+        tag_json JSON PATH '$' ERROR ON EMPTY ERROR ON ERROR
+    )
+) AS jt
+WHERE JSON_TYPE(jt.tag_json) = 'STRING';
 
 CREATE INDEX bn_memory_tags_tag_memory_idx ON bn_memory_tags (tag, memory_id);
 CREATE INDEX bn_memory_tags_memory_idx ON bn_memory_tags (memory_id);

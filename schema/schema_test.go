@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io/fs"
 	"sort"
@@ -9,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/glebarez/sqlite"
+	"github.com/pressly/goose/v3"
 	"gorm.io/gorm"
 )
 
@@ -94,9 +96,27 @@ func TestListMigrationsParsesEmbedded(t *testing.T) {
 		t.Fatalf("memory tag migration SQL missing bn_memory_tags table: %q", memoryTags.SQL)
 	}
 
+	var semanticGuards *Migration
+	for i := range migs {
+		if migs[i].Version == 7 {
+			semanticGuards = &migs[i]
+			break
+		}
+	}
+	if semanticGuards == nil {
+		t.Fatalf("migration version 7 not found in %+v", migs)
+	}
+	if semanticGuards.Name != "bn_semantic_guards" {
+		t.Fatalf("migration 7 name = %q, want %q", semanticGuards.Name, "bn_semantic_guards")
+	}
+	if !strings.Contains(semanticGuards.SQL, "CREATE TABLE bn_dep_graph_guard") ||
+		!strings.Contains(semanticGuards.SQL, "CREATE TABLE bn_project_admin_bootstraps") {
+		t.Fatalf("semantic guard migration SQL missing required tables: %q", semanticGuards.SQL)
+	}
+
 	last := migs[len(migs)-1]
-	if last.Version != 6 {
-		t.Fatalf("last migration version = %d, want 6", last.Version)
+	if last.Version != 7 {
+		t.Fatalf("last migration version = %d, want 7", last.Version)
 	}
 }
 
@@ -199,7 +219,9 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)",
 		"CREATE FULLTEXT INDEX bn_memories_body_ft_idx",
 		"VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin",
-		"CREATE TABLE bn_memory_tags",
+		"CREATE TABLE IF NOT EXISTS bn_memory_tags",
+		"CREATE TABLE bn_dep_graph_guard",
+		"CREATE TABLE bn_project_admin_bootstraps",
 	})
 	assertContainsDDL(t, DriverSQLite, sqliteSQL, []string{
 		"TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP",
@@ -207,6 +229,8 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(tags))",
 		"tag       TEXT NOT NULL COLLATE BINARY",
 		"CREATE TABLE bn_memory_tags",
+		"CREATE TABLE bn_dep_graph_guard",
+		"CREATE TABLE bn_project_admin_bootstraps",
 	})
 }
 
@@ -287,7 +311,7 @@ func TestMigrationLockerDispatch(t *testing.T) {
 func TestMigrateSQLiteAppliesDialectDDL(t *testing.T) {
 	t.Parallel()
 
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(sqliteMemoryDSN(t)), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("gorm sqlite open: %v", err)
 	}
@@ -307,6 +331,8 @@ func TestMigrateSQLiteAppliesDialectDDL(t *testing.T) {
 		"bn_memories",
 		"bn_memories_fts",
 		"bn_memory_tags",
+		"bn_dep_graph_guard",
+		"bn_project_admin_bootstraps",
 		"bn_issue_repos",
 	} {
 		var count int
@@ -321,4 +347,159 @@ func TestMigrateSQLiteAppliesDialectDDL(t *testing.T) {
 			t.Fatalf("sqlite object %s count = %d, want 1", name, count)
 		}
 	}
+
+	if _, err := sqlDB.ExecContext(context.Background(), `PRAGMA foreign_keys = ON`); err != nil {
+		t.Fatalf("enable sqlite foreign keys: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(context.Background(), `INSERT INTO bn_projects (prefix) VALUES ('p')`); err != nil {
+		t.Fatalf("insert project: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(context.Background(),
+		`INSERT INTO bn_memories (prefix, body, mtype, tags) VALUES ('p', 'alpha beta sqlite', 'note', '["Design","design"]')`,
+	); err != nil {
+		t.Fatalf("insert memory: %v", err)
+	}
+	var memoryID int64
+	if err := sqlDB.QueryRowContext(context.Background(), `SELECT id FROM bn_memories WHERE body = 'alpha beta sqlite'`).Scan(&memoryID); err != nil {
+		t.Fatalf("select memory id: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(context.Background(),
+		`INSERT INTO bn_memory_tags (memory_id, tag) VALUES (?, 'Design'), (?, 'design')`,
+		memoryID, memoryID,
+	); err != nil {
+		t.Fatalf("insert memory tags: %v", err)
+	}
+	var ftsRowID int64
+	if err := sqlDB.QueryRowContext(context.Background(),
+		`SELECT rowid FROM bn_memories_fts WHERE bn_memories_fts MATCH 'sqlite'`,
+	).Scan(&ftsRowID); err != nil {
+		t.Fatalf("sqlite fts match: %v", err)
+	}
+	if ftsRowID != memoryID {
+		t.Fatalf("sqlite fts rowid = %d, want memory id %d", ftsRowID, memoryID)
+	}
+	if _, err := sqlDB.ExecContext(context.Background(), `DELETE FROM bn_memories WHERE id = ?`, memoryID); err != nil {
+		t.Fatalf("delete memory: %v", err)
+	}
+	var tagCount int
+	if err := sqlDB.QueryRowContext(context.Background(), `SELECT count(*) FROM bn_memory_tags WHERE memory_id = ?`, memoryID).Scan(&tagCount); err != nil {
+		t.Fatalf("count cascaded tags: %v", err)
+	}
+	if tagCount != 0 {
+		t.Fatalf("sqlite memory tag count after delete = %d, want 0", tagCount)
+	}
+}
+
+func TestMigrateSQLiteBackfillsMemoryTags(t *testing.T) {
+	t.Parallel()
+
+	db, err := gorm.Open(sqlite.Open(sqliteMemoryDSN(t)), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("gorm sqlite open: %v", err)
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("sqlite DB: %v", err)
+	}
+	defer sqlDB.Close()
+
+	ctx := context.Background()
+	if err := migrateToVersion(ctx, sqlDB, DriverSQLite, 5); err != nil {
+		t.Fatalf("migrate sqlite to v5: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `INSERT INTO bn_projects (prefix) VALUES ('p')`); err != nil {
+		t.Fatalf("insert project: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx,
+		`INSERT INTO bn_memories (prefix, body, tags) VALUES ('p', 'legacy sqlite alpha', '["Design","design","Design"]')`,
+	); err != nil {
+		t.Fatalf("insert legacy memory: %v", err)
+	}
+	if err := Migrate(ctx, sqlDB, DriverSQLite); err != nil {
+		t.Fatalf("finish sqlite migrate: %v", err)
+	}
+
+	rows, err := sqlDB.QueryContext(ctx, `
+		SELECT tag
+		FROM bn_memory_tags
+		WHERE memory_id = (SELECT id FROM bn_memories WHERE body = 'legacy sqlite alpha')
+		ORDER BY tag`)
+	if err != nil {
+		t.Fatalf("select memory tags: %v", err)
+	}
+	defer rows.Close()
+	var tags []string
+	for rows.Next() {
+		var tag string
+		if err := rows.Scan(&tag); err != nil {
+			t.Fatalf("scan tag: %v", err)
+		}
+		tags = append(tags, tag)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("tags rows: %v", err)
+	}
+	if got, want := strings.Join(tags, ","), "Design,design"; got != want {
+		t.Fatalf("backfilled tags = %q, want %q", got, want)
+	}
+}
+
+func TestMigrateSQLiteRejectsInvalidLegacyMemoryTags(t *testing.T) {
+	t.Parallel()
+
+	db, err := gorm.Open(sqlite.Open(sqliteMemoryDSN(t)), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("gorm sqlite open: %v", err)
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("sqlite DB: %v", err)
+	}
+	defer sqlDB.Close()
+
+	ctx := context.Background()
+	if err := migrateToVersion(ctx, sqlDB, DriverSQLite, 5); err != nil {
+		t.Fatalf("migrate sqlite to v5: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `INSERT INTO bn_projects (prefix) VALUES ('p')`); err != nil {
+		t.Fatalf("insert project: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx,
+		`INSERT INTO bn_memories (prefix, body, tags) VALUES ('p', 'bad tags', '["ok",123]')`,
+	); err != nil {
+		t.Fatalf("insert invalid legacy memory: %v", err)
+	}
+	if err := Migrate(ctx, sqlDB, DriverSQLite); err == nil {
+		t.Fatal("finish sqlite migrate with invalid legacy tags succeeded, want error")
+	}
+}
+
+func migrateToVersion(ctx context.Context, db *sql.DB, driver Driver, version int64) error {
+	migrations, err := MigrationFS(driver)
+	if err != nil {
+		return err
+	}
+	dialect, err := gooseDialect(driver)
+	if err != nil {
+		return err
+	}
+	provider, err := goose.NewProvider(
+		dialect,
+		db,
+		migrations,
+		goose.WithTableName(migrationVersionTable),
+	)
+	if err != nil {
+		return fmt.Errorf("schema: goose provider for %s: %w", driver, err)
+	}
+	if _, err := provider.UpTo(ctx, version); err != nil {
+		return fmt.Errorf("schema: migrate up to %d for %s: %w", version, driver, err)
+	}
+	return nil
+}
+
+func sqliteMemoryDSN(t *testing.T) string {
+	t.Helper()
+	name := strings.NewReplacer("/", "_", " ", "_").Replace(t.Name())
+	return fmt.Sprintf("file:%s?mode=memory&cache=shared", name)
 }

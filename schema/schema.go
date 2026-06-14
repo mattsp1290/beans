@@ -254,6 +254,9 @@ func migrationLocker(driver Driver) (lock.SessionLocker, error) {
 	case DriverMySQL:
 		return mysqlSessionLocker{name: migrationLockName, timeoutSeconds: 60}, nil
 	case DriverSQLite:
+		// SQLite has no process-wide advisory-lock primitive. The supported
+		// runtime opens SQLite with a single-process database handle and relies on
+		// SQLite writer serialization plus goose's in-process provider mutex.
 		return nil, nil
 	default:
 		return nil, fmt.Errorf("schema: unsupported migration lock driver %q", driver)
