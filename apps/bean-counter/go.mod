@@ -6,6 +6,7 @@ require (
 	github.com/gofiber/fiber/v3 v3.3.0
 	github.com/mattsp1290/beans v0.1.1
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.42.0
+	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0
 )
 
 require (
