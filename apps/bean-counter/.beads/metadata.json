@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "bean_counter",
+  "project_id": "7349a2e4-55a6-4120-9f34-42abd457cc9c"
+}
