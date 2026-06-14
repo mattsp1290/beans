@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -57,6 +58,34 @@ func TestLoadEnvDefaultsNonSecretAppConfig(t *testing.T) {
 	}
 }
 
+func TestLoadEnvNormalizesSupportedDrivers(t *testing.T) {
+	tests := []struct {
+		name string
+		raw  string
+		want appstore.Driver
+	}{
+		{name: "postgres", raw: "postgres", want: appstore.DriverPostgres},
+		{name: "mysql", raw: "mysql", want: appstore.DriverMySQL},
+		{name: "sqlite", raw: "sqlite", want: appstore.DriverSQLite},
+		{name: "uppercase whitespace", raw: " SQLITE ", want: appstore.DriverSQLite},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, err := LoadEnv(mapLookup(map[string]string{
+				"BN_DRIVER": tt.raw,
+				"BN_DSN":    "file::memory:",
+			}))
+			if err != nil {
+				t.Fatalf("LoadEnv error = %v", err)
+			}
+			if cfg.Store.Driver != tt.want {
+				t.Fatalf("driver = %q, want %q", cfg.Store.Driver, tt.want)
+			}
+		})
+	}
+}
+
 func TestLoadEnvValidatesStoreConfig(t *testing.T) {
 	_, err := LoadEnv(mapLookup(map[string]string{
 		"BN_DRIVER": "sqlite",
@@ -76,6 +105,28 @@ func TestLoadEnvRejectsUnsupportedDriver(t *testing.T) {
 	}
 	if err != nil && strings.Contains(err.Error(), "oracle://secret") {
 		t.Fatalf("error leaked DSN: %v", err)
+	}
+}
+
+func TestStoreDSNFormattingIsRedacted(t *testing.T) {
+	cfg, err := LoadEnv(mapLookup(map[string]string{
+		"BN_DSN": "postgres://user:secret@localhost/beans",
+	}))
+	if err != nil {
+		t.Fatalf("LoadEnv error = %v", err)
+	}
+
+	formatted := fmt.Sprintf("%v", cfg.Store)
+	if strings.Contains(formatted, "secret") || strings.Contains(formatted, "postgres://") {
+		t.Fatalf("formatted store config leaked DSN: %s", formatted)
+	}
+
+	encoded, err := json.Marshal(cfg.Store.DSN)
+	if err != nil {
+		t.Fatalf("marshal DSN: %v", err)
+	}
+	if strings.Contains(string(encoded), "secret") || strings.Contains(string(encoded), "postgres://") {
+		t.Fatalf("encoded DSN leaked raw value: %s", encoded)
 	}
 }
 
