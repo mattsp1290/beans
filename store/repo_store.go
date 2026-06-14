@@ -10,7 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/mattsp1290/beans/repo"
 )
@@ -91,7 +93,7 @@ type RepoAudit struct {
 // true, the insert is allowed only if the project currently has no admins.
 // Otherwise actor must already be an admin.
 func (s *Store) AddRepoAdmin(ctx context.Context, prefix, targetActor, actor string, bootstrap bool) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
@@ -100,42 +102,29 @@ func (s *Store) AddRepoAdmin(ctx context.Context, prefix, targetActor, actor str
 	}
 
 	if bootstrap {
-		tx, err := pool.Begin(ctx)
-		if err != nil {
-			return fmt.Errorf("store: AddRepoAdmin bootstrap begin tx: %w", err)
-		}
-		defer func() { _ = tx.Rollback(ctx) }()
-
-		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, prefix); err != nil {
-			return fmt.Errorf("store: AddRepoAdmin bootstrap lock: %w", err)
-		}
-		tag, err := tx.Exec(ctx, `
-			INSERT INTO bn_project_admins (prefix, actor)
-			SELECT $1, $2
-			WHERE NOT EXISTS (SELECT 1 FROM bn_project_admins WHERE prefix = $1)
-			ON CONFLICT DO NOTHING`,
-			prefix, targetActor,
-		)
-		if err != nil {
-			return fmt.Errorf("store: AddRepoAdmin bootstrap: %w", err)
-		}
-		if tag.RowsAffected() == 0 {
-			return ErrUnauthorized
-		}
-		if err := tx.Commit(ctx); err != nil {
-			return fmt.Errorf("store: AddRepoAdmin bootstrap commit: %w", err)
-		}
-		return nil
+		return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+			now := newGORMTime(clockNowUTC())
+			claim := gormProjectAdminBootstrap{Prefix: prefix, Actor: targetActor, CreatedAt: now}
+			res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&claim)
+			if res.Error != nil {
+				return fmt.Errorf("store: AddRepoAdmin bootstrap claim: %w", res.Error)
+			}
+			if res.RowsAffected == 0 {
+				return ErrUnauthorized
+			}
+			admin := gormProjectAdmin{Prefix: prefix, Actor: targetActor, CreatedAt: now}
+			if err := tx.Create(&admin).Error; err != nil {
+				return fmt.Errorf("store: AddRepoAdmin bootstrap: %w", err)
+			}
+			return nil
+		})
 	}
 	if err := s.AuthorizeRepoAdmin(ctx, prefix, actor); err != nil {
 		return err
 	}
 
-	_, err = pool.Exec(ctx,
-		`INSERT INTO bn_project_admins (prefix, actor) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-		prefix, targetActor,
-	)
-	if err != nil {
+	admin := gormProjectAdmin{Prefix: prefix, Actor: targetActor, CreatedAt: newGORMTime(clockNowUTC())}
+	if err := db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(&admin).Error; err != nil {
 		return fmt.Errorf("store: AddRepoAdmin: %w", err)
 	}
 	return nil
@@ -143,97 +132,71 @@ func (s *Store) AddRepoAdmin(ctx context.Context, prefix, targetActor, actor str
 
 // ListRepoAdmins returns project admins ordered by actor.
 func (s *Store) ListRepoAdmins(ctx context.Context, prefix string) ([]string, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
-	rows, err := pool.Query(ctx,
-		`SELECT actor FROM bn_project_admins WHERE prefix = $1 ORDER BY actor`,
-		prefix,
-	)
+	var rows []gormProjectAdmin
+	err = db.WithContext(ctx).
+		Where("prefix = ?", prefix).
+		Order("actor ASC").
+		Find(&rows).
+		Error
 	if err != nil {
 		return nil, fmt.Errorf("store: ListRepoAdmins: %w", err)
 	}
-	defer rows.Close()
-
-	var admins []string
-	for rows.Next() {
-		var actor string
-		if err := rows.Scan(&actor); err != nil {
-			return nil, fmt.Errorf("store: ListRepoAdmins scan: %w", err)
-		}
-		admins = append(admins, actor)
+	admins := make([]string, 0, len(rows))
+	for _, row := range rows {
+		admins = append(admins, row.Actor)
 	}
-	return admins, rows.Err()
+	return admins, nil
 }
 
 // RemoveRepoAdmin removes targetActor from the project admin set. actor must
 // already be an admin; this prevents arbitrary BN_DSN holders from stripping
 // repo registry ownership.
 func (s *Store) RemoveRepoAdmin(ctx context.Context, prefix, targetActor, actor string) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
 
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("store: RemoveRepoAdmin begin tx: %w", err)
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-
-	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, prefix); err != nil {
-		return fmt.Errorf("store: RemoveRepoAdmin lock: %w", err)
-	}
-	var authorized bool
-	if err := tx.QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM bn_project_admins WHERE prefix = $1 AND actor = $2)`,
-		prefix, actor,
-	).Scan(&authorized); err != nil {
-		return fmt.Errorf("store: RemoveRepoAdmin authorize: %w", err)
-	}
-	if !authorized {
-		return ErrUnauthorized
-	}
-
-	var adminCount int
-	if err := tx.QueryRow(ctx,
-		`SELECT count(*) FROM bn_project_admins WHERE prefix = $1`,
-		prefix,
-	).Scan(&adminCount); err != nil {
-		return fmt.Errorf("store: RemoveRepoAdmin count admins: %w", err)
-	}
-	if adminCount <= 1 && targetActor == actor {
-		return fmt.Errorf("store: %w: cannot remove last repo admin", ErrConflict)
-	}
-
-	tag, err := tx.Exec(ctx,
-		`DELETE FROM bn_project_admins WHERE prefix = $1 AND actor = $2`,
-		prefix, targetActor,
-	)
-	if err != nil {
-		return fmt.Errorf("store: RemoveRepoAdmin: %w", err)
-	}
-	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("store: %w: repo admin %s", ErrNotFound, targetActor)
-	}
-	if err := tx.Commit(ctx); err != nil {
-		return fmt.Errorf("store: RemoveRepoAdmin commit: %w", err)
-	}
-	return nil
+	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := lockRepoAdminBootstrap(ctx, tx, prefix); err != nil {
+			return err
+		}
+		authorized, err := repoAdminExists(ctx, tx, prefix, actor)
+		if err != nil {
+			return fmt.Errorf("store: RemoveRepoAdmin authorize: %w", err)
+		}
+		if !authorized {
+			return ErrUnauthorized
+		}
+		var adminCount int64
+		if err := tx.Model(&gormProjectAdmin{}).Where("prefix = ?", prefix).Count(&adminCount).Error; err != nil {
+			return fmt.Errorf("store: RemoveRepoAdmin count admins: %w", err)
+		}
+		if adminCount <= 1 && targetActor == actor {
+			return fmt.Errorf("store: %w: cannot remove last repo admin", ErrConflict)
+		}
+		res := tx.Where("prefix = ? AND actor = ?", prefix, targetActor).Delete(&gormProjectAdmin{})
+		if res.Error != nil {
+			return fmt.Errorf("store: RemoveRepoAdmin: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
+			return fmt.Errorf("store: %w: repo admin %s", ErrNotFound, targetActor)
+		}
+		return nil
+	})
 }
 
 // AuthorizeRepoAdmin returns nil when actor can mutate repo registry state.
 func (s *Store) AuthorizeRepoAdmin(ctx context.Context, prefix, actor string) error {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
-	var ok bool
-	err = pool.QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM bn_project_admins WHERE prefix = $1 AND actor = $2)`,
-		prefix, actor,
-	).Scan(&ok)
+	ok, err := repoAdminExists(ctx, db.WithContext(ctx), prefix, actor)
 	if err != nil {
 		return fmt.Errorf("store: AuthorizeRepoAdmin: %w", err)
 	}
@@ -246,19 +209,13 @@ func (s *Store) AuthorizeRepoAdmin(ctx context.Context, prefix, actor string) er
 // CreateRepo inserts a repo, replaces aliases, and writes an audit row
 // atomically. Repo registry mutation requires in.Actor to be a repo admin.
 func (s *Store) CreateRepo(ctx context.Context, in CreateRepoInput) (Repo, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Repo{}, err
 	}
 	if err := s.AuthorizeRepoAdmin(ctx, in.Prefix, in.Actor); err != nil {
 		return Repo{}, err
 	}
-
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		return Repo{}, fmt.Errorf("store: CreateRepo begin tx: %w", err)
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
 
 	id, err := generateRepoID()
 	if err != nil {
@@ -286,39 +243,49 @@ func (s *Store) CreateRepo(ctx context.Context, in CreateRepoInput) (Repo, error
 	if err != nil {
 		return Repo{}, fmt.Errorf("store: CreateRepo metadata: %w", err)
 	}
+	now := newGORMTime(clockNowUTC())
+	row := gormRepo{
+		ID:             id,
+		Prefix:         in.Prefix,
+		Slug:           in.Slug,
+		DisplayName:    displayName,
+		RemoteURL:      remoteURL,
+		DefaultBranch:  defaultBranch,
+		WorktreeSubdir: worktreeSubdir,
+		CloneStrategy:  cloneStrategy,
+		AuthRef:        authRef,
+		Enabled:        true,
+		Metadata:       datatypes.JSON(metadata),
+		CreatedAt:      now,
+		UpdatedAt:      now,
+		CreatedBy:      in.Actor,
+		UpdatedBy:      in.Actor,
+	}
+	repo := repoFromGORM(row)
 
-	row := tx.QueryRow(ctx, `
-		INSERT INTO bn_repos
-			(id, prefix, slug, display_name, remote_url, default_branch,
-			 worktree_subdir, clone_strategy, auth_ref, metadata, created_by, updated_by)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$11)
-		RETURNING id, prefix, slug, display_name, remote_url, default_branch,
-		          worktree_subdir, clone_strategy, auth_ref, enabled, metadata,
-		          created_at, updated_at, created_by, updated_by`,
-		id, in.Prefix, in.Slug, displayName, remoteURL, defaultBranch,
-		worktreeSubdir, cloneStrategy, authRef, metadata, in.Actor,
-	)
-	repo, err := scanRepo(row)
-	if err != nil {
-		if isDupKeyConflict(err) {
-			return Repo{}, fmt.Errorf("store: %w: repo %s", ErrConflict, in.Slug)
+	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&row).Error; err != nil {
+			if isDupKeyConflict(err) {
+				return fmt.Errorf("store: %w: repo %s", ErrConflict, in.Slug)
+			}
+			return fmt.Errorf("store: CreateRepo: %w", err)
 		}
-		return Repo{}, fmt.Errorf("store: CreateRepo: %w", err)
-	}
-	if err := replaceRepoAliases(ctx, tx, repo.Prefix, repo.ID, in.Aliases); err != nil {
+		if err := replaceRepoAliases(ctx, tx, repo.Prefix, repo.ID, in.Aliases); err != nil {
+			return err
+		}
+		if err := insertRepoAudit(ctx, tx, RepoAuditInput{
+			Prefix:    repo.Prefix,
+			RepoID:    repo.ID,
+			Action:    "repo.create",
+			Actor:     in.Actor,
+			NewValues: repoAuditValues(repo),
+		}); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
 		return Repo{}, err
-	}
-	if err := insertRepoAudit(ctx, tx, RepoAuditInput{
-		Prefix:    repo.Prefix,
-		RepoID:    repo.ID,
-		Action:    "repo.create",
-		Actor:     in.Actor,
-		NewValues: repoAuditValues(repo),
-	}); err != nil {
-		return Repo{}, err
-	}
-	if err := tx.Commit(ctx); err != nil {
-		return Repo{}, fmt.Errorf("store: CreateRepo commit: %w", err)
 	}
 	return repo, nil
 }
@@ -326,7 +293,7 @@ func (s *Store) CreateRepo(ctx context.Context, in CreateRepoInput) (Repo, error
 // UpdateRepo applies partial repo updates, optionally replaces aliases, and
 // writes an audit row atomically. Repo registry mutation requires admin access.
 func (s *Store) UpdateRepo(ctx context.Context, prefix, slug string, in UpdateRepoInput) (Repo, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Repo{}, err
 	}
@@ -334,109 +301,100 @@ func (s *Store) UpdateRepo(ctx context.Context, prefix, slug string, in UpdateRe
 		return Repo{}, err
 	}
 
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		return Repo{}, fmt.Errorf("store: UpdateRepo begin tx: %w", err)
-	}
-	defer func() { _ = tx.Rollback(ctx) }()
-
-	oldRepo, err := getRepoBySlug(ctx, tx, prefix, slug)
-	if err != nil {
-		return Repo{}, err
-	}
-	target := repo.Target{
-		RemoteURL:      oldRepo.RemoteURL,
-		DefaultBranch:  oldRepo.DefaultBranch,
-		WorktreeSubdir: oldRepo.WorktreeSubdir,
-		CloneStrategy:  oldRepo.CloneStrategy,
-		AuthRef:        oldRepo.AuthRef,
-	}
-	if in.RemoteURL != nil {
-		target.RemoteURL = strings.TrimSpace(*in.RemoteURL)
-	}
-	if in.DefaultBranch != nil {
-		target.DefaultBranch = repo.NormalizeDefaultBranch(*in.DefaultBranch)
-	}
-	if in.WorktreeSubdir != nil {
-		target.WorktreeSubdir = strings.TrimSpace(*in.WorktreeSubdir)
-	}
-	if in.CloneStrategy != nil {
-		target.CloneStrategy = repo.NormalizeCloneStrategy(*in.CloneStrategy)
-	}
-	if in.AuthRef != nil {
-		target.AuthRef = strings.TrimSpace(*in.AuthRef)
-	}
-	if err := repo.ValidateTarget(target); err != nil {
-		return Repo{}, fmt.Errorf("store: UpdateRepo validation: %w", err)
-	}
-
-	setClauses := []string{"updated_at = now()", "updated_by = $1"}
-	args := []any{in.Actor}
-	argN := func(v any) string {
-		args = append(args, v)
-		return fmt.Sprintf("$%d", len(args))
-	}
-	if in.DisplayName != nil {
-		setClauses = append(setClauses, "display_name = "+argN(*in.DisplayName))
-	}
-	if in.RemoteURL != nil {
-		setClauses = append(setClauses, "remote_url = "+argN(target.RemoteURL))
-	}
-	if in.DefaultBranch != nil {
-		setClauses = append(setClauses, "default_branch = "+argN(target.DefaultBranch))
-	}
-	if in.WorktreeSubdir != nil {
-		setClauses = append(setClauses, "worktree_subdir = "+argN(target.WorktreeSubdir))
-	}
-	if in.CloneStrategy != nil {
-		setClauses = append(setClauses, "clone_strategy = "+argN(target.CloneStrategy))
-	}
-	if in.AuthRef != nil {
-		setClauses = append(setClauses, "auth_ref = "+argN(target.AuthRef))
-	}
-	if in.Enabled != nil {
-		setClauses = append(setClauses, "enabled = "+argN(*in.Enabled))
-	}
-	if in.Metadata != nil {
-		metadata, err := encodeJSONObject(in.Metadata)
+	var out Repo
+	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		oldRepo, err := getRepoBySlugGORM(ctx, tx, prefix, slug)
 		if err != nil {
-			return Repo{}, fmt.Errorf("store: UpdateRepo metadata: %w", err)
+			return err
 		}
-		setClauses = append(setClauses, "metadata = "+argN(metadata))
-	}
+		target := repo.Target{
+			RemoteURL:      oldRepo.RemoteURL,
+			DefaultBranch:  oldRepo.DefaultBranch,
+			WorktreeSubdir: oldRepo.WorktreeSubdir,
+			CloneStrategy:  oldRepo.CloneStrategy,
+			AuthRef:        oldRepo.AuthRef,
+		}
+		if in.RemoteURL != nil {
+			target.RemoteURL = strings.TrimSpace(*in.RemoteURL)
+		}
+		if in.DefaultBranch != nil {
+			target.DefaultBranch = repo.NormalizeDefaultBranch(*in.DefaultBranch)
+		}
+		if in.WorktreeSubdir != nil {
+			target.WorktreeSubdir = strings.TrimSpace(*in.WorktreeSubdir)
+		}
+		if in.CloneStrategy != nil {
+			target.CloneStrategy = repo.NormalizeCloneStrategy(*in.CloneStrategy)
+		}
+		if in.AuthRef != nil {
+			target.AuthRef = strings.TrimSpace(*in.AuthRef)
+		}
+		if err := repo.ValidateTarget(target); err != nil {
+			return fmt.Errorf("store: UpdateRepo validation: %w", err)
+		}
 
-	args = append(args, oldRepo.ID)
-	row := tx.QueryRow(ctx, fmt.Sprintf(`
-		UPDATE bn_repos SET %s
-		WHERE id = $%d
-		RETURNING id, prefix, slug, display_name, remote_url, default_branch,
-		          worktree_subdir, clone_strategy, auth_ref, enabled, metadata,
-		          created_at, updated_at, created_by, updated_by`,
-		strings.Join(setClauses, ", "), len(args),
-	), args...)
-	repo, err := scanRepo(row)
-	if err != nil {
-		return Repo{}, fmt.Errorf("store: UpdateRepo: %w", err)
-	}
-	if in.Aliases != nil {
-		if err := replaceRepoAliases(ctx, tx, repo.Prefix, repo.ID, in.Aliases); err != nil {
-			return Repo{}, err
+		updates := map[string]any{
+			"updated_at": newGORMTime(clockNowUTC()),
+			"updated_by": in.Actor,
 		}
-	}
-	if err := insertRepoAudit(ctx, tx, RepoAuditInput{
-		Prefix:    repo.Prefix,
-		RepoID:    repo.ID,
-		Action:    "repo.update",
-		Actor:     in.Actor,
-		OldValues: repoAuditValues(oldRepo),
-		NewValues: repoAuditValues(repo),
-	}); err != nil {
+		if in.DisplayName != nil {
+			updates["display_name"] = *in.DisplayName
+		}
+		if in.RemoteURL != nil {
+			updates["remote_url"] = target.RemoteURL
+		}
+		if in.DefaultBranch != nil {
+			updates["default_branch"] = target.DefaultBranch
+		}
+		if in.WorktreeSubdir != nil {
+			updates["worktree_subdir"] = target.WorktreeSubdir
+		}
+		if in.CloneStrategy != nil {
+			updates["clone_strategy"] = target.CloneStrategy
+		}
+		if in.AuthRef != nil {
+			updates["auth_ref"] = target.AuthRef
+		}
+		if in.Enabled != nil {
+			updates["enabled"] = *in.Enabled
+		}
+		if in.Metadata != nil {
+			metadata, err := encodeJSONObject(in.Metadata)
+			if err != nil {
+				return fmt.Errorf("store: UpdateRepo metadata: %w", err)
+			}
+			updates["metadata"] = datatypes.JSON(metadata)
+		}
+
+		if err := tx.Model(&gormRepo{}).Where("id = ?", oldRepo.ID).Updates(updates).Error; err != nil {
+			return fmt.Errorf("store: UpdateRepo: %w", err)
+		}
+		repo, err := getRepoBySlugGORM(ctx, tx, prefix, slug)
+		if err != nil {
+			return err
+		}
+		if in.Aliases != nil {
+			if err := replaceRepoAliases(ctx, tx, repo.Prefix, repo.ID, in.Aliases); err != nil {
+				return err
+			}
+		}
+		if err := insertRepoAudit(ctx, tx, RepoAuditInput{
+			Prefix:    repo.Prefix,
+			RepoID:    repo.ID,
+			Action:    "repo.update",
+			Actor:     in.Actor,
+			OldValues: repoAuditValues(oldRepo),
+			NewValues: repoAuditValues(repo),
+		}); err != nil {
+			return err
+		}
+		out = repo
+		return nil
+	})
+	if err != nil {
 		return Repo{}, err
 	}
-	if err := tx.Commit(ctx); err != nil {
-		return Repo{}, fmt.Errorf("store: UpdateRepo commit: %w", err)
-	}
-	return repo, nil
+	return out, nil
 }
 
 // DisableRepo marks a repo disabled. It is a convenience wrapper over
@@ -451,169 +409,111 @@ func (s *Store) DisableRepo(ctx context.Context, prefix, slug, actor string) (Re
 
 // GetRepoBySlug returns a repo scoped by project prefix and slug.
 func (s *Store) GetRepoBySlug(ctx context.Context, prefix, slug string) (Repo, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Repo{}, err
 	}
-	return getRepoBySlug(ctx, pool, prefix, slug)
+	return getRepoBySlugGORM(ctx, db.WithContext(ctx), prefix, slug)
 }
 
 // ResolveRepoAlias resolves alias to the repo it references.
 func (s *Store) ResolveRepoAlias(ctx context.Context, prefix, alias string) (Repo, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return Repo{}, err
 	}
-	row := pool.QueryRow(ctx, `
-		SELECT r.id, r.prefix, r.slug, r.display_name, r.remote_url, r.default_branch,
-		       r.worktree_subdir, r.clone_strategy, r.auth_ref, r.enabled, r.metadata,
-		       r.created_at, r.updated_at, r.created_by, r.updated_by
-		FROM bn_repo_aliases a
-		JOIN bn_repos r ON r.id = a.repo_id
-		WHERE a.prefix = $1 AND a.alias = $2`,
-		prefix, alias,
-	)
-	repo, err := scanRepo(row)
-	if errors.Is(err, pgx.ErrNoRows) {
+	var row gormRepo
+	err = db.WithContext(ctx).
+		Table("bn_repos AS r").
+		Select("r.*").
+		Joins("JOIN bn_repo_aliases a ON a.repo_id = r.id").
+		Where("a.prefix = ? AND a.alias = ?", prefix, alias).
+		First(&row).
+		Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return Repo{}, fmt.Errorf("store: %w: repo alias %s", ErrNotFound, alias)
 	}
 	if err != nil {
 		return Repo{}, fmt.Errorf("store: ResolveRepoAlias: %w", err)
 	}
-	return repo, nil
+	return repoFromGORM(row), nil
 }
 
 // ListRepos returns repos scoped by prefix ordered by slug.
 func (s *Store) ListRepos(ctx context.Context, prefix string, includeDisabled bool) ([]Repo, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
-	q := `
-		SELECT id, prefix, slug, display_name, remote_url, default_branch,
-		       worktree_subdir, clone_strategy, auth_ref, enabled, metadata,
-		       created_at, updated_at, created_by, updated_by
-		FROM bn_repos
-		WHERE prefix = $1`
+	q := db.WithContext(ctx).Where("prefix = ?", prefix).Order("slug ASC")
 	if !includeDisabled {
-		q += ` AND enabled = true`
+		q = q.Where("enabled = ?", true)
 	}
-	q += ` ORDER BY slug`
-	rows, err := pool.Query(ctx, q, prefix)
-	if err != nil {
+	var rows []gormRepo
+	if err := q.Find(&rows).Error; err != nil {
 		return nil, fmt.Errorf("store: ListRepos: %w", err)
 	}
-	defer rows.Close()
-
-	var repos []Repo
-	for rows.Next() {
-		repo, err := scanRepo(rows)
-		if err != nil {
-			return nil, fmt.Errorf("store: ListRepos scan: %w", err)
-		}
-		repos = append(repos, repo)
+	repos := make([]Repo, 0, len(rows))
+	for _, row := range rows {
+		repos = append(repos, repoFromGORM(row))
 	}
-	return repos, rows.Err()
+	return repos, nil
 }
 
 // InsertRepoAudit appends one redacted repo audit row.
 func (s *Store) InsertRepoAudit(ctx context.Context, in RepoAuditInput) (RepoAudit, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return RepoAudit{}, err
 	}
-	var audit RepoAudit
-	var oldValues, newValues []byte
-	err = insertRepoAuditReturning(ctx, pool, in).Scan(
-		&audit.ID, &audit.Prefix, &audit.RepoID, &audit.Action, &audit.Actor,
-		&oldValues, &newValues, &audit.Command, &audit.CreatedAt,
-	)
+	row, err := repoAuditRow(in)
 	if err != nil {
+		return RepoAudit{}, err
+	}
+	if err := db.WithContext(ctx).Create(&row).Error; err != nil {
 		return RepoAudit{}, fmt.Errorf("store: InsertRepoAudit: %w", err)
 	}
-	audit.OldValues = decodeJSONObject(oldValues)
-	audit.NewValues = decodeJSONObject(newValues)
-	audit.CreatedAt = audit.CreatedAt.UTC()
-	return audit, nil
+	return repoAuditFromGORM(row), nil
 }
 
 // ListRepoAudit returns recent audit rows for a project, optionally scoped to a
 // repo id. limit <= 0 uses a small default.
 func (s *Store) ListRepoAudit(ctx context.Context, prefix, repoID string, limit int) ([]RepoAudit, error) {
-	pool, err := s.p.conn()
+	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 	if limit <= 0 {
 		limit = 50
 	}
-	args := []any{prefix}
-	q := `
-		SELECT id, prefix, repo_id, action, actor, old_values, new_values, command, created_at
-		FROM bn_repo_audit
-		WHERE prefix = $1`
+	q := db.WithContext(ctx).Where("prefix = ?", prefix)
 	if repoID != "" {
-		args = append(args, repoID)
-		q += fmt.Sprintf(" AND repo_id = $%d", len(args))
+		q = q.Where("repo_id = ?", repoID)
 	}
-	args = append(args, limit)
-	q += fmt.Sprintf(" ORDER BY created_at DESC, id DESC LIMIT $%d", len(args))
-
-	rows, err := pool.Query(ctx, q, args...)
-	if err != nil {
+	var rows []gormRepoAudit
+	if err := q.Order("created_at DESC").Order("id DESC").Limit(limit).Find(&rows).Error; err != nil {
 		return nil, fmt.Errorf("store: ListRepoAudit: %w", err)
 	}
-	defer rows.Close()
-
-	var audits []RepoAudit
-	for rows.Next() {
-		var audit RepoAudit
-		var oldValues, newValues []byte
-		if err := rows.Scan(
-			&audit.ID, &audit.Prefix, &audit.RepoID, &audit.Action, &audit.Actor,
-			&oldValues, &newValues, &audit.Command, &audit.CreatedAt,
-		); err != nil {
-			return nil, fmt.Errorf("store: ListRepoAudit scan: %w", err)
-		}
-		audit.OldValues = decodeJSONObject(oldValues)
-		audit.NewValues = decodeJSONObject(newValues)
-		audit.CreatedAt = audit.CreatedAt.UTC()
-		audits = append(audits, audit)
+	audits := make([]RepoAudit, 0, len(rows))
+	for _, row := range rows {
+		audits = append(audits, repoAuditFromGORM(row))
 	}
-	return audits, rows.Err()
+	return audits, nil
 }
 
-func getRepoBySlug(ctx context.Context, q interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, prefix, slug string) (Repo, error) {
-	row := q.QueryRow(ctx, `
-		SELECT id, prefix, slug, display_name, remote_url, default_branch,
-		       worktree_subdir, clone_strategy, auth_ref, enabled, metadata,
-		       created_at, updated_at, created_by, updated_by
-		FROM bn_repos WHERE prefix = $1 AND slug = $2`,
-		prefix, slug,
-	)
-	repo, err := scanRepo(row)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return Repo{}, fmt.Errorf("store: %w: repo %s", ErrNotFound, slug)
-	}
-	if err != nil {
-		return Repo{}, fmt.Errorf("store: GetRepoBySlug: %w", err)
-	}
-	return repo, nil
-}
-
-func replaceRepoAliases(ctx context.Context, tx pgx.Tx, prefix, repoID string, aliases []string) error {
-	if _, err := tx.Exec(ctx, `DELETE FROM bn_repo_aliases WHERE repo_id = $1`, repoID); err != nil {
+func replaceRepoAliases(ctx context.Context, tx *gorm.DB, prefix, repoID string, aliases []string) error {
+	if err := tx.WithContext(ctx).Where("repo_id = ?", repoID).Delete(&gormRepoAlias{}).Error; err != nil {
 		return fmt.Errorf("store: replaceRepoAliases delete: %w", err)
 	}
 	cleaned := cleanAliases(aliases)
 	for _, alias := range cleaned {
-		_, err := tx.Exec(ctx,
-			`INSERT INTO bn_repo_aliases (prefix, alias, repo_id) VALUES ($1, $2, $3)`,
-			prefix, alias, repoID,
-		)
-		if err != nil {
+		row := gormRepoAlias{
+			Prefix:    prefix,
+			Alias:     alias,
+			RepoID:    repoID,
+			CreatedAt: newGORMTime(clockNowUTC()),
+		}
+		if err := tx.WithContext(ctx).Create(&row).Error; err != nil {
 			if isDupKeyConflict(err) {
 				return fmt.Errorf("store: %w: repo alias %s", ErrConflict, alias)
 			}
@@ -641,53 +541,83 @@ func cleanAliases(aliases []string) []string {
 	return out
 }
 
-func insertRepoAudit(ctx context.Context, tx pgx.Tx, in RepoAuditInput) error {
-	oldValues, err := encodeJSONObject(in.OldValues)
+func repoAdminExists(ctx context.Context, db *gorm.DB, prefix, actor string) (bool, error) {
+	var count int64
+	err := db.WithContext(ctx).
+		Model(&gormProjectAdmin{}).
+		Where("prefix = ? AND actor = ?", prefix, actor).
+		Count(&count).
+		Error
 	if err != nil {
-		return fmt.Errorf("store: insertRepoAudit old values: %w", err)
+		return false, err
 	}
-	newValues, err := encodeJSONObject(in.NewValues)
+	return count > 0, nil
+}
+
+func lockRepoAdminBootstrap(ctx context.Context, tx *gorm.DB, prefix string) error {
+	var claim gormProjectAdminBootstrap
+	err := tx.WithContext(ctx).
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("prefix = ?", prefix).
+		First(&claim).
+		Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return fmt.Errorf("store: %w: missing repo admin bootstrap guard for %s", ErrConflict, prefix)
+	}
 	if err != nil {
-		return fmt.Errorf("store: insertRepoAudit new values: %w", err)
+		return fmt.Errorf("store: repo admin bootstrap guard: %w", err)
 	}
-	var repoID *string
-	if in.RepoID != "" {
-		repoID = &in.RepoID
-	}
-	_, err = tx.Exec(ctx, `
-		INSERT INTO bn_repo_audit
-			(prefix, repo_id, action, actor, old_values, new_values, command)
-		VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-		in.Prefix, repoID, in.Action, in.Actor, oldValues, newValues, in.Command,
-	)
+	return nil
+}
+
+func insertRepoAudit(ctx context.Context, tx *gorm.DB, in RepoAuditInput) error {
+	row, err := repoAuditRow(in)
 	if err != nil {
+		return err
+	}
+	if err := tx.WithContext(ctx).Create(&row).Error; err != nil {
 		return fmt.Errorf("store: insertRepoAudit: %w", err)
 	}
 	return nil
 }
 
-func insertRepoAuditReturning(ctx context.Context, q interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
-}, in RepoAuditInput) pgx.Row {
-	oldValues, oldErr := encodeJSONObject(in.OldValues)
-	newValues, newErr := encodeJSONObject(in.NewValues)
-	if oldErr != nil {
-		return errorRow{err: oldErr}
+func repoAuditRow(in RepoAuditInput) (gormRepoAudit, error) {
+	oldValues, err := encodeJSONObject(in.OldValues)
+	if err != nil {
+		return gormRepoAudit{}, fmt.Errorf("store: insertRepoAudit old values: %w", err)
 	}
-	if newErr != nil {
-		return errorRow{err: newErr}
+	newValues, err := encodeJSONObject(in.NewValues)
+	if err != nil {
+		return gormRepoAudit{}, fmt.Errorf("store: insertRepoAudit new values: %w", err)
 	}
 	var repoID *string
 	if in.RepoID != "" {
 		repoID = &in.RepoID
 	}
-	return q.QueryRow(ctx, `
-		INSERT INTO bn_repo_audit
-			(prefix, repo_id, action, actor, old_values, new_values, command)
-		VALUES ($1,$2,$3,$4,$5,$6,$7)
-		RETURNING id, prefix, repo_id, action, actor, old_values, new_values, command, created_at`,
-		in.Prefix, repoID, in.Action, in.Actor, oldValues, newValues, in.Command,
-	)
+	return gormRepoAudit{
+		Prefix:    in.Prefix,
+		RepoID:    repoID,
+		Action:    in.Action,
+		Actor:     in.Actor,
+		OldValues: datatypes.JSON(oldValues),
+		NewValues: datatypes.JSON(newValues),
+		Command:   in.Command,
+		CreatedAt: newGORMTime(clockNowUTC()),
+	}, nil
+}
+
+func repoAuditFromGORM(row gormRepoAudit) RepoAudit {
+	return RepoAudit{
+		ID:        row.ID,
+		Prefix:    row.Prefix,
+		RepoID:    row.RepoID,
+		Action:    row.Action,
+		Actor:     row.Actor,
+		OldValues: decodeJSONObject(row.OldValues),
+		NewValues: decodeJSONObject(row.NewValues),
+		Command:   row.Command,
+		CreatedAt: row.CreatedAt.UTC(),
+	}
 }
 
 func repoAuditValues(repo Repo) map[string]any {
@@ -702,26 +632,6 @@ func repoAuditValues(repo Repo) map[string]any {
 		"auth_ref":        repo.AuthRef,
 		"enabled":         repo.Enabled,
 	}
-}
-
-func scanRepo(row pgx.Row) (Repo, error) {
-	var (
-		repo     Repo
-		metadata []byte
-	)
-	err := row.Scan(
-		&repo.ID, &repo.Prefix, &repo.Slug, &repo.DisplayName, &repo.RemoteURL,
-		&repo.DefaultBranch, &repo.WorktreeSubdir, &repo.CloneStrategy,
-		&repo.AuthRef, &repo.Enabled, &metadata, &repo.CreatedAt, &repo.UpdatedAt,
-		&repo.CreatedBy, &repo.UpdatedBy,
-	)
-	if err != nil {
-		return Repo{}, err
-	}
-	repo.Metadata = decodeJSONObject(metadata)
-	repo.CreatedAt = repo.CreatedAt.UTC()
-	repo.UpdatedAt = repo.UpdatedAt.UTC()
-	return repo, nil
 }
 
 func encodeJSONObject(v map[string]any) ([]byte, error) {
@@ -742,12 +652,4 @@ func generateRepoID() (string, error) {
 		return "", fmt.Errorf("store: generate repo id: %w", err)
 	}
 	return "repo-" + hex.EncodeToString(b[:]), nil
-}
-
-type errorRow struct {
-	err error
-}
-
-func (r errorRow) Scan(...any) error {
-	return r.err
 }
