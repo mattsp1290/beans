@@ -13,6 +13,9 @@
       return
     }
     event.preventDefault()
+    if (path === pathname) {
+      return
+    }
     history.pushState({}, '', path)
     pathname = path
   }

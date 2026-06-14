@@ -203,6 +203,12 @@ select {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .loading-state span {
+    animation: none;
+  }
+}
+
 @media (max-width: 760px) {
   .shell {
     grid-template-columns: 1fr;
