@@ -75,6 +75,36 @@ describe('ApiClient', () => {
     })
   })
 
+  it('adds and removes issue dependencies', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ issue_id: 'bc-2', blocked_by_id: 'bc-1' }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+    const client = new ApiClient({ fetch: fetcher })
+
+    await expect(client.addDependency('bc-2', { blocked_by_id: 'bc-1' })).resolves.toEqual({
+      issue_id: 'bc-2',
+      blocked_by_id: 'bc-1',
+    })
+
+    expect(fetcher).toHaveBeenCalledWith('/api/v1/issues/bc-2/deps', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ blocked_by_id: 'bc-1' }),
+    })
+
+    await expect(client.removeDependency('bc-2', 'bc-1')).resolves.toBeUndefined()
+
+    expect(fetcher).toHaveBeenLastCalledWith('/api/v1/issues/bc-2/deps/bc-1', {
+      method: 'DELETE',
+      headers: { Accept: 'application/json' },
+      body: undefined,
+    })
+  })
+
   it('throws ApiError with the server error envelope', async () => {
     const fetcher = mockFetch(
       {
@@ -107,10 +137,12 @@ describe('ApiClient', () => {
 })
 
 function mockFetch(payload: unknown, init: ResponseInit = {}): typeof fetch {
-  return vi.fn().mockResolvedValue(
-    new Response(JSON.stringify(payload), {
-      status: init.status ?? 200,
-      headers: { 'Content-Type': 'application/json' },
-    }),
-  )
+  return vi.fn().mockResolvedValue(jsonResponse(payload, init))
+}
+
+function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
+  return new Response(JSON.stringify(payload), {
+    status: init.status ?? 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }

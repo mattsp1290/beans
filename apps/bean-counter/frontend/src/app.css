@@ -119,6 +119,7 @@ main {
 
 h1,
 h2,
+h3,
 p {
   margin: 0;
 }
@@ -332,6 +333,10 @@ textarea {
   color: #657166;
 }
 
+.muted {
+  color: #657166;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -349,6 +354,48 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.dependency-editor {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #edf1e9;
+  padding-top: 14px;
+}
+
+.dependency-editor h3 {
+  font-size: 17px;
+}
+
+.dependency-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dependency-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d9ded4;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.dependency-list span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dependency-form {
+  display: flex;
+  align-items: end;
+  gap: 10px;
 }
 
 .status-pill,
@@ -458,6 +505,13 @@ dd {
   .issues-layout,
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dependency-form,
+  .dependency-list li {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 
   .ready-row {
