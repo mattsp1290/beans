@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/mattsp1290/beans/model"
 	repovalidation "github.com/mattsp1290/beans/repo"
@@ -1624,28 +1623,6 @@ func dedupeImportInputs(items []ImportInput) []ImportInput {
 		out = append(out, item)
 	}
 	return out
-}
-
-// isPKConflict returns true when the pgx error is a unique-violation on the
-// primary key (sqlstate 23505).
-func isPKConflict(err error) bool {
-	return isDupKeyConflict(err)
-}
-
-func isDupKeyConflict(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "23505"
-	}
-	return false
-}
-
-func isSerializationFailure(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "40001"
-	}
-	return false
 }
 
 func wrapExecErr(err error, op string) error {

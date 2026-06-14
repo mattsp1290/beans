@@ -1,6 +1,15 @@
 package store
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+	"strings"
+
+	gosqlite "github.com/glebarez/go-sqlite"
+	gmysql "github.com/go-sql-driver/mysql"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/puddle/v2"
+)
 
 // Sentinel errors returned by Store methods. Callers branch on these with
 // errors.Is rather than inspecting message text.
@@ -25,4 +34,65 @@ var (
 
 	// ErrDisabled is returned when an operation targets a disabled repo.
 	ErrDisabled = errors.New("store: disabled")
+)
+
+func isPKConflict(err error) bool {
+	return isDuplicateConstraint(err)
+}
+
+func isDupKeyConflict(err error) bool {
+	return isDuplicateConstraint(err)
+}
+
+func isDuplicateConstraint(err error) bool {
+	if err == nil {
+		return false
+	}
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "23505"
+	}
+	var mysqlErr *gmysql.MySQLError
+	if errors.As(err, &mysqlErr) {
+		return mysqlErr.Number == 1062
+	}
+	if sqliteCode(err) == sqliteConstraintPrimaryKey ||
+		sqliteCode(err) == sqliteConstraintUnique {
+		return true
+	}
+	return strings.Contains(strings.ToLower(err.Error()), "sqlite constraint error: unique constraint failed")
+}
+
+func isSerializationFailure(err error) bool {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "40001"
+	}
+	return false
+}
+
+func normalizePoolError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, ErrPoolClosed) {
+		return err
+	}
+	if errors.Is(err, sql.ErrConnDone) || errors.Is(err, puddle.ErrClosedPool) {
+		return ErrPoolClosed
+	}
+	return err
+}
+
+func sqliteCode(err error) int {
+	var glebarezErr *gosqlite.Error
+	if errors.As(err, &glebarezErr) {
+		return glebarezErr.Code()
+	}
+	return 0
+}
+
+const (
+	sqliteConstraintPrimaryKey = 1555
+	sqliteConstraintUnique     = 2067
 )

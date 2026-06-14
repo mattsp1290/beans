@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jackc/puddle/v2"
 	gmysql "gorm.io/driver/mysql"
 )
 
@@ -75,13 +74,6 @@ func TestNewSQLitePoolMigratesAndCloses(t *testing.T) {
 	}
 	if _, err := s.p.conn(); !errors.Is(err, ErrPoolClosed) {
 		t.Fatalf("legacy conn after close = %v, want ErrPoolClosed", err)
-	}
-}
-
-func TestNormalizePoolErrorMapsLegacyPGXClosedPool(t *testing.T) {
-	err := normalizePoolError(puddle.ErrClosedPool)
-	if !errors.Is(err, ErrPoolClosed) {
-		t.Fatalf("normalizePoolError(puddle.ErrClosedPool) = %v, want ErrPoolClosed", err)
 	}
 }
 

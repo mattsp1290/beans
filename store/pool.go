@@ -9,7 +9,6 @@ import (
 
 	"github.com/glebarez/sqlite"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/puddle/v2"
 	gmysql "gorm.io/driver/mysql"
 	gpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -161,17 +160,4 @@ func (p *pool) conn() (*pgxpool.Pool, error) {
 		return nil, ErrUnsupportedDriver
 	}
 	return pp, nil
-}
-
-func normalizePoolError(err error) error {
-	if err == nil {
-		return nil
-	}
-	if errors.Is(err, ErrPoolClosed) {
-		return err
-	}
-	if errors.Is(err, sql.ErrConnDone) || errors.Is(err, puddle.ErrClosedPool) {
-		return ErrPoolClosed
-	}
-	return err
 }
