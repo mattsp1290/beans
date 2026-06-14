@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/mattsp1290/bean-counter/internal/config"
+	"github.com/mattsp1290/bean-counter/internal/handlers/deps"
 	"github.com/mattsp1290/bean-counter/internal/handlers/issues"
 	"github.com/mattsp1290/bean-counter/internal/server"
 	appstore "github.com/mattsp1290/bean-counter/internal/store"
@@ -51,6 +52,10 @@ func run() error {
 				Store:         adapter.Store(),
 				ProjectPrefix: cfg.ProjectPrefix,
 				Actor:         cfg.Actor,
+			})
+			deps.Register(api, deps.Config{
+				Store:         adapter.Store(),
+				ProjectPrefix: cfg.ProjectPrefix,
 			})
 		},
 	})
