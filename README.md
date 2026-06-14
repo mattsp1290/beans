@@ -35,8 +35,9 @@ project and writes the active project marker.
 ### Database Configuration
 
 `BN_DRIVER` selects the database dialect and must be one of `postgres`, `mysql`,
-or `sqlite`. For backwards compatibility, `BN_DRIVER` may be omitted only when
-`BN_DSN` is clearly a PostgreSQL URL or keyword DSN.
+or `sqlite`. Accepted aliases are `postgresql`, `pg`, and `sqlite3`. For
+backwards compatibility, `BN_DRIVER` may be omitted only when `BN_DSN` is
+clearly a PostgreSQL URL or keyword DSN.
 
 Examples:
 
