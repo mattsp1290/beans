@@ -14,109 +14,110 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestListMigrationsParsesEmbedded verifies the embedded migrations directory
-// holds 0001_bn_init.sql and ListMigrations returns it with valid metadata.
+var allDrivers = []Driver{DriverPostgres, DriverMySQL, DriverSQLite}
+
+var expectedMigrations = []struct {
+	version int
+	name    string
+}{
+	{1, "bn_init"},
+	{2, "bn_memories"},
+	{3, "bn_issue_state_check"},
+	{4, "bn_repos"},
+	{5, "bn_issue_repos"},
+	{6, "bn_memory_tags"},
+	{7, "bn_semantic_guards"},
+}
+
+// TestListMigrationsParsesEmbedded verifies every dialect's embedded migration
+// directory returns the expected ordered migration metadata.
 func TestListMigrationsParsesEmbedded(t *testing.T) {
 	t.Parallel()
 
-	migs, err := ListMigrations(DriverPostgres)
-	if err != nil {
-		t.Fatalf("ListMigrations: %v", err)
+	for _, driver := range allDrivers {
+		t.Run(string(driver), func(t *testing.T) {
+			t.Parallel()
+			migs, err := ListMigrations(driver)
+			if err != nil {
+				t.Fatalf("ListMigrations: %v", err)
+			}
+			if len(migs) != len(expectedMigrations) {
+				t.Fatalf("migration count = %d, want %d", len(migs), len(expectedMigrations))
+			}
+			if !sort.SliceIsSorted(migs, func(i, j int) bool { return migs[i].Version < migs[j].Version }) {
+				t.Fatalf("migrations not ascending: %+v", migs)
+			}
+			for i, want := range expectedMigrations {
+				if migs[i].Version != want.version || migs[i].Name != want.name {
+					t.Fatalf("migration[%d] = %04d_%s, want %04d_%s", i, migs[i].Version, migs[i].Name, want.version, want.name)
+				}
+			}
+		})
 	}
-	if len(migs) == 0 {
-		t.Fatal("ListMigrations returned no entries; expected at least 0001_bn_init.sql")
-	}
+}
 
-	if migs[0].Version != 1 {
-		t.Fatalf("first migration version = %d, want 1", migs[0].Version)
-	}
-	if migs[0].Name != "bn_init" {
-		t.Fatalf("first migration name = %q, want %q", migs[0].Name, "bn_init")
-	}
+func TestMigrationRequiredObjects(t *testing.T) {
+	t.Parallel()
 
-	if !strings.Contains(migs[0].SQL, "CREATE TABLE bn_issues") {
-		t.Fatalf("first migration SQL missing bn_issues CREATE: %q", migs[0].SQL[:200])
-	}
+	for _, driver := range allDrivers {
+		t.Run(string(driver), func(t *testing.T) {
+			t.Parallel()
+			migs, err := ListMigrations(driver)
+			if err != nil {
+				t.Fatalf("ListMigrations: %v", err)
+			}
+			byVersion := migrationsByVersion(migs)
 
-	if !sort.SliceIsSorted(migs, func(i, j int) bool { return migs[i].Version < migs[j].Version }) {
-		t.Fatalf("migrations not ascending: %+v", migs)
-	}
+			assertContainsDDL(t, driver, byVersion[1].SQL, []string{
+				"CREATE TABLE bn_projects",
+				"CREATE TABLE bn_issues",
+				"CREATE INDEX bn_issues_prefix_state_idx",
+				"CREATE TABLE bn_issue_deps",
+				"CREATE INDEX bn_issue_deps_blocker_idx",
+				"CREATE TABLE bn_issue_notes",
+				"CREATE INDEX bn_issue_notes_issue_idx",
+			})
+			assertContainsDDL(t, driver, byVersion[2].SQL, []string{
+				"CREATE TABLE bn_memories",
+				"CREATE INDEX bn_memories_prefix_idx",
+			})
+			assertContainsDDL(t, driver, byVersion[4].SQL, []string{
+				"CREATE TABLE bn_repos",
+				"CREATE INDEX bn_repos_prefix_enabled_idx",
+				"CREATE TABLE bn_repo_aliases",
+				"CREATE INDEX bn_repo_aliases_repo_idx",
+				"CREATE TABLE bn_project_admins",
+				"CREATE TABLE bn_repo_audit",
+				"CREATE INDEX bn_repo_audit_prefix_created_idx",
+				"CREATE INDEX bn_repo_audit_repo_created_idx",
+			})
+			assertContainsDDL(t, driver, byVersion[5].SQL, []string{
+				"CREATE TABLE bn_issue_repos",
+				"CREATE INDEX bn_issue_repos_repo_idx",
+			})
+			assertContainsDDL(t, driver, byVersion[6].SQL, []string{
+				createTableToken(driver, "bn_memory_tags"),
+				"CREATE INDEX bn_memory_tags_tag_memory_idx",
+				"CREATE INDEX bn_memory_tags_memory_idx",
+			})
+			assertContainsDDL(t, driver, byVersion[7].SQL, []string{
+				"CREATE TABLE bn_dep_graph_guard",
+				"CREATE TABLE bn_project_admin_bootstraps",
+			})
 
-	var stateCheck *Migration
-	for i := range migs {
-		if migs[i].Version == 3 {
-			stateCheck = &migs[i]
-			break
-		}
-	}
-	if stateCheck == nil {
-		t.Fatalf("migration version 3 not found in %+v", migs)
-	}
-	if stateCheck.Name != "bn_issue_state_check" {
-		t.Fatalf("migration 3 name = %q, want %q", stateCheck.Name, "bn_issue_state_check")
-	}
-	if !strings.Contains(stateCheck.SQL, "bn_issues_state_check") {
-		t.Fatalf("state-check migration SQL missing constraint name: %q", stateCheck.SQL)
-	}
-	if !strings.Contains(stateCheck.SQL, "NOT VALID") {
-		t.Fatalf("state-check migration should avoid validating legacy rows immediately: %q", stateCheck.SQL)
-	}
-
-	var repoCheck *Migration
-	for i := range migs {
-		if migs[i].Version == 4 {
-			repoCheck = &migs[i]
-			break
-		}
-	}
-	if repoCheck == nil {
-		t.Fatalf("migration version 4 not found in %+v", migs)
-	}
-	if repoCheck.Name != "bn_repos" {
-		t.Fatalf("migration 4 name = %q, want %q", repoCheck.Name, "bn_repos")
-	}
-	if !strings.Contains(repoCheck.SQL, "CREATE TABLE bn_repos") {
-		t.Fatalf("repo migration SQL missing bn_repos table: %q", repoCheck.SQL)
-	}
-
-	var memoryTags *Migration
-	for i := range migs {
-		if migs[i].Version == 6 {
-			memoryTags = &migs[i]
-			break
-		}
-	}
-	if memoryTags == nil {
-		t.Fatalf("migration version 6 not found in %+v", migs)
-	}
-	if memoryTags.Name != "bn_memory_tags" {
-		t.Fatalf("migration 6 name = %q, want %q", memoryTags.Name, "bn_memory_tags")
-	}
-	if !strings.Contains(memoryTags.SQL, "CREATE TABLE bn_memory_tags") {
-		t.Fatalf("memory tag migration SQL missing bn_memory_tags table: %q", memoryTags.SQL)
-	}
-
-	var semanticGuards *Migration
-	for i := range migs {
-		if migs[i].Version == 7 {
-			semanticGuards = &migs[i]
-			break
-		}
-	}
-	if semanticGuards == nil {
-		t.Fatalf("migration version 7 not found in %+v", migs)
-	}
-	if semanticGuards.Name != "bn_semantic_guards" {
-		t.Fatalf("migration 7 name = %q, want %q", semanticGuards.Name, "bn_semantic_guards")
-	}
-	if !strings.Contains(semanticGuards.SQL, "CREATE TABLE bn_dep_graph_guard") ||
-		!strings.Contains(semanticGuards.SQL, "CREATE TABLE bn_project_admin_bootstraps") {
-		t.Fatalf("semantic guard migration SQL missing required tables: %q", semanticGuards.SQL)
-	}
-
-	last := migs[len(migs)-1]
-	if last.Version != 7 {
-		t.Fatalf("last migration version = %d, want 7", last.Version)
+			stateSQL := byVersion[3].SQL
+			if driver == DriverSQLite {
+				stateSQL = byVersion[1].SQL
+			}
+			assertContainsDDL(t, driver, stateSQL, []string{
+				"CHECK (state IN",
+				"'open'",
+				"'in_progress'",
+				"'blocked'",
+				"'closed'",
+				"'done'",
+			})
+		})
 	}
 }
 
@@ -124,14 +125,19 @@ func TestListMigrationsParsesEmbedded(t *testing.T) {
 func TestListMigrationsBodiesAreNonEmpty(t *testing.T) {
 	t.Parallel()
 
-	migs, err := ListMigrations(DriverPostgres)
-	if err != nil {
-		t.Fatalf("ListMigrations: %v", err)
-	}
-	for _, m := range migs {
-		if len(strings.TrimSpace(m.SQL)) == 0 {
-			t.Errorf("migration %d (%s) has empty SQL body", m.Version, m.Name)
-		}
+	for _, driver := range allDrivers {
+		t.Run(string(driver), func(t *testing.T) {
+			t.Parallel()
+			migs, err := ListMigrations(driver)
+			if err != nil {
+				t.Fatalf("ListMigrations: %v", err)
+			}
+			for _, m := range migs {
+				if len(strings.TrimSpace(m.SQL)) == 0 {
+					t.Errorf("migration %d (%s) has empty SQL body", m.Version, m.Name)
+				}
+			}
+		})
 	}
 }
 
@@ -193,6 +199,7 @@ func TestDialectSpecificDDL(t *testing.T) {
 
 	mysqlSQL := allMigrationSQL(t, DriverMySQL)
 	sqliteSQL := allMigrationSQL(t, DriverSQLite)
+	postgresSQL := allMigrationSQL(t, DriverPostgres)
 
 	assertMissingDDL(t, DriverMySQL, mysqlSQL, []string{
 		"JSONB",
@@ -214,6 +221,13 @@ func TestDialectSpecificDDL(t *testing.T) {
 		" now()",
 	})
 
+	assertContainsDDL(t, DriverPostgres, postgresSQL, []string{
+		"JSONB",
+		"TIMESTAMPTZ",
+		"BIGSERIAL",
+		"tsvector GENERATED ALWAYS AS",
+		"USING GIN",
+	})
 	assertContainsDDL(t, DriverMySQL, mysqlSQL, []string{
 		"JSON NOT NULL",
 		"TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)",
@@ -246,6 +260,21 @@ func allMigrationSQL(t *testing.T, driver Driver) string {
 		fmt.Fprintf(&b, "\n-- %04d_%s\n%s\n", mig.Version, mig.Name, mig.SQL)
 	}
 	return b.String()
+}
+
+func migrationsByVersion(migs []Migration) map[int]Migration {
+	out := make(map[int]Migration, len(migs))
+	for _, mig := range migs {
+		out[mig.Version] = mig
+	}
+	return out
+}
+
+func createTableToken(driver Driver, table string) string {
+	if driver == DriverMySQL {
+		return "CREATE TABLE IF NOT EXISTS " + table
+	}
+	return "CREATE TABLE " + table
 }
 
 func assertMissingDDL(t *testing.T, driver Driver, sql string, forbidden []string) {
