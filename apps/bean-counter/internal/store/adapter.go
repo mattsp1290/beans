@@ -16,6 +16,7 @@ type Issue = beansstore.Issue
 type ListFilter = beansstore.ListFilter
 type CreateIssueInput = beansstore.CreateIssueInput
 type UpdateIssueInput = beansstore.UpdateIssueInput
+type IssueRepoInput = beansstore.IssueRepoInput
 type DepEdge = beansstore.DepEdge
 
 var (
