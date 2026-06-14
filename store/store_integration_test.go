@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/testcontainers/testcontainers-go"
 	tcmysql "github.com/testcontainers/testcontainers-go/modules/mysql"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -112,6 +113,7 @@ func isDockerUnavailable(err error) bool {
 type storeContractDialect struct {
 	name                   string
 	open                   func(t *testing.T) *store.Store
+	openWithSQL            func(t *testing.T) (*store.Store, *sql.DB)
 	timestampTick          time.Duration
 	acceptSingleWriterLock bool
 }
@@ -121,17 +123,21 @@ func TestStoreContractAcrossDialects(t *testing.T) {
 		{
 			name:          "postgres",
 			open:          openPostgresContractStore,
-			timestampTick: 2 * time.Millisecond,
+			timestampTick: 10 * time.Millisecond,
 		},
 		{
-			name:          "mysql",
-			open:          openMySQLContractStore,
-			timestampTick: 2 * time.Millisecond,
+			name:        "mysql",
+			open:        openMySQLContractStore,
+			openWithSQL: openMySQLContractStoreWithSQL,
+			// MySQL TIMESTAMP columns are microsecond precision; keep the tick
+			// wide enough that future driver/backend precision shifts do not
+			// make advancement assertions depend on scheduler timing.
+			timestampTick: 10 * time.Millisecond,
 		},
 		{
 			name:                   "sqlite",
 			open:                   openSQLiteContractStore,
-			timestampTick:          2 * time.Millisecond,
+			timestampTick:          10 * time.Millisecond,
 			acceptSingleWriterLock: true,
 		},
 	}
@@ -450,7 +456,13 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 	})
 
 	t.Run("timestamps_and_timezone", func(t *testing.T) {
-		s := dialect.open(t)
+		var s *store.Store
+		var rawSQL *sql.DB
+		if dialect.openWithSQL != nil {
+			s, rawSQL = dialect.openWithSQL(t)
+		} else {
+			s = dialect.open(t)
+		}
 		ctx := context.Background()
 		prefix := contractPrefix(dialect, "timestamps")
 		ensureProject(t, s, ctx, prefix)
@@ -466,6 +478,21 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		}
 		assertUTCNonZero(t, issue.CreatedAt)
 		assertUTCNonZero(t, issue.UpdatedAt)
+		if rawSQL != nil {
+			known := time.Date(2024, 3, 10, 7, 30, 0, 123456000, time.UTC)
+			if _, err := rawSQL.ExecContext(ctx, `UPDATE bn_issues SET updated_at = ? WHERE id = ?`, known, issue.ID); err != nil {
+				t.Fatalf("seed known raw updated_at: %v", err)
+			}
+			assertRawMySQLTimestamp(t, ctx, rawSQL, issue.ID, known)
+			gotKnown, err := s.GetIssue(ctx, issue.ID)
+			if err != nil {
+				t.Fatalf("GetIssue known timestamped: %v", err)
+			}
+			if !gotKnown.UpdatedAt.Equal(known) {
+				t.Fatalf("store updated_at = %s, want exact instant %s", gotKnown.UpdatedAt, known)
+			}
+			issue = gotKnown
+		}
 
 		time.Sleep(dialect.timestampTick)
 		title := "Timestamped issue updated"
@@ -671,6 +698,31 @@ func openMySQLContractStore(t *testing.T) *store.Store {
 	return s
 }
 
+func openMySQLContractStoreWithSQL(t *testing.T) (*store.Store, *sql.DB) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	dsn := testMySQLDSN(t, ctx)
+	rawDB, err := sql.Open("mysql", dsn)
+	if err != nil {
+		t.Fatalf("store integration mysql: sql.Open: %v", err)
+	}
+	t.Cleanup(func() { rawDB.Close() })
+	if err := rawDB.PingContext(ctx); err != nil {
+		t.Fatalf("store integration mysql: raw ping: %v", err)
+	}
+	s, err := store.New(ctx, store.Config{
+		Driver:   store.DriverMySQL,
+		DSN:      store.SecretDSN(dsn),
+		MaxConns: 4,
+	})
+	if err != nil {
+		t.Fatalf("store integration mysql: New: %v", err)
+	}
+	t.Cleanup(s.Close)
+	return s, rawDB
+}
+
 func openSQLiteContractStore(t *testing.T) *store.Store {
 	t.Helper()
 	ctx := context.Background()
@@ -791,6 +843,20 @@ func assertTimestampAdvanced(t *testing.T, label string, before, after time.Time
 	assertUTCNonZero(t, after)
 	if !after.After(before) {
 		t.Fatalf("%s = %s, want after %s", label, after, before)
+	}
+}
+
+func assertRawMySQLTimestamp(t *testing.T, ctx context.Context, db *sql.DB, issueID string, want time.Time) {
+	t.Helper()
+	var raw time.Time
+	if err := db.QueryRowContext(ctx, `SELECT updated_at FROM bn_issues WHERE id = ?`, issueID).Scan(&raw); err != nil {
+		t.Fatalf("raw MySQL updated_at scan: %v", err)
+	}
+	if raw.Location() != time.UTC {
+		t.Fatalf("raw MySQL updated_at location = %v, want UTC", raw.Location())
+	}
+	if !raw.Equal(want) {
+		t.Fatalf("raw MySQL updated_at = %s, want exact instant %s", raw, want)
 	}
 }
 
