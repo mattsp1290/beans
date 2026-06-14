@@ -16,6 +16,7 @@ func newListCmd(rs *appState) *cobra.Command {
 		status string
 		all    bool
 		limit  int
+		epic   string
 	)
 
 	cmd := &cobra.Command{
@@ -25,6 +26,24 @@ func newListCmd(rs *appState) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
+			}
+
+			// --epic lists the parent-child members (children) of an epic, the
+			// authoritative way to assert "every epic has >=2 children".
+			if epic != "" {
+				members, err := rs.store.ListMembers(cmd.Context(), epic)
+				if err != nil {
+					return fmt.Errorf("list: %w", err)
+				}
+				if rs.jsonOut {
+					out := make([]issueJSON, len(members))
+					for i, iss := range members {
+						out[i] = toIssueJSON(iss)
+					}
+					return writeJSON(out)
+				}
+				printIssueTable(cmd, members)
+				return nil
 			}
 
 			f := store.ListFilter{Prefix: rs.prefix}
@@ -62,6 +81,7 @@ func newListCmd(rs *appState) *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVar(&epic, "epic", "", "list parent-child members (children) of the given epic/parent id")
 	cmd.Flags().StringVar(&status, "status", "", "filter by state (open, in_progress, closed, …)")
 	cmd.Flags().BoolVar(&all, "all", false, "return all results (overrides default page cap)")
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, fmt.Sprintf("max results (default %d; 0 = default cap)", defaultListLimit))

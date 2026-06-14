@@ -43,6 +43,7 @@ func (gormIssue) TableName() string { return "bn_issues" }
 type gormIssueDep struct {
 	IssueID     string `gorm:"column:issue_id;primaryKey"`
 	BlockedByID string `gorm:"column:blocked_by_id;primaryKey"`
+	DepType     string `gorm:"column:dep_type;not null"`
 }
 
 func (gormIssueDep) TableName() string { return "bn_issue_deps" }

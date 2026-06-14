@@ -570,6 +570,125 @@ func mustCreateContractIssue(t *testing.T, s *Store, ctx context.Context, prefix
 	return issue
 }
 
+func TestSQLiteStoreContractEpicMembership(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-epic"
+	ensureContractProject(t, s, ctx, prefix)
+
+	epic, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Epic", Priority: 1, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	leafA := mustCreateContractIssue(t, s, ctx, prefix, "Leaf A", 1)
+	leafB := mustCreateContractIssue(t, s, ctx, prefix, "Leaf B", 2)
+
+	// Membership: leaves are children of the epic, non-blocking.
+	if err := s.AddTypedDep(ctx, leafA.ID, epic.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafA parent-child: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafB.ID, epic.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafB parent-child: %v", err)
+	}
+
+	terminal := []model.IssueState{"closed", "done"}
+	active := []model.IssueState{"open"}
+	ready, err := s.ReadyIssues(ctx, prefix, terminal, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues: %v", err)
+	}
+	// Epic excluded (rollup); both leaves ready (membership is non-blocking).
+	if len(ready) != 2 {
+		t.Fatalf("ReadyIssues = %d issues, want 2 leaves: %+v", len(ready), ready)
+	}
+	for _, iss := range ready {
+		if iss.ID == epic.ID {
+			t.Fatalf("ReadyIssues included epic %s, want it excluded", epic.ID)
+		}
+	}
+
+	// Epic with no terminal states configured must still exclude the epic and
+	// keep leaves ready (covers the no-JOIN ready branch).
+	readyNoTerm, err := s.ReadyIssues(ctx, prefix, nil, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues no-terminal: %v", err)
+	}
+	if len(readyNoTerm) != 2 {
+		t.Fatalf("ReadyIssues no-terminal = %d, want 2 leaves: %+v", len(readyNoTerm), readyNoTerm)
+	}
+
+	// Membership is queryable and non-blocking, so leaves carry no BlockedBy.
+	gotLeaf, err := s.GetIssue(ctx, leafA.ID)
+	if err != nil {
+		t.Fatalf("GetIssue leafA: %v", err)
+	}
+	if len(gotLeaf.BlockedBy) != 0 {
+		t.Fatalf("leafA BlockedBy = %v, want empty (parent-child is non-blocking)", gotLeaf.BlockedBy)
+	}
+
+	members, err := s.ListMembers(ctx, epic.ID)
+	if err != nil {
+		t.Fatalf("ListMembers: %v", err)
+	}
+	if len(members) != 2 {
+		t.Fatalf("ListMembers = %d, want 2 children", len(members))
+	}
+
+	// ListDeps surfaces the edge kind; dep cycles must ignore parent-child.
+	edges, err := s.ListDeps(ctx, prefix)
+	if err != nil {
+		t.Fatalf("ListDeps: %v", err)
+	}
+	for _, e := range edges {
+		if e.IssueID == leafA.ID && e.BlockedByID == epic.ID && e.DepType != DepTypeParentChild {
+			t.Fatalf("leafA->epic dep_type = %q, want parent-child", e.DepType)
+		}
+	}
+
+	// A parent-child edge must not block via the cycle guard: adding the reverse
+	// blocking edge (epic blocked by leaf) is allowed because parent-child is
+	// excluded from the blocking graph.
+	if err := s.AddDep(ctx, epic.ID, leafA.ID); err != nil {
+		t.Fatalf("AddDep epic blocked-by leafA: %v", err)
+	}
+}
+
+// TestSQLiteStoreContractOneEdgePerPair pins the intentional one-edge-per-pair
+// behavior: the PK is (issue_id, blocked_by_id) without dep_type, so a second
+// edge of a different kind for the same ordered pair is rejected as a duplicate
+// (first write wins). Locks this so a future refactor can't silently change it.
+func TestSQLiteStoreContractOneEdgePerPair(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-pair"
+	ensureContractProject(t, s, ctx, prefix)
+	a := mustCreateContractIssue(t, s, ctx, prefix, "A", 1)
+	b := mustCreateContractIssue(t, s, ctx, prefix, "B", 1)
+
+	if err := s.AddTypedDep(ctx, a.ID, b.ID, DepTypeBlocks); err != nil {
+		t.Fatalf("AddTypedDep blocks: %v", err)
+	}
+	// Same pair, different kind → duplicate (first edge wins).
+	if err := s.AddTypedDep(ctx, a.ID, b.ID, DepTypeParentChild); !errors.Is(err, ErrDuplicateDep) {
+		t.Fatalf("AddTypedDep parent-child on existing pair = %v, want ErrDuplicateDep", err)
+	}
+
+	// The surviving edge is the blocking one: A is blocked by B.
+	edges, err := s.ListDeps(ctx, prefix)
+	if err != nil {
+		t.Fatalf("ListDeps: %v", err)
+	}
+	if len(edges) != 1 || edges[0].DepType != DepTypeBlocks {
+		t.Fatalf("edges = %+v, want a single blocks edge", edges)
+	}
+	// And membership did not take hold: B has no parent-child children.
+	members, err := s.ListMembers(ctx, b.ID)
+	if err != nil {
+		t.Fatalf("ListMembers: %v", err)
+	}
+	if len(members) != 0 {
+		t.Fatalf("ListMembers = %d, want 0 (parent-child insert was rejected)", len(members))
+	}
+}
+
 func assertUTCNonZero(t *testing.T, name string, ts time.Time) {
 	t.Helper()
 	if ts.IsZero() {

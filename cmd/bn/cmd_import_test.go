@@ -74,6 +74,30 @@ func TestParseImportJSONLMapsFullBDRowAndFiltersDeps(t *testing.T) {
 	}
 }
 
+func TestParseImportJSONLRoutesParentChildEdges(t *testing.T) {
+	t.Parallel()
+
+	input := strings.NewReader(`{"id":"src-leaf","title":"Leaf","status":"open","priority":1,"issue_type":"task","dependencies":[{"issue_id":"src-leaf","depends_on_id":"src-blocker","type":"blocks"},{"issue_id":"src-leaf","depends_on_id":"src-epic","type":"parent-child"}]}`)
+
+	items, warnings, err := parseImportJSONL(input, "dest")
+	if err != nil {
+		t.Fatalf("parseImportJSONL: %v", err)
+	}
+	if warnings != 0 {
+		t.Fatalf("warnings = %d, want 0", warnings)
+	}
+	if len(items) != 1 {
+		t.Fatalf("len(items) = %d, want 1", len(items))
+	}
+	got := items[0]
+	if len(got.Deps) != 1 || got.Deps[0] != "src-blocker" {
+		t.Fatalf("deps = %#v, want [src-blocker]", got.Deps)
+	}
+	if len(got.ParentEdges) != 1 || got.ParentEdges[0] != "src-epic" {
+		t.Fatalf("parentEdges = %#v, want [src-epic]", got.ParentEdges)
+	}
+}
+
 func TestImportGastownhallBeadsExportFixtureSmoke(t *testing.T) {
 	ctx := context.Background()
 	prefix := "symphony"

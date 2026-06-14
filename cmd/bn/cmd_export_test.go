@@ -15,6 +15,9 @@ func TestWriteExportJSONLEmitsBDCompatibleLines(t *testing.T) {
 
 	now := time.Date(2026, 6, 13, 12, 0, 0, 0, time.UTC)
 	var out strings.Builder
+	depsByChild := map[string][]store.DepEdge{
+		"proj-child": {{IssueID: "proj-child", BlockedByID: "proj-parent", DepType: store.DepTypeBlocks}},
+	}
 	err := writeExportJSONL(&out, []store.Issue{
 		{
 			Issue: model.Issue{
@@ -32,7 +35,7 @@ func TestWriteExportJSONLEmitsBDCompatibleLines(t *testing.T) {
 			},
 			IssueType: "task",
 		},
-	})
+	}, depsByChild)
 	if err != nil {
 		t.Fatalf("writeExportJSONL: %v", err)
 	}
@@ -72,7 +75,7 @@ func TestToBDExportLineUsesEmptySlices(t *testing.T) {
 			State:    "open",
 		},
 		IssueType: "task",
-	})
+	}, nil)
 
 	if got.Labels == nil {
 		t.Fatal("labels = nil, want empty slice")

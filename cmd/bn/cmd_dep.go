@@ -27,16 +27,32 @@ func newDepCmd(rs *appState) *cobra.Command {
 }
 
 func newDepAddCmd(rs *appState) *cobra.Command {
-	return &cobra.Command{
+	var depType string
+
+	cmd := &cobra.Command{
 		Use:   "add <child> <parent>",
-		Short: "Block child until parent is terminal",
-		Args:  cobra.ExactArgs(2),
+		Short: "Add a dependency edge (default: block child until parent is terminal)",
+		Long: `Add a dependency edge between two issues.
+
+Default (--type blocks): <child> is blocked until <parent> reaches a terminal state.
+--type parent-child: record <child> as a member of <parent> (e.g. an epic) WITHOUT
+blocking either side. Membership is queryable via 'bn dep tree' and 'bn list --epic'.
+
+Any non-empty type up to 50 characters is accepted (bd-compatible); only 'blocks'
+edges gate readiness and cycle detection.`,
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
 			}
 			childID, parentID := args[0], args[1]
-			err := rs.store.AddDep(cmd.Context(), childID, parentID)
+
+			normalizedType, err := store.ValidateDepType(depType)
+			if err != nil {
+				return err
+			}
+
+			err = rs.store.AddTypedDep(cmd.Context(), childID, parentID, normalizedType)
 			if err != nil {
 				switch {
 				case errors.Is(err, store.ErrNotFound):
@@ -49,10 +65,17 @@ func newDepAddCmd(rs *appState) *cobra.Command {
 				}
 				return fmt.Errorf("dep add: %w", err)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s now depends on %s\n", childID, parentID)
+			if normalizedType == store.DepTypeParentChild {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s is now a child of %s\n", childID, parentID)
+			} else {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s now depends on %s\n", childID, parentID)
+			}
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVarP(&depType, "type", "t", store.DepTypeBlocks, "dependency type: blocks|parent-child (any non-empty value accepted)")
+	return cmd
 }
 
 func newDepRemoveCmd(rs *appState) *cobra.Command {
@@ -88,10 +111,13 @@ func newDepTreeCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			edges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			allEdges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
 			if err != nil {
 				return fmt.Errorf("dep tree: %w", err)
 			}
+			// dep tree is the ordering (blocking) view. Membership edges
+			// (parent-child, etc.) are inspected via 'bn list --epic'.
+			edges := blockingEdges(allEdges)
 
 			if rs.jsonOut {
 				type edgeJSON struct {
@@ -172,12 +198,12 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			edges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			allEdges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
 			if err != nil {
 				return fmt.Errorf("dep cycles: %w", err)
 			}
-
-			cycles := detectCycles(edges)
+			// Only blocking edges form ordering cycles; membership edges never do.
+			cycles := detectCycles(blockingEdges(allEdges))
 			if len(cycles) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No cycles detected.")
 				return nil
@@ -191,6 +217,19 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 			return fmt.Errorf("%d cycle(s) detected", len(cycles))
 		},
 	}
+}
+
+// blockingEdges returns only the blocking (dep_type='blocks') edges. The
+// ordering views (dep tree, dep cycles) reason solely about blocking edges;
+// non-blocking membership edges are surfaced via 'bn list --epic'.
+func blockingEdges(edges []store.DepEdge) []store.DepEdge {
+	out := make([]store.DepEdge, 0, len(edges))
+	for _, e := range edges {
+		if e.DepType == store.DepTypeBlocks {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 // detectCycles performs a DFS to find any cycles in the dep graph.

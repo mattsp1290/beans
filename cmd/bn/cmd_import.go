@@ -251,13 +251,24 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 			continue
 		}
 
-		// Extract dep edges: only include edges where this issue is the child
-		// (issue_id == raw.ID) and type == "blocks". This prevents accidentally
-		// importing reverse/parent edges that bd sometimes includes in the array.
+		// Extract dep edges where this issue is the child (issue_id == raw.ID).
+		// "blocks" edges become blocking deps; "parent-child" edges become
+		// non-blocking membership. bn gives semantics only to these two kinds, so
+		// any other type (related, discovered-from, reverse/parent edges bd
+		// includes, …) is intentionally NOT imported — export emits them but a
+		// bn→bn round-trip only preserves blocks + parent-child. This asymmetry
+		// is deliberate and scoped to what the planning skills require.
 		var deps []string
+		var parentEdges []string
 		for _, dep := range raw.Dependencies {
-			if dep.Type == "blocks" && dep.IssueID == raw.ID && dep.DependsOn != "" {
+			if dep.IssueID != raw.ID || dep.DependsOn == "" {
+				continue
+			}
+			switch dep.Type {
+			case store.DepTypeBlocks:
 				deps = append(deps, dep.DependsOn)
+			case store.DepTypeParentChild:
+				parentEdges = append(parentEdges, dep.DependsOn)
 			}
 		}
 
@@ -277,6 +288,7 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 			BranchName:  raw.BranchName,
 			URL:         raw.URL,
 			Deps:        deps,
+			ParentEdges: parentEdges,
 		})
 	}
 

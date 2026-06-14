@@ -348,13 +348,17 @@ func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates [
 	q := db.WithContext(ctx).
 		Where("prefix = ?", prefix).
 		Where("state IN ?", active).
+		// Epics are organizational rollups, never a unit of dispatchable work.
+		Where("issue_type <> ?", "epic").
 		Order("priority ASC").
 		Order("created_at ASC")
+	// Only blocking (dep_type='blocks') edges gate readiness. Membership edges
+	// (parent-child, etc.) must never make a leaf or its epic non-ready.
 	if len(terminalStates) == 0 {
 		// When no states are terminal, every blocker is unsatisfied — so only
-		// issues with no blockers at all are ready. Use the simpler EXISTS
-		// form to avoid the invalid "NOT IN ()" SQL syntax.
-		q = q.Where("NOT EXISTS (SELECT 1 FROM bn_issue_deps d WHERE d.issue_id = bn_issues.id)")
+		// issues with no blocking edges at all are ready. Use the simpler
+		// NOT EXISTS form to avoid the invalid "NOT IN ()" SQL syntax.
+		q = q.Where("NOT EXISTS (SELECT 1 FROM bn_issue_deps d WHERE d.issue_id = bn_issues.id AND d.dep_type = ?)", DepTypeBlocks)
 	} else {
 		term := make([]string, len(terminalStates))
 		for i, st := range terminalStates {
@@ -365,8 +369,9 @@ func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates [
 			    SELECT 1 FROM bn_issue_deps d
 			    JOIN bn_issues b ON b.id = d.blocked_by_id
 			    WHERE d.issue_id = bn_issues.id
+			      AND d.dep_type = ?
 			      AND b.state NOT IN ?
-			)`, term)
+			)`, DepTypeBlocks, term)
 	}
 
 	var rows []gormIssue
@@ -562,19 +567,52 @@ func (s *Store) DeleteIssue(ctx context.Context, id string) error {
 // Dependency management
 // ---------------------------------------------------------------------------
 
-// AddDep adds an edge: childID is blocked until parentID reaches a terminal
-// state. Returns ErrCycle if the edge would create a cycle, ErrDuplicateDep
-// if the edge already exists, or ErrNotFound if either issue is missing.
-// All checks and the INSERT run inside a single SERIALIZABLE transaction so
-// concurrent AddDep calls cannot form a cycle via a TOCTOU race.
+// Dependency edge kinds. Only DepTypeBlocks gates readiness and cycle
+// detection; every other kind (DepTypeParentChild and any custom value) is a
+// non-blocking membership/association edge. This is a deliberate divergence
+// from bd, whose AffectsReadyWork() treats parent-child as blocking: the
+// planning skills require a leaf to be ready without depending on its epic.
+const (
+	DepTypeBlocks      = "blocks"
+	DepTypeParentChild = "parent-child"
+)
+
+// maxDepTypeLen bounds a dependency type string, matching bd's IsValid rule.
+const maxDepTypeLen = 50
+
+// AddDep adds a blocking edge: childID is blocked until parentID reaches a
+// terminal state. It is a thin wrapper over AddTypedDep with DepTypeBlocks,
+// preserving the existing call surface.
 func (s *Store) AddDep(ctx context.Context, childID, parentID string) error {
+	return s.AddTypedDep(ctx, childID, parentID, DepTypeBlocks)
+}
+
+// AddTypedDep adds a dependency edge of the given kind. For DepTypeBlocks the
+// edge means "childID is blocked until parentID reaches a terminal state" and
+// the insert is guarded against cycles inside a single serializable
+// transaction. For non-blocking kinds (parent-child, etc.) the edge is pure
+// membership: the reachability cycle check is skipped because such edges never
+// participate in ready/cycle computation. Self-edges are rejected for all
+// kinds. Returns ErrCycle on a blocking cycle, ErrDuplicateDep if the (child,
+// parent) pair already exists, or ErrNotFound if either issue is missing.
+//
+// One-edge-per-pair: the primary key is (issue_id, blocked_by_id) and does NOT
+// include dep_type, so at most one edge of any kind can exist between an
+// ordered pair — a second AddTypedDep for the same pair returns ErrDuplicateDep
+// regardless of type (first edge wins). This is intentional for the two-level
+// epic→leaf model where a leaf belongs to its epic but never also blocks on it;
+// dual blocks+membership edges between the same pair are out of scope.
+func (s *Store) AddTypedDep(ctx context.Context, childID, parentID, depType string) error {
 	if childID == parentID {
 		return fmt.Errorf("store: %w: %s → %s", ErrCycle, childID, parentID)
 	}
+	depType = normalizeDepType(depType)
 	db, err := s.p.gorm()
 	if err != nil {
 		return err
 	}
+
+	blocking := depType == DepTypeBlocks
 
 	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := lockDepGraphGuard(tx); err != nil {
@@ -589,15 +627,17 @@ func (s *Store) AddDep(ctx context.Context, childID, parentID string) error {
 				return fmt.Errorf("store: %w: %s", ErrNotFound, id)
 			}
 		}
-		graph, err := loadDepGraph(tx)
-		if err != nil {
-			return err
-		}
-		if reaches(graph, parentID, childID) {
-			return fmt.Errorf("store: %w: %s → %s", ErrCycle, childID, parentID)
+		if blocking {
+			graph, err := loadDepGraph(tx)
+			if err != nil {
+				return err
+			}
+			if reaches(graph, parentID, childID) {
+				return fmt.Errorf("store: %w: %s → %s", ErrCycle, childID, parentID)
+			}
 		}
 		res := tx.Clauses(clause.OnConflict{DoNothing: true}).
-			Create(&gormIssueDep{IssueID: childID, BlockedByID: parentID})
+			Create(&gormIssueDep{IssueID: childID, BlockedByID: parentID, DepType: depType})
 		if res.Error != nil {
 			if isDupKeyConflict(res.Error) {
 				return ErrDuplicateDep
@@ -631,13 +671,17 @@ func (s *Store) RemoveDep(ctx context.Context, childID, parentID string) error {
 	return nil
 }
 
-// DepEdge is one directed dependency edge returned by ListDeps.
+// DepEdge is one directed dependency edge returned by ListDeps. DepType
+// distinguishes blocking ("blocks") edges from membership ("parent-child", …)
+// edges.
 type DepEdge struct {
 	IssueID     string
 	BlockedByID string
+	DepType     string
 }
 
-// ListDeps returns all dependency edges for issues in the given prefix.
+// ListDeps returns all dependency edges (every kind) for issues in the given
+// prefix, ordered deterministically for stable export/tree output.
 func (s *Store) ListDeps(ctx context.Context, prefix string) ([]DepEdge, error) {
 	db, err := s.p.gorm()
 	if err != nil {
@@ -647,16 +691,51 @@ func (s *Store) ListDeps(ctx context.Context, prefix string) ([]DepEdge, error) 
 	var edges []DepEdge
 	err = db.WithContext(ctx).
 		Table("bn_issue_deps AS d").
-		Select("d.issue_id, d.blocked_by_id").
+		Select("d.issue_id, d.blocked_by_id, d.dep_type").
 		Joins("JOIN bn_issues i ON i.id = d.issue_id").
 		Where("i.prefix = ?", prefix).
-		Order("d.issue_id ASC, d.blocked_by_id ASC").
+		Order("d.issue_id ASC, d.blocked_by_id ASC, d.dep_type ASC").
 		Scan(&edges).
 		Error
 	if err != nil {
 		return nil, fmt.Errorf("store: ListDeps: %w", err)
 	}
 	return edges, nil
+}
+
+// ListMembers returns the issues that are parent-child members (children) of
+// parentID — i.e. rows where blocked_by_id=parentID and dep_type='parent-child'.
+// Ordered by priority then creation time. Backs `bn list --epic`. Membership is
+// non-blocking, so this is the authoritative way to assert "every epic has ≥2
+// children" without raw SQL. No prefix filter is needed: issue ids are globally
+// unique, so a parentID already scopes to one project.
+func (s *Store) ListMembers(ctx context.Context, parentID string) ([]Issue, error) {
+	db, err := s.p.gorm()
+	if err != nil {
+		return nil, err
+	}
+
+	var rows []gormIssue
+	err = db.WithContext(ctx).
+		Table("bn_issues AS i").
+		Joins("JOIN bn_issue_deps d ON d.issue_id = i.id").
+		Where("d.blocked_by_id = ? AND d.dep_type = ?", parentID, DepTypeParentChild).
+		Order("i.priority ASC").
+		Order("i.created_at ASC").
+		Find(&rows).
+		Error
+	if err != nil {
+		return nil, fmt.Errorf("store: ListMembers: %w", err)
+	}
+
+	issues := issuesFromGORM(rows)
+	if err := s.populateBlockedBy(ctx, db, issues); err != nil {
+		return nil, err
+	}
+	if err := s.populateIssueRepos(ctx, db, issues); err != nil {
+		return nil, err
+	}
+	return issues, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -675,7 +754,8 @@ type ImportInput struct {
 	Labels      []string
 	BranchName  string
 	URL         string
-	Deps        []string // blocked_by ids
+	Deps        []string // blocked_by ids (dep_type='blocks')
+	ParentEdges []string // parent/epic ids this issue is a parent-child member of
 }
 
 // ImportIssues loads a batch of issues into the store using merge semantics.
@@ -856,13 +936,45 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 					continue
 				}
 				res := tx.Clauses(clause.OnConflict{DoNothing: true}).
-					Create(&gormIssueDep{IssueID: item.ID, BlockedByID: blockerID})
+					Create(&gormIssueDep{IssueID: item.ID, BlockedByID: blockerID, DepType: DepTypeBlocks})
 				if res.Error != nil {
 					return fmt.Errorf("store: ImportIssuesFull dep %s→%s: %w", item.ID, blockerID, res.Error)
 				}
 				if res.RowsAffected > 0 {
 					result.DepsAdded++
 					graph[item.ID] = append(graph[item.ID], blockerID)
+				} else {
+					result.DepsSkippedDuplicate++
+				}
+			}
+
+			// Parent-child membership edges: non-blocking, so no cycle guard and
+			// no contribution to the blocking graph. Reuse the same self/missing/
+			// duplicate accounting as blocking deps.
+			seenParents := make(map[string]bool, len(item.ParentEdges))
+			for _, parentID := range item.ParentEdges {
+				if parentID == item.ID {
+					result.DepsSkippedSelf++
+					continue
+				}
+				if seenParents[parentID] {
+					result.DepsSkippedDuplicate++
+					continue
+				}
+				seenParents[parentID] = true
+				if exists, err := s.issueExistsInPrefix(ctx, tx, parentID, item.Prefix); err != nil {
+					return err
+				} else if !exists {
+					result.DepsSkippedMissingBlocker++
+					continue
+				}
+				res := tx.Clauses(clause.OnConflict{DoNothing: true}).
+					Create(&gormIssueDep{IssueID: item.ID, BlockedByID: parentID, DepType: DepTypeParentChild})
+				if res.Error != nil {
+					return fmt.Errorf("store: ImportIssuesFull parent-child %s→%s: %w", item.ID, parentID, res.Error)
+				}
+				if res.RowsAffected > 0 {
+					result.DepsAdded++
 				} else {
 					result.DepsSkippedDuplicate++
 				}
@@ -1065,7 +1177,7 @@ func (s *Store) getImportIssueSnapshot(ctx context.Context, db *gorm.DB, id stri
 func (s *Store) fetchBlockedBy(ctx context.Context, db *gorm.DB, id string) ([]string, error) {
 	var deps []gormIssueDep
 	err := db.WithContext(ctx).
-		Where("issue_id = ?", id).
+		Where("issue_id = ? AND dep_type = ?", id, DepTypeBlocks).
 		Order("blocked_by_id ASC").
 		Find(&deps).
 		Error
@@ -1093,7 +1205,7 @@ func (s *Store) populateBlockedBy(ctx context.Context, db *gorm.DB, issues []Iss
 
 	var deps []gormIssueDep
 	err := db.WithContext(ctx).
-		Where("issue_id IN ?", ids).
+		Where("issue_id IN ? AND dep_type = ?", ids, DepTypeBlocks).
 		Order("issue_id ASC, blocked_by_id ASC").
 		Find(&deps).
 		Error
@@ -1463,9 +1575,34 @@ func lockDepGraphGuard(tx *gorm.DB) error {
 	return nil
 }
 
+// normalizeDepType trims a dependency type and defaults the empty string to
+// DepTypeBlocks so callers (CLI, import) can pass through user input safely.
+func normalizeDepType(depType string) string {
+	depType = strings.TrimSpace(depType)
+	if depType == "" {
+		return DepTypeBlocks
+	}
+	return depType
+}
+
+// ValidateDepType applies the permissive bd-compatible rule: any non-empty type
+// up to maxDepTypeLen characters is accepted (so scripts copied from bd
+// workflows using related/discovered-from/etc. do not hard-error). Returns the
+// normalized value or an error a CLI can surface in place of a cobra flag error.
+func ValidateDepType(depType string) (string, error) {
+	normalized := normalizeDepType(depType)
+	if len(normalized) > maxDepTypeLen {
+		return "", fmt.Errorf("invalid dependency type %q: must be non-empty and at most %d characters", depType, maxDepTypeLen)
+	}
+	return normalized, nil
+}
+
+// loadDepGraph loads only the blocking (dep_type='blocks') edges. Non-blocking
+// membership edges (parent-child, etc.) are excluded so cycle detection and the
+// AddTypedDep reachability guard reason solely about ordering edges.
 func loadDepGraph(db *gorm.DB) (map[string][]string, error) {
 	var deps []gormIssueDep
-	if err := db.Find(&deps).Error; err != nil {
+	if err := db.Where("dep_type = ?", DepTypeBlocks).Find(&deps).Error; err != nil {
 		return nil, fmt.Errorf("store: load dependency graph: %w", err)
 	}
 	graph := make(map[string][]string, len(deps))
@@ -1572,8 +1709,11 @@ func dedupeImportInputs(items []ImportInput) []ImportInput {
 		if idx, ok := indexByID[item.ID]; ok {
 			deps := append([]string{}, out[idx].Deps...)
 			deps = append(deps, item.Deps...)
+			parents := append([]string{}, out[idx].ParentEdges...)
+			parents = append(parents, item.ParentEdges...)
 			out[idx] = item
 			out[idx].Deps = deps
+			out[idx].ParentEdges = parents
 			continue
 		}
 		indexByID[item.ID] = len(out)
