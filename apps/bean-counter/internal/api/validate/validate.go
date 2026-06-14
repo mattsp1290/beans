@@ -50,12 +50,16 @@ func IssueID(id string) error {
 }
 
 func ProjectIssueID(prefix, id string) error {
+	return ProjectIssueIDField("id", prefix, id)
+}
+
+func ProjectIssueIDField(field, prefix, id string) error {
 	var fields fieldErrors
-	fields.id("id", id)
+	fields.id(field, id)
 	prefix = strings.TrimSpace(prefix)
 	id = strings.TrimSpace(id)
 	if prefix != "" && id != "" && !strings.HasPrefix(id, prefix+"-") {
-		fields.add("id", "must use configured project prefix")
+		fields.add(field, "must use configured project prefix")
 	}
 	return fields.err()
 }
