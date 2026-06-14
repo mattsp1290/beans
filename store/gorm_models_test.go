@@ -161,11 +161,53 @@ func gormModelTableNames() []string {
 func migrationBNTableNames(t *testing.T) []string {
 	t.Helper()
 
-	paths, err := filepath.Glob(filepath.Join("..", "schema", "migrations", "postgres", "*.sql"))
+	dirs, err := filepath.Glob(filepath.Join("..", "schema", "migrations", "*"))
 	if err != nil {
-		t.Fatalf("glob migrations: %v", err)
+		t.Fatalf("glob migration dirs: %v", err)
 	}
-	re := regexp.MustCompile(`(?i)\bCREATE\s+TABLE\s+(bn_[a-z0-9_]+)\b`)
+	if len(dirs) == 0 {
+		t.Fatal("no migration dirs found")
+	}
+
+	var want []string
+	var wantDialect string
+	for _, dir := range dirs {
+		info, err := os.Stat(dir)
+		if err != nil {
+			t.Fatalf("stat migration dir %s: %v", dir, err)
+		}
+		if !info.IsDir() {
+			continue
+		}
+
+		dialect := filepath.Base(dir)
+		names := migrationBNTableNamesForDir(t, dir)
+		if want == nil {
+			want = names
+			wantDialect = dialect
+			continue
+		}
+		if !reflect.DeepEqual(names, want) {
+			t.Fatalf("%s migration tables = %v, want %s migration tables %v", dialect, names, wantDialect, want)
+		}
+	}
+	if want == nil {
+		t.Fatal("no migration directories found")
+	}
+	return want
+}
+
+func migrationBNTableNamesForDir(t *testing.T, dir string) []string {
+	t.Helper()
+
+	paths, err := filepath.Glob(filepath.Join(dir, "*.sql"))
+	if err != nil {
+		t.Fatalf("glob migrations in %s: %v", dir, err)
+	}
+	if len(paths) == 0 {
+		t.Fatalf("no migrations found in %s", dir)
+	}
+	re := regexp.MustCompile(`(?i)\bCREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(bn_[a-z0-9_]+)\b`)
 	seen := map[string]struct{}{}
 	for _, path := range paths {
 		raw, err := os.ReadFile(path)

@@ -2232,11 +2232,10 @@ func TestDepAddRemoveCycleCheck(t *testing.T) {
 	if !errors.Is(err, store.ErrCycle) {
 		t.Fatalf("AddDep C→A (cycle): got %v, want ErrCycle", err)
 	}
-	// Self-dep: DB CHECK catches this as a pgx error; the AddDep layer surfaces
-	// it as a plain error (not ErrCycle).
+	// Self-dep uses the same portable cycle sentinel as longer dependency loops.
 	err = s.AddDep(ctx, a, a)
-	if err == nil {
-		t.Error("AddDep A→A (self-dep) should error")
+	if !errors.Is(err, store.ErrCycle) {
+		t.Fatalf("AddDep A→A (self-dep): got %v, want ErrCycle", err)
 	}
 
 	// Duplicate edge.
@@ -2460,8 +2459,8 @@ func TestUpdateIssue(t *testing.T) {
 	}
 }
 
-// TestUpdateIssueRejectsInvalidState verifies Postgres enforces the same state
-// vocabulary accepted by the bn CLI.
+// TestUpdateIssueRejectsInvalidState verifies invalid state values are rejected
+// without mutating the issue.
 func TestUpdateIssueRejectsInvalidState(t *testing.T) {
 	t.Parallel()
 	s := testStore(t)
@@ -2480,10 +2479,17 @@ func TestUpdateIssueRejectsInvalidState(t *testing.T) {
 	badState := model.IssueState("archived")
 	_, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{State: &badState})
 	if err == nil {
-		t.Fatal("UpdateIssue invalid state succeeded; want check-constraint error")
+		t.Fatal("UpdateIssue invalid state succeeded; want error")
 	}
-	if !strings.Contains(err.Error(), "bn_issues_state_check") {
-		t.Fatalf("UpdateIssue invalid state error = %v, want bn_issues_state_check", err)
+	if !errors.Is(err, store.ErrInvalidIssueState) {
+		t.Fatalf("UpdateIssue invalid state error = %v, want ErrInvalidIssueState", err)
+	}
+	got, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue after invalid state: %v", err)
+	}
+	if got.State != model.IssueState("open") {
+		t.Fatalf("UpdateIssue invalid state mutated state to %q, want %q", got.State, model.IssueState("open"))
 	}
 }
 

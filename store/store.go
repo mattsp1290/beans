@@ -422,6 +422,9 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 		updates["priority"] = *in.Priority
 	}
 	if in.State != nil {
+		if !isValidIssueState(*in.State) {
+			return Issue{}, fmt.Errorf("%w: %s", ErrInvalidIssueState, *in.State)
+		}
 		updates["state"] = string(*in.State)
 	}
 	if in.Labels != nil {
@@ -1436,6 +1439,15 @@ func terminalStateSet(states []model.IssueState) map[model.IssueState]bool {
 		out[state] = true
 	}
 	return out
+}
+
+func isValidIssueState(state model.IssueState) bool {
+	switch state {
+	case "open", "in_progress", "blocked", "closed", "done":
+		return true
+	default:
+		return false
+	}
 }
 
 func lockDepGraphGuard(tx *gorm.DB) error {
