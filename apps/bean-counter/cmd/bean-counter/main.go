@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"os/signal"
 	"syscall"
 
@@ -12,12 +14,19 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	adapter, err := appstore.NewAdapter(ctx, appstore.AdapterConfig{
@@ -27,7 +36,7 @@ func main() {
 		ActiveStates:   []appstore.IssueState{"open"},
 	})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer adapter.Close()
 
@@ -37,6 +46,7 @@ func main() {
 	})
 	log.Printf("bean-counter listening on %s", cfg.Addr)
 	if err := server.Run(ctx, app, cfg.Addr); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("server: %w", err)
 	}
+	return nil
 }

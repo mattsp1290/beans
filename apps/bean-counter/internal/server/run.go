@@ -3,12 +3,20 @@ package server
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 )
 
+const DefaultShutdownTimeout = 10 * time.Second
+
+type RunConfig struct {
+	ShutdownTimeout time.Duration
+}
+
 // Run starts app on addr and shuts it down when ctx is canceled.
-func Run(ctx context.Context, app *fiber.App, addr string) error {
+func Run(ctx context.Context, app *fiber.App, addr string, config ...RunConfig) error {
+	cfg := runConfigWithDefaults(config...)
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- app.Listen(addr)
@@ -18,7 +26,7 @@ func Run(ctx context.Context, app *fiber.App, addr string) error {
 	case err := <-errCh:
 		return err
 	case <-ctx.Done():
-		if err := app.Shutdown(); err != nil {
+		if err := app.ShutdownWithTimeout(cfg.ShutdownTimeout); err != nil && !errors.Is(err, context.DeadlineExceeded) {
 			return err
 		}
 		err := <-errCh
@@ -27,4 +35,15 @@ func Run(ctx context.Context, app *fiber.App, addr string) error {
 		}
 		return err
 	}
+}
+
+func runConfigWithDefaults(config ...RunConfig) RunConfig {
+	cfg := RunConfig{ShutdownTimeout: DefaultShutdownTimeout}
+	if len(config) == 0 {
+		return cfg
+	}
+	if config[0].ShutdownTimeout > 0 {
+		cfg.ShutdownTimeout = config[0].ShutdownTimeout
+	}
+	return cfg
 }

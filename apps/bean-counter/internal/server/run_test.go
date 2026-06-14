@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"net"
+	"net/http"
 	"testing"
 	"time"
+
+	"github.com/gofiber/fiber/v3"
 )
 
 func TestRunStopsWhenContextIsCanceled(t *testing.T) {
@@ -46,6 +50,46 @@ func TestRunReturnsListenError(t *testing.T) {
 	}
 }
 
+func TestRunShutdownTimeoutBoundsLongRequest(t *testing.T) {
+	app := New(Config{LogOutput: bytes.NewBuffer(nil)})
+	block := make(chan struct{})
+	app.Get("/block", func(c fiber.Ctx) error {
+		<-block
+		return c.SendString("done")
+	})
+	defer close(block)
+
+	addr := freeAddr(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- Run(ctx, app, addr, RunConfig{ShutdownTimeout: 20 * time.Millisecond})
+	}()
+
+	waitForListen(t, addr)
+	requestDone := make(chan struct{})
+	go func() {
+		resp, err := http.Get("http://" + addr + "/block")
+		if err == nil {
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+		}
+		close(requestDone)
+	}()
+	waitForActiveRequest(t, requestDone)
+
+	cancel()
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			t.Fatalf("Run error = %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("Run did not stop after shutdown timeout")
+	}
+}
+
 func freeAddr(t *testing.T) string {
 	t.Helper()
 
@@ -58,6 +102,18 @@ func freeAddr(t *testing.T) string {
 		t.Fatalf("close listener: %v", err)
 	}
 	return addr
+}
+
+func waitForActiveRequest(t *testing.T, done <-chan struct{}) {
+	t.Helper()
+
+	timer := time.NewTimer(20 * time.Millisecond)
+	defer timer.Stop()
+	select {
+	case <-done:
+		t.Fatal("request completed before shutdown test canceled it")
+	case <-timer.C:
+	}
 }
 
 func waitForListen(t *testing.T, addr string) {
