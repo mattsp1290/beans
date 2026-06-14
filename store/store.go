@@ -34,7 +34,9 @@ type Store struct {
 	p *pool
 }
 
-// New dials Postgres, runs migrations, and returns a ready Store.
+// New dials the configured database, runs migrations, and returns a ready Store.
+// Until the remaining pgx-backed methods are ported, non-Postgres stores are
+// migration-ready but operational methods return ErrUnsupportedDriver.
 // The caller must call Close when done to release pool connections.
 func New(ctx context.Context, cfg Config) (*Store, error) {
 	p, err := newPool(ctx, cfg)

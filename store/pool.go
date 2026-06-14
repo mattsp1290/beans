@@ -9,6 +9,7 @@ import (
 
 	"github.com/glebarez/sqlite"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/puddle/v2"
 	gmysql "gorm.io/driver/mysql"
 	gpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -76,9 +77,9 @@ func gormDialector(cfg Config) (gorm.Dialector, error) {
 	case DriverPostgres:
 		return gpostgres.Open(dsn), nil
 	case DriverMySQL:
-		return gmysql.Open(dsn), nil
+		return gmysql.New(gmysql.Config{DSN: dsn, SkipInitializeWithVersion: true}), nil
 	case DriverSQLite:
-		return sqlite.Open(dsn), nil
+		return sqlite.Open(cfg.sqliteDSNWithForeignKeys()), nil
 	default:
 		return nil, fmt.Errorf("%w: %s", ErrUnsupportedDriver, cfg.Driver)
 	}
@@ -157,7 +158,7 @@ func (p *pool) conn() (*pgxpool.Pool, error) {
 	}
 	pp := p.legacyPGX.Load()
 	if pp == nil {
-		return nil, fmt.Errorf("store: legacy pgx access is only available for postgres")
+		return nil, ErrUnsupportedDriver
 	}
 	return pp, nil
 }
@@ -169,7 +170,7 @@ func normalizePoolError(err error) error {
 	if errors.Is(err, ErrPoolClosed) {
 		return err
 	}
-	if errors.Is(err, sql.ErrConnDone) {
+	if errors.Is(err, sql.ErrConnDone) || errors.Is(err, puddle.ErrClosedPool) {
 		return ErrPoolClosed
 	}
 	return err

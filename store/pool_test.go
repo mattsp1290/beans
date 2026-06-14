@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/jackc/puddle/v2"
+	gmysql "gorm.io/driver/mysql"
 )
 
 func TestConfigValidateDriverDefaultsAndRejectsUnknown(t *testing.T) {
@@ -50,6 +53,16 @@ func TestNewSQLitePoolMigratesAndCloses(t *testing.T) {
 	if pgx := s.p.pgx(); pgx != nil {
 		t.Fatal("sqlite pool unexpectedly has legacy pgx handle")
 	}
+	var foreignKeys int
+	if err := sqlDB.QueryRowContext(ctx, `PRAGMA foreign_keys`).Scan(&foreignKeys); err != nil {
+		t.Fatalf("query sqlite foreign_keys pragma: %v", err)
+	}
+	if foreignKeys != 1 {
+		t.Fatalf("sqlite foreign_keys pragma = %d, want 1", foreignKeys)
+	}
+	if err := s.EnsureProject(ctx, "sqlite"); !errors.Is(err, ErrUnsupportedDriver) {
+		t.Fatalf("sqlite EnsureProject = %v, want ErrUnsupportedDriver during pgx transition", err)
+	}
 
 	s.Close()
 	s.Close()
@@ -62,6 +75,30 @@ func TestNewSQLitePoolMigratesAndCloses(t *testing.T) {
 	}
 	if _, err := s.p.conn(); !errors.Is(err, ErrPoolClosed) {
 		t.Fatalf("legacy conn after close = %v, want ErrPoolClosed", err)
+	}
+}
+
+func TestNormalizePoolErrorMapsLegacyPGXClosedPool(t *testing.T) {
+	err := normalizePoolError(puddle.ErrClosedPool)
+	if !errors.Is(err, ErrPoolClosed) {
+		t.Fatalf("normalizePoolError(puddle.ErrClosedPool) = %v, want ErrPoolClosed", err)
+	}
+}
+
+func TestMySQLDialectorSkipsUnboundedVersionProbe(t *testing.T) {
+	dialector, err := gormDialector(Config{
+		Driver: DriverMySQL,
+		DSN:    SecretDSN("user:pass@tcp(127.0.0.1:1)/beans"),
+	})
+	if err != nil {
+		t.Fatalf("gormDialector mysql: %v", err)
+	}
+	mysqlDialector, ok := dialector.(*gmysql.Dialector)
+	if !ok {
+		t.Fatalf("mysql dialector type = %T", dialector)
+	}
+	if !mysqlDialector.SkipInitializeWithVersion {
+		t.Fatal("mysql dialector should skip GORM's uncapped version probe")
 	}
 }
 

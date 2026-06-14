@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/mattsp1290/beans/schema"
@@ -124,6 +126,20 @@ func (c Config) applyPoolSettings(db interface {
 	if c.MinConns > 0 {
 		db.SetMaxIdleConns(int(c.MinConns))
 	}
+}
+
+func (c Config) sqliteDSNWithForeignKeys() string {
+	dsn := c.DSN.Reveal()
+	if strings.Contains(dsn, "_pragma=foreign_keys") ||
+		strings.Contains(dsn, "_pragma=foreign_keys(") ||
+		strings.Contains(dsn, "_foreign_keys=") {
+		return dsn
+	}
+	sep := "?"
+	if strings.Contains(dsn, "?") {
+		sep = "&"
+	}
+	return dsn + sep + "_pragma=" + url.QueryEscape("foreign_keys(1)")
 }
 
 // LogValue implements slog.LogValuer — DSN is redacted, pool-sizing fields
