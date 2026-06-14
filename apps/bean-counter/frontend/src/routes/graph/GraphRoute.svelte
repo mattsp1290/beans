@@ -15,6 +15,9 @@
 
   const layout = $derived(layoutDependencyGraph(graph.nodes, graph.edges))
   const selectedNode = $derived(layout.nodes.find((node) => node.id === selectedID) ?? layout.nodes[0])
+  const selectedEdges = $derived(
+    selectedNode ? layout.edges.filter((edge) => edge.source === selectedNode.id || edge.target === selectedNode.id) : [],
+  )
 
   onMount(() => {
     void loadGraph()
@@ -76,7 +79,11 @@
         {#if error !== ''}
           <p class="form-error" role="alert">{error}</p>
         {/if}
-        <svg viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label="Dependency graph">
+        <svg
+          viewBox={`0 0 ${layout.width} ${layout.height}`}
+          aria-label="Dependency graph"
+          style={`width: ${layout.width}px; height: ${layout.height}px;`}
+        >
           <defs>
             <marker id="graph-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 0 L 10 5 L 0 10 z"></path>
@@ -133,11 +140,11 @@
           {/if}
           <div class="edge-list">
             <h3>Relationships</h3>
-            {#if layout.edges.length === 0}
+            {#if selectedEdges.length === 0}
               <p class="muted">No dependencies yet.</p>
             {:else}
               <ul>
-                {#each layout.edges.filter((edge) => edge.source === selectedNode.id || edge.target === selectedNode.id) as edge}
+                {#each selectedEdges as edge}
                   <li>
                     <span>{edge.sourceNode.title}</span>
                     <small>blocks</small>
@@ -191,8 +198,7 @@
 
   svg {
     display: block;
-    min-width: 720px;
-    width: 100%;
+    min-width: max(720px, 100%);
     min-height: 440px;
   }
 
