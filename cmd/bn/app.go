@@ -110,6 +110,10 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 func storeConfigFromEnv() (store.Config, error) {
 	dsn := strings.TrimSpace(os.Getenv("BN_DSN"))
 	driverEnv := strings.TrimSpace(os.Getenv("BN_DRIVER"))
+	driver, err := resolveStoreDriver(driverEnv, dsn)
+	if err != nil && driverEnv != "" {
+		return store.Config{}, err
+	}
 	if dsn == "" {
 		if driverEnv == "" {
 			return store.Config{}, fmt.Errorf("BN_DRIVER and BN_DSN are not set; set BN_DRIVER=postgres|mysql|sqlite and a driver-specific BN_DSN")
@@ -117,7 +121,6 @@ func storeConfigFromEnv() (store.Config, error) {
 		return store.Config{}, fmt.Errorf("BN_DSN is not set; set BN_DSN to the %s connection string", driverEnv)
 	}
 
-	driver, err := resolveStoreDriver(driverEnv, dsn)
 	if err != nil {
 		return store.Config{}, err
 	}

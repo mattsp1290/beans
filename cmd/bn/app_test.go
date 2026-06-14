@@ -194,6 +194,10 @@ func TestStoreConfigFromEnvRejectsMissingOrAmbiguousDriver(t *testing.T) {
 	if _, err := storeConfigFromEnv(); !errors.Is(err, store.ErrUnsupportedDriver) {
 		t.Fatalf("unknown driver error = %v, want ErrUnsupportedDriver", err)
 	}
+	t.Setenv("BN_DSN", "")
+	if _, err := storeConfigFromEnv(); !errors.Is(err, store.ErrUnsupportedDriver) {
+		t.Fatalf("unknown driver without DSN error = %v, want ErrUnsupportedDriver", err)
+	}
 
 	t.Setenv("BN_DRIVER", "")
 	t.Setenv("BN_DSN", "")
