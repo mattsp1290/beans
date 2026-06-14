@@ -53,7 +53,7 @@ func (h Handler) add(c fiber.Ctx) error {
 	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, id); err != nil {
 		return err
 	}
-	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, req.BlockedByID); err != nil {
+	if err := validate.ProjectIssueIDField("blocked_by_id", h.cfg.ProjectPrefix, req.BlockedByID); err != nil {
 		return err
 	}
 	if err := h.cfg.Store.AddDep(c.Context(), id, req.BlockedByID); err != nil {
@@ -71,7 +71,7 @@ func (h Handler) remove(c fiber.Ctx) error {
 	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, id); err != nil {
 		return err
 	}
-	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, blockedByID); err != nil {
+	if err := validate.ProjectIssueIDField("blocked_by_id", h.cfg.ProjectPrefix, blockedByID); err != nil {
 		return err
 	}
 	if err := h.cfg.Store.RemoveDep(c.Context(), id, blockedByID); err != nil {

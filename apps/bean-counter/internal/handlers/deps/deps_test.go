@@ -75,13 +75,43 @@ func TestAddDependencyRejectsSelfDependency(t *testing.T) {
 	}
 }
 
-func TestAddDependencyRejectsWrongProjectPrefix(t *testing.T) {
-	resp, body := request(t, testApp(&fakeStore{}), http.MethodPost, "/api/v1/issues/bc-2/deps", `{"blocked_by_id":"other-1"}`)
+func TestAddDependencyRejectsWrongPathProjectPrefix(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodPost, "/api/v1/issues/other-2/deps", `{"blocked_by_id":"bc-1"}`)
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
 	}
 	if !bytes.Contains(body, []byte(`"field":"id"`)) {
 		t.Fatalf("body missing id field error: %s", body)
+	}
+}
+
+func TestAddDependencyRejectsWrongBlockedByProjectPrefix(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodPost, "/api/v1/issues/bc-2/deps", `{"blocked_by_id":"other-1"}`)
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+	if !bytes.Contains(body, []byte(`"field":"blocked_by_id"`)) {
+		t.Fatalf("body missing blocked_by_id field error: %s", body)
+	}
+}
+
+func TestAddDependencyRejectsMalformedJSON(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodPost, "/api/v1/issues/bc-2/deps", `{"blocked_by_id":`)
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+	if !bytes.Contains(body, []byte(`"error":"bad_request"`)) {
+		t.Fatalf("body missing bad_request: %s", body)
+	}
+}
+
+func TestAddDependencyRejectsEmptyBody(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodPost, "/api/v1/issues/bc-2/deps", `{}`)
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+	if !bytes.Contains(body, []byte(`"field":"blocked_by_id"`)) {
+		t.Fatalf("body missing blocked_by_id field error: %s", body)
 	}
 }
 
@@ -96,16 +126,46 @@ func TestRemoveDependency(t *testing.T) {
 	}
 }
 
-func TestStoreConflictUsesCentralErrorHandler(t *testing.T) {
-	resp, body := request(t, testApp(&fakeStore{err: appstore.ErrCycle}), http.MethodPost, "/api/v1/issues/bc-2/deps", `{"blocked_by_id":"bc-1"}`)
-	if resp.StatusCode != http.StatusConflict {
+func TestRemoveDependencyRejectsWrongBlockedByProjectPrefix(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodDelete, "/api/v1/issues/bc-2/deps/other-1", "")
+	if resp.StatusCode != http.StatusBadRequest {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
 	}
-	if !bytes.Contains(body, []byte(`"error":"conflict"`)) {
-		t.Fatalf("body missing conflict: %s", body)
+	if !bytes.Contains(body, []byte(`"field":"blocked_by_id"`)) {
+		t.Fatalf("body missing blocked_by_id field error: %s", body)
 	}
 }
 
+func TestStoreConflictUsesCentralErrorHandler(t *testing.T) {
+	tests := []struct {
+		name string
+		err  error
+	}{
+		{name: "cycle", err: appstore.ErrCycle},
+		{name: "duplicate", err: appstore.ErrDuplicateDep},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, body := request(t, testApp(&fakeStore{err: tt.err}), http.MethodPost, "/api/v1/issues/bc-2/deps", `{"blocked_by_id":"bc-1"}`)
+			if resp.StatusCode != http.StatusConflict {
+				t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+			}
+			if !bytes.Contains(body, []byte(`"error":"conflict"`)) {
+				t.Fatalf("body missing conflict: %s", body)
+			}
+		})
+	}
+}
+
+func TestStoreNotFoundUsesCentralErrorHandler(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{err: appstore.ErrNotFound}), http.MethodDelete, "/api/v1/issues/bc-2/deps/bc-1", "")
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+	if !bytes.Contains(body, []byte(`"error":"not_found"`)) {
+		t.Fatalf("body missing not_found: %s", body)
+	}
+}
 func testApp(store *fakeStore) *fiber.App {
 	return server.New(server.Config{
 		LogOutput: bytes.NewBuffer(nil),

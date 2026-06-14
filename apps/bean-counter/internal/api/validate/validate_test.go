@@ -170,6 +170,7 @@ func TestProjectIssueIDRequiresConfiguredPrefix(t *testing.T) {
 		t.Fatalf("ProjectIssueID valid error = %v", err)
 	}
 	wantFields(t, validationFields(t, ProjectIssueID("bc", "other-1")), "id")
+	wantFields(t, validationFields(t, ProjectIssueIDField("blocked_by_id", "bc", "other-1")), "blocked_by_id")
 }
 
 func TestIssueState(t *testing.T) {
