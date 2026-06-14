@@ -67,7 +67,8 @@ func classifyError(err error) (int, string, string, []FieldError) {
 	}
 	if errors.Is(err, appstore.ErrCycle) ||
 		errors.Is(err, appstore.ErrDuplicateDep) ||
-		errors.Is(err, appstore.ErrConflict) {
+		errors.Is(err, appstore.ErrConflict) ||
+		errors.Is(err, appstore.ErrDisabled) {
 		return fiber.StatusConflict, "conflict", err.Error(), nil
 	}
 	if errors.Is(err, appstore.ErrEmptyDSN) ||

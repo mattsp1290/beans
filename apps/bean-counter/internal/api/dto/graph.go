@@ -27,7 +27,7 @@ func GraphResponseFromStore(issues []appstore.Issue, deps []appstore.DepEdge) Gr
 			ID:       issue.ID,
 			Title:    issue.Title,
 			State:    string(issue.State),
-			Priority: int(issue.Priority),
+			Priority: priorityFromStore(issue.Priority),
 			Labels:   copyStringSlice(issue.Labels),
 		})
 	}

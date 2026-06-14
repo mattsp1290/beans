@@ -82,7 +82,7 @@ func IssueFromStore(issue appstore.Issue) Issue {
 		Identifier:  issue.Identifier,
 		Title:       issue.Title,
 		Description: issue.Description,
-		Priority:    int(issue.Priority),
+		Priority:    priorityFromStore(issue.Priority),
 		IssueType:   issue.IssueType,
 		State:       string(issue.State),
 		Labels:      copyStringSlice(issue.Labels),
@@ -185,6 +185,14 @@ func copyStringSlice(in []string) []string {
 	out := make([]string, len(in))
 	copy(out, in)
 	return out
+}
+
+func priorityFromStore(priority appstore.Priority) int {
+	apiPriority := int(priority) - 1
+	if apiPriority < 0 {
+		return 0
+	}
+	return apiPriority
 }
 
 func copyMap(in map[string]any) map[string]any {

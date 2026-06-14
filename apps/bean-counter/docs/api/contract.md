@@ -10,15 +10,20 @@ surface currently wrapped by `internal/store`.
 
 - Request and response bodies are JSON unless a response is `204 No Content`.
 - Timestamps are RFC 3339 strings emitted by Go `time.Time`.
-- Issue `state` is a free-form beans `IssueState` string. The active and
-  terminal buckets are configured by the server, not hard-coded into the API.
+- Issue `state` is a beans `IssueState` string. The pinned beans schema accepts
+  `open`, `in_progress`, `blocked`, `closed`, and `done`. The active and
+  terminal buckets used by the ready queue are configured by the server.
 - Issue `priority` is an integer from `0` to `4`; `2` is medium.
+  Request DTOs pass this value to beans' 0-indexed store field. Response DTOs
+  convert beans' internal 1-indexed priority enum back to this public scale.
 - Issue `issue_type` is a beans issue type string. Expected values are
   `bug`, `feature`, `task`, `epic`, and `chore`.
 - Response arrays are stable arrays. Empty `labels`, `blocked_by`, `issues`,
   `dependencies`, `nodes`, and `edges` encode as `[]`.
 - For issue updates, omitted fields keep their current values. `labels: []`
-  clears labels. `labels: null` is invalid once write validation is enabled.
+  clears labels. `labels: null` is invalid; handlers must reject it during
+  request validation because ordinary Go slice unmarshalling cannot distinguish
+  omitted labels from explicit `null` after decoding.
 - Dependency direction is `issue_id` is blocked by `blocked_by_id`. Graph edges
   use `source = blocked_by_id` and `target = issue_id`.
 
@@ -46,6 +51,7 @@ All handler errors use the central server error response:
 | `store.ErrCycle` | 409 | `conflict` |
 | `store.ErrDuplicateDep` | 409 | `conflict` |
 | `store.ErrConflict` | 409 | `conflict` |
+| `store.ErrDisabled` | 409 | `conflict` |
 | `store.ErrEmptyDSN` | 500 | `store_configuration_error` |
 | `store.ErrUnsupportedDriver` | 500 | `store_configuration_error` |
 | Unhandled error | 500 | `internal_error` |
@@ -202,7 +208,7 @@ Dependency list responses:
 
 ### Health
 
-`GET /healthz`
+`GET /api/v1/healthz`
 
 Returns server liveness only.
 
@@ -216,7 +222,7 @@ Success:
 
 ### List Issues
 
-`GET /issues`
+`GET /api/v1/issues`
 
 Query parameters:
 
@@ -235,9 +241,13 @@ Success:
 {"issues": []}
 ```
 
+Errors:
+
+- `500 internal_error` for unexpected list failures.
+
 ### Create Issue
 
-`POST /issues`
+`POST /api/v1/issues`
 
 Body: `CreateIssueRequest`
 
@@ -253,11 +263,12 @@ Errors:
 
 - `400 validation_error` for invalid required fields, priority, type, labels, URL,
   or repo input.
-- `409 conflict` for beans store conflicts.
+- `404 not_found` when `repo.repo_slug` does not resolve.
+- `409 conflict` for disabled repos or beans store conflicts.
 
 ### Get Issue
 
-`GET /issues/{id}`
+`GET /api/v1/issues/{id}`
 
 Handler mapping: `store.GetIssue(ctx, id)`.
 
@@ -273,7 +284,7 @@ Errors:
 
 ### Update Issue
 
-`PATCH /issues/{id}`
+`PATCH /api/v1/issues/{id}`
 
 Body: `UpdateIssueRequest`
 
@@ -288,18 +299,18 @@ Body: `Issue`
 Errors:
 
 - `400 validation_error` for invalid provided fields.
-- `404 not_found` when the issue ID is unknown.
-- `409 conflict` for beans store conflicts.
+- `404 not_found` when the issue ID is unknown or `repo.repo_slug` does not
+  resolve.
+- `409 conflict` for disabled repos or beans store conflicts.
 
 ### Close Issue
 
-`POST /issues/{id}/close`
+`POST /api/v1/issues/{id}/close`
 
 Body: `CloseIssueRequest`
 
-Handler mapping: `store.CloseIssue(ctx, id, actor, reason)`, then return the
-current issue from `store.GetIssue(ctx, id)` if the handler needs an updated
-`Issue` response.
+Handler mapping: `store.CloseIssue(ctx, id, actor, reason)`, then
+`store.GetIssue(ctx, id)` to return the updated issue.
 
 Success:
 
@@ -310,11 +321,10 @@ Body: `Issue`
 Errors:
 
 - `404 not_found` when the issue ID is unknown.
-- `409 conflict` for beans store conflicts.
 
 ### Delete Issue
 
-`DELETE /issues/{id}`
+`DELETE /api/v1/issues/{id}`
 
 Handler mapping: `store.DeleteIssue(ctx, id)`.
 
@@ -325,12 +335,10 @@ Success:
 Errors:
 
 - `404 not_found` when the issue ID is unknown.
-- `409 conflict` when beans rejects deletion because of current state or
-  dependency constraints.
 
 ### List Dependencies
 
-`GET /deps`
+`GET /api/v1/deps`
 
 Handler mapping: `store.ListDeps(ctx, prefix)`.
 
@@ -342,9 +350,13 @@ Success:
 {"dependencies": []}
 ```
 
+Errors:
+
+- `500 internal_error` for unexpected list failures.
+
 ### Add Dependency
 
-`POST /issues/{id}/deps`
+`POST /api/v1/issues/{id}/deps`
 
 Body: `AddDependencyRequest`
 
@@ -367,7 +379,7 @@ Errors:
 
 ### Remove Dependency
 
-`DELETE /issues/{id}/deps/{blocked_by_id}`
+`DELETE /api/v1/issues/{id}/deps/{blocked_by_id}`
 
 Handler mapping: `store.RemoveDep(ctx, id, blocked_by_id)`.
 
@@ -381,7 +393,7 @@ Errors:
 
 ### Ready Queue
 
-`GET /ready`
+`GET /api/v1/ready`
 
 Handler mapping:
 `adapter.ReadyIssues(ctx)`, which calls
@@ -395,9 +407,13 @@ Success:
 {"issues": []}
 ```
 
+Errors:
+
+- `500 internal_error` for unexpected ready queue failures.
+
 ### Dependency Graph
 
-`GET /graph`
+`GET /api/v1/graph`
 
 Handler mapping:
 

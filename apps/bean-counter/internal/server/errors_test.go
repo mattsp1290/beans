@@ -26,6 +26,7 @@ func TestErrorHandlerMapsSentinels(t *testing.T) {
 		{"cycle", appstore.ErrCycle, http.StatusConflict, "conflict"},
 		{"duplicate dep", appstore.ErrDuplicateDep, http.StatusConflict, "conflict"},
 		{"conflict", appstore.ErrConflict, http.StatusConflict, "conflict"},
+		{"disabled", appstore.ErrDisabled, http.StatusConflict, "conflict"},
 		{"empty dsn", appstore.ErrEmptyDSN, http.StatusInternalServerError, "store_configuration_error"},
 		{"unsupported driver", appstore.ErrUnsupportedDriver, http.StatusInternalServerError, "store_configuration_error"},
 		{"validation sentinel", ErrValidation, http.StatusBadRequest, "validation_error"},
