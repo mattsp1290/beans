@@ -16,16 +16,19 @@ behavior:
 git checkout main
 git pull --ff-only origin main
 git checkout -b rollback/gorm-multidb
-git revert <merge-sha-or-range>
+git revert -m 1 <merge-sha>
 make ci
 go test -tags=integration ./...
 git push -u origin rollback/gorm-multidb
 ```
 
 Prefer reverting the merge commits that introduced the GORM/multi-database
-work, newest first. If a direct revert conflicts, resolve by restoring the
-previous Postgres-only versions of the affected areas listed below, then rerun
-the full validation gates before publishing the branch.
+work, newest first. Ralph iteration merges are merge commits, so use
+`git revert -m 1 <merge-sha>` for each merge commit. If reverting a contiguous
+range of non-merge commits instead, use normal `git revert <old>..<new>`
+syntax. If a direct revert conflicts, resolve by restoring the previous
+Postgres-only versions of the affected areas listed below, then rerun the full
+validation gates before publishing the branch.
 
 Do not attempt an in-place rollback against a live database without an operator
 decision. The migration now owns separate Postgres, MySQL, and SQLite migration
@@ -44,6 +47,8 @@ The migration primarily touched these areas:
 - `cmd/bn/`: `BN_DRIVER`/`BN_DSN` wiring and dialect-neutral command help.
 - `go.mod` and `go.sum`: GORM, datatypes, MySQL, SQLite, and testcontainers
   dependencies.
+- `deps.go`: tools-build dependency pins that may keep GORM or testcontainers
+  modules in `go.mod` until reverted or removed.
 - `docs/research/` and `docs/prompts/`: migration design and verification
   notes.
 
@@ -52,16 +57,19 @@ The migration primarily touched these areas:
 After reverting code, run:
 
 ```bash
+git diff -- deps.go
 go mod tidy
 git diff -- go.mod go.sum
 make ci
 ```
 
-Only remove dependencies when no imports remain. At the time these notes were
-written, `pgx` and `puddle` are still intentionally imported for transitional
-Postgres paths: DSN parsing, legacy pgx pool support, Postgres error
-classification, pool-closed normalization, and Postgres integration tests.
-`goose` remains the migration runner.
+Only remove dependencies when no imports or tools pins remain. If reverting the
+multi-database dependency set, inspect `deps.go` first; its `tools` build tag
+can keep modules in `go.mod` even after runtime imports are removed. At the time
+these notes were written, `pgx` and `puddle` are still intentionally imported
+for transitional Postgres paths: DSN parsing, legacy pgx pool support, Postgres
+error classification, pool-closed normalization, and Postgres integration
+tests. `goose` remains the migration runner.
 
 ## Validation Checkpoints
 
