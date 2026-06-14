@@ -9,7 +9,6 @@ import (
 
 	gmysql "github.com/go-sql-driver/mysql"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/puddle/v2"
 )
 
 func TestDuplicateConstraintClassification(t *testing.T) {
@@ -83,7 +82,7 @@ func TestSQLiteDuplicateConstraintClassificationFromDriver(t *testing.T) {
 }
 
 func TestPoolClosedClassification(t *testing.T) {
-	for _, err := range []error{ErrPoolClosed, sql.ErrConnDone, puddle.ErrClosedPool} {
+	for _, err := range []error{ErrPoolClosed, sql.ErrConnDone} {
 		if got := normalizePoolError(err); !errors.Is(got, ErrPoolClosed) {
 			t.Fatalf("normalizePoolError(%v) = %v, want ErrPoolClosed", err, got)
 		}

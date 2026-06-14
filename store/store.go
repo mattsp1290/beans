@@ -326,10 +326,10 @@ func (s *Store) ListIssues(ctx context.Context, f ListFilter) ([]Issue, error) {
 // the ready semantics match the operator's WorkspaceConfig.TerminalStates
 // (never hardcoded to "closed").
 //
-// Cross-prefix deps: an issue is only considered blocked by issues in the
-// same Postgres instance. Dangling edges (blocked_by_id references a deleted
-// issue) are handled by ON DELETE CASCADE — if the blocker is deleted, the
-// edge disappears and the child becomes unblocked automatically.
+// Cross-prefix deps: an issue is only considered blocked by issues stored in
+// the same configured database. Dangling edges (blocked_by_id references a
+// deleted issue) are handled by ON DELETE CASCADE — if the blocker is deleted,
+// the edge disappears and the child becomes unblocked automatically.
 func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates []model.IssueState, activeStates []model.IssueState) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
