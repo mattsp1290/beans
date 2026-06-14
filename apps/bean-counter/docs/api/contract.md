@@ -2,50 +2,58 @@
 
 Base path: `/api/v1`
 
-This contract describes the JSON API shared by the Go handlers and the Svelte
-frontend. It reflects the DTOs in `internal/api/dto` and the `github.com/mattsp1290/beans/store`
-surface currently wrapped by `internal/store`.
+This document reflects the shipped Fiber handlers and DTOs in `internal/api`,
+`internal/handlers`, and `internal/server`.
 
 ## Conventions
 
-- Request and response bodies are JSON unless a response is `204 No Content`.
-- Timestamps are RFC 3339 strings emitted by Go `time.Time`.
-- Issue `state` is a beans `IssueState` string. The pinned beans schema accepts
-  `open`, `in_progress`, `blocked`, `closed`, and `done`. The active and
-  terminal buckets used by the ready queue are configured by the server.
-- Issue `priority` is an integer from `0` to `4`; `2` is medium.
-  Request DTOs pass this value to beans' 0-indexed store field. Response DTOs
-  convert beans' internal 1-indexed priority enum back to this public scale.
-- Issue `issue_type` is a beans issue type string. Expected values are
-  `bug`, `feature`, `task`, `epic`, and `chore`.
-- Response arrays are stable arrays. Empty `labels`, `blocked_by`, `issues`,
-  `dependencies`, `nodes`, and `edges` encode as `[]`.
-- For issue updates, omitted fields keep their current values. `labels: []`
-  clears labels. `labels: null` is invalid; handlers must reject it during
-  request validation because ordinary Go slice unmarshalling cannot distinguish
-  omitted labels from explicit `null` after decoding.
-- Dependency direction is `issue_id` is blocked by `blocked_by_id`. Graph edges
-  use `source = blocked_by_id` and `target = issue_id`.
+- JSON is used for every request and response body except `204 No Content`.
+- Timestamps are Go `time.Time` values encoded as RFC 3339 strings.
+- Issue IDs must use the configured project prefix, for example `bean-counter-123abc`.
+- Public priorities are integers from `0` through `4`; `2` is the default medium priority.
+- Issue types are `bug`, `feature`, `task`, `epic`, and `chore`.
+- Issue states are `open`, `in_progress`, `blocked`, `closed`, and `done`.
+- Dependency direction is `issue_id` is blocked by `blocked_by_id`.
+- Graph edges use `source = blocked_by_id` and `target = issue_id`.
+- Empty arrays are encoded as `[]`.
+- Optional response fields using `omitempty` are absent when empty: `branch_name`, `url`, `repo`, and optional nested `repo` fields.
+
+## Validation Limits
+
+| Field | Limit |
+| --- | ---: |
+| `id`, `blocked_by_id` | required, max 200 chars |
+| `title` | required on create, max 300 chars |
+| `description` | max 20000 chars |
+| `labels` | max 100 labels, each non-blank and max 100 chars |
+| `branch_name` | max 255 chars |
+| `url` | max 2048 chars, absolute `http` or `https` URL when provided |
+| `reason` | max 1000 chars |
+| `repo.repo_slug` | required when `repo` is present, max 200 chars |
+| repo refs | max 255 chars and valid git ref names |
+| `repo.worktree_subdir` | max 255 chars, relative path without parent traversal |
+
+For updates, omitted fields keep their current values. `labels: []` clears labels. `labels: null` is invalid. An update body must include at least one updatable field.
 
 ## Error Envelope
 
-All handler errors use the central server error response:
+All handler errors are returned as:
 
 ```json
 {
   "error": "validation_error",
-  "message": "validation failed",
+  "message": "invalid request",
   "fields": [
     {"field": "title", "message": "is required"}
   ]
 }
 ```
 
-`fields` is present only for validation failures with field-level detail.
+`fields` is present only for validation errors with field-level detail.
 
 | Error source | Status | `error` |
 | --- | ---: | --- |
-| Request parsing or malformed request | 400 | `bad_request` |
+| Malformed JSON or query | 400 | `bad_request` |
 | Validation failure | 400 | `validation_error` |
 | `store.ErrNotFound` | 404 | `not_found` |
 | `store.ErrCycle` | 409 | `conflict` |
@@ -56,23 +64,23 @@ All handler errors use the central server error response:
 | `store.ErrUnsupportedDriver` | 500 | `store_configuration_error` |
 | Unhandled error | 500 | `internal_error` |
 
-## DTOs
+## DTO Reference
 
 ### Issue
 
 ```json
 {
-  "id": "bc-123",
-  "identifier": "BC-123",
+  "id": "bean-counter-123abc",
+  "identifier": "bean-counter-123abc",
   "title": "Add issue list",
   "description": "Render issues from beans",
   "priority": 2,
   "issue_type": "feature",
   "state": "open",
   "labels": ["ui"],
-  "blocked_by": ["bc-100"],
-  "branch_name": "feature/bc-123",
-  "url": "https://tracker.example/bc-123",
+  "blocked_by": ["bean-counter-100aaa"],
+  "branch_name": "feature/bean-counter-123abc",
+  "url": "https://tracker.example/bean-counter-123abc",
   "repo": {
     "id": "repo-1",
     "slug": "bean-counter",
@@ -80,8 +88,8 @@ All handler errors use the central server error response:
     "default_branch": "main",
     "requested_ref": "main",
     "base_ref": "main",
-    "work_branch": "feature/bc-123",
-    "worktree_subdir": "",
+    "work_branch": "feature/bean-counter-123abc",
+    "worktree_subdir": "services/api",
     "clone_strategy": "full",
     "auth_ref": "default",
     "metadata": {"team": "core"}
@@ -90,9 +98,6 @@ All handler errors use the central server error response:
   "updated_at": "2026-06-14T13:00:00Z"
 }
 ```
-
-Optional response fields using `omitempty`: `branch_name`, `url`, `repo`, and
-optional fields inside `repo` except `slug`.
 
 ### CreateIssueRequest
 
@@ -103,25 +108,20 @@ optional fields inside `repo` except `slug`.
   "priority": 2,
   "issue_type": "feature",
   "labels": ["ui"],
-  "branch_name": "feature/bc-123",
-  "url": "https://tracker.example/bc-123",
+  "branch_name": "feature/bean-counter-123abc",
+  "url": "https://tracker.example/bean-counter-123abc",
   "repo": {
     "repo_slug": "bean-counter",
     "requested_ref": "main",
     "base_ref": "main",
-    "work_branch": "feature/bc-123",
-    "worktree_subdir": "",
+    "work_branch": "feature/bean-counter-123abc",
+    "worktree_subdir": "services/api",
     "metadata": {"team": "core"}
   }
 }
 ```
 
-Handler mapping: `CreateIssueRequest.ToStoreInput(prefix, actor)` maps to
-`store.CreateIssueInput`. The handler supplies configured project `prefix` and
-configured mutation `actor`.
-
-Required by validation: `title`, `priority`, and `issue_type`. `repo.repo_slug`
-is required when `repo` is present.
+Required: `title`, `priority`, and `issue_type`.
 
 ### UpdateIssueRequest
 
@@ -132,21 +132,20 @@ is required when `repo` is present.
   "priority": 1,
   "state": "in_progress",
   "labels": [],
-  "branch_name": "feature/updated",
-  "url": "https://tracker.example/bc-123",
+  "branch_name": "",
+  "url": "",
   "repo": {
     "repo_slug": "bean-counter",
     "requested_ref": "main",
     "base_ref": "main",
     "work_branch": "feature/updated",
-    "worktree_subdir": "",
+    "worktree_subdir": "services/api",
     "metadata": {"team": "core"}
   }
 }
 ```
 
-Every field is optional. Omitted pointer fields map to `nil` and leave beans
-state unchanged. Non-nil `labels` replaces the full label set.
+Every field is optional, but at least one must be present. Empty strings for `branch_name` and `url` clear those fields.
 
 ### CloseIssueRequest
 
@@ -156,23 +155,14 @@ state unchanged. Non-nil `labels` replaces the full label set.
 }
 ```
 
-`reason` is optional. The handler supplies the configured mutation actor and
-calls `store.CloseIssue(ctx, id, actor, reason)`.
+`reason` is optional.
 
 ### Dependency
 
 ```json
 {
-  "issue_id": "bc-123",
-  "blocked_by_id": "bc-100"
-}
-```
-
-`AddDependencyRequest` accepts:
-
-```json
-{
-  "blocked_by_id": "bc-100"
+  "issue_id": "bean-counter-123abc",
+  "blocked_by_id": "bean-counter-100aaa"
 }
 ```
 
@@ -181,27 +171,25 @@ calls `store.CloseIssue(ctx, id, actor, reason)`.
 ```json
 {
   "nodes": [
-    {"id": "bc-100", "title": "Parent", "state": "closed", "priority": 1, "labels": []},
-    {"id": "bc-123", "title": "Child", "state": "open", "priority": 2, "labels": ["ui"]}
+    {
+      "id": "bean-counter-100aaa",
+      "title": "Parent",
+      "state": "closed",
+      "priority": 1,
+      "labels": []
+    },
+    {
+      "id": "bean-counter-123abc",
+      "title": "Child",
+      "state": "open",
+      "priority": 2,
+      "labels": ["ui"]
+    }
   ],
   "edges": [
-    {"source": "bc-100", "target": "bc-123"}
+    {"source": "bean-counter-100aaa", "target": "bean-counter-123abc"}
   ]
 }
-```
-
-### List Envelopes
-
-Issue list and ready queue responses:
-
-```json
-{"issues": []}
-```
-
-Dependency list responses:
-
-```json
-{"dependencies": []}
 ```
 
 ## Endpoints
@@ -210,11 +198,9 @@ Dependency list responses:
 
 `GET /api/v1/healthz`
 
-Returns server liveness only.
+Returns process liveness only.
 
-Success:
-
-- `200 OK`
+Response `200 OK`:
 
 ```json
 {"status": "ok"}
@@ -228,211 +214,225 @@ Query parameters:
 
 | Name | Type | Meaning |
 | --- | --- | --- |
-| `state` | repeated string or comma-separated string | Optional state filter. Empty means all states. |
-| `limit` | integer | Optional max rows. `0` or omitted means no limit. |
+| `state` | repeated or comma-separated string | Optional state filter. Empty means all states. |
+| `limit` | non-negative integer | Optional max rows. `0` or omitted means no limit. |
 
-Handler mapping: `store.ListIssues(ctx, store.ListFilter{Prefix, States, Limit})`.
+Example:
 
-Success:
-
-- `200 OK`
-
-```json
-{"issues": []}
+```http
+GET /api/v1/issues?state=open&state=blocked&limit=20
 ```
 
-Errors:
+Response `200 OK`:
 
-- `500 internal_error` for unexpected list failures.
+```json
+{
+  "issues": [
+    {
+      "id": "bean-counter-123abc",
+      "identifier": "bean-counter-123abc",
+      "title": "Add issue list",
+      "description": "Render issues from beans",
+      "priority": 2,
+      "issue_type": "feature",
+      "state": "open",
+      "labels": ["ui"],
+      "blocked_by": [],
+      "created_at": "2026-06-14T12:00:00Z",
+      "updated_at": "2026-06-14T12:00:00Z"
+    }
+  ]
+}
+```
+
+Common errors: `400 bad_request` for malformed query or invalid `limit`, `400 validation_error` for invalid `state`.
 
 ### Create Issue
 
 `POST /api/v1/issues`
 
-Body: `CreateIssueRequest`
+Request:
 
-Handler mapping: `store.CreateIssue(ctx, dto.ToStoreInput(prefix, actor))`.
+```json
+{
+  "title": "Add ready queue",
+  "description": "Show unblocked issues",
+  "priority": 1,
+  "issue_type": "feature",
+  "labels": ["ui", "ready"]
+}
+```
 
-Success:
+Response `201 Created`:
 
-- `201 Created`
+```json
+{
+  "id": "bean-counter-456def",
+  "identifier": "bean-counter-456def",
+  "title": "Add ready queue",
+  "description": "Show unblocked issues",
+  "priority": 1,
+  "issue_type": "feature",
+  "state": "open",
+  "labels": ["ui", "ready"],
+  "blocked_by": [],
+  "created_at": "2026-06-14T12:00:00Z",
+  "updated_at": "2026-06-14T12:00:00Z"
+}
+```
 
-Body: `Issue`
-
-Errors:
-
-- `400 validation_error` for invalid required fields, priority, type, labels, URL,
-  or repo input.
-- `404 not_found` when `repo.repo_slug` does not resolve.
-- `409 conflict` for disabled repos or beans store conflicts.
+Common errors: `400 bad_request` for malformed JSON, `400 validation_error`, `404 not_found` for unknown `repo.repo_slug`, `409 conflict` for disabled repos or store conflicts.
 
 ### Get Issue
 
 `GET /api/v1/issues/{id}`
 
-Handler mapping: `store.GetIssue(ctx, id)`.
+Response `200 OK`: `Issue`
 
-Success:
+Example:
 
-- `200 OK`
+```http
+GET /api/v1/issues/bean-counter-456def
+```
 
-Body: `Issue`
-
-Errors:
-
-- `404 not_found` when the issue ID is unknown.
+Common errors: `400 validation_error` for an ID outside the configured prefix, `404 not_found`.
 
 ### Update Issue
 
 `PATCH /api/v1/issues/{id}`
 
-Body: `UpdateIssueRequest`
+Request:
 
-Handler mapping: `store.UpdateIssue(ctx, id, dto.ToStoreInput())`.
+```json
+{
+  "state": "in_progress",
+  "labels": ["ui"],
+  "branch_name": "feature/ready-queue"
+}
+```
 
-Success:
+Response `200 OK`: updated `Issue`
 
-- `200 OK`
-
-Body: `Issue`
-
-Errors:
-
-- `400 validation_error` for invalid provided fields.
-- `404 not_found` when the issue ID is unknown or `repo.repo_slug` does not
-  resolve.
-- `409 conflict` for disabled repos or beans store conflicts.
+Common errors: `400 bad_request`, `400 validation_error`, `404 not_found`, `409 conflict`.
 
 ### Close Issue
 
 `POST /api/v1/issues/{id}/close`
 
-Body: `CloseIssueRequest`
+Request:
 
-Handler mapping: `store.CloseIssue(ctx, id, actor, reason)`, then
-`store.GetIssue(ctx, id)` to return the updated issue.
+```json
+{"reason": "completed"}
+```
 
-Success:
+An empty body is also accepted.
 
-- `200 OK`
+Response `200 OK`: closed `Issue`
 
-Body: `Issue`
-
-Errors:
-
-- `404 not_found` when the issue ID is unknown.
+Common errors: `400 bad_request`, `400 validation_error`, `404 not_found`, `409 conflict`.
 
 ### Delete Issue
 
 `DELETE /api/v1/issues/{id}`
 
-Handler mapping: `store.DeleteIssue(ctx, id)`.
+Response `204 No Content`.
 
-Success:
-
-- `204 No Content`
-
-Errors:
-
-- `404 not_found` when the issue ID is unknown.
+Common errors: `400 validation_error`, `404 not_found`, `409 conflict`.
 
 ### List Dependencies
 
 `GET /api/v1/deps`
 
-Handler mapping: `store.ListDeps(ctx, prefix)`.
-
-Success:
-
-- `200 OK`
+Response `200 OK`:
 
 ```json
-{"dependencies": []}
+{
+  "dependencies": [
+    {"issue_id": "bean-counter-123abc", "blocked_by_id": "bean-counter-100aaa"}
+  ]
+}
 ```
-
-Errors:
-
-- `500 internal_error` for unexpected list failures.
 
 ### Add Dependency
 
 `POST /api/v1/issues/{id}/deps`
 
-Body: `AddDependencyRequest`
+`id` is the blocked issue. `blocked_by_id` is the blocker.
 
-`id` is the issue that is blocked. `blocked_by_id` is the issue it depends on.
+Request:
 
-Handler mapping: `store.AddDep(ctx, id, blocked_by_id)`.
+```json
+{"blocked_by_id": "bean-counter-100aaa"}
+```
 
-Success:
+Response `201 Created`:
 
-- `201 Created`
+```json
+{"issue_id": "bean-counter-123abc", "blocked_by_id": "bean-counter-100aaa"}
+```
 
-Body: `Dependency`
-
-Errors:
-
-- `400 validation_error` for missing `blocked_by_id` or self-dependency.
-- `404 not_found` when either issue ID is unknown.
-- `409 conflict` for `store.ErrCycle`, `store.ErrDuplicateDep`, or other beans
-  dependency conflicts.
+Common errors: `400 bad_request`, `400 validation_error` for missing IDs or self-dependency, `404 not_found`, `409 conflict` for cycles or duplicate dependencies.
 
 ### Remove Dependency
 
 `DELETE /api/v1/issues/{id}/deps/{blocked_by_id}`
 
-Handler mapping: `store.RemoveDep(ctx, id, blocked_by_id)`.
+Response `204 No Content`.
 
-Success:
-
-- `204 No Content`
-
-Errors:
-
-- `404 not_found` when the dependency or issue ID is unknown.
+Common errors: `400 validation_error`, `404 not_found`, `409 conflict`.
 
 ### Ready Queue
 
 `GET /api/v1/ready`
 
-Handler mapping:
-`adapter.ReadyIssues(ctx)`, which calls
-`store.ReadyIssues(ctx, prefix, terminalStates, activeStates)`.
+Returns unblocked issues for the configured project prefix. Terminal and active state buckets are configured by the server adapter.
 
-Success:
-
-- `200 OK`
+Response `200 OK`:
 
 ```json
-{"issues": []}
+{
+  "issues": [
+    {
+      "id": "bean-counter-456def",
+      "identifier": "bean-counter-456def",
+      "title": "Add ready queue",
+      "description": "Show unblocked issues",
+      "priority": 1,
+      "issue_type": "feature",
+      "state": "open",
+      "labels": ["ui", "ready"],
+      "blocked_by": [],
+      "created_at": "2026-06-14T12:00:00Z",
+      "updated_at": "2026-06-14T12:00:00Z"
+    }
+  ]
+}
 ```
-
-Errors:
-
-- `500 internal_error` for unexpected ready queue failures.
 
 ### Dependency Graph
 
 `GET /api/v1/graph`
 
-Handler mapping:
+The handler lists all project issues and dependency edges, then maps them to graph nodes and edges.
 
-1. `store.ListIssues(ctx, store.ListFilter{Prefix: prefix})`
-2. `store.ListDeps(ctx, prefix)`
-3. `dto.GraphResponseFromStore(issues, deps)`
+Response `200 OK`:
 
-Success:
+```json
+{
+  "nodes": [
+    {"id": "bean-counter-100aaa", "title": "Parent", "state": "closed", "priority": 1, "labels": []},
+    {"id": "bean-counter-123abc", "title": "Child", "state": "open", "priority": 2, "labels": ["ui"]}
+  ],
+  "edges": [
+    {"source": "bean-counter-100aaa", "target": "bean-counter-123abc"}
+  ]
+}
+```
 
-- `200 OK`
+### CORS
 
-Body: `GraphResponse`
+The server allows the configured `BN_CORS_ORIGIN`. The code default is `http://localhost:5173`; the backend Docker image and full-stack compose default to `http://localhost:8080`.
 
-Errors:
+Allowed methods: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`.
 
-- `500 internal_error` for unexpected list failures.
-
-## CORS
-
-The server allows the configured frontend origin, defaulting to
-`http://localhost:5173`, and permits `GET`, `POST`, `PUT`, `PATCH`, `DELETE`,
-and `OPTIONS` with `Accept`, `Authorization`, and `Content-Type` headers.
+Allowed headers: `Accept`, `Authorization`, `Content-Type`.
