@@ -49,6 +49,8 @@ func TestMySQLCRUDDepsAndReadyOverHTTP(t *testing.T) {
 		depsList.Dependencies[0].BlockedByID != parent.ID {
 		t.Fatalf("dependencies = %+v", depsList.Dependencies)
 	}
+	graph := mysqlGraph(t, app)
+	mysqlRequireGraph(t, graph, parent.ID, child.ID)
 
 	readyBeforeClose := mysqlReadyIssues(t, app)
 	mysqlRequireIssueIDs(t, readyBeforeClose, parent.ID)
@@ -185,13 +187,20 @@ func mysqlReadyIssues(t *testing.T, app *fiber.App) []mysqlIssueResponse {
 	return envelope.Issues
 }
 
+func mysqlGraph(t *testing.T, app *fiber.App) mysqlGraphResponse {
+	t.Helper()
+	var graph mysqlGraphResponse
+	mysqlRequestJSON(t, app, http.MethodGet, "/api/v1/graph", "", http.StatusOK, &graph)
+	return graph
+}
+
 func mysqlRequestJSON(t *testing.T, app *fiber.App, method, target, body string, wantStatus int, out any) {
 	t.Helper()
 	req := httptest.NewRequest(method, target, bytes.NewBufferString(body))
 	if body != "" {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	resp, err := app.Test(req)
+	resp, err := app.Test(req, fiber.TestConfig{Timeout: 10 * time.Second})
 	if err != nil {
 		t.Fatalf("%s %s: %v", method, target, err)
 	}
@@ -228,6 +237,23 @@ func mysqlRejectIssueID(t *testing.T, issues []mysqlIssueResponse, id string) {
 	}
 }
 
+func mysqlRequireGraph(t *testing.T, graph mysqlGraphResponse, parentID, childID string) {
+	t.Helper()
+	nodes := make(map[string]bool, len(graph.Nodes))
+	for _, node := range graph.Nodes {
+		nodes[node.ID] = true
+	}
+	if !nodes[parentID] || !nodes[childID] {
+		t.Fatalf("graph nodes = %+v, want %q and %q", graph.Nodes, parentID, childID)
+	}
+	for _, edge := range graph.Edges {
+		if edge.Source == parentID && edge.Target == childID {
+			return
+		}
+	}
+	t.Fatalf("graph edges = %+v, want %q -> %q", graph.Edges, parentID, childID)
+}
+
 func mysqlIssueIDSet(issues []mysqlIssueResponse) map[string]bool {
 	seen := make(map[string]bool, len(issues))
 	for _, issue := range issues {
@@ -255,4 +281,18 @@ type mysqlDependencyResponse struct {
 
 type mysqlDependencyListResponse struct {
 	Dependencies []mysqlDependencyResponse `json:"dependencies"`
+}
+
+type mysqlGraphResponse struct {
+	Nodes []mysqlGraphNode `json:"nodes"`
+	Edges []mysqlGraphEdge `json:"edges"`
+}
+
+type mysqlGraphNode struct {
+	ID string `json:"id"`
+}
+
+type mysqlGraphEdge struct {
+	Source string `json:"source"`
+	Target string `json:"target"`
 }
