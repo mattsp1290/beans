@@ -1,0 +1,13 @@
+.git
+.beads
+.dolt
+.agents
+bin
+frontend/node_modules
+frontend/dist
+**/*.db
+**/.env
+**/.env.*
+**/.DS_Store
+Dockerfile
+.dockerignore
