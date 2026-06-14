@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -726,35 +725,15 @@ func scanRepo(row pgx.Row) (Repo, error) {
 }
 
 func encodeJSONObject(v map[string]any) ([]byte, error) {
-	if v == nil {
-		v = map[string]any{}
-	}
-	b, err := json.Marshal(v)
+	raw, err := jsonObject(v)
 	if err != nil {
 		return nil, err
 	}
-	if !json.Valid(b) {
-		return nil, fmt.Errorf("invalid json object")
-	}
-	var probe map[string]any
-	if err := json.Unmarshal(b, &probe); err != nil {
-		return nil, err
-	}
-	return b, nil
+	return []byte(raw), nil
 }
 
 func decodeJSONObject(raw []byte) map[string]any {
-	if len(raw) == 0 {
-		return map[string]any{}
-	}
-	var out map[string]any
-	if err := json.Unmarshal(raw, &out); err != nil {
-		return map[string]any{}
-	}
-	if out == nil {
-		return map[string]any{}
-	}
-	return out
+	return objectFromJSON(raw)
 }
 
 func generateRepoID() (string, error) {

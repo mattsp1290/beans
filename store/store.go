@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -1585,27 +1584,13 @@ func derefStr(s *string, def string) string {
 
 // encodedLabels returns a JSON byte slice for the JSONB column.
 func encodedLabels(labels []string) []byte {
-	if len(labels) == 0 {
-		return []byte(`[]`)
-	}
-	b, err := json.Marshal(labels)
-	if err != nil {
-		return []byte(`[]`)
-	}
-	return b
+	return []byte(jsonStringArray(labels))
 }
 
 // decodeLabels parses a JSONB []byte into a string slice.
 // Returns nil on error or empty input.
 func decodeLabels(b []byte) []string {
-	if len(b) == 0 {
-		return nil
-	}
-	var labels []string
-	if err := json.Unmarshal(b, &labels); err != nil {
-		return nil
-	}
-	return labels
+	return stringArrayFromJSON(b)
 }
 
 // terminalStateArray converts []model.IssueState to []string for the $N::text[] cast.
