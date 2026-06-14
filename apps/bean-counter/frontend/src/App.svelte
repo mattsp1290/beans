@@ -1,6 +1,6 @@
 <script lang="ts">
   import AppShell from './lib/components/AppShell.svelte'
-  import ErrorState from './lib/components/ErrorState.svelte'
+  import GraphRoute from './routes/graph/GraphRoute.svelte'
   import IssuesRoute from './routes/issues/IssuesRoute.svelte'
   import ReadyRoute from './routes/ready/ReadyRoute.svelte'
   import { getRoute, routes } from './routes'
@@ -50,11 +50,6 @@
   {:else if route.path === '/ready'}
     <ReadyRoute navigate={go} />
   {:else if route.path === '/graph'}
-    <section class="workspace" aria-label="Dependency graph workspace">
-      <ErrorState
-        title="Graph not connected"
-        message="Graph data will render here after the visualization slice lands."
-      />
-    </section>
+    <GraphRoute />
   {/if}
 </AppShell>
