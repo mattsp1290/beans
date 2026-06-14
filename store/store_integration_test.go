@@ -147,6 +147,8 @@ func TestStoreContractAcrossDialects(t *testing.T) {
 func storeContractTest(t *testing.T, dialect storeContractDialect) {
 	t.Helper()
 
+	// Each scenario opens a fresh store so failures cannot leak state across
+	// dialect assertions or hide cleanup differences between backends.
 	t.Run("issue_dependencies_and_imports", func(t *testing.T) {
 		s := dialect.open(t)
 		ctx := context.Background()
@@ -484,6 +486,13 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 			}
 			if success != 1 || unauthorized != 1 {
 				t.Fatalf("concurrent bootstrap results success=%d unauthorized=%d, want 1/1", success, unauthorized)
+			}
+			admins, err := s.ListRepoAdmins(ctx, prefix)
+			if err != nil {
+				t.Fatalf("ListRepoAdmins after concurrent bootstrap: %v", err)
+			}
+			if len(admins) != 1 {
+				t.Fatalf("admins after concurrent bootstrap = %v, want exactly one first admin", admins)
 			}
 		})
 	}
