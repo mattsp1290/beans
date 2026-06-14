@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/cobra"
 
 	"github.com/mattsp1290/beans/model"
@@ -29,7 +30,7 @@ type appState struct {
 func newRootCmd(rs *appState) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "bn",
-		Short:         "Postgres-backed issue tracker (bn = beans)",
+		Short:         "Database-backed issue tracker (bn = beans)",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
@@ -61,7 +62,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 	return root
 }
 
-// initConn opens the Postgres store and resolves actor + prefix from env.
+// initConn opens the configured store and resolves actor + prefix from env.
 func (rs *appState) initConn(ctx context.Context) error {
 	return rs.initConnWithOptions(ctx, false)
 }
@@ -71,9 +72,9 @@ func (rs *appState) initConnForInit(ctx context.Context) error {
 }
 
 func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) error {
-	dsn := os.Getenv("BN_DSN")
-	if dsn == "" {
-		return fmt.Errorf("BN_DSN is not set; export BN_DSN=postgres://user:pass@host/db to connect")
+	cfg, err := storeConfigFromEnv()
+	if err != nil {
+		return err
 	}
 
 	if rs.actor == "" {
@@ -98,14 +99,58 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 	}
 	rs.prefix = prefix
 
-	store, err := store.New(ctx, store.Config{
-		DSN: store.SecretDSN(dsn),
-	})
+	st, err := store.New(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("bn: connect: %w", err)
 	}
-	rs.store = store
+	rs.store = st
 	return nil
+}
+
+func storeConfigFromEnv() (store.Config, error) {
+	dsn := strings.TrimSpace(os.Getenv("BN_DSN"))
+	driverEnv := strings.TrimSpace(os.Getenv("BN_DRIVER"))
+	driver, err := resolveStoreDriver(driverEnv, dsn)
+	if err != nil && driverEnv != "" {
+		return store.Config{}, err
+	}
+	if dsn == "" {
+		if driverEnv == "" {
+			return store.Config{}, fmt.Errorf("BN_DRIVER and BN_DSN are not set; set BN_DRIVER=postgres|mysql|sqlite and a driver-specific BN_DSN")
+		}
+		return store.Config{}, fmt.Errorf("BN_DSN is not set; set BN_DSN to the %s connection string", driverEnv)
+	}
+
+	if err != nil {
+		return store.Config{}, err
+	}
+	return store.Config{
+		Driver: driver,
+		DSN:    store.SecretDSN(dsn),
+	}, nil
+}
+
+func resolveStoreDriver(driverEnv, dsn string) (store.Driver, error) {
+	switch strings.ToLower(strings.TrimSpace(driverEnv)) {
+	case "postgres", "postgresql", "pg":
+		return store.DriverPostgres, nil
+	case "mysql":
+		return store.DriverMySQL, nil
+	case "sqlite", "sqlite3":
+		return store.DriverSQLite, nil
+	case "":
+		if isPostgresDSN(dsn) {
+			return store.DriverPostgres, nil
+		}
+		return "", fmt.Errorf("BN_DRIVER is not set; set BN_DRIVER=postgres, BN_DRIVER=mysql, or BN_DRIVER=sqlite for this BN_DSN")
+	default:
+		return "", fmt.Errorf("%w: %s", store.ErrUnsupportedDriver, driverEnv)
+	}
+}
+
+func isPostgresDSN(dsn string) bool {
+	_, err := pgxpool.ParseConfig(dsn)
+	return err == nil
 }
 
 // requirePrefix returns an error when no project prefix is configured.
