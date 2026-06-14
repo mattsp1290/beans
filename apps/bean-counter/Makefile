@@ -29,7 +29,7 @@ fmt:
 	$(GO) fmt ./...
 
 fmt-check:
-	@test -z "$$($(GO) fmt ./...)" || (echo "gofmt changed files; run make fmt" >&2; exit 1)
+	@test -z "$$(gofmt -l $$(find . -name '*.go' -not -path './.git/*'))" || (echo "gofmt changes needed; run make fmt" >&2; exit 1)
 
 test:
 	$(GO) test ./...
