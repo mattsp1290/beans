@@ -1,54 +1,40 @@
 <script lang="ts">
-  const queueMetrics = [
-    { label: 'Open', value: '0' },
-    { label: 'Ready', value: '0' },
-    { label: 'Blocked', value: '0' },
-  ]
+  import AppShell from './lib/components/AppShell.svelte'
+  import EmptyState from './lib/components/EmptyState.svelte'
+  import ErrorState from './lib/components/ErrorState.svelte'
+  import LoadingState from './lib/components/LoadingState.svelte'
+  import { getRoute, routes } from './routes'
 
-  const views = ['Issues', 'Ready', 'Dependencies', 'Graph']
+  let pathname = $state(window.location.pathname)
+  const route = $derived(getRoute(pathname))
+
+  function navigate(event: MouseEvent, path: string) {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return
+    }
+    event.preventDefault()
+    history.pushState({}, '', path)
+    pathname = path
+  }
+
+  function syncPathname() {
+    pathname = window.location.pathname
+  }
 </script>
 
+<svelte:window onpopstate={syncPathname} />
+
 <svelte:head>
-  <title>Bean Counter</title>
+  <title>{route.title} | Bean Counter</title>
 </svelte:head>
 
-<div class="shell">
-  <aside class="sidebar" aria-label="Primary navigation">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">bc</span>
-      <div>
-        <p>Bean Counter</p>
-        <span>Local tracker</span>
-      </div>
-    </div>
+<AppShell {routes} activePath={route.path} onNavigate={navigate}>
+  {#snippet title()}
+    <h1>{route.title}</h1>
+    <p>{route.description}</p>
+  {/snippet}
 
-    <nav>
-      {#each views as view}
-        <a class:active={view === 'Issues'} href="/" aria-current={view === 'Issues' ? 'page' : undefined}>
-          {view}
-        </a>
-      {/each}
-    </nav>
-  </aside>
-
-  <main>
-    <header class="topbar">
-      <div>
-        <h1>Issues</h1>
-        <p>Project work queue</p>
-      </div>
-      <button type="button">New issue</button>
-    </header>
-
-    <section class="metrics" aria-label="Queue totals">
-      {#each queueMetrics as metric}
-        <div class="metric">
-          <span>{metric.label}</span>
-          <strong>{metric.value}</strong>
-        </div>
-      {/each}
-    </section>
-
+  {#if route.path === '/'}
     <section class="workspace" aria-label="Issues workspace">
       <div class="toolbar">
         <label>
@@ -64,10 +50,21 @@
         </select>
       </div>
 
-      <div class="empty-state">
-        <h2>No issues loaded</h2>
-        <p>The API client will populate this workspace in the next frontend slice.</p>
-      </div>
+      <EmptyState
+        title="No issues loaded"
+        message="The issues UI will connect to the API client in the next feature slice."
+      />
     </section>
-  </main>
-</div>
+  {:else if route.path === '/ready'}
+    <section class="workspace" aria-label="Ready queue workspace">
+      <LoadingState label="Ready queue loader" message="Ready queue integration is queued for the next slice." />
+    </section>
+  {:else if route.path === '/graph'}
+    <section class="workspace" aria-label="Dependency graph workspace">
+      <ErrorState
+        title="Graph not connected"
+        message="Graph data will render here after the visualization slice lands."
+      />
+    </section>
+  {/if}
+</AppShell>

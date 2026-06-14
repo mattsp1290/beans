@@ -58,6 +58,8 @@ button:hover {
   gap: 10px;
   min-height: 44px;
   margin-bottom: 24px;
+  color: #17211b;
+  text-decoration: none;
 }
 
 .brand-mark {
@@ -71,16 +73,16 @@ button:hover {
   font-weight: 700;
 }
 
-.brand p,
-.brand span {
-  margin: 0;
+.brand span:last-child {
+  display: grid;
+  gap: 2px;
 }
 
-.brand p {
+.brand strong {
   font-weight: 700;
 }
 
-.brand span {
+.brand small {
   color: #657166;
   font-size: 13px;
 }
@@ -131,33 +133,6 @@ h1 {
   color: #657166;
 }
 
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.metric {
-  border: 1px solid #d9ded4;
-  border-radius: 8px;
-  padding: 14px;
-  background: #ffffff;
-}
-
-.metric span {
-  display: block;
-  color: #657166;
-  font-size: 13px;
-}
-
-.metric strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 26px;
-  line-height: 1;
-}
-
 .workspace {
   border: 1px solid #d9ded4;
   border-radius: 8px;
@@ -191,21 +166,41 @@ select {
   background: #ffffff;
 }
 
-.empty-state {
+.state-panel {
   display: grid;
   gap: 6px;
-  min-height: 260px;
+  min-height: 280px;
   place-content: center;
   padding: 24px;
   text-align: center;
 }
 
-.empty-state h2 {
+.state-panel h2 {
   font-size: 20px;
 }
 
-.empty-state p {
+.state-panel p {
   color: #657166;
+}
+
+.error-state {
+  border-left: 4px solid #b5472a;
+}
+
+.loading-state span {
+  justify-self: center;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #d9ded4;
+  border-top-color: #245942;
+  border-radius: 999px;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 760px) {
@@ -219,7 +214,7 @@ select {
   }
 
   nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   main {
@@ -230,9 +225,5 @@ select {
   .toolbar {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .metrics {
-    grid-template-columns: 1fr;
   }
 }
