@@ -56,7 +56,7 @@ go run ./cmd/bean-counter
 ```sh
 docker compose up -d mysql
 BN_DRIVER=mysql \
-BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true' \
+BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true&loc=UTC&multiStatements=true' \
 go run ./cmd/bean-counter
 ```
 
@@ -131,7 +131,7 @@ MySQL:
 
 ```sh
 BN_DRIVER=mysql \
-BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true' \
+BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true&loc=UTC&multiStatements=true' \
 go run ./cmd/bean-counter
 ```
 
