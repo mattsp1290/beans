@@ -54,8 +54,8 @@ sentinel wrapping stable even when driver-specific errors change.
 | `ProjectExists(ctx, prefix)` | tests | Reports whether a project exists without side effects. |
 | `CreateIssue(ctx, CreateIssueInput)` | `bn create` | Generates a stable `prefix-*` ID, defaults state to `open`, stores labels as a JSON-compatible slice, writes optional repo target atomically, and returns populated repo target when requested. Missing/disabled repo target returns `ErrNotFound`/`ErrDisabled`; validation failures roll back the issue row. |
 | `GetIssue(ctx, id)` | show/update tests/CLI helpers | Returns issue plus `BlockedBy` and optional repo target. Missing ID wraps `ErrNotFound`. |
-| `ListIssues(ctx, ListFilter)` | list/export/create rollback checks | Prefix-scoped listing with optional state filter; returned issues include blockers and repo targets. |
-| `ReadyIssues(ctx, prefix, terminalStates, activeStates)` | ready command | Returns active issues whose blockers are all terminal under caller-provided state sets. Custom terminal states such as `done` must work. |
+| `ListIssues(ctx, ListFilter)` | list/export/create rollback checks | Prefix-scoped listing with optional state filter; `States == nil` or empty means all states. `Limit <= 0` is unbounded; positive limits cap store results. Returned issues include blockers and repo targets and are ordered by `priority ASC, created_at ASC`. |
+| `ReadyIssues(ctx, prefix, terminalStates, activeStates)` | ready command | Returns active issues whose blockers are all terminal under caller-provided state sets. Empty `activeStates` returns an empty slice. Custom terminal states such as `done` must work. Results are ordered by `priority ASC, created_at ASC`, and `bn ready --limit` relies on that order before caller-side slicing. |
 | `UpdateIssue(ctx, id, UpdateIssueInput)` | update command | Partial update; nil fields mean keep. `AppendNotes` appends, repo target replacement is atomic with issue updates, and invalid/missing/disabled repo targets roll back all changes. Missing issue wraps `ErrNotFound`. |
 | `CloseIssue(ctx, id, actor, reason)` | close command | Idempotently transitions non-closed issues to `closed`, records a note when state changes, and returns `ErrNotFound` for missing IDs. |
 | `DeleteIssue(ctx, id)` | delete command | Deletes issue and cascades owned rows/dependency edges. Missing ID wraps `ErrNotFound`. |
@@ -74,10 +74,19 @@ sentinel wrapping stable even when driver-specific errors change.
 | API | CLI consumers | Contract to preserve |
 | --- | --- | --- |
 | `ImportIssues(ctx, items, terminalStates)` | legacy import helper/tests | Create/update import that must not regress terminal issues back to non-terminal states. |
-| `ImportIssuesFull(ctx, items, ImportOptions)` | `bn import` | Supports create-only and merge modes, deduplicates by ID with later fields winning in the input batch, preserves terminal-state rules, counts created/updated/skipped/dependency outcomes, skips cross-prefix conflicts, skips invalid dependency edges, and retries serialization/conflict races without leaking partial writes. |
+| `ImportIssuesFull(ctx, items, ImportOptions)` | `bn import` | Supports create-only and merge modes, deduplicates by ID with later fields winning in the input batch, preserves terminal-state rules, counts created/updated/skipped/dependency outcomes, skips cross-prefix conflicts, skips invalid dependency edges, and retries SQL serialization failures without leaking partial writes. Non-serialization errors return without retry. |
 
 `ImportResult` field names are CLI JSON/reporting contract. Do not rename or
 change their meaning during the store rewrite.
+
+`bn import` parses bd-compatible JSONL into `ImportInput`. The parser boundary
+is also contract: bd `status` maps to store `State`; priority is already
+0-indexed and is passed through without conversion; `Title`, `Description`,
+`IssueType`, `Labels`, `BranchName`, and `URL` are inserted or merged according
+to import mode. Dependency rows import only `type == "blocks"` edges whose
+`issue_id` is the imported item ID; other dependency rows are ignored. bd
+`close_reason` and `owner` are intentionally dropped because `ImportInput` has
+no equivalent fields.
 
 ## Memory API Contract
 
