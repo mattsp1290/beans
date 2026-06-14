@@ -10,7 +10,7 @@ public internet.
 
 ## Prerequisites
 
-- Go 1.25 or newer
+- Go 1.25.7 or newer
 - Node.js and npm for the Svelte/Vite frontend
 - Docker, only for the full-stack compose setup or external Postgres/MySQL
 
@@ -72,7 +72,7 @@ Optional store pool settings are also supported:
 | Variable | Meaning |
 | --- | --- |
 | `BN_MAX_CONNS` | Maximum open store connections; unset means driver default |
-| `BN_MIN_CONNS` | Minimum idle store connections; unset means driver default |
+| `BN_MIN_CONNS` | Maximum idle store connections; unset means driver default |
 | `BN_CONNECT_TIMEOUT` | Store connect timeout as a Go duration, for example `5s` |
 
 If you run `go run ./cmd/bean-counter` or the compiled binary directly, set
