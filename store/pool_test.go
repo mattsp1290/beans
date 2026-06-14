@@ -140,7 +140,7 @@ func TestSQLiteIssueDependencyImportAndMemorySmoke(t *testing.T) {
 		t.Fatalf("ImportIssuesFull result = %+v, want created=1 deps=1", result)
 	}
 	memory, err := s.InsertMemory(ctx, MemoryInput{
-		Prefix: "sqlite", Body: "sqlite operational memory", Type: "note", Tags: []string{"sqlite"},
+		Prefix: "sqlite", Body: `sqlite operational memory foo-bar 100% literal_under`, Type: "note", Tags: []string{"sqlite"},
 	})
 	if err != nil {
 		t.Fatalf("InsertMemory: %v", err)
@@ -151,6 +151,11 @@ func TestSQLiteIssueDependencyImportAndMemorySmoke(t *testing.T) {
 	}
 	if len(found) != 1 || found[0].ID != memory.ID {
 		t.Fatalf("SearchMemories IDs = %+v, want %d", found, memory.ID)
+	}
+	for _, query := range []string{"foo-bar", `"unterminated`, "%", "_"} {
+		if _, err := s.SearchMemories(ctx, query, MemoryFilter{Prefix: "sqlite", Limit: 10}); err != nil {
+			t.Fatalf("SearchMemories %q: %v", query, err)
+		}
 	}
 }
 

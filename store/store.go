@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -1290,13 +1291,35 @@ func applyMemorySearch(q *gorm.DB, driver Driver, query string) *gorm.DB {
 				},
 			})
 	case DriverSQLite:
-		return q.Where("id IN (SELECT rowid FROM bn_memories_fts WHERE bn_memories_fts MATCH ?)", query)
-	default:
-		for _, term := range strings.Fields(query) {
-			q = q.Where(`body LIKE ? ESCAPE '\'`, "%"+escapeLike(term)+"%")
+		ftsQuery := sqliteFTSQuery(query)
+		if ftsQuery == "" {
+			return applyLikeMemorySearch(q, query)
 		}
-		return q
+		return q.Where("id IN (SELECT rowid FROM bn_memories_fts WHERE bn_memories_fts MATCH ?)", ftsQuery)
+	default:
+		return applyLikeMemorySearch(q, query)
 	}
+}
+
+func applyLikeMemorySearch(q *gorm.DB, query string) *gorm.DB {
+	for _, term := range strings.Fields(query) {
+		q = q.Where(`body LIKE ? ESCAPE '\'`, "%"+escapeLike(term)+"%")
+	}
+	return q
+}
+
+func sqliteFTSQuery(query string) string {
+	terms := strings.FieldsFunc(query, func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+	})
+	quoted := make([]string, 0, len(terms))
+	for _, term := range terms {
+		if term == "" {
+			continue
+		}
+		quoted = append(quoted, `"`+strings.ReplaceAll(term, `"`, `""`)+`"`)
+	}
+	return strings.Join(quoted, " ")
 }
 
 func getRepoBySlugGORM(ctx context.Context, db *gorm.DB, prefix, slug string) (Repo, error) {
