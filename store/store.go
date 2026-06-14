@@ -11,7 +11,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/mattsp1290/beans/model"
 	repovalidation "github.com/mattsp1290/beans/repo"
@@ -43,9 +42,12 @@ func New(ctx context.Context, cfg Config) (*Store, error) {
 		return nil, err
 	}
 
-	migrationDB := stdlib.OpenDBFromPool(p.pgx())
-	defer migrationDB.Close()
-	if err := schema.Migrate(ctx, migrationDB, schema.DriverPostgres); err != nil {
+	migrationDB, err := p.sql()
+	if err != nil {
+		p.close()
+		return nil, err
+	}
+	if err := schema.Migrate(ctx, migrationDB, cfg.schemaDriver()); err != nil {
 		p.close()
 		return nil, fmt.Errorf("store: migrate: %w", err)
 	}
