@@ -132,6 +132,23 @@ type gormIssueRepo struct {
 
 func (gormIssueRepo) TableName() string { return "bn_issue_repos" }
 
+type gormTableModel interface {
+	TableName() string
+}
+
+var allGORMModels = []gormTableModel{
+	gormProject{},
+	gormIssue{},
+	gormIssueDep{},
+	gormIssueNote{},
+	gormMemory{},
+	gormRepo{},
+	gormRepoAlias{},
+	gormProjectAdmin{},
+	gormRepoAudit{},
+	gormIssueRepo{},
+}
+
 func jsonStringArray(values []string) datatypes.JSON {
 	if len(values) == 0 {
 		return datatypes.JSON([]byte(`[]`))

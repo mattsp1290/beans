@@ -2,7 +2,11 @@ package store
 
 import (
 	"math"
+	"os"
+	"path/filepath"
 	"reflect"
+	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
@@ -39,28 +43,42 @@ func TestGORMModelTableNames(t *testing.T) {
 		}
 		seen[tc.got] = tc.name
 	}
+	if len(allGORMModels) != len(tests) {
+		t.Fatalf("allGORMModels has %d models, want %d", len(allGORMModels), len(tests))
+	}
 }
 
-func TestGORMModelsAvoidDialectSpecificTypeTags(t *testing.T) {
-	models := []any{
-		gormProject{},
-		gormIssue{},
-		gormIssueDep{},
-		gormIssueNote{},
-		gormMemory{},
-		gormRepo{},
-		gormRepoAlias{},
-		gormProjectAdmin{},
-		gormRepoAudit{},
-		gormIssueRepo{},
+func TestGORMModelsCoverMigrationTables(t *testing.T) {
+	migrationTables := migrationBNTableNames(t)
+	modelTables := gormModelTableNames()
+
+	if !reflect.DeepEqual(modelTables, migrationTables) {
+		t.Fatalf("GORM model tables = %v, want migration tables %v", modelTables, migrationTables)
 	}
-	for _, model := range models {
+}
+
+func TestGORMModelsUseOnlyPortableTags(t *testing.T) {
+	allowed := map[string]bool{
+		"column":        true,
+		"primaryKey":    true,
+		"not null":      true,
+		"autoIncrement": true,
+	}
+	for _, model := range allGORMModels {
 		typ := reflect.TypeOf(model)
 		for i := 0; i < typ.NumField(); i++ {
-			tag := string(typ.Field(i).Tag)
-			for _, forbidden := range []string{"jsonb", "timestamptz", "bigserial", "tsvector"} {
-				if strings.Contains(strings.ToLower(tag), forbidden) {
-					t.Fatalf("%s.%s has dialect-specific tag %q", typ.Name(), typ.Field(i).Name, tag)
+			tag := typ.Field(i).Tag.Get("gorm")
+			for _, clause := range strings.Split(tag, ";") {
+				clause = strings.TrimSpace(clause)
+				if clause == "" {
+					continue
+				}
+				key := clause
+				if before, _, ok := strings.Cut(clause, ":"); ok {
+					key = before
+				}
+				if !allowed[key] {
+					t.Fatalf("%s.%s has unsupported gorm tag clause %q in %q", typ.Name(), typ.Field(i).Name, clause, tag)
 				}
 			}
 		}
@@ -126,4 +144,40 @@ func TestPriorityMappingHelpers(t *testing.T) {
 			t.Fatalf("storePriorityToCore(%d) = %d, want %d", tc.store, storePriorityToCore(tc.store), tc.core)
 		}
 	}
+}
+
+func gormModelTableNames() []string {
+	names := make([]string, len(allGORMModels))
+	for i, model := range allGORMModels {
+		names[i] = model.TableName()
+	}
+	sort.Strings(names)
+	return names
+}
+
+func migrationBNTableNames(t *testing.T) []string {
+	t.Helper()
+
+	paths, err := filepath.Glob(filepath.Join("..", "schema", "migrations", "postgres", "*.sql"))
+	if err != nil {
+		t.Fatalf("glob migrations: %v", err)
+	}
+	re := regexp.MustCompile(`(?i)\bCREATE\s+TABLE\s+(bn_[a-z0-9_]+)\b`)
+	seen := map[string]struct{}{}
+	for _, path := range paths {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read migration %s: %v", path, err)
+		}
+		for _, match := range re.FindAllStringSubmatch(string(raw), -1) {
+			seen[match[1]] = struct{}{}
+		}
+	}
+
+	names := make([]string, 0, len(seen))
+	for name := range seen {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
