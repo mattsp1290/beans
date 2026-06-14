@@ -353,6 +353,8 @@ Response `200 OK`:
 }
 ```
 
+Common errors: `500 store_configuration_error` for store configuration failures, `500 internal_error` for unexpected list failures.
+
 ### Add Dependency
 
 `POST /api/v1/issues/{id}/deps`
@@ -409,6 +411,8 @@ Response `200 OK`:
 }
 ```
 
+Common errors: `404 not_found` for store not-found errors, `500 store_configuration_error` for store configuration failures, `500 internal_error` for unexpected ready queue failures.
+
 ### Dependency Graph
 
 `GET /api/v1/graph`
@@ -428,6 +432,8 @@ Response `200 OK`:
   ]
 }
 ```
+
+Common errors: `500 store_configuration_error` for store configuration failures, `500 internal_error` for unexpected list failures.
 
 ### CORS
 
