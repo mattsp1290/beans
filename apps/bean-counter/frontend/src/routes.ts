@@ -27,5 +27,8 @@ export const routes: AppRoute[] = [
 ]
 
 export function getRoute(pathname: string): AppRoute {
+  if (pathname === '/issues' || pathname.startsWith('/issues/')) {
+    return routes[0]
+  }
   return routes.find((route) => route.path === pathname) ?? routes[0]
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import AppShell from './lib/components/AppShell.svelte'
-  import EmptyState from './lib/components/EmptyState.svelte'
   import ErrorState from './lib/components/ErrorState.svelte'
+  import IssuesRoute from './routes/issues/IssuesRoute.svelte'
   import LoadingState from './lib/components/LoadingState.svelte'
   import { getRoute, routes } from './routes'
 
@@ -13,6 +13,14 @@
       return
     }
     event.preventDefault()
+    if (path === pathname) {
+      return
+    }
+    history.pushState({}, '', path)
+    pathname = path
+  }
+
+  function go(path: string) {
     if (path === pathname) {
       return
     }
@@ -38,26 +46,7 @@
   {/snippet}
 
   {#if route.path === '/'}
-    <section class="workspace" aria-label="Issues workspace">
-      <div class="toolbar">
-        <label>
-          <span>Filter</span>
-          <input type="search" placeholder="Title, label, or id" />
-        </label>
-        <select aria-label="State">
-          <option>All states</option>
-          <option>Open</option>
-          <option>In progress</option>
-          <option>Blocked</option>
-          <option>Closed</option>
-        </select>
-      </div>
-
-      <EmptyState
-        title="No issues loaded"
-        message="The issues UI will connect to the API client in the next feature slice."
-      />
-    </section>
+    <IssuesRoute {pathname} navigate={go} />
   {:else if route.path === '/ready'}
     <section class="workspace" aria-label="Ready queue workspace">
       <LoadingState label="Ready queue loader" message="Ready queue integration is queued for the next slice." />
