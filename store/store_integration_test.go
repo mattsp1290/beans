@@ -1289,6 +1289,56 @@ func TestListIssues(t *testing.T) {
 	}
 }
 
+func TestListIssuesOrderingLimitAndPrefixScope(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	for _, prefix := range []string{"lso", "other"} {
+		if err := s.EnsureProject(ctx, prefix); err != nil {
+			t.Fatalf("EnsureProject %s: %v", prefix, err)
+		}
+	}
+
+	inputs := []store.CreateIssueInput{
+		{Prefix: "lso", Title: "medium first", Priority: 3, IssueType: "task"},
+		{Prefix: "lso", Title: "critical", Priority: 1, IssueType: "task"},
+		{Prefix: "lso", Title: "high", Priority: 2, IssueType: "task"},
+		{Prefix: "lso", Title: "medium second", Priority: 3, IssueType: "task"},
+		{Prefix: "other", Title: "other critical", Priority: 1, IssueType: "task"},
+	}
+	created := make([]store.Issue, 0, len(inputs))
+	for _, in := range inputs {
+		iss, err := s.CreateIssue(ctx, in)
+		if err != nil {
+			t.Fatalf("CreateIssue %q: %v", in.Title, err)
+		}
+		created = append(created, iss)
+	}
+
+	got, err := s.ListIssues(ctx, store.ListFilter{Prefix: "lso", Limit: 3})
+	if err != nil {
+		t.Fatalf("ListIssues limited: %v", err)
+	}
+	want := []string{created[1].ID, created[2].ID, created[0].ID}
+	if ids := issueIDs(got); !slices.Equal(ids, want) {
+		t.Fatalf("ListIssues limited IDs = %v, want %v", ids, want)
+	}
+
+	all, err := s.ListIssues(ctx, store.ListFilter{Prefix: "lso", Limit: 0})
+	if err != nil {
+		t.Fatalf("ListIssues unbounded: %v", err)
+	}
+	if len(all) != 4 {
+		t.Fatalf("ListIssues unbounded returned %d issues, want 4", len(all))
+	}
+	for _, iss := range all {
+		if !strings.HasPrefix(iss.ID, "lso-") {
+			t.Fatalf("ListIssues leaked issue %s outside lso prefix", iss.ID)
+		}
+	}
+}
+
 // TestCloseIdempotent verifies that closing an already-closed issue returns nil.
 func TestCloseIdempotent(t *testing.T) {
 	t.Parallel()
@@ -1310,6 +1360,27 @@ func TestCloseIdempotent(t *testing.T) {
 	}
 	if err := s.CloseIssue(ctx, iss.ID, "actor", "second close"); err != nil {
 		t.Fatalf("CloseIssue second (must be idempotent): %v", err)
+	}
+}
+
+func TestCloseIssueNotFoundAndStoreCloseIdempotent(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.CloseIssue(ctx, "missing-issue", "actor", "reason"); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("CloseIssue missing = %v, want ErrNotFound", err)
+	}
+
+	s.Close()
+	s.Close()
+
+	if err := s.EnsureProject(ctx, "closed"); !errors.Is(err, store.ErrPoolClosed) {
+		t.Fatalf("EnsureProject after Store.Close = %v, want ErrPoolClosed", err)
+	}
+	_, err := s.ListIssues(ctx, store.ListFilter{Prefix: "closed"})
+	if !errors.Is(err, store.ErrPoolClosed) {
+		t.Fatalf("ListIssues after Store.Close = %v, want ErrPoolClosed", err)
 	}
 }
 
@@ -1505,6 +1576,48 @@ func TestReadyIssues_CustomTerminal(t *testing.T) {
 	}
 	if len(ready) != 1 || ready[0].ID != child.ID {
 		t.Errorf("ready with done terminal = %v, want [child]", issueIDs(ready))
+	}
+}
+
+func TestReadyIssuesOrderingAndEmptyActiveStates(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "rord"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	inputs := []store.CreateIssueInput{
+		{Prefix: "rord", Title: "medium first", Priority: 3, IssueType: "task"},
+		{Prefix: "rord", Title: "critical", Priority: 1, IssueType: "task"},
+		{Prefix: "rord", Title: "high", Priority: 2, IssueType: "task"},
+		{Prefix: "rord", Title: "medium second", Priority: 3, IssueType: "task"},
+	}
+	created := make([]store.Issue, 0, len(inputs))
+	for _, in := range inputs {
+		iss, err := s.CreateIssue(ctx, in)
+		if err != nil {
+			t.Fatalf("CreateIssue %q: %v", in.Title, err)
+		}
+		created = append(created, iss)
+	}
+
+	empty, err := s.ReadyIssues(ctx, "rord", []model.IssueState{"closed"}, nil)
+	if err != nil {
+		t.Fatalf("ReadyIssues empty active states: %v", err)
+	}
+	if len(empty) != 0 {
+		t.Fatalf("ReadyIssues empty active states returned %v, want empty", issueIDs(empty))
+	}
+
+	ready, err := s.ReadyIssues(ctx, "rord", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	if err != nil {
+		t.Fatalf("ReadyIssues: %v", err)
+	}
+	want := []string{created[1].ID, created[2].ID, created[0].ID, created[3].ID}
+	if ids := issueIDs(ready); !slices.Equal(ids, want) {
+		t.Fatalf("ReadyIssues IDs = %v, want %v", ids, want)
 	}
 }
 
@@ -1794,6 +1907,88 @@ func TestImportIssuesFullMergeStateTruthTable(t *testing.T) {
 	}
 	if terminal.State != "done" || terminal.Title != "Terminal closed input" {
 		t.Fatalf("terminal after terminal merge = %+v, want done preserved with updated title", terminal)
+	}
+}
+
+func TestImportIssuesFullRoundTripsMergeFields(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "impf"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	result, err := s.ImportIssuesFull(ctx, []store.ImportInput{
+		{
+			ID:          "impf-one",
+			Prefix:      "impf",
+			Title:       "Original title",
+			Description: "Original description",
+			State:       "open",
+			Priority:    2,
+			IssueType:   "task",
+			Labels:      []string{"alpha", "beta"},
+			BranchName:  "feature/original",
+			URL:         "https://example.test/original",
+		},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeCreateOnly})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull create: %v", err)
+	}
+	if result.Created != 1 {
+		t.Fatalf("create result = %+v, want Created=1", result)
+	}
+
+	got, err := s.GetIssue(ctx, "impf-one")
+	if err != nil {
+		t.Fatalf("GetIssue after create: %v", err)
+	}
+	if got.Title != "Original title" ||
+		got.Description != "Original description" ||
+		got.State != "open" ||
+		got.Priority != model.PriorityMedium ||
+		got.IssueType != "task" ||
+		got.BranchName != "feature/original" ||
+		got.URL != "https://example.test/original" ||
+		!slices.Equal(got.Labels, []string{"alpha", "beta"}) {
+		t.Fatalf("created issue = %+v, want imported field round trip", got)
+	}
+
+	result, err = s.ImportIssuesFull(ctx, []store.ImportInput{
+		{
+			ID:          "impf-one",
+			Prefix:      "impf",
+			Title:       "Merged title",
+			Description: "Merged description",
+			State:       "closed",
+			Priority:    1,
+			IssueType:   "bug",
+			Labels:      []string{"gamma"},
+			BranchName:  "feature/merged",
+			URL:         "https://example.test/merged",
+		},
+	}, store.ImportOptions{TerminalStates: []model.IssueState{"closed", "done"}, Mode: store.ImportModeMerge})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull merge: %v", err)
+	}
+	if result.Updated != 1 {
+		t.Fatalf("merge result = %+v, want Updated=1", result)
+	}
+
+	got, err = s.GetIssue(ctx, "impf-one")
+	if err != nil {
+		t.Fatalf("GetIssue after merge: %v", err)
+	}
+	if got.Title != "Merged title" ||
+		got.Description != "Merged description" ||
+		got.State != "closed" ||
+		got.Priority != model.PriorityHigh ||
+		got.IssueType != "bug" ||
+		got.BranchName != "feature/merged" ||
+		got.URL != "https://example.test/merged" ||
+		!slices.Equal(got.Labels, []string{"gamma"}) {
+		t.Fatalf("merged issue = %+v, want imported field round trip", got)
 	}
 }
 
