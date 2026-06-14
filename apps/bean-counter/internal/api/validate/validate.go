@@ -1,9 +1,12 @@
 package validate
 
 import (
+	"encoding/json"
+	"errors"
 	"net/url"
-	"path"
 	"strings"
+
+	beansrepo "github.com/mattsp1290/beans/repo"
 
 	"github.com/mattsp1290/bean-counter/internal/api/dto"
 	"github.com/mattsp1290/bean-counter/internal/server"
@@ -46,6 +49,15 @@ func IssueID(id string) error {
 	return fields.err()
 }
 
+func CreateIssueBody(body []byte, req dto.CreateIssueRequest) error {
+	var fields fieldErrors
+	if !jsonObjectHas(body, "priority") {
+		fields.add("priority", "is required")
+	}
+	fields.append(CreateIssue(req))
+	return fields.err()
+}
+
 func CreateIssue(req dto.CreateIssueRequest) error {
 	var fields fieldErrors
 	fields.requireTrimmed("title", req.Title, "is required")
@@ -57,6 +69,15 @@ func CreateIssue(req dto.CreateIssueRequest) error {
 	fields.maxLength("branch_name", req.BranchName, MaxBranchNameLength)
 	fields.httpURL("url", req.URL)
 	fields.repo("repo", req.Repo)
+	return fields.err()
+}
+
+func UpdateIssueBody(body []byte, req dto.UpdateIssueRequest) error {
+	var fields fieldErrors
+	if jsonObjectHasNull(body, "labels") {
+		fields.add("labels", "cannot be null")
+	}
+	fields.append(UpdateIssue(req))
 	return fields.err()
 }
 
@@ -136,6 +157,18 @@ type fieldErrors []server.FieldError
 
 func (f *fieldErrors) add(field, message string) {
 	*f = append(*f, server.FieldError{Field: field, Message: message})
+}
+
+func (f *fieldErrors) append(err error) {
+	if err == nil {
+		return
+	}
+	var validation server.ValidationError
+	if !errors.As(err, &validation) {
+		f.add("", err.Error())
+		return
+	}
+	*f = append(*f, validation.Fields...)
 }
 
 func (f *fieldErrors) err() error {
@@ -221,10 +254,17 @@ func (f *fieldErrors) repo(prefix string, repo *dto.IssueRepoInput) {
 	}
 	f.requireTrimmed(prefix+".repo_slug", repo.RepoSlug, "is required")
 	f.maxLength(prefix+".repo_slug", repo.RepoSlug, MaxRepoSlugLength)
-	f.maxLength(prefix+".requested_ref", repo.RequestedRef, MaxRepoRefLength)
-	f.maxLength(prefix+".base_ref", repo.BaseRef, MaxRepoRefLength)
-	f.maxLength(prefix+".work_branch", repo.WorkBranch, MaxRepoRefLength)
+	f.repoRef(prefix+".requested_ref", repo.RequestedRef)
+	f.repoRef(prefix+".base_ref", repo.BaseRef)
+	f.repoRef(prefix+".work_branch", repo.WorkBranch)
 	f.worktreeSubdir(prefix+".worktree_subdir", repo.WorktreeSubdir)
+}
+
+func (f *fieldErrors) repoRef(field, value string) {
+	f.maxLength(field, value, MaxRepoRefLength)
+	if err := beansrepo.ValidateDefaultBranch(value); err != nil {
+		f.add(field, "must be a valid git ref name")
+	}
 }
 
 func (f *fieldErrors) worktreeSubdir(field, value string) {
@@ -232,10 +272,27 @@ func (f *fieldErrors) worktreeSubdir(field, value string) {
 		return
 	}
 	f.maxLength(field, value, MaxWorktreeSubdir)
-	cleaned := path.Clean(value)
-	if strings.HasPrefix(value, "/") || cleaned == ".." || strings.HasPrefix(cleaned, "../") || strings.Contains(cleaned, "/../") {
+	if err := beansrepo.ValidateWorktreeSubdir(value); err != nil {
 		f.add(field, "must be a relative path without parent traversal")
 	}
+}
+
+func jsonObjectHas(body []byte, key string) bool {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return false
+	}
+	_, ok := raw[key]
+	return ok
+}
+
+func jsonObjectHasNull(body []byte, key string) bool {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return false
+	}
+	value, ok := raw[key]
+	return ok && string(value) == "null"
 }
 
 func itoa(value int) string {

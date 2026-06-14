@@ -53,9 +53,25 @@ func TestCreateIssueReturnsFieldErrors(t *testing.T) {
 	)
 }
 
+func TestCreateIssueBodyRequiresPriorityPresence(t *testing.T) {
+	req := dto.CreateIssueRequest{
+		Title:     "Create UI",
+		IssueType: "feature",
+	}
+	fields := validationFields(t, CreateIssueBody([]byte(`{"title":"Create UI","issue_type":"feature"}`), req))
+	wantFields(t, fields, "priority")
+}
+
 func TestUpdateIssueRequiresAtLeastOneField(t *testing.T) {
 	fields := validationFields(t, UpdateIssue(dto.UpdateIssueRequest{}))
 	wantFields(t, fields, "")
+}
+
+func TestUpdateIssueBodyRejectsNullLabels(t *testing.T) {
+	title := "Update"
+	req := dto.UpdateIssueRequest{Title: &title}
+	fields := validationFields(t, UpdateIssueBody([]byte(`{"title":"Update","labels":null}`), req))
+	wantFields(t, fields, "labels")
 }
 
 func TestUpdateIssueValidatesProvidedFields(t *testing.T) {
@@ -76,6 +92,23 @@ func TestUpdateIssueValidatesProvidedFields(t *testing.T) {
 
 	fields := validationFields(t, err)
 	wantFields(t, fields, "title", "priority", "state", "labels[0]", "branch_name", "url")
+}
+
+func TestRepoValidationMirrorsBeansRefAndSubdirRules(t *testing.T) {
+	err := CreateIssue(dto.CreateIssueRequest{
+		Title:     "Create UI",
+		Priority:  2,
+		IssueType: "feature",
+		Repo: &dto.IssueRepoInput{
+			RepoSlug:       "repo",
+			RequestedRef:   "-bad",
+			BaseRef:        "bad\nbranch",
+			WorkBranch:     "bad\rbranch",
+			WorktreeSubdir: "bad\x00dir",
+		},
+	})
+	fields := validationFields(t, err)
+	wantFields(t, fields, "repo.requested_ref", "repo.base_ref", "repo.work_branch", "repo.worktree_subdir")
 }
 
 func TestCloseIssueValidatesReasonLength(t *testing.T) {
