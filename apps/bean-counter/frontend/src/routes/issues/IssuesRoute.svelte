@@ -28,6 +28,7 @@
   let { pathname, navigate }: Props = $props()
 
   let issues = $state<Issue[]>([])
+  let dependencyCandidates = $state<Issue[]>([])
   let selectedIssue = $state<Issue | null>(null)
   let listLoading = $state(false)
   let detailLoading = $state(false)
@@ -36,13 +37,18 @@
   let stateFilter = $state<'all' | IssueState>('all')
   let search = $state('')
   let formError = $state('')
+  let dependencyError = $state('')
+  let dependencyInput = $state('')
+  let dependencySaving = $state(false)
   let form = $state(emptyIssueForm())
 
   const route = $derived(parseIssueRoute(pathname))
   const visibleIssues = $derived(filterIssues(issues, search))
+  const dependencyOptions = $derived(availableDependencyOptions(dependencyCandidates, selectedIssue))
 
   onMount(() => {
     void loadIssues()
+    void loadDependencyCandidates()
   })
 
   $effect(() => {
@@ -61,10 +67,23 @@
         state: stateFilter === 'all' ? undefined : stateFilter,
       })
       issues = response.issues
+      syncSelectedIssueFromList()
     } catch (err) {
       error = errorMessage(err)
     } finally {
       listLoading = false
+    }
+  }
+
+  async function loadDependencyCandidates() {
+    try {
+      const response = await api.listIssues()
+      dependencyCandidates = response.issues
+      syncSelectedIssueFromCandidates()
+    } catch (err) {
+      if (selectedIssue) {
+        dependencyError = errorMessage(err)
+      }
     }
   }
 
@@ -73,6 +92,8 @@
     error = ''
     try {
       selectedIssue = await api.getIssue(id)
+      dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
+      dependencyError = ''
       if (route.mode === 'edit') {
         form = issueToIssueForm(selectedIssue)
       }
@@ -94,6 +115,40 @@
     form = issueToIssueForm(issue)
     formError = ''
     navigate(`/issues/${issue.id}/edit`)
+  }
+
+  async function addDependency(event: SubmitEvent) {
+    event.preventDefault()
+    if (!selectedIssue || dependencyInput === '') {
+      dependencyError = 'Choose an issue to add as a blocker.'
+      return
+    }
+    dependencySaving = true
+    dependencyError = ''
+    try {
+      await api.addDependency(selectedIssue.id, { blocked_by_id: dependencyInput })
+      await refreshSelectedIssue(selectedIssue.id)
+    } catch (err) {
+      dependencyError = errorMessage(err)
+    } finally {
+      dependencySaving = false
+    }
+  }
+
+  async function removeDependency(blockedById: string) {
+    if (!selectedIssue) {
+      return
+    }
+    dependencySaving = true
+    dependencyError = ''
+    try {
+      await api.removeDependency(selectedIssue.id, blockedById)
+      await refreshSelectedIssue(selectedIssue.id)
+    } catch (err) {
+      dependencyError = errorMessage(err)
+    } finally {
+      dependencySaving = false
+    }
   }
 
   async function submitIssue(event: SubmitEvent) {
@@ -147,6 +202,16 @@
     void loadIssues()
   }
 
+  async function refreshSelectedIssue(id: string) {
+    selectedIssue = await api.getIssue(id)
+    dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
+    void refreshIssueLists()
+  }
+
+  async function refreshIssueLists() {
+    await Promise.allSettled([loadIssues(), loadDependencyCandidates()])
+  }
+
   function parseIssueRoute(path: string): { mode: Mode; id: string } {
     if (path === '/issues/new') {
       return { mode: 'create', id: '' }
@@ -173,6 +238,57 @@
         .toLowerCase()
         .includes(needle),
     )
+  }
+
+  function availableDependencyOptions(items: Issue[], issue: Issue | null): Issue[] {
+    if (!issue) {
+      return []
+    }
+    const existing = new Set(issue.blocked_by)
+    return items
+      .filter((candidate) => candidate.id !== issue.id && !existing.has(candidate.id))
+      .sort((left, right) => left.priority - right.priority || left.title.localeCompare(right.title))
+  }
+
+  function defaultDependencyInput(issue: Issue | null, items: Issue[]): string {
+    return availableDependencyOptions(items, issue)[0]?.id ?? ''
+  }
+
+  function syncSelectedIssueFromList() {
+    if (!selectedIssue) {
+      return
+    }
+    const updated = issues.find((issue) => issue.id === selectedIssue?.id)
+    if (updated) {
+      selectedIssue = updated
+      if (
+        dependencyInput === '' ||
+        !availableDependencyOptions(dependencyCandidates, selectedIssue).some((issue) => issue.id === dependencyInput)
+      ) {
+        dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
+      }
+    }
+  }
+
+  function syncSelectedIssueFromCandidates() {
+    if (!selectedIssue) {
+      return
+    }
+    const updated = dependencyCandidates.find((issue) => issue.id === selectedIssue?.id)
+    if (updated) {
+      selectedIssue = updated
+    }
+    if (
+      dependencyInput === '' ||
+      !availableDependencyOptions(dependencyCandidates, selectedIssue).some((issue) => issue.id === dependencyInput)
+    ) {
+      dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
+    }
+  }
+
+  function issueLabel(id: string): string {
+    const issue = dependencyCandidates.find((item) => item.id === id) ?? issues.find((item) => item.id === id)
+    return issue ? `${issue.title} (${issue.id})` : id
   }
 
   function errorMessage(err: unknown): string {
@@ -320,10 +436,58 @@
           {/each}
         </div>
         <dl>
-          <div><dt>Blocked by</dt><dd>{selectedIssue.blocked_by.join(', ') || 'None'}</dd></div>
           <div><dt>Created</dt><dd>{new Date(selectedIssue.created_at).toLocaleString()}</dd></div>
           <div><dt>Updated</dt><dd>{new Date(selectedIssue.updated_at).toLocaleString()}</dd></div>
         </dl>
+        <section class="dependency-editor" aria-label="Dependencies">
+          <div>
+            <h3>Blocked by</h3>
+            <p>Issues that must close before this work is ready.</p>
+          </div>
+
+          {#if dependencyError !== ''}
+            <p class="form-error" role="alert">{dependencyError}</p>
+          {/if}
+
+          {#if selectedIssue.blocked_by.length === 0}
+            <p class="muted">No blockers.</p>
+          {:else}
+            <ul class="dependency-list" aria-label="Current blockers">
+              {#each selectedIssue.blocked_by as blockedById}
+                <li>
+                  <span>{issueLabel(blockedById)}</span>
+                  <button
+                    type="button"
+                    class="secondary"
+                    disabled={dependencySaving}
+                    aria-label={`Remove blocker ${issueLabel(blockedById)}`}
+                    onclick={() => removeDependency(blockedById)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+
+          <form class="dependency-form" onsubmit={addDependency}>
+            <label>
+              <span>Add blocker</span>
+              <select bind:value={dependencyInput} disabled={dependencyOptions.length === 0 || dependencySaving}>
+                {#if dependencyOptions.length === 0}
+                  <option value="">No available issues</option>
+                {:else}
+                  {#each dependencyOptions as issue}
+                    <option value={issue.id}>{issue.title} ({issue.id})</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <button type="submit" disabled={dependencyOptions.length === 0 || dependencySaving}>
+              {dependencySaving ? 'Updating' : 'Add blocker'}
+            </button>
+          </form>
+        </section>
         <div class="actions">
           <button type="button" onclick={() => startEdit(selectedIssue!)}>Edit</button>
           <button type="button" class="secondary" onclick={() => closeIssue(selectedIssue!)}>Close</button>
