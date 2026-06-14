@@ -2,7 +2,7 @@
   import AppShell from './lib/components/AppShell.svelte'
   import ErrorState from './lib/components/ErrorState.svelte'
   import IssuesRoute from './routes/issues/IssuesRoute.svelte'
-  import LoadingState from './lib/components/LoadingState.svelte'
+  import ReadyRoute from './routes/ready/ReadyRoute.svelte'
   import { getRoute, routes } from './routes'
 
   let pathname = $state(window.location.pathname)
@@ -48,9 +48,7 @@
   {#if route.path === '/'}
     <IssuesRoute {pathname} navigate={go} />
   {:else if route.path === '/ready'}
-    <section class="workspace" aria-label="Ready queue workspace">
-      <LoadingState label="Ready queue loader" message="Ready queue integration is queued for the next slice." />
-    </section>
+    <ReadyRoute navigate={go} />
   {:else if route.path === '/graph'}
     <section class="workspace" aria-label="Dependency graph workspace">
       <ErrorState
