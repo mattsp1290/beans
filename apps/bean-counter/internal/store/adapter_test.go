@@ -3,6 +3,8 @@ package store
 import (
 	"context"
 	"errors"
+	"fmt"
+	"path/filepath"
 	"testing"
 
 	beansmodel "github.com/mattsp1290/beans/model"
@@ -68,5 +70,31 @@ func TestNewAdapterWrapsStoreErrors(t *testing.T) {
 	})
 	if !errors.Is(err, ErrEmptyDSN) {
 		t.Fatalf("NewAdapter error = %v, want ErrEmptyDSN", err)
+	}
+}
+
+func TestAdapterEnsureProjectRegistersPrefix(t *testing.T) {
+	ctx := context.Background()
+	adapter, err := NewAdapter(ctx, AdapterConfig{
+		Store: Config{
+			Driver: DriverSQLite,
+			DSN:    SecretDSN(fmt.Sprintf("file:%s", filepath.Join(t.TempDir(), "adapter.sqlite"))),
+		},
+		ProjectPrefix: "bc",
+	})
+	if err != nil {
+		t.Fatalf("NewAdapter: %v", err)
+	}
+	defer adapter.Close()
+
+	if err := adapter.EnsureProject(ctx); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	exists, err := adapter.Store().ProjectExists(ctx, "bc")
+	if err != nil {
+		t.Fatalf("ProjectExists: %v", err)
+	}
+	if !exists {
+		t.Fatal("project bc does not exist after EnsureProject")
 	}
 }

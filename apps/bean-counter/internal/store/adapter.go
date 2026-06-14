@@ -117,6 +117,15 @@ func (a *Adapter) ActiveStates() []beansmodel.IssueState {
 	return append([]beansmodel.IssueState(nil), a.activeStates...)
 }
 
+// EnsureProject registers the adapter's configured project prefix in the
+// underlying store before issue writes depend on it.
+func (a *Adapter) EnsureProject(ctx context.Context) error {
+	if a == nil || a.store == nil {
+		return nil
+	}
+	return a.store.EnsureProject(ctx, a.projectPrefix)
+}
+
 // ReadyIssues returns unblocked issues for the configured project prefix. It
 // requires an initialized Adapter with a non-nil Store.
 func (a *Adapter) ReadyIssues(ctx context.Context) ([]Issue, error) {
