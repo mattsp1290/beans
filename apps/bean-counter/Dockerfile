@@ -26,7 +26,7 @@ ENV BN_DSN=file:/data/bean-counter.db
 ENV BN_ADDR=:8080
 ENV BN_PROJECT_PREFIX=bean-counter
 ENV BN_ACTOR=bean-counter
-ENV BN_CORS_ORIGIN=http://localhost:5173
+ENV BN_CORS_ORIGIN=http://localhost:8080
 
 COPY --from=build /out/bean-counter /usr/local/bin/bean-counter
 
