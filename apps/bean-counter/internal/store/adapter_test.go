@@ -19,6 +19,7 @@ func TestSentinelReExports(t *testing.T) {
 		{"cycle", ErrCycle, beansstore.ErrCycle},
 		{"duplicate dep", ErrDuplicateDep, beansstore.ErrDuplicateDep},
 		{"conflict", ErrConflict, beansstore.ErrConflict},
+		{"disabled", ErrDisabled, beansstore.ErrDisabled},
 		{"empty dsn", ErrEmptyDSN, beansstore.ErrEmptyDSN},
 	}
 	for _, tt := range tests {

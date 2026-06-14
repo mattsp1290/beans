@@ -17,7 +17,7 @@ func TestIssueFromStoreCopiesFields(t *testing.T) {
 			Identifier:  "BC-123",
 			Title:       "Title",
 			Description: "Description",
-			Priority:    2,
+			Priority:    3,
 			State:       "open",
 			Labels:      []string{"api"},
 			BlockedBy:   []string{"bc-100"},

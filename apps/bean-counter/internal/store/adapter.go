@@ -14,6 +14,7 @@ type Config = beansstore.Config
 type SecretDSN = beansstore.SecretDSN
 type Issue = beansstore.Issue
 type IssueModel = beansmodel.Issue
+type Priority = beansmodel.Priority
 type IssueState = beansmodel.IssueState
 type RepoTarget = beansmodel.RepoTarget
 type ListFilter = beansstore.ListFilter
@@ -27,6 +28,7 @@ var (
 	ErrCycle        = beansstore.ErrCycle
 	ErrDuplicateDep = beansstore.ErrDuplicateDep
 	ErrConflict     = beansstore.ErrConflict
+	ErrDisabled     = beansstore.ErrDisabled
 	ErrEmptyDSN     = beansstore.ErrEmptyDSN
 
 	// ErrUnsupportedDriver is local compatibility for bean-counter config
