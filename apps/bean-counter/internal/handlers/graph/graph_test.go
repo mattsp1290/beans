@@ -108,7 +108,7 @@ func request(t *testing.T, app *fiber.App, method, target string) (*http.Respons
 	if err != nil {
 		t.Fatalf("request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	var buf bytes.Buffer
 	if _, err := buf.ReadFrom(resp.Body); err != nil {
 		t.Fatalf("read body: %v", err)

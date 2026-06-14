@@ -113,7 +113,7 @@ func testErrorRequest(t *testing.T, app *fiber.App) (*http.Response, errorRespon
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var body errorResponse
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {

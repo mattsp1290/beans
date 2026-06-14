@@ -41,7 +41,7 @@ func TestRunReturnsListenError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("listen: %v", err)
 	}
-	defer listener.Close()
+	defer func() { _ = listener.Close() }()
 
 	app := New(Config{LogOutput: bytes.NewBuffer(nil)})
 	err = Run(context.Background(), app, listener.Addr().String())

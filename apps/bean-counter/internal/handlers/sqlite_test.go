@@ -259,7 +259,7 @@ func sqliteRequest(t *testing.T, app *fiber.App, method, path, body string, want
 	if err != nil {
 		t.Fatalf("%s %s: %v", method, path, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	var buf bytes.Buffer
 	if _, err := buf.ReadFrom(resp.Body); err != nil {
 		t.Fatalf("read %s %s body: %v", method, path, err)
