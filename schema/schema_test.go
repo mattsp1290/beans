@@ -96,8 +96,7 @@ func TestMigrationRequiredObjects(t *testing.T) {
 				"CREATE INDEX bn_issue_repos_repo_idx",
 			})
 			assertContainsDDL(t, driver, byVersion[6].SQL, []string{
-				"CREATE TABLE",
-				"bn_memory_tags",
+				createTableToken(driver, "bn_memory_tags"),
 				"CREATE INDEX bn_memory_tags_tag_memory_idx",
 				"CREATE INDEX bn_memory_tags_memory_idx",
 			})
@@ -200,6 +199,7 @@ func TestDialectSpecificDDL(t *testing.T) {
 
 	mysqlSQL := allMigrationSQL(t, DriverMySQL)
 	sqliteSQL := allMigrationSQL(t, DriverSQLite)
+	postgresSQL := allMigrationSQL(t, DriverPostgres)
 
 	assertMissingDDL(t, DriverMySQL, mysqlSQL, []string{
 		"JSONB",
@@ -207,6 +207,7 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"BIGSERIAL",
 		"tsvector",
 		"USING GIN",
+		" NOT VALID",
 		" now()",
 	})
 	assertMissingDDL(t, DriverSQLite, sqliteSQL, []string{
@@ -216,9 +217,17 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"AUTO_INCREMENT",
 		"REGEXP_LIKE",
 		"FULLTEXT",
+		" NOT VALID",
 		" now()",
 	})
 
+	assertContainsDDL(t, DriverPostgres, postgresSQL, []string{
+		"JSONB",
+		"TIMESTAMPTZ",
+		"BIGSERIAL",
+		"tsvector GENERATED ALWAYS AS",
+		"USING GIN",
+	})
 	assertContainsDDL(t, DriverMySQL, mysqlSQL, []string{
 		"JSON NOT NULL",
 		"TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)",
@@ -259,6 +268,13 @@ func migrationsByVersion(migs []Migration) map[int]Migration {
 		out[mig.Version] = mig
 	}
 	return out
+}
+
+func createTableToken(driver Driver, table string) string {
+	if driver == DriverMySQL {
+		return "CREATE TABLE IF NOT EXISTS " + table
+	}
+	return "CREATE TABLE " + table
 }
 
 func assertMissingDDL(t *testing.T, driver Driver, sql string, forbidden []string) {
