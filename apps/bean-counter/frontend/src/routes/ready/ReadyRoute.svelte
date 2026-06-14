@@ -82,20 +82,22 @@
     <EmptyState title="No ready work" message="Blocked and closed issues are excluded from this queue." />
   {:else}
     {#if error !== ''}
-      <p class="form-error">{error}</p>
+      <p class="form-error" role="alert">{error}</p>
     {/if}
-    <div class="ready-list" role="list" aria-label="Ready issues">
+    <ul class="ready-list" aria-label="Ready issues">
       {#each issues as issue, index}
-        <button type="button" class="ready-row" onclick={() => navigate(`/issues/${issue.id}`)}>
-          <span class="queue-rank">{index + 1}</span>
-          <span class="ready-copy">
-            <strong>{issue.title}</strong>
-            <small>{issue.id} · {issue.issue_type} · {ageLabel(issue)}</small>
-          </span>
-          <span class="status-pill">{issue.state}</span>
-          <span class="priority-pill">P{issue.priority}</span>
-        </button>
+        <li>
+          <button type="button" class="ready-row" onclick={() => navigate(`/issues/${issue.id}`)}>
+            <span class="queue-rank">{index + 1}</span>
+            <span class="ready-copy">
+              <strong>{issue.title}</strong>
+              <small>{issue.id} · {issue.issue_type} · {ageLabel(issue)}</small>
+            </span>
+            <span class="status-pill">{issue.state}</span>
+            <span class="priority-pill">P{issue.priority}</span>
+          </button>
+        </li>
       {/each}
-    </div>
+    </ul>
   {/if}
 </section>

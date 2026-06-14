@@ -229,6 +229,13 @@ textarea {
 
 .ready-list {
   display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ready-list li {
+  min-width: 0;
 }
 
 .issue-row {
