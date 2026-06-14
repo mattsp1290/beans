@@ -113,27 +113,26 @@ type storeContractDialect struct {
 	name                   string
 	open                   func(t *testing.T) *store.Store
 	timestampTick          time.Duration
-	expectConcurrentWrites bool
+	acceptSingleWriterLock bool
 }
 
 func TestStoreContractAcrossDialects(t *testing.T) {
 	dialects := []storeContractDialect{
 		{
-			name:                   "postgres",
-			open:                   openPostgresContractStore,
-			timestampTick:          2 * time.Millisecond,
-			expectConcurrentWrites: true,
-		},
-		{
-			name:                   "mysql",
-			open:                   openMySQLContractStore,
-			timestampTick:          2 * time.Millisecond,
-			expectConcurrentWrites: true,
-		},
-		{
-			name:          "sqlite",
-			open:          openSQLiteContractStore,
+			name:          "postgres",
+			open:          openPostgresContractStore,
 			timestampTick: 2 * time.Millisecond,
+		},
+		{
+			name:          "mysql",
+			open:          openMySQLContractStore,
+			timestampTick: 2 * time.Millisecond,
+		},
+		{
+			name:                   "sqlite",
+			open:                   openSQLiteContractStore,
+			timestampTick:          2 * time.Millisecond,
+			acceptSingleWriterLock: true,
 		},
 	}
 	for _, dialect := range dialects {
@@ -450,52 +449,62 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		}
 	})
 
-	if dialect.expectConcurrentWrites {
-		t.Run("concurrent_first_admin_bootstrap", func(t *testing.T) {
-			s := dialect.open(t)
-			ctx := context.Background()
-			prefix := contractPrefix(dialect, "bootstrap")
-			ensureProject(t, s, ctx, prefix)
+	t.Run("concurrent_add_dep_cannot_create_cycle", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "dep-race")
+		ensureProject(t, s, ctx, prefix)
+		a, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: prefix, Title: "A", Priority: 1, IssueType: "task"})
+		if err != nil {
+			t.Fatalf("CreateIssue A: %v", err)
+		}
+		b, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: prefix, Title: "B", Priority: 1, IssueType: "task"})
+		if err != nil {
+			t.Fatalf("CreateIssue B: %v", err)
+		}
 
-			start := make(chan struct{})
-			errs := make(chan error, 2)
-			var wg sync.WaitGroup
-			for _, actor := range []string{"alice", "bob"} {
-				actor := actor
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					<-start
-					errs <- s.AddRepoAdmin(ctx, prefix, actor, actor, true)
-				}()
-			}
-			close(start)
-			wg.Wait()
-			close(errs)
+		errs := runConcurrently(
+			func() error { return s.AddDep(ctx, a.ID, b.ID) },
+			func() error { return s.AddDep(ctx, b.ID, a.ID) },
+		)
+		success, cycle, writeLock := classifyConcurrentErrors(t, dialect, errs, store.ErrCycle)
+		if success != 1 || cycle+writeLock != 1 {
+			t.Fatalf("concurrent AddDep results success=%d cycle=%d writeLock=%d errs=%v, want one success and one rejected edge", success, cycle, writeLock, errs)
+		}
+		edges, err := s.ListDeps(ctx, prefix)
+		if err != nil {
+			t.Fatalf("ListDeps after concurrent AddDep: %v", err)
+		}
+		if len(edges) != 1 {
+			t.Fatalf("edges after concurrent AddDep = %+v, want exactly one acyclic edge", edges)
+		}
+		if err := s.AddDep(ctx, edges[0].BlockedByID, edges[0].IssueID); !errors.Is(err, store.ErrCycle) {
+			t.Fatalf("reverse AddDep after race = %v, want ErrCycle", err)
+		}
+	})
 
-			var success, unauthorized int
-			for err := range errs {
-				switch {
-				case err == nil:
-					success++
-				case errors.Is(err, store.ErrUnauthorized):
-					unauthorized++
-				default:
-					t.Fatalf("AddRepoAdmin concurrent bootstrap unexpected error: %v", err)
-				}
-			}
-			if success != 1 || unauthorized != 1 {
-				t.Fatalf("concurrent bootstrap results success=%d unauthorized=%d, want 1/1", success, unauthorized)
-			}
-			admins, err := s.ListRepoAdmins(ctx, prefix)
-			if err != nil {
-				t.Fatalf("ListRepoAdmins after concurrent bootstrap: %v", err)
-			}
-			if len(admins) != 1 {
-				t.Fatalf("admins after concurrent bootstrap = %v, want exactly one first admin", admins)
-			}
-		})
-	}
+	t.Run("concurrent_first_admin_bootstrap", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "bootstrap")
+		ensureProject(t, s, ctx, prefix)
+
+		errs := runConcurrently(
+			func() error { return s.AddRepoAdmin(ctx, prefix, "alice", "alice", true) },
+			func() error { return s.AddRepoAdmin(ctx, prefix, "bob", "bob", true) },
+		)
+		success, unauthorized, writeLock := classifyConcurrentErrors(t, dialect, errs, store.ErrUnauthorized)
+		if success != 1 || unauthorized+writeLock != 1 {
+			t.Fatalf("concurrent bootstrap results success=%d unauthorized=%d writeLock=%d errs=%v, want one success and one rejected admin", success, unauthorized, writeLock, errs)
+		}
+		admins, err := s.ListRepoAdmins(ctx, prefix)
+		if err != nil {
+			t.Fatalf("ListRepoAdmins after concurrent bootstrap: %v", err)
+		}
+		if len(admins) != 1 {
+			t.Fatalf("admins after concurrent bootstrap = %v, want exactly one first admin", admins)
+		}
+	})
 }
 
 func openPostgresContractStore(t *testing.T) *store.Store {
@@ -582,6 +591,55 @@ func sortedStrings(values ...string) []string {
 	out := slices.Clone(values)
 	slices.Sort(out)
 	return out
+}
+
+func runConcurrently(ops ...func() error) []error {
+	start := make(chan struct{})
+	errs := make(chan error, len(ops))
+	var wg sync.WaitGroup
+	for _, op := range ops {
+		op := op
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			<-start
+			errs <- op()
+		}()
+	}
+	close(start)
+	wg.Wait()
+	close(errs)
+
+	out := make([]error, 0, len(ops))
+	for err := range errs {
+		out = append(out, err)
+	}
+	return out
+}
+
+func classifyConcurrentErrors(t *testing.T, dialect storeContractDialect, errs []error, expected error) (success, expectedErr, writeLock int) {
+	t.Helper()
+	for _, err := range errs {
+		switch {
+		case err == nil:
+			success++
+		case errors.Is(err, expected):
+			expectedErr++
+		case dialect.acceptSingleWriterLock && isSingleWriterLockErr(err):
+			writeLock++
+		default:
+			t.Fatalf("unexpected concurrent error for %s: %v", dialect.name, err)
+		}
+	}
+	return success, expectedErr, writeLock
+}
+
+func isSingleWriterLockErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "locked") || strings.Contains(msg, "busy")
 }
 
 func assertUTCNonZero(t *testing.T, ts time.Time) {
