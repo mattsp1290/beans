@@ -1,0 +1,8 @@
+Dockerfile
+.dockerignore
+README.md
+dist
+node_modules
+npm-debug.log*
+.vite
+.DS_Store
