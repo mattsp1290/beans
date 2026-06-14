@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bean_counter}
+      POSTGRES_USER: ${POSTGRES_USER:-bean_counter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bean_counter}
+    volumes:
+      - bean-counter-postgres:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      BN_DRIVER: postgres
+      BN_DSN: postgres://${POSTGRES_USER:-bean_counter}:${POSTGRES_PASSWORD:-bean_counter}@db:5432/${POSTGRES_DB:-bean_counter}?sslmode=disable
+      BN_ADDR: :8080
+      BN_PROJECT_PREFIX: ${BN_PROJECT_PREFIX:-bean-counter}
+      BN_ACTOR: ${BN_ACTOR:-bean-counter}
+      BN_CORS_ORIGIN: ${BN_CORS_ORIGIN:-http://localhost:8080}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8081:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/api/v1/healthz >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  ui:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      API_UPSTREAM: http://api:8080
+      NGINX_RESOLVER: 127.0.0.11
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+volumes:
+  bean-counter-postgres:
