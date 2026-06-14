@@ -206,6 +206,20 @@ Response `200 OK`:
 {"status": "ok"}
 ```
 
+### Readiness
+
+`GET /api/v1/readyz`
+
+Returns store readiness for the configured project prefix.
+
+Response `200 OK`:
+
+```json
+{"status": "ok"}
+```
+
+Common errors: `503 internal_error` when the store is not configured or the project prefix is not registered, `500 store_configuration_error` for store configuration failures, `500 internal_error` for unexpected store failures.
+
 ### List Issues
 
 `GET /api/v1/issues`
