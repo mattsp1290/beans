@@ -254,7 +254,7 @@ func migrationLocker(driver Driver) (lock.SessionLocker, error) {
 	case DriverMySQL:
 		return mysqlSessionLocker{name: migrationLockName, timeoutSeconds: 60}, nil
 	case DriverSQLite:
-		return nil, fmt.Errorf("schema: sqlite migration locking is not implemented")
+		return nil, nil
 	default:
 		return nil, fmt.Errorf("schema: unsupported migration lock driver %q", driver)
 	}

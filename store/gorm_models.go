@@ -67,6 +67,13 @@ type gormMemory struct {
 
 func (gormMemory) TableName() string { return "bn_memories" }
 
+type gormMemoryTag struct {
+	MemoryID int64  `gorm:"column:memory_id;primaryKey"`
+	Tag      string `gorm:"column:tag;primaryKey;not null"`
+}
+
+func (gormMemoryTag) TableName() string { return "bn_memory_tags" }
+
 type gormRepo struct {
 	ID             string         `gorm:"column:id;primaryKey"`
 	Prefix         string         `gorm:"column:prefix;not null"`
@@ -142,6 +149,7 @@ var allGORMModels = []gormTableModel{
 	gormIssueDep{},
 	gormIssueNote{},
 	gormMemory{},
+	gormMemoryTag{},
 	gormRepo{},
 	gormRepoAlias{},
 	gormProjectAdmin{},

@@ -26,6 +26,7 @@ func TestGORMModelTableNames(t *testing.T) {
 		{"issue dep", gormIssueDep{}.TableName(), "bn_issue_deps"},
 		{"issue note", gormIssueNote{}.TableName(), "bn_issue_notes"},
 		{"memory", gormMemory{}.TableName(), "bn_memories"},
+		{"memory tag", gormMemoryTag{}.TableName(), "bn_memory_tags"},
 		{"repo", gormRepo{}.TableName(), "bn_repos"},
 		{"repo alias", gormRepoAlias{}.TableName(), "bn_repo_aliases"},
 		{"project admin", gormProjectAdmin{}.TableName(), "bn_project_admins"},

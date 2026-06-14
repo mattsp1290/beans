@@ -16,6 +16,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 
 	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/schema"
 	store "github.com/mattsp1290/beans/store"
 )
 
@@ -122,8 +123,20 @@ CREATE TABLE goose_db_version (
 	}
 	if _, err := db.ExecContext(ctx, `
 INSERT INTO goose_db_version (version_id, is_applied)
-VALUES (0, true), (1, true), (2, true), (3, true), (4, true), (5, true)`); err != nil {
-		t.Fatalf("seed goose_db_version: %v", err)
+VALUES (0, true)`); err != nil {
+		t.Fatalf("seed goose_db_version zero: %v", err)
+	}
+	migrations, err := schema.ListMigrations(schema.DriverPostgres)
+	if err != nil {
+		t.Fatalf("ListMigrations: %v", err)
+	}
+	for _, mig := range migrations {
+		if _, err := db.ExecContext(ctx,
+			`INSERT INTO goose_db_version (version_id, is_applied) VALUES ($1, true)`,
+			mig.Version,
+		); err != nil {
+			t.Fatalf("seed goose_db_version %d: %v", mig.Version, err)
+		}
 	}
 
 	second, err := store.New(ctx, store.Config{
@@ -139,12 +152,12 @@ VALUES (0, true), (1, true), (2, true), (3, true), (4, true), (5, true)`); err !
 	if err := db.QueryRowContext(ctx, `
 SELECT count(*)
 FROM bn_schema_versions
-WHERE version_id BETWEEN 1 AND 5
+WHERE version_id >= 1
   AND is_applied = true`).Scan(&versionCount); err != nil {
 		t.Fatalf("count bn_schema_versions: %v", err)
 	}
-	if versionCount != 5 {
-		t.Fatalf("bootstrapped version count = %d, want 5", versionCount)
+	if versionCount != len(migrations) {
+		t.Fatalf("bootstrapped version count = %d, want %d", versionCount, len(migrations))
 	}
 }
 
