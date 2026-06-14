@@ -1816,6 +1816,33 @@ func TestImportIssues(t *testing.T) {
 	}
 }
 
+func TestImportIssuesPreservesActiveStateOnTerminalInput(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	if err := s.EnsureProject(ctx, "impterm"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.ImportIssues(ctx, []store.ImportInput{
+		{ID: "impterm-a", Prefix: "impterm", Title: "Alpha", State: "open", Priority: 2, IssueType: "task"},
+	}, []model.IssueState{"closed", "done"}); err != nil {
+		t.Fatalf("ImportIssues seed: %v", err)
+	}
+	if err := s.ImportIssues(ctx, []store.ImportInput{
+		{ID: "impterm-a", Prefix: "impterm", Title: "Alpha closed input", State: "closed", Priority: 1, IssueType: "bug"},
+	}, []model.IssueState{"closed", "done"}); err != nil {
+		t.Fatalf("ImportIssues terminal input: %v", err)
+	}
+	got, err := s.GetIssue(ctx, "impterm-a")
+	if err != nil {
+		t.Fatalf("GetIssue: %v", err)
+	}
+	if got.State != "open" || got.Title != "Alpha closed input" || got.IssueType != "bug" || got.Priority != model.PriorityHigh {
+		t.Fatalf("re-imported issue = %+v, want open state with updated non-state fields", got)
+	}
+}
+
 func TestImportIssuesFullCreateOnlyCountsAreIdempotent(t *testing.T) {
 	t.Parallel()
 	s := testStore(t)

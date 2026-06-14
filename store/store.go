@@ -77,7 +77,7 @@ func (s *Store) EnsureProject(ctx context.Context, prefix string) error {
 	}
 	err = db.WithContext(ctx).
 		Clauses(clause.OnConflict{DoNothing: true}).
-		Create(&gormProject{Prefix: prefix, CreatedAt: clockNowUTC()}).
+		Create(&gormProject{Prefix: prefix, CreatedAt: newGORMTime(clockNowUTC())}).
 		Error
 	return wrapExecErr(err, "EnsureProject")
 }
@@ -155,8 +155,8 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 			Labels:      datatypes.JSON(labels),
 			BranchName:  nullableStr(in.BranchName),
 			URL:         nullableStr(in.URL),
-			CreatedAt:   now,
-			UpdatedAt:   now,
+			CreatedAt:   newGORMTime(now),
+			UpdatedAt:   newGORMTime(now),
 		}
 
 		err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -175,7 +175,7 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 					IssueID:   id,
 					Actor:     nullableStr(in.Actor),
 					Body:      fmt.Sprintf("created by %s", in.Actor),
-					CreatedAt: clockNowUTC(),
+					CreatedAt: newGORMTime(clockNowUTC()),
 				}
 				if err := tx.Create(&note).Error; err != nil {
 					return fmt.Errorf("store: CreateIssue note: %w", err)
@@ -433,7 +433,7 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 
 	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if len(updates) > 0 {
-			updates["updated_at"] = clockNowUTC()
+			updates["updated_at"] = newGORMTime(clockNowUTC())
 			res := tx.Model(&gormIssue{}).Where("id = ?", id).Updates(updates)
 			if res.Error != nil {
 				return fmt.Errorf("store: UpdateIssue: %w", res.Error)
@@ -465,7 +465,7 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 			}
 			if err := tx.Model(&gormIssue{}).
 				Where("id = ?", id).
-				Update("updated_at", clockNowUTC()).
+				Update("updated_at", newGORMTime(clockNowUTC())).
 				Error; err != nil {
 				return fmt.Errorf("store: UpdateIssue repo timestamp: %w", err)
 			}
@@ -475,7 +475,7 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 				IssueID:   id,
 				Actor:     nullableStr(in.AppendNotes.Actor),
 				Body:      in.AppendNotes.Body,
-				CreatedAt: clockNowUTC(),
+				CreatedAt: newGORMTime(clockNowUTC()),
 			}
 			if err := tx.Create(&note).Error; err != nil {
 				return fmt.Errorf("store: UpdateIssue notes: %w", err)
@@ -503,7 +503,7 @@ func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error 
 	res := db.WithContext(ctx).
 		Model(&gormIssue{}).
 		Where("id = ? AND state <> ?", id, "closed").
-		Updates(map[string]any{"state": "closed", "updated_at": clockNowUTC()})
+		Updates(map[string]any{"state": "closed", "updated_at": newGORMTime(clockNowUTC())})
 	if res.Error != nil {
 		return fmt.Errorf("store: CloseIssue: %w", res.Error)
 	}
@@ -525,7 +525,7 @@ func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error 
 			IssueID:   id,
 			Actor:     nullableStr(actor),
 			Body:      strings.TrimSpace(reason),
-			CreatedAt: clockNowUTC(),
+			CreatedAt: newGORMTime(clockNowUTC()),
 		}
 		if err := db.WithContext(ctx).Create(&note).Error; err != nil {
 			return fmt.Errorf("store: CloseIssue note: %w", err)
@@ -688,8 +688,9 @@ type ImportInput struct {
 // FK forward-reference failures. The entire batch runs in one transaction.
 func (s *Store) ImportIssues(ctx context.Context, items []ImportInput, terminalStates []model.IssueState) error {
 	_, err := s.ImportIssuesFull(ctx, items, ImportOptions{
-		TerminalStates: terminalStates,
-		Mode:           ImportModeMerge,
+		TerminalStates:          terminalStates,
+		Mode:                    ImportModeMerge,
+		PreserveTerminalImports: true,
 	})
 	if err != nil {
 		return fmt.Errorf("store: ImportIssues: %w", err)
@@ -711,8 +712,9 @@ const (
 
 // ImportOptions configures ImportIssuesFull.
 type ImportOptions struct {
-	TerminalStates []model.IssueState
-	Mode           ImportMode
+	TerminalStates          []model.IssueState
+	Mode                    ImportMode
+	PreserveTerminalImports bool
 }
 
 // ImportResult counts what ImportIssuesFull did.
@@ -804,7 +806,8 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 				continue
 			}
 
-			updates := importIssueUpdateMap(item, terminalSet[existing.State])
+			keepState := terminalSet[existing.State] || (opts.PreserveTerminalImports && terminalSet[model.IssueState(item.State)])
+			updates := importIssueUpdateMap(item, keepState)
 			res := tx.Model(&gormIssue{}).Where("id = ?", item.ID).Updates(updates)
 			if res.Error != nil {
 				return fmt.Errorf("store: ImportIssuesFull merge %s: %w", item.ID, res.Error)
@@ -922,7 +925,7 @@ func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error
 		Body:      in.Body,
 		MType:     mtype,
 		Tags:      datatypes.JSON(encodedLabels(in.Tags)),
-		CreatedAt: clockNowUTC(),
+		CreatedAt: newGORMTime(clockNowUTC()),
 	}
 	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&memory).Error; err != nil {
@@ -975,11 +978,7 @@ func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter
 		q = q.Where("prefix = ? OR prefix IS NULL", pfx)
 	}
 
-	if query != "" {
-		for _, term := range strings.Fields(query) {
-			q = q.Where("body LIKE ?", "%"+escapeLike(term)+"%")
-		}
-	}
+	q = applyMemorySearch(q, s.p.driver, query)
 
 	if f.Type != "" {
 		q = q.Where("mtype = ?", f.Type)
@@ -1036,12 +1035,12 @@ type importIssueSnapshot struct {
 
 func (s *Store) getImportIssueSnapshot(ctx context.Context, db *gorm.DB, id string) (importIssueSnapshot, bool, error) {
 	var issue gormIssue
-	err := db.WithContext(ctx).Select("prefix", "state").Where("id = ?", id).First(&issue).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return importIssueSnapshot{}, false, nil
+	res := db.WithContext(ctx).Select("prefix", "state").Where("id = ?", id).Find(&issue)
+	if res.Error != nil {
+		return importIssueSnapshot{}, false, fmt.Errorf("store: getImportIssueSnapshot: %w", res.Error)
 	}
-	if err != nil {
-		return importIssueSnapshot{}, false, fmt.Errorf("store: getImportIssueSnapshot: %w", err)
+	if res.RowsAffected == 0 {
+		return importIssueSnapshot{}, false, nil
 	}
 	return importIssueSnapshot{Prefix: issue.Prefix, State: model.IssueState(issue.State)}, true, nil
 }
@@ -1138,8 +1137,8 @@ func insertIssueRepoGORM(ctx context.Context, tx *gorm.DB, issueID, prefix strin
 		WorkBranch:     workBranch,
 		WorktreeSubdir: worktreeSubdir,
 		Metadata:       datatypes.JSON(metadata),
-		CreatedAt:      now,
-		UpdatedAt:      now,
+		CreatedAt:      newGORMTime(now),
+		UpdatedAt:      newGORMTime(now),
 	}
 	if err := tx.WithContext(ctx).Create(&link).Error; err != nil {
 		return nil, fmt.Errorf("store: CreateIssue repo: %w", err)
@@ -1267,6 +1266,39 @@ func memoryFromGORM(row gormMemory) Memory {
 	}
 }
 
+func applyMemorySearch(q *gorm.DB, driver Driver, query string) *gorm.DB {
+	if query == "" {
+		return q
+	}
+	switch driver {
+	case DriverPostgres:
+		return q.
+			Where("tsv @@ plainto_tsquery('english', ?)", query).
+			Order(clause.OrderBy{
+				Expression: clause.Expr{
+					SQL:  "ts_rank(tsv, plainto_tsquery('english', ?)) DESC",
+					Vars: []any{query},
+				},
+			})
+	case DriverMySQL:
+		return q.
+			Where("MATCH(body) AGAINST (? IN NATURAL LANGUAGE MODE)", query).
+			Order(clause.OrderBy{
+				Expression: clause.Expr{
+					SQL:  "MATCH(body) AGAINST (? IN NATURAL LANGUAGE MODE) DESC",
+					Vars: []any{query},
+				},
+			})
+	case DriverSQLite:
+		return q.Where("id IN (SELECT rowid FROM bn_memories_fts WHERE bn_memories_fts MATCH ?)", query)
+	default:
+		for _, term := range strings.Fields(query) {
+			q = q.Where(`body LIKE ? ESCAPE '\'`, "%"+escapeLike(term)+"%")
+		}
+		return q
+	}
+}
+
 func getRepoBySlugGORM(ctx context.Context, db *gorm.DB, prefix, slug string) (Repo, error) {
 	var row gormRepo
 	err := db.WithContext(ctx).
@@ -1314,8 +1346,8 @@ func gormIssueFromImport(item ImportInput, now time.Time) gormIssue {
 		Labels:      datatypes.JSON(encodedLabels(item.Labels)),
 		BranchName:  nullableStr(item.BranchName),
 		URL:         nullableStr(item.URL),
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		CreatedAt:   newGORMTime(now),
+		UpdatedAt:   newGORMTime(now),
 	}
 }
 
@@ -1328,7 +1360,7 @@ func importIssueUpdateMap(item ImportInput, keepState bool) map[string]any {
 		"labels":      datatypes.JSON(encodedLabels(item.Labels)),
 		"branch_name": nullableStr(item.BranchName),
 		"url":         nullableStr(item.URL),
-		"updated_at":  clockNowUTC(),
+		"updated_at":  newGORMTime(clockNowUTC()),
 	}
 	if !keepState {
 		updates["state"] = item.State
@@ -1347,7 +1379,7 @@ func terminalStateSet(states []model.IssueState) map[model.IssueState]bool {
 func lockDepGraphGuard(tx *gorm.DB) error {
 	res := tx.Model(&gormDepGraphGuard{}).
 		Where("id = ?", int16(1)).
-		Update("updated_at", clockNowUTC())
+		Update("updated_at", newGORMTime(clockNowUTC()))
 	if res.Error != nil {
 		return fmt.Errorf("store: dependency graph guard: %w", res.Error)
 	}

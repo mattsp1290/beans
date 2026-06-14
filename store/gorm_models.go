@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -15,8 +16,8 @@ import (
 // constraints, indexes, and generated columns.
 
 type gormProject struct {
-	Prefix    string    `gorm:"column:prefix;primaryKey"`
-	CreatedAt time.Time `gorm:"column:created_at;not null"`
+	Prefix    string   `gorm:"column:prefix;primaryKey"`
+	CreatedAt gormTime `gorm:"column:created_at;not null"`
 }
 
 func (gormProject) TableName() string { return "bn_projects" }
@@ -33,8 +34,8 @@ type gormIssue struct {
 	Labels      datatypes.JSON `gorm:"column:labels;not null"`
 	BranchName  *string        `gorm:"column:branch_name"`
 	URL         *string        `gorm:"column:url"`
-	CreatedAt   time.Time      `gorm:"column:created_at;not null"`
-	UpdatedAt   time.Time      `gorm:"column:updated_at;not null"`
+	CreatedAt   gormTime       `gorm:"column:created_at;not null"`
+	UpdatedAt   gormTime       `gorm:"column:updated_at;not null"`
 }
 
 func (gormIssue) TableName() string { return "bn_issues" }
@@ -47,18 +48,18 @@ type gormIssueDep struct {
 func (gormIssueDep) TableName() string { return "bn_issue_deps" }
 
 type gormDepGraphGuard struct {
-	ID        int16     `gorm:"column:id;primaryKey"`
-	UpdatedAt time.Time `gorm:"column:updated_at;not null"`
+	ID        int16    `gorm:"column:id;primaryKey"`
+	UpdatedAt gormTime `gorm:"column:updated_at;not null"`
 }
 
 func (gormDepGraphGuard) TableName() string { return "bn_dep_graph_guard" }
 
 type gormIssueNote struct {
-	ID        int64     `gorm:"column:id;primaryKey;autoIncrement"`
-	IssueID   string    `gorm:"column:issue_id;not null"`
-	Actor     *string   `gorm:"column:actor"`
-	Body      string    `gorm:"column:body;not null"`
-	CreatedAt time.Time `gorm:"column:created_at;not null"`
+	ID        int64    `gorm:"column:id;primaryKey;autoIncrement"`
+	IssueID   string   `gorm:"column:issue_id;not null"`
+	Actor     *string  `gorm:"column:actor"`
+	Body      string   `gorm:"column:body;not null"`
+	CreatedAt gormTime `gorm:"column:created_at;not null"`
 }
 
 func (gormIssueNote) TableName() string { return "bn_issue_notes" }
@@ -69,7 +70,7 @@ type gormMemory struct {
 	Body      string         `gorm:"column:body;not null"`
 	MType     *string        `gorm:"column:mtype"`
 	Tags      datatypes.JSON `gorm:"column:tags;not null"`
-	CreatedAt time.Time      `gorm:"column:created_at;not null"`
+	CreatedAt gormTime       `gorm:"column:created_at;not null"`
 }
 
 func (gormMemory) TableName() string { return "bn_memories" }
@@ -93,8 +94,8 @@ type gormRepo struct {
 	AuthRef        string         `gorm:"column:auth_ref;not null"`
 	Enabled        bool           `gorm:"column:enabled;not null"`
 	Metadata       datatypes.JSON `gorm:"column:metadata;not null"`
-	CreatedAt      time.Time      `gorm:"column:created_at;not null"`
-	UpdatedAt      time.Time      `gorm:"column:updated_at;not null"`
+	CreatedAt      gormTime       `gorm:"column:created_at;not null"`
+	UpdatedAt      gormTime       `gorm:"column:updated_at;not null"`
 	CreatedBy      string         `gorm:"column:created_by;not null"`
 	UpdatedBy      string         `gorm:"column:updated_by;not null"`
 }
@@ -102,26 +103,26 @@ type gormRepo struct {
 func (gormRepo) TableName() string { return "bn_repos" }
 
 type gormRepoAlias struct {
-	Prefix    string    `gorm:"column:prefix;primaryKey"`
-	Alias     string    `gorm:"column:alias;primaryKey"`
-	RepoID    string    `gorm:"column:repo_id;not null"`
-	CreatedAt time.Time `gorm:"column:created_at;not null"`
+	Prefix    string   `gorm:"column:prefix;primaryKey"`
+	Alias     string   `gorm:"column:alias;primaryKey"`
+	RepoID    string   `gorm:"column:repo_id;not null"`
+	CreatedAt gormTime `gorm:"column:created_at;not null"`
 }
 
 func (gormRepoAlias) TableName() string { return "bn_repo_aliases" }
 
 type gormProjectAdmin struct {
-	Prefix    string    `gorm:"column:prefix;primaryKey"`
-	Actor     string    `gorm:"column:actor;primaryKey"`
-	CreatedAt time.Time `gorm:"column:created_at;not null"`
+	Prefix    string   `gorm:"column:prefix;primaryKey"`
+	Actor     string   `gorm:"column:actor;primaryKey"`
+	CreatedAt gormTime `gorm:"column:created_at;not null"`
 }
 
 func (gormProjectAdmin) TableName() string { return "bn_project_admins" }
 
 type gormProjectAdminBootstrap struct {
-	Prefix    string    `gorm:"column:prefix;primaryKey"`
-	Actor     string    `gorm:"column:actor;not null"`
-	CreatedAt time.Time `gorm:"column:created_at;not null"`
+	Prefix    string   `gorm:"column:prefix;primaryKey"`
+	Actor     string   `gorm:"column:actor;not null"`
+	CreatedAt gormTime `gorm:"column:created_at;not null"`
 }
 
 func (gormProjectAdminBootstrap) TableName() string { return "bn_project_admin_bootstraps" }
@@ -135,7 +136,7 @@ type gormRepoAudit struct {
 	OldValues datatypes.JSON `gorm:"column:old_values;not null"`
 	NewValues datatypes.JSON `gorm:"column:new_values;not null"`
 	Command   string         `gorm:"column:command;not null"`
-	CreatedAt time.Time      `gorm:"column:created_at;not null"`
+	CreatedAt gormTime       `gorm:"column:created_at;not null"`
 }
 
 func (gormRepoAudit) TableName() string { return "bn_repo_audit" }
@@ -148,8 +149,8 @@ type gormIssueRepo struct {
 	WorkBranch     string         `gorm:"column:work_branch;not null"`
 	WorktreeSubdir string         `gorm:"column:worktree_subdir;not null"`
 	Metadata       datatypes.JSON `gorm:"column:metadata;not null"`
-	CreatedAt      time.Time      `gorm:"column:created_at;not null"`
-	UpdatedAt      time.Time      `gorm:"column:updated_at;not null"`
+	CreatedAt      gormTime       `gorm:"column:created_at;not null"`
+	UpdatedAt      gormTime       `gorm:"column:updated_at;not null"`
 }
 
 func (gormIssueRepo) TableName() string { return "bn_issue_repos" }
@@ -172,6 +173,51 @@ var allGORMModels = []gormTableModel{
 	gormProjectAdminBootstrap{},
 	gormRepoAudit{},
 	gormIssueRepo{},
+}
+
+type gormTime struct {
+	time.Time
+}
+
+func newGORMTime(t time.Time) gormTime {
+	return gormTime{Time: t.UTC()}
+}
+
+func (t *gormTime) Scan(value any) error {
+	switch v := value.(type) {
+	case nil:
+		t.Time = time.Time{}
+		return nil
+	case time.Time:
+		t.Time = v.UTC()
+		return nil
+	case string:
+		return t.scanString(v)
+	case []byte:
+		return t.scanString(string(v))
+	default:
+		return fmt.Errorf("unsupported timestamp type %T", value)
+	}
+}
+
+func (t gormTime) Value() (driver.Value, error) {
+	return t.UTC(), nil
+}
+
+func (t *gormTime) scanString(value string) error {
+	for _, layout := range []string{
+		time.RFC3339Nano,
+		"2006-01-02 15:04:05.999999999-07:00",
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05",
+	} {
+		parsed, err := time.Parse(layout, value)
+		if err == nil {
+			t.Time = parsed.UTC()
+			return nil
+		}
+	}
+	return fmt.Errorf("parse timestamp %q", value)
 }
 
 func jsonStringArray(values []string) datatypes.JSON {
