@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRoute, routes } from './routes'
+import { getRoute } from './routes'
 
 describe('routes', () => {
   it('maps issue list, detail, and edit paths to the issues route metadata', () => {
-    expect(getRoute('/')).toBe(routes[0])
-    expect(getRoute('/issues')).toBe(routes[0])
-    expect(getRoute('/issues/bc-1')).toBe(routes[0])
-    expect(getRoute('/issues/bc-1/edit')).toBe(routes[0])
+    for (const path of ['/', '/issues', '/issues/bc-1', '/issues/bc-1/edit']) {
+      expect(getRoute(path)).toMatchObject({
+        path: '/',
+        title: 'Issues',
+      })
+    }
   })
 
   it('maps ready and graph paths to their workspace metadata', () => {
@@ -22,6 +24,9 @@ describe('routes', () => {
   })
 
   it('falls back to the issue workspace for unknown paths', () => {
-    expect(getRoute('/missing')).toBe(routes[0])
+    expect(getRoute('/missing')).toMatchObject({
+      path: '/',
+      title: 'Issues',
+    })
   })
 })
