@@ -157,13 +157,162 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   min-height: 38px;
   border: 1px solid #cbd3c7;
   border-radius: 6px;
   padding: 0 10px;
   color: #17211b;
   background: #ffffff;
+}
+
+textarea {
+  min-height: 120px;
+  padding: 10px;
+  resize: vertical;
+}
+
+.secondary {
+  color: #245942;
+  background: #e4ebe1;
+}
+
+.secondary:hover {
+  background: #d7e2d4;
+}
+
+.danger {
+  background: #9b3424;
+}
+
+.danger:hover {
+  background: #812b1e;
+}
+
+.issues-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
+  gap: 16px;
+}
+
+.issues-list,
+.issue-panel {
+  min-width: 0;
+}
+
+.issue-table {
+  display: grid;
+}
+
+.issue-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 64px;
+  border: 0;
+  border-bottom: 1px solid #edf1e9;
+  border-radius: 0;
+  padding: 12px 14px;
+  color: #17211b;
+  background: transparent;
+  text-align: left;
+}
+
+.issue-row:hover,
+.issue-row.active {
+  background: #f1f5ee;
+}
+
+.issue-row span:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.issue-row strong,
+.issue-row small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.issue-row small {
+  color: #657166;
+}
+
+.issue-form,
+.issue-detail {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.issue-form h2,
+.issue-detail h2 {
+  font-size: 22px;
+}
+
+.issue-form p,
+.issue-detail p,
+.issue-detail dd {
+  color: #657166;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.form-error {
+  border-left: 4px solid #b5472a;
+  padding: 10px 12px;
+  color: #7a2a1d;
+  background: #faeee9;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-pill,
+.label-row span {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: #e4ebe1;
+  color: #245942;
+  font-size: 13px;
+}
+
+.label-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+}
+
+dt {
+  color: #657166;
+}
+
+dd {
+  margin: 0;
 }
 
 .state-panel {
@@ -231,5 +380,10 @@ select {
   .toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .issues-layout,
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }

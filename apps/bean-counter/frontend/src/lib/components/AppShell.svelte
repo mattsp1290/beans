@@ -42,7 +42,7 @@
       <div>
         {@render title()}
       </div>
-      <button type="button">New issue</button>
+      <button type="button" onclick={(event) => onNavigate(event, '/issues/new')}>New issue</button>
     </header>
 
     {@render children()}
