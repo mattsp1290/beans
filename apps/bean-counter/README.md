@@ -40,6 +40,26 @@ default. To point it at a different API address:
 VITE_API_PROXY_TARGET=http://localhost:9090 npm --prefix frontend run dev
 ```
 
+## Local Databases
+
+SQLite is the default local path and does not need Docker. To run against
+Postgres or MySQL locally, start the database container and export the matching
+`BN_DRIVER` and `BN_DSN` values from [.env.example](.env.example).
+
+```sh
+docker compose up -d postgres
+BN_DRIVER=postgres \
+BN_DSN='postgres://bean_counter:bean_counter@localhost:5432/bean_counter?sslmode=disable' \
+go run ./cmd/bean-counter
+```
+
+```sh
+docker compose up -d mysql
+BN_DRIVER=mysql \
+BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true&loc=UTC&multiStatements=true' \
+go run ./cmd/bean-counter
+```
+
 ## Full Stack With Docker
 
 Run Postgres, the API, and the built frontend together:
@@ -111,7 +131,7 @@ MySQL:
 
 ```sh
 BN_DRIVER=mysql \
-BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true' \
+BN_DSN='bean_counter:bean_counter@tcp(localhost:3306)/bean_counter?parseTime=true&loc=UTC&multiStatements=true' \
 go run ./cmd/bean-counter
 ```
 
