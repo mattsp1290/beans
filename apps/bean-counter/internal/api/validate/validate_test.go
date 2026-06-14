@@ -165,6 +165,20 @@ func TestIssueID(t *testing.T) {
 	wantFields(t, validationFields(t, IssueID(" ")), "id")
 }
 
+func TestProjectIssueIDRequiresConfiguredPrefix(t *testing.T) {
+	if err := ProjectIssueID("bc", "bc-1"); err != nil {
+		t.Fatalf("ProjectIssueID valid error = %v", err)
+	}
+	wantFields(t, validationFields(t, ProjectIssueID("bc", "other-1")), "id")
+}
+
+func TestIssueState(t *testing.T) {
+	if err := IssueState("state", "open"); err != nil {
+		t.Fatalf("IssueState valid error = %v", err)
+	}
+	wantFields(t, validationFields(t, IssueState("state", "archived")), "state")
+}
+
 func validationFields(t *testing.T, err error) []server.FieldError {
 	t.Helper()
 	if err == nil {

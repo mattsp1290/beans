@@ -9,8 +9,11 @@ import (
 	"syscall"
 
 	"github.com/mattsp1290/bean-counter/internal/config"
+	"github.com/mattsp1290/bean-counter/internal/handlers/issues"
 	"github.com/mattsp1290/bean-counter/internal/server"
 	appstore "github.com/mattsp1290/bean-counter/internal/store"
+
+	"github.com/gofiber/fiber/v3"
 )
 
 func main() {
@@ -43,6 +46,13 @@ func run() error {
 	app := server.New(server.Config{
 		CORSOrigin:    cfg.CORSOrigin,
 		CORSOriginSet: true,
+		RegisterAPI: func(api fiber.Router) {
+			issues.Register(api, issues.Config{
+				Store:         adapter.Store(),
+				ProjectPrefix: cfg.ProjectPrefix,
+				Actor:         cfg.Actor,
+			})
+		},
 	})
 	log.Printf("bean-counter listening on %s", cfg.Addr)
 	if err := server.Run(ctx, app, cfg.Addr); err != nil {
