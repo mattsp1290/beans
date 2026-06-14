@@ -16,6 +16,7 @@ type Config struct {
 	CORSOrigin    string
 	CORSOriginSet bool
 	LogOutput     io.Writer
+	RegisterAPI   func(fiber.Router)
 }
 
 // New builds the HTTP application with process-wide middleware and the
@@ -38,6 +39,9 @@ func New(config ...Config) *fiber.App {
 	api.Get("/healthz", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
+	if cfg.RegisterAPI != nil {
+		cfg.RegisterAPI(api)
+	}
 
 	return app
 }
@@ -57,6 +61,7 @@ func configWithDefaults(config ...Config) Config {
 	if config[0].LogOutput != nil {
 		cfg.LogOutput = config[0].LogOutput
 	}
+	cfg.RegisterAPI = config[0].RegisterAPI
 	return cfg
 }
 
