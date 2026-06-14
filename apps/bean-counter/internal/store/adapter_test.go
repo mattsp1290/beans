@@ -30,6 +30,15 @@ func TestSentinelReExports(t *testing.T) {
 	}
 }
 
+func TestUnsupportedDriverCompatibilitySentinel(t *testing.T) {
+	if ErrUnsupportedDriver == nil {
+		t.Fatal("ErrUnsupportedDriver is nil")
+	}
+	if got := ErrUnsupportedDriver.Error(); got != "store: unsupported database driver" {
+		t.Fatalf("ErrUnsupportedDriver = %q, want stable compatibility message", got)
+	}
+}
+
 func TestAdapterCopiesStateSlices(t *testing.T) {
 	terminal := []beansmodel.IssueState{"closed"}
 	active := []beansmodel.IssueState{"open"}

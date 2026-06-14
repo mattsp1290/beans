@@ -19,11 +19,15 @@ type UpdateIssueInput = beansstore.UpdateIssueInput
 type DepEdge = beansstore.DepEdge
 
 var (
-	ErrNotFound          = beansstore.ErrNotFound
-	ErrCycle             = beansstore.ErrCycle
-	ErrDuplicateDep      = beansstore.ErrDuplicateDep
-	ErrConflict          = beansstore.ErrConflict
-	ErrEmptyDSN          = beansstore.ErrEmptyDSN
+	ErrNotFound     = beansstore.ErrNotFound
+	ErrCycle        = beansstore.ErrCycle
+	ErrDuplicateDep = beansstore.ErrDuplicateDep
+	ErrConflict     = beansstore.ErrConflict
+	ErrEmptyDSN     = beansstore.ErrEmptyDSN
+
+	// ErrUnsupportedDriver is local compatibility for bean-counter config
+	// validation; github.com/mattsp1290/beans v0.1.0 does not expose a driver
+	// sentinel.
 	ErrUnsupportedDriver = errors.New("store: unsupported database driver")
 )
 
@@ -105,12 +109,14 @@ func (a *Adapter) ActiveStates() []beansmodel.IssueState {
 	return append([]beansmodel.IssueState(nil), a.activeStates...)
 }
 
-// ReadyIssues returns unblocked issues for the configured project prefix.
+// ReadyIssues returns unblocked issues for the configured project prefix. It
+// requires an initialized Adapter with a non-nil Store.
 func (a *Adapter) ReadyIssues(ctx context.Context) ([]Issue, error) {
 	return a.store.ReadyIssues(ctx, a.projectPrefix, a.terminalStates, a.activeStates)
 }
 
-// ListDeps returns all dependency edges for the configured project prefix.
+// ListDeps returns all dependency edges for the configured project prefix. It
+// requires an initialized Adapter with a non-nil Store.
 func (a *Adapter) ListDeps(ctx context.Context) ([]DepEdge, error) {
 	return a.store.ListDeps(ctx, a.projectPrefix)
 }
