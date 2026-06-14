@@ -73,7 +73,7 @@ func (h Handler) create(c fiber.Ctx) error {
 
 func (h Handler) get(c fiber.Ctx) error {
 	id := c.Params("id")
-	if err := validate.IssueID(id); err != nil {
+	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, id); err != nil {
 		return err
 	}
 	issue, err := h.cfg.Store.GetIssue(c.Context(), id)
@@ -85,7 +85,7 @@ func (h Handler) get(c fiber.Ctx) error {
 
 func (h Handler) update(c fiber.Ctx) error {
 	id := c.Params("id")
-	if err := validate.IssueID(id); err != nil {
+	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, id); err != nil {
 		return err
 	}
 	var req dto.UpdateIssueRequest
@@ -105,7 +105,7 @@ func (h Handler) update(c fiber.Ctx) error {
 
 func (h Handler) close(c fiber.Ctx) error {
 	id := c.Params("id")
-	if err := validate.IssueID(id); err != nil {
+	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, id); err != nil {
 		return err
 	}
 	var req dto.CloseIssueRequest
@@ -129,7 +129,7 @@ func (h Handler) close(c fiber.Ctx) error {
 
 func (h Handler) delete(c fiber.Ctx) error {
 	id := c.Params("id")
-	if err := validate.IssueID(id); err != nil {
+	if err := validate.ProjectIssueID(h.cfg.ProjectPrefix, id); err != nil {
 		return err
 	}
 	if err := h.cfg.Store.DeleteIssue(c.Context(), id); err != nil {
@@ -148,6 +148,9 @@ func (h Handler) listFilter(c fiber.Ctx) (appstore.ListFilter, error) {
 		for _, state := range strings.Split(raw, ",") {
 			state = strings.TrimSpace(state)
 			if state != "" {
+				if err := validate.IssueState("state", state); err != nil {
+					return filter, err
+				}
 				filter.States = append(filter.States, appstore.IssueState(state))
 			}
 		}

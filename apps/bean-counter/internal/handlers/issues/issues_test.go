@@ -100,10 +100,30 @@ func TestListIssues(t *testing.T) {
 	}
 }
 
+func TestListIssuesRejectsInvalidState(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodGet, "/api/v1/issues?state=archived", "")
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+	if !bytes.Contains(body, []byte(`"field":"state"`)) {
+		t.Fatalf("body missing state field error: %s", body)
+	}
+}
+
 func TestGetIssue(t *testing.T) {
 	resp, body := request(t, testApp(&fakeStore{issue: testIssue("bc-1")}), http.MethodGet, "/api/v1/issues/bc-1", "")
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+}
+
+func TestGetIssueRejectsWrongProjectPrefix(t *testing.T) {
+	resp, body := request(t, testApp(&fakeStore{}), http.MethodGet, "/api/v1/issues/other-1", "")
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
+	}
+	if !bytes.Contains(body, []byte(`"field":"id"`)) {
+		t.Fatalf("body missing id field error: %s", body)
 	}
 }
 
@@ -151,7 +171,7 @@ func TestDeleteIssue(t *testing.T) {
 }
 
 func TestStoreErrorUsesCentralErrorHandler(t *testing.T) {
-	resp, body := request(t, testApp(&fakeStore{err: appstore.ErrNotFound}), http.MethodGet, "/api/v1/issues/missing", "")
+	resp, body := request(t, testApp(&fakeStore{err: appstore.ErrNotFound}), http.MethodGet, "/api/v1/issues/bc-missing", "")
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
 	}

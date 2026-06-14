@@ -49,6 +49,23 @@ func IssueID(id string) error {
 	return fields.err()
 }
 
+func ProjectIssueID(prefix, id string) error {
+	var fields fieldErrors
+	fields.id("id", id)
+	prefix = strings.TrimSpace(prefix)
+	id = strings.TrimSpace(id)
+	if prefix != "" && id != "" && !strings.HasPrefix(id, prefix+"-") {
+		fields.add("id", "must use configured project prefix")
+	}
+	return fields.err()
+}
+
+func IssueState(field, state string) error {
+	var fields fieldErrors
+	fields.state(field, state)
+	return fields.err()
+}
+
 func CreateIssueBody(body []byte, req dto.CreateIssueRequest) error {
 	var fields fieldErrors
 	if !jsonObjectHas(body, "priority") {
