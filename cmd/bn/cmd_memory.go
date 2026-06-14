@@ -18,7 +18,7 @@ func newRememberCmd(rs *appState) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "remember <body>",
-		Short: "Persist a memory to Postgres",
+		Short: "Persist a memory",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			body := strings.TrimSpace(args[0])
@@ -75,11 +75,11 @@ func newMemoriesCmd(rs *appState) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "memories [keyword...]",
 		Short: "Search memories",
-		Long: `Search memories using full-text search (Postgres tsvector/plainto_tsquery).
+		Long: `Search memories using the configured database's search support.
 Without keywords, returns recent memories ordered by created_at DESC.
 
-Search quality differs from bd's matcher — bn uses Postgres FTS (English stemming,
-stop words). Exact-keyword recall may differ; use quotes or --type/--tag to narrow.`,
+Search quality differs from bd's matcher and may vary by database dialect.
+Use quotes or --type/--tag to narrow results.`,
 		Args: cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !all {
@@ -160,10 +160,12 @@ func newPrimeCmd() *cobra.Command {
 }
 
 const primeText = `
-bn — Postgres-backed issue tracker
+bn — database-backed issue tracker
 
 ENVIRONMENT
-  BN_DSN      Postgres connection string (required; never pass on argv)
+  BN_DRIVER   Database driver: postgres, mysql, or sqlite
+              Optional for existing Postgres URL/keyword DSNs
+  BN_DSN      Driver-specific connection string (required; never pass on argv)
   BN_PROJECT  Default project prefix
   BN_ACTOR    Default actor for audit notes
 

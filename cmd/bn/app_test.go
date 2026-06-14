@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -139,6 +141,64 @@ func TestResolveProjectPrefixPrecedence(t *testing.T) {
 	}
 	if got != "env" {
 		t.Fatalf("env prefix = %q, want env", got)
+	}
+}
+
+func TestStoreConfigFromEnvUsesDriverAndDSN(t *testing.T) {
+	t.Setenv("BN_DRIVER", "SQLite3")
+	t.Setenv("BN_DSN", "file:beans.db")
+
+	cfg, err := storeConfigFromEnv()
+	if err != nil {
+		t.Fatalf("storeConfigFromEnv: %v", err)
+	}
+	if cfg.Driver != store.DriverSQLite {
+		t.Fatalf("driver = %q, want sqlite", cfg.Driver)
+	}
+	if got := cfg.DSN.Reveal(); got != "file:beans.db" {
+		t.Fatalf("dsn = %q, want file:beans.db", got)
+	}
+}
+
+func TestStoreConfigFromEnvInfersPostgresOnlyWhenClear(t *testing.T) {
+	t.Setenv("BN_DRIVER", "")
+	t.Setenv("BN_DSN", "postgres://user:pass@localhost:5432/beans")
+
+	cfg, err := storeConfigFromEnv()
+	if err != nil {
+		t.Fatalf("storeConfigFromEnv postgres URL: %v", err)
+	}
+	if cfg.Driver != store.DriverPostgres {
+		t.Fatalf("driver = %q, want postgres", cfg.Driver)
+	}
+
+	t.Setenv("BN_DSN", "host=localhost user=bn dbname=beans sslmode=disable")
+	cfg, err = storeConfigFromEnv()
+	if err != nil {
+		t.Fatalf("storeConfigFromEnv postgres keyword DSN: %v", err)
+	}
+	if cfg.Driver != store.DriverPostgres {
+		t.Fatalf("keyword driver = %q, want postgres", cfg.Driver)
+	}
+}
+
+func TestStoreConfigFromEnvRejectsMissingOrAmbiguousDriver(t *testing.T) {
+	t.Setenv("BN_DRIVER", "")
+	t.Setenv("BN_DSN", "file:beans.db")
+	if _, err := storeConfigFromEnv(); err == nil || !strings.Contains(err.Error(), "BN_DRIVER") {
+		t.Fatalf("sqlite without BN_DRIVER error = %v, want BN_DRIVER hint", err)
+	}
+
+	t.Setenv("BN_DRIVER", "oracle")
+	t.Setenv("BN_DSN", "dsn")
+	if _, err := storeConfigFromEnv(); !errors.Is(err, store.ErrUnsupportedDriver) {
+		t.Fatalf("unknown driver error = %v, want ErrUnsupportedDriver", err)
+	}
+
+	t.Setenv("BN_DRIVER", "")
+	t.Setenv("BN_DSN", "")
+	if _, err := storeConfigFromEnv(); err == nil || !strings.Contains(err.Error(), "BN_DRIVER and BN_DSN") {
+		t.Fatalf("missing env error = %v, want both values named", err)
 	}
 }
 
