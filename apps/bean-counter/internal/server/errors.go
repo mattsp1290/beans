@@ -51,9 +51,13 @@ func classifyError(err error) (int, string, string, []FieldError) {
 		return fiber.StatusInternalServerError, "internal_error", "internal server error", nil
 	}
 
-	var validation ValidationError
+	var validation *ValidationError
 	if errors.As(err, &validation) {
 		return fiber.StatusBadRequest, "validation_error", validation.Error(), validation.Fields
+	}
+	var validationValue ValidationError
+	if errors.As(err, &validationValue) {
+		return fiber.StatusBadRequest, "validation_error", validationValue.Error(), validationValue.Fields
 	}
 	if errors.Is(err, ErrValidation) {
 		return fiber.StatusBadRequest, "validation_error", err.Error(), nil

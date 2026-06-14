@@ -2,10 +2,11 @@ package server
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/gofiber/fiber/v3"
@@ -21,6 +22,7 @@ func TestErrorHandlerMapsSentinels(t *testing.T) {
 		wantCode   string
 	}{
 		{"not found", appstore.ErrNotFound, http.StatusNotFound, "not_found"},
+		{"wrapped not found", fmt.Errorf("lookup issue: %w", appstore.ErrNotFound), http.StatusNotFound, "not_found"},
 		{"cycle", appstore.ErrCycle, http.StatusConflict, "conflict"},
 		{"duplicate dep", appstore.ErrDuplicateDep, http.StatusConflict, "conflict"},
 		{"conflict", appstore.ErrConflict, http.StatusConflict, "conflict"},
@@ -41,41 +43,68 @@ func TestErrorHandlerMapsSentinels(t *testing.T) {
 
 			resp, body := testErrorRequest(t, app)
 			if resp.StatusCode != tt.wantStatus {
-				t.Fatalf("status = %d, want %d; body=%s", resp.StatusCode, tt.wantStatus, body)
+				t.Fatalf("status = %d, want %d; body=%+v", resp.StatusCode, tt.wantStatus, body)
 			}
-			if !strings.Contains(body, `"error":"`+tt.wantCode+`"`) {
-				t.Fatalf("body = %s, want error code %q", body, tt.wantCode)
+			if body.Error != tt.wantCode {
+				t.Fatalf("error = %q, want %q; body=%+v", body.Error, tt.wantCode, body)
 			}
-			if !strings.Contains(body, `"message":`) {
-				t.Fatalf("body = %s, want message field", body)
+			if body.Message == "" {
+				t.Fatalf("message is empty; body=%+v", body)
 			}
 		})
 	}
 }
 
 func TestErrorHandlerPreservesValidationFields(t *testing.T) {
-	app := New(Config{LogOutput: bytes.NewBuffer(nil)})
-	app.Get("/err", func(fiber.Ctx) error {
-		return ValidationError{
-			Message: "invalid issue",
-			Fields: []FieldError{
-				{Field: "title", Message: "required"},
+	tests := []struct {
+		name string
+		err  error
+	}{
+		{
+			name: "value",
+			err: ValidationError{
+				Message: "invalid issue",
+				Fields: []FieldError{
+					{Field: "title", Message: "required"},
+				},
 			},
-		}
-	})
-
-	resp, body := testErrorRequest(t, app)
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Fatalf("status = %d, want %d; body=%s", resp.StatusCode, http.StatusBadRequest, body)
+		},
+		{
+			name: "pointer",
+			err: &ValidationError{
+				Message: "invalid issue",
+				Fields: []FieldError{
+					{Field: "title", Message: "required"},
+				},
+			},
+		},
 	}
-	for _, want := range []string{`"error":"validation_error"`, `"field":"title"`, `"message":"required"`} {
-		if !strings.Contains(body, want) {
-			t.Fatalf("body = %s, want %s", body, want)
-		}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := New(Config{LogOutput: bytes.NewBuffer(nil)})
+			app.Get("/err", func(fiber.Ctx) error {
+				return tt.err
+			})
+
+			resp, body := testErrorRequest(t, app)
+			if resp.StatusCode != http.StatusBadRequest {
+				t.Fatalf("status = %d, want %d; body=%+v", resp.StatusCode, http.StatusBadRequest, body)
+			}
+			if body.Error != "validation_error" {
+				t.Fatalf("error = %q, want validation_error", body.Error)
+			}
+			if body.Message != "invalid issue" {
+				t.Fatalf("message = %q, want invalid issue", body.Message)
+			}
+			if len(body.Fields) != 1 || body.Fields[0].Field != "title" || body.Fields[0].Message != "required" {
+				t.Fatalf("fields = %+v, want title required", body.Fields)
+			}
+		})
 	}
 }
 
-func testErrorRequest(t *testing.T, app *fiber.App) (*http.Response, string) {
+func testErrorRequest(t *testing.T, app *fiber.App) (*http.Response, errorResponse) {
 	t.Helper()
 
 	req := httptest.NewRequest(http.MethodGet, "/err", nil)
@@ -85,9 +114,9 @@ func testErrorRequest(t *testing.T, app *fiber.App) (*http.Response, string) {
 	}
 	defer resp.Body.Close()
 
-	var body bytes.Buffer
-	if _, err := body.ReadFrom(resp.Body); err != nil {
-		t.Fatalf("read body: %v", err)
+	var body errorResponse
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatalf("decode body: %v", err)
 	}
-	return resp, body.String()
+	return resp, body
 }
