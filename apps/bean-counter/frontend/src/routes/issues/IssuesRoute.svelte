@@ -28,6 +28,7 @@
   let { pathname, navigate }: Props = $props()
 
   let issues = $state<Issue[]>([])
+  let dependencyCandidates = $state<Issue[]>([])
   let selectedIssue = $state<Issue | null>(null)
   let listLoading = $state(false)
   let detailLoading = $state(false)
@@ -43,10 +44,11 @@
 
   const route = $derived(parseIssueRoute(pathname))
   const visibleIssues = $derived(filterIssues(issues, search))
-  const dependencyOptions = $derived(availableDependencyOptions(issues, selectedIssue))
+  const dependencyOptions = $derived(availableDependencyOptions(dependencyCandidates, selectedIssue))
 
   onMount(() => {
     void loadIssues()
+    void loadDependencyCandidates()
   })
 
   $effect(() => {
@@ -73,12 +75,24 @@
     }
   }
 
+  async function loadDependencyCandidates() {
+    try {
+      const response = await api.listIssues()
+      dependencyCandidates = response.issues
+      syncSelectedIssueFromCandidates()
+    } catch (err) {
+      if (selectedIssue) {
+        dependencyError = errorMessage(err)
+      }
+    }
+  }
+
   async function loadIssue(id: string) {
     detailLoading = true
     error = ''
     try {
       selectedIssue = await api.getIssue(id)
-      dependencyInput = defaultDependencyInput(selectedIssue, issues)
+      dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
       dependencyError = ''
       if (route.mode === 'edit') {
         form = issueToIssueForm(selectedIssue)
@@ -190,8 +204,12 @@
 
   async function refreshSelectedIssue(id: string) {
     selectedIssue = await api.getIssue(id)
-    await loadIssues()
-    dependencyInput = defaultDependencyInput(selectedIssue, issues)
+    dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
+    void refreshIssueLists()
+  }
+
+  async function refreshIssueLists() {
+    await Promise.allSettled([loadIssues(), loadDependencyCandidates()])
   }
 
   function parseIssueRoute(path: string): { mode: Mode; id: string } {
@@ -243,14 +261,33 @@
     const updated = issues.find((issue) => issue.id === selectedIssue?.id)
     if (updated) {
       selectedIssue = updated
-      if (dependencyInput === '' || !availableDependencyOptions(issues, selectedIssue).some((issue) => issue.id === dependencyInput)) {
-        dependencyInput = defaultDependencyInput(selectedIssue, issues)
+      if (
+        dependencyInput === '' ||
+        !availableDependencyOptions(dependencyCandidates, selectedIssue).some((issue) => issue.id === dependencyInput)
+      ) {
+        dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
       }
     }
   }
 
+  function syncSelectedIssueFromCandidates() {
+    if (!selectedIssue) {
+      return
+    }
+    const updated = dependencyCandidates.find((issue) => issue.id === selectedIssue?.id)
+    if (updated) {
+      selectedIssue = updated
+    }
+    if (
+      dependencyInput === '' ||
+      !availableDependencyOptions(dependencyCandidates, selectedIssue).some((issue) => issue.id === dependencyInput)
+    ) {
+      dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
+    }
+  }
+
   function issueLabel(id: string): string {
-    const issue = issues.find((item) => item.id === id)
+    const issue = dependencyCandidates.find((item) => item.id === id) ?? issues.find((item) => item.id === id)
     return issue ? `${issue.title} (${issue.id})` : id
   }
 
@@ -423,6 +460,7 @@
                     type="button"
                     class="secondary"
                     disabled={dependencySaving}
+                    aria-label={`Remove blocker ${issueLabel(blockedById)}`}
                     onclick={() => removeDependency(blockedById)}
                   >
                     Remove
