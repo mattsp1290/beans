@@ -19,7 +19,7 @@ func TestHealthz(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d, want %d", resp.StatusCode, http.StatusOK)
@@ -46,7 +46,7 @@ func TestCORSAllowsConfiguredOrigin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.Header.Get(fiber.HeaderAccessControlAllowOrigin) != origin {
 		t.Fatalf("allow origin = %q, want %q", resp.Header.Get(fiber.HeaderAccessControlAllowOrigin), origin)
@@ -72,7 +72,7 @@ func TestCORSRejectsUnconfiguredOrigin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if got := resp.Header.Get(fiber.HeaderAccessControlAllowOrigin); got != "" {
 		t.Fatalf("allow origin = %q, want empty", got)
@@ -90,7 +90,7 @@ func TestCORSRejectsUnconfiguredPreflightOrigin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if got := resp.Header.Get(fiber.HeaderAccessControlAllowOrigin); got != "" {
 		t.Fatalf("allow origin = %q, want empty", got)
@@ -107,7 +107,7 @@ func TestCORSAllowsNoOriginsWhenExplicitOriginIsEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if got := resp.Header.Get(fiber.HeaderAccessControlAllowOrigin); got != "" {
 		t.Fatalf("allow origin = %q, want empty", got)
@@ -126,7 +126,7 @@ func TestRecoverMiddlewareReturnsServerErrorAndLogsRequest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want %d", resp.StatusCode, http.StatusInternalServerError)
