@@ -22,7 +22,9 @@ type Config struct {
 // versioned API route group.
 func New(config ...Config) *fiber.App {
 	cfg := configWithDefaults(config...)
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: ErrorHandler,
+	})
 
 	app.Use(logger.New(logger.Config{
 		Format:     "${time} ${status} ${method} ${path} ${latency}\n",
