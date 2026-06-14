@@ -2481,8 +2481,8 @@ func TestUpdateIssueRejectsInvalidState(t *testing.T) {
 	if err == nil {
 		t.Fatal("UpdateIssue invalid state succeeded; want error")
 	}
-	if errors.Is(err, store.ErrNotFound) {
-		t.Fatalf("UpdateIssue invalid state error = %v, want validation or constraint error", err)
+	if !errors.Is(err, store.ErrInvalidIssueState) {
+		t.Fatalf("UpdateIssue invalid state error = %v, want ErrInvalidIssueState", err)
 	}
 	got, err := s.GetIssue(ctx, iss.ID)
 	if err != nil {

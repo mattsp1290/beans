@@ -34,6 +34,10 @@ var (
 
 	// ErrDisabled is returned when an operation targets a disabled repo.
 	ErrDisabled = errors.New("store: disabled")
+
+	// ErrInvalidIssueState is returned when a caller supplies an issue state
+	// outside the store schema's portable lifecycle vocabulary.
+	ErrInvalidIssueState = errors.New("store: invalid issue state")
 )
 
 func isPKConflict(err error) bool {
