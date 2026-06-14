@@ -8,7 +8,6 @@ import (
 	"sync/atomic"
 
 	"github.com/glebarez/sqlite"
-	"github.com/jackc/pgx/v5/pgxpool"
 	gmysql "gorm.io/driver/mysql"
 	gpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,13 +16,11 @@ import (
 // ErrPoolClosed is returned by Store methods called after the pool is closed.
 var ErrPoolClosed = errors.New("store: pool is closed")
 
-// pool owns the GORM/database-sql handle for the configured database. The
-// legacy pgx handle exists only while store methods are still pgx-backed.
+// pool owns the GORM/database-sql handle for the configured database.
 type pool struct {
-	sqlDB     atomic.Pointer[sql.DB]
-	gormDB    atomic.Pointer[gorm.DB]
-	legacyPGX atomic.Pointer[pgxpool.Pool]
-	driver    Driver
+	sqlDB  atomic.Pointer[sql.DB]
+	gormDB atomic.Pointer[gorm.DB]
+	driver Driver
 }
 
 // newPool opens the configured database and returns a holder ready to use.
@@ -58,15 +55,6 @@ func newPool(ctx context.Context, cfg Config) (*pool, error) {
 	p.sqlDB.Store(sqlDB)
 	p.gormDB.Store(gormDB)
 
-	if cfg.isPostgres() {
-		legacy, err := openLegacyPGXPool(dialCtx, cfg)
-		if err != nil {
-			p.close()
-			return nil, err
-		}
-		p.legacyPGX.Store(legacy)
-	}
-
 	return p, nil
 }
 
@@ -84,35 +72,10 @@ func gormDialector(cfg Config) (gorm.Dialector, error) {
 	}
 }
 
-func openLegacyPGXPool(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
-	poolCfg, err := pgxpool.ParseConfig(cfg.DSN.Reveal())
-	if err != nil {
-		return nil, fmt.Errorf("store: parse postgres DSN: %w", err)
-	}
-	if cfg.MaxConns > 0 {
-		poolCfg.MaxConns = cfg.MaxConns
-	}
-	if cfg.MinConns > 0 {
-		poolCfg.MinConns = cfg.MinConns
-	}
-	pgxPool, err := pgxpool.NewWithConfig(ctx, poolCfg)
-	if err != nil {
-		return nil, fmt.Errorf("store: dial postgres legacy pgx: %w", err)
-	}
-	if err := pgxPool.Ping(ctx); err != nil {
-		pgxPool.Close()
-		return nil, fmt.Errorf("store: ping postgres legacy pgx: %w", err)
-	}
-	return pgxPool, nil
-}
-
 // close releases all underlying connections. Idempotent.
 func (p *pool) close() {
 	if p == nil {
 		return
-	}
-	if old := p.legacyPGX.Swap(nil); old != nil {
-		old.Close()
 	}
 	if old := p.sqlDB.Swap(nil); old != nil {
 		old.Close()
@@ -140,24 +103,4 @@ func (p *pool) gorm() (*gorm.DB, error) {
 		return nil, ErrPoolClosed
 	}
 	return db, nil
-}
-
-// pgx returns the live legacy pgxpool.Pool or nil.
-func (p *pool) pgx() *pgxpool.Pool {
-	if p == nil || p.sqlDB.Load() == nil {
-		return nil
-	}
-	return p.legacyPGX.Load()
-}
-
-// conn returns the live legacy Postgres pgx pool or ErrPoolClosed.
-func (p *pool) conn() (*pgxpool.Pool, error) {
-	if p == nil || p.sqlDB.Load() == nil {
-		return nil, ErrPoolClosed
-	}
-	pp := p.legacyPGX.Load()
-	if pp == nil {
-		return nil, ErrUnsupportedDriver
-	}
-	return pp, nil
 }

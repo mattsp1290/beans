@@ -105,10 +105,6 @@ func (c Config) schemaDriver() schema.Driver {
 	}
 }
 
-func (c Config) isPostgres() bool {
-	return c.driverOrDefault() == DriverPostgres
-}
-
 func (c Config) connectTimeoutOrDefault() time.Duration {
 	if c.ConnectTimeout <= 0 {
 		return ConnectTimeoutDefault

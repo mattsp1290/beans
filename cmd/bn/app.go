@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/spf13/cobra"
 
 	"github.com/mattsp1290/beans/model"
@@ -149,7 +149,7 @@ func resolveStoreDriver(driverEnv, dsn string) (store.Driver, error) {
 }
 
 func isPostgresDSN(dsn string) bool {
-	_, err := pgxpool.ParseConfig(dsn)
+	_, err := pgconn.ParseConfig(dsn)
 	return err == nil
 }
 

@@ -51,9 +51,6 @@ func TestNewSQLitePoolMigratesAndCloses(t *testing.T) {
 	if _, err := s.p.gorm(); err != nil {
 		t.Fatalf("pool gorm: %v", err)
 	}
-	if pgx := s.p.pgx(); pgx != nil {
-		t.Fatal("sqlite pool unexpectedly has legacy pgx handle")
-	}
 	var foreignKeys int
 	if err := sqlDB.QueryRowContext(ctx, `PRAGMA foreign_keys`).Scan(&foreignKeys); err != nil {
 		t.Fatalf("query sqlite foreign_keys pragma: %v", err)
@@ -80,9 +77,6 @@ func TestNewSQLitePoolMigratesAndCloses(t *testing.T) {
 	}
 	if _, err := s.p.gorm(); !errors.Is(err, ErrPoolClosed) {
 		t.Fatalf("gorm after close = %v, want ErrPoolClosed", err)
-	}
-	if _, err := s.p.conn(); !errors.Is(err, ErrPoolClosed) {
-		t.Fatalf("legacy conn after close = %v, want ErrPoolClosed", err)
 	}
 }
 

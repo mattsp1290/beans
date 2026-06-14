@@ -8,7 +8,6 @@ import (
 	gosqlite "github.com/glebarez/go-sqlite"
 	gmysql "github.com/go-sql-driver/mysql"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/puddle/v2"
 )
 
 // Sentinel errors returned by Store methods. Callers branch on these with
@@ -82,7 +81,7 @@ func normalizePoolError(err error) error {
 	if errors.Is(err, ErrPoolClosed) {
 		return err
 	}
-	if errors.Is(err, sql.ErrConnDone) || errors.Is(err, puddle.ErrClosedPool) {
+	if errors.Is(err, sql.ErrConnDone) {
 		return ErrPoolClosed
 	}
 	return err
