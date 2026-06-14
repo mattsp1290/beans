@@ -2,11 +2,17 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mattsp1290/beans/model"
 
 	store "github.com/mattsp1290/beans/store"
 )
@@ -65,6 +71,105 @@ func TestParseImportJSONLMapsFullBDRowAndFiltersDeps(t *testing.T) {
 	}
 	if len(got.Deps) != 1 || got.Deps[0] != "src-parent" {
 		t.Fatalf("deps = %#v, want only src-parent", got.Deps)
+	}
+}
+
+func TestImportGastownhallBeadsExportFixtureSmoke(t *testing.T) {
+	ctx := context.Background()
+	prefix := "symphony"
+
+	f, err := os.Open(filepath.Join("testdata", "gastownhall_beads_export.jsonl"))
+	if err != nil {
+		t.Fatalf("open fixture: %v", err)
+	}
+	defer f.Close()
+
+	items, warnings, err := parseImportJSONL(f, prefix)
+	if err != nil {
+		t.Fatalf("parseImportJSONL: %v", err)
+	}
+	if warnings != 0 || len(items) != 3 {
+		t.Fatalf("parsed warnings=%d len=%d, want warnings=0 len=3", warnings, len(items))
+	}
+
+	st, err := store.New(ctx, store.Config{
+		Driver: store.DriverSQLite,
+		DSN:    store.SecretDSN("file:" + filepath.Join(t.TempDir(), "beans.db")),
+	})
+	if err != nil {
+		t.Fatalf("store.New sqlite: %v", err)
+	}
+	defer st.Close()
+	if err := st.EnsureProject(ctx, prefix); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+
+	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: []model.IssueState{"closed", "done"},
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull first import: %v", err)
+	}
+	if result.Created != 3 || result.DepsAdded != 1 {
+		t.Fatalf("first import result = %+v, want created=3 deps_added=1", result)
+	}
+
+	openIssue, err := st.GetIssue(ctx, "local-symphony-smoke-open")
+	if err != nil {
+		t.Fatalf("GetIssue open: %v", err)
+	}
+	if openIssue.State != "open" ||
+		openIssue.Title != "Legacy open issue" ||
+		openIssue.Description != "Open issue from gastownhall/beads export" ||
+		openIssue.Priority != model.PriorityMedium ||
+		openIssue.IssueType != "task" ||
+		!slices.Equal(openIssue.Labels, []string{"legacy", "import"}) {
+		t.Fatalf("open issue = %+v, want imported bd fields", openIssue)
+	}
+
+	progressIssue, err := st.GetIssue(ctx, "local-symphony-smoke-progress")
+	if err != nil {
+		t.Fatalf("GetIssue progress: %v", err)
+	}
+	if progressIssue.State != "in_progress" ||
+		progressIssue.Priority != model.PriorityHigh ||
+		progressIssue.IssueType != "bug" ||
+		len(progressIssue.BlockedBy) != 1 ||
+		progressIssue.BlockedBy[0] != "local-symphony-smoke-open" {
+		t.Fatalf("progress issue = %+v, want in-progress bug blocked by open issue", progressIssue)
+	}
+
+	closedIssue, err := st.GetIssue(ctx, "local-symphony-smoke-closed")
+	if err != nil {
+		t.Fatalf("GetIssue closed: %v", err)
+	}
+	if closedIssue.State != "closed" ||
+		closedIssue.Priority != model.PriorityLow ||
+		closedIssue.IssueType != "feature" ||
+		!slices.Equal(closedIssue.Labels, []string{"legacy", "done"}) {
+		t.Fatalf("closed issue = %+v, want closed feature with labels", closedIssue)
+	}
+
+	if err := st.CloseIssue(ctx, "local-symphony-smoke-open", "test", "terminal before rerun"); err != nil {
+		t.Fatalf("CloseIssue open before rerun: %v", err)
+	}
+	rerun, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: []model.IssueState{"closed", "done"},
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull rerun: %v", err)
+	}
+	if rerun.Created != 0 || rerun.Skipped != 3 || rerun.DepsAdded != 0 {
+		t.Fatalf("rerun result = %+v, want idempotent skipped=3 with no deps added", rerun)
+	}
+	openIssue, err = st.GetIssue(ctx, "local-symphony-smoke-open")
+	if err != nil {
+		t.Fatalf("GetIssue open after rerun: %v", err)
+	}
+	if openIssue.State != "closed" {
+		t.Fatalf("open issue state after rerun = %q, want closed terminal state preserved", openIssue.State)
 	}
 }
 

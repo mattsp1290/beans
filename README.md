@@ -79,6 +79,46 @@ Memory search uses each backend's search support:
 Tokenization and ranking can differ by dialect. When recall matters more than
 ranking, narrow results with `--type`, repeated `--tag`, or project scope.
 
+## Importing Legacy Beads Issues
+
+`bn import` accepts issue JSONL from `github.com/gastownhall/beads` `bd export`
+output, verified against `bd version 1.0.0 (72170267)`. For a one-time cutover
+from a stopped legacy beads store, export issues without memories and import
+them into the target beans project:
+
+```bash
+cd ~/git/local-symphony
+bd export --no-memories -o legacy-beads-issues.jsonl
+
+export BN_DRIVER=postgres
+export BN_DSN='postgres://user:pass@host:5432/beans?sslmode=disable'
+export BN_PROJECT=local-symphony
+bn import --mode=create-only legacy-beads-issues.jsonl
+bn ready
+```
+
+When exporting from a mounted production store instead of the repo root, pass
+the embedded-Dolt database path explicitly:
+
+```bash
+bd --db /var/lib/symphony/beads/local-symphony/.beads/embeddeddolt export --no-memories -o legacy-beads-issues.jsonl
+```
+
+The expected JSONL shape is one issue object per line with fields such as
+`id`, `title`, `description`, `status`, `priority`, `issue_type`, `labels`, and
+`dependencies`. Dependency entries are objects with `issue_id`,
+`depends_on_id`, and `type`; only `type:"blocks"` edges whose `issue_id` matches
+the containing issue are imported. `status` maps to the beans issue state, and
+priority values are used as-is (`0` critical through `4` backlog). Exported
+fields without beans storage, including `owner`, `created_by`, `close_reason`,
+timestamps, and count fields, are ignored.
+
+The default `create-only` mode is safe to re-run: existing issues are skipped,
+dependency edges are not duplicated, and an already-terminal beans issue is not
+reopened by active legacy export state. Use `--mode=merge` only when you
+intentionally want to refresh non-state fields from the legacy export; merge mode
+still preserves existing terminal states when incoming legacy state is active.
+
 ## Testing
 
 Default local checks do not require Docker:
