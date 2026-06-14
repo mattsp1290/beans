@@ -1,6 +1,4 @@
-// Package store will contain the bean-counter adapter around github.com/mattsp1290/beans/store.
+// Package store wraps github.com/mattsp1290/beans/store behind bean-counter
+// application defaults and re-exports the beans store types used across API
+// boundaries.
 package store
-
-import beansstore "github.com/mattsp1290/beans/store"
-
-var _ = beansstore.Config{}
