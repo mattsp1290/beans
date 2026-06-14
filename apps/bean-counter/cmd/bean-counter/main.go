@@ -45,6 +45,9 @@ func run() error {
 		return err
 	}
 	defer adapter.Close()
+	if err := adapter.EnsureProject(ctx); err != nil {
+		return fmt.Errorf("ensure project: %w", err)
+	}
 
 	app := server.New(server.Config{
 		CORSOrigin:    cfg.CORSOrigin,

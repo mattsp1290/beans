@@ -84,7 +84,7 @@ func newSQLiteApp(t *testing.T) (*fiber.App, func()) {
 	if err != nil {
 		t.Fatalf("new adapter: %v", err)
 	}
-	if err := adapter.Store().EnsureProject(ctx, testPrefix); err != nil {
+	if err := adapter.EnsureProject(ctx); err != nil {
 		adapter.Close()
 		t.Fatalf("ensure project: %v", err)
 	}
