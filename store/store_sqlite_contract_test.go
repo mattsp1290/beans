@@ -58,7 +58,7 @@ func TestSQLiteStoreContractIssueLifecycle(t *testing.T) {
 		t.Fatalf("ListIssues = %+v, want created issue", listed)
 	}
 
-	time.Sleep(time.Millisecond)
+	waitForTimestampAdvance()
 	title := "Updated title"
 	desc := "second description"
 	priority := 0
@@ -87,7 +87,7 @@ func TestSQLiteStoreContractIssueLifecycle(t *testing.T) {
 		t.Fatalf("updated_at = %s, want after %s", updated.UpdatedAt, created.UpdatedAt)
 	}
 
-	time.Sleep(time.Millisecond)
+	waitForTimestampAdvance()
 	if err := s.CloseIssue(ctx, created.ID, "alice", "done"); err != nil {
 		t.Fatalf("CloseIssue: %v", err)
 	}
@@ -322,7 +322,7 @@ func TestSQLiteStoreContractReposAndAudit(t *testing.T) {
 		t.Fatalf("GetRepoBySlug dupe after conflict = %v, want ErrNotFound", err)
 	}
 
-	time.Sleep(time.Millisecond)
+	waitForTimestampAdvance()
 	branch := "trunk"
 	display := "Boxy Updated"
 	updated, err := s.UpdateRepo(ctx, prefix, "boxy", UpdateRepoInput{
@@ -385,8 +385,8 @@ func TestSQLiteStoreContractReposAndAudit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListRepoAudit: %v", err)
 	}
-	if len(audits) != 4 || audits[0].Action != "repo.contract" {
-		t.Fatalf("audits = %+v, want custom audit plus create/update/disable", audits)
+	if actions := repoAuditActions(audits); !slices.Equal(actions, []string{"repo.contract", "repo.update", "repo.update", "repo.create"}) {
+		t.Fatalf("audit actions = %v, want contract/update/update/create", actions)
 	}
 
 	if err := s.RemoveRepoAdmin(ctx, prefix, "bob", "alice"); err != nil {
@@ -436,7 +436,16 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetIssue targeted: %v", err)
 	}
-	if got.Repo == nil || got.Repo.Slug != "core" || got.Repo.WorkBranch != "work/sqlite-target" || got.Repo.Metadata["source"] != "contract" {
+	if got.Repo == nil ||
+		got.Repo.Slug != "core" ||
+		got.Repo.RemoteURL != "git@github.com:punk1290/core.git" ||
+		got.Repo.DefaultBranch != "main" ||
+		got.Repo.RequestedRef != "feature" ||
+		got.Repo.BaseRef != "main" ||
+		got.Repo.WorkBranch != "work/sqlite-target" ||
+		got.Repo.WorktreeSubdir != "services/core" ||
+		got.Repo.AuthRef != "ssh-key:github-default" ||
+		got.Repo.Metadata["source"] != "contract" {
 		t.Fatalf("repo target = %+v, want populated target", got.Repo)
 	}
 }
@@ -486,14 +495,20 @@ func TestSQLiteStoreContractMemories(t *testing.T) {
 		t.Fatalf("all memory IDs = %v, want newest other/project/global", ids)
 	}
 	for _, query := range []string{"foo-bar", `"unterminated`, "%", "_"} {
-		if _, err := s.SearchMemories(ctx, query, MemoryFilter{Prefix: prefix, Limit: 10}); err != nil {
+		found, err := s.SearchMemories(ctx, query, MemoryFilter{Prefix: prefix, Limit: 10})
+		if err != nil {
 			t.Fatalf("SearchMemories %q: %v", query, err)
 		}
+		if query == "foo-bar" {
+			if ids := memoryIDs(found); !slices.Equal(ids, []int64{project.ID}) {
+				t.Fatalf("SearchMemories %q IDs = %v, want project", query, ids)
+			}
+		}
 	}
-	if _, err := s.InsertMemory(ctx, MemoryInput{Prefix: prefix, Body: "bad tag", Tags: []string{strings.Repeat("x", maxMemoryTagLength+1)}}); err == nil {
+	if _, err := s.InsertMemory(ctx, MemoryInput{Prefix: prefix, Body: "bad tag", Tags: []string{strings.Repeat("x", maxMemoryTagLength+1)}}); err == nil || !strings.Contains(err.Error(), "exceeds") {
 		t.Fatal("InsertMemory long tag succeeded, want validation error")
 	}
-	if _, err := s.SearchMemories(ctx, "", MemoryFilter{Prefix: prefix, Tags: []string{strings.Repeat("x", maxMemoryTagLength+1)}}); err == nil {
+	if _, err := s.SearchMemories(ctx, "", MemoryFilter{Prefix: prefix, Tags: []string{strings.Repeat("x", maxMemoryTagLength+1)}}); err == nil || !strings.Contains(err.Error(), "exceeds") {
 		t.Fatal("SearchMemories long tag succeeded, want validation error")
 	}
 }
@@ -563,6 +578,18 @@ func assertUTCNonZero(t *testing.T, name string, ts time.Time) {
 	if ts.Location() != time.UTC {
 		t.Fatalf("%s location = %v, want UTC", name, ts.Location())
 	}
+}
+
+func waitForTimestampAdvance() {
+	time.Sleep(2 * time.Millisecond)
+}
+
+func repoAuditActions(audits []RepoAudit) []string {
+	actions := make([]string, 0, len(audits))
+	for _, audit := range audits {
+		actions = append(actions, audit.Action)
+	}
+	return actions
 }
 
 func memoryIDs(memories []Memory) []int64 {
