@@ -62,6 +62,19 @@ describe('ApiClient', () => {
     })
   })
 
+  it('loads the ready queue from the ready endpoint', async () => {
+    const fetcher = mockFetch({ issues: [] })
+    const client = new ApiClient({ fetch: fetcher })
+
+    await expect(client.ready()).resolves.toEqual({ issues: [] })
+
+    expect(fetcher).toHaveBeenCalledWith('/api/v1/ready', {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      body: undefined,
+    })
+  })
+
   it('throws ApiError with the server error envelope', async () => {
     const fetcher = mockFetch(
       {
