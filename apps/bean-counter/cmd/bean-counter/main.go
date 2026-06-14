@@ -14,7 +14,8 @@ func main() {
 	}
 
 	app := server.New(server.Config{
-		CORSOrigin: os.Getenv("BN_CORS_ORIGIN"),
+		CORSOrigin:    os.Getenv("BN_CORS_ORIGIN"),
+		CORSOriginSet: true,
 	})
 	log.Printf("bean-counter listening on %s", addr)
 	if err := app.Listen(addr); err != nil {
