@@ -1301,10 +1301,10 @@ func TestListIssuesOrderingLimitAndPrefixScope(t *testing.T) {
 	}
 
 	inputs := []store.CreateIssueInput{
-		{Prefix: "lso", Title: "medium first", Priority: 3, IssueType: "task"},
-		{Prefix: "lso", Title: "critical", Priority: 1, IssueType: "task"},
-		{Prefix: "lso", Title: "high", Priority: 2, IssueType: "task"},
-		{Prefix: "lso", Title: "medium second", Priority: 3, IssueType: "task"},
+		{Prefix: "lso", Title: "low", Priority: 3, IssueType: "task"},
+		{Prefix: "lso", Title: "critical", Priority: 0, IssueType: "task"},
+		{Prefix: "lso", Title: "high", Priority: 1, IssueType: "task"},
+		{Prefix: "lso", Title: "medium", Priority: 2, IssueType: "task"},
 		{Prefix: "other", Title: "other critical", Priority: 1, IssueType: "task"},
 	}
 	created := make([]store.Issue, 0, len(inputs))
@@ -1320,7 +1320,7 @@ func TestListIssuesOrderingLimitAndPrefixScope(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListIssues limited: %v", err)
 	}
-	want := []string{created[1].ID, created[2].ID, created[0].ID}
+	want := []string{created[1].ID, created[2].ID, created[3].ID}
 	if ids := issueIDs(got); !slices.Equal(ids, want) {
 		t.Fatalf("ListIssues limited IDs = %v, want %v", ids, want)
 	}
@@ -1589,10 +1589,10 @@ func TestReadyIssuesOrderingAndEmptyActiveStates(t *testing.T) {
 	}
 
 	inputs := []store.CreateIssueInput{
-		{Prefix: "rord", Title: "medium first", Priority: 3, IssueType: "task"},
-		{Prefix: "rord", Title: "critical", Priority: 1, IssueType: "task"},
-		{Prefix: "rord", Title: "high", Priority: 2, IssueType: "task"},
-		{Prefix: "rord", Title: "medium second", Priority: 3, IssueType: "task"},
+		{Prefix: "rord", Title: "low", Priority: 3, IssueType: "task"},
+		{Prefix: "rord", Title: "critical", Priority: 0, IssueType: "task"},
+		{Prefix: "rord", Title: "high", Priority: 1, IssueType: "task"},
+		{Prefix: "rord", Title: "medium", Priority: 2, IssueType: "task"},
 	}
 	created := make([]store.Issue, 0, len(inputs))
 	for _, in := range inputs {
@@ -1615,7 +1615,7 @@ func TestReadyIssuesOrderingAndEmptyActiveStates(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadyIssues: %v", err)
 	}
-	want := []string{created[1].ID, created[2].ID, created[0].ID, created[3].ID}
+	want := []string{created[1].ID, created[2].ID, created[3].ID, created[0].ID}
 	if ids := issueIDs(ready); !slices.Equal(ids, want) {
 		t.Fatalf("ReadyIssues IDs = %v, want %v", ids, want)
 	}
