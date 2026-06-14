@@ -13,7 +13,10 @@ func main() {
 		addr = ":8080"
 	}
 
-	app := server.New()
+	app := server.New(server.Config{
+		CORSOrigin:    os.Getenv("BN_CORS_ORIGIN"),
+		CORSOriginSet: true,
+	})
 	log.Printf("bean-counter listening on %s", addr)
 	if err := app.Listen(addr); err != nil {
 		log.Fatal(err)
