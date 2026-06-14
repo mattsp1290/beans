@@ -12,7 +12,7 @@ type GraphNode struct {
 	Title    string   `json:"title"`
 	State    string   `json:"state"`
 	Priority int      `json:"priority"`
-	Labels   []string `json:"labels,omitempty"`
+	Labels   []string `json:"labels"`
 }
 
 type GraphEdge struct {
@@ -28,7 +28,7 @@ func GraphResponseFromStore(issues []appstore.Issue, deps []appstore.DepEdge) Gr
 			Title:    issue.Title,
 			State:    string(issue.State),
 			Priority: int(issue.Priority),
-			Labels:   append([]string(nil), issue.Labels...),
+			Labels:   copyStringSlice(issue.Labels),
 		})
 	}
 

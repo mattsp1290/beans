@@ -1,10 +1,9 @@
 package dto
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
-
-	beansmodel "github.com/mattsp1290/beans/model"
 
 	appstore "github.com/mattsp1290/bean-counter/internal/store"
 )
@@ -13,7 +12,7 @@ func TestIssueFromStoreCopiesFields(t *testing.T) {
 	created := time.Date(2026, 6, 14, 12, 0, 0, 0, time.UTC)
 	updated := created.Add(time.Hour)
 	issue := appstore.Issue{
-		Issue: beansmodel.Issue{
+		Issue: appstore.IssueModel{
 			ID:          "bc-123",
 			Identifier:  "BC-123",
 			Title:       "Title",
@@ -24,7 +23,7 @@ func TestIssueFromStoreCopiesFields(t *testing.T) {
 			BlockedBy:   []string{"bc-100"},
 			BranchName:  "feature/branch",
 			URL:         "https://example.test/bc-123",
-			Repo: &beansmodel.RepoTarget{
+			Repo: &appstore.RepoTarget{
 				ID:             "repo-1",
 				Slug:           "bean-counter",
 				RemoteURL:      "git@example.test/repo.git",
@@ -114,5 +113,31 @@ func TestUpdateIssueRequestToStoreInput(t *testing.T) {
 	}
 	if got.Labels == nil || len(got.Labels) != 0 {
 		t.Fatalf("empty labels should be preserved for clearing: %+v", got.Labels)
+	}
+}
+
+func TestUpdateIssueRequestLabelsJSONSemantics(t *testing.T) {
+	var omitted UpdateIssueRequest
+	if err := json.Unmarshal([]byte(`{}`), &omitted); err != nil {
+		t.Fatalf("unmarshal omitted labels: %v", err)
+	}
+	if got := omitted.ToStoreInput(); got.Labels != nil {
+		t.Fatalf("omitted labels = %#v, want nil", got.Labels)
+	}
+
+	var empty UpdateIssueRequest
+	if err := json.Unmarshal([]byte(`{"labels":[]}`), &empty); err != nil {
+		t.Fatalf("unmarshal empty labels: %v", err)
+	}
+	if got := empty.ToStoreInput(); got.Labels == nil || len(got.Labels) != 0 {
+		t.Fatalf("empty labels = %#v, want empty non-nil slice", got.Labels)
+	}
+
+	var nullLabels UpdateIssueRequest
+	if err := json.Unmarshal([]byte(`{"labels":null}`), &nullLabels); err != nil {
+		t.Fatalf("unmarshal null labels: %v", err)
+	}
+	if got := nullLabels.ToStoreInput(); got.Labels != nil {
+		t.Fatalf("null labels = %#v, want nil until validation rejects or documents null", got.Labels)
 	}
 }

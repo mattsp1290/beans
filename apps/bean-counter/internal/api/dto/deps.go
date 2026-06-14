@@ -3,7 +3,7 @@ package dto
 import appstore "github.com/mattsp1290/bean-counter/internal/store"
 
 type AddDependencyRequest struct {
-	ParentID string `json:"parent_id"`
+	BlockedByID string `json:"blocked_by_id"`
 }
 
 type Dependency struct {

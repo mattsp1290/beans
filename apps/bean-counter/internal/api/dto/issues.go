@@ -3,8 +3,6 @@ package dto
 import (
 	"time"
 
-	beansmodel "github.com/mattsp1290/beans/model"
-
 	appstore "github.com/mattsp1290/bean-counter/internal/store"
 )
 
@@ -16,8 +14,8 @@ type Issue struct {
 	Priority    int         `json:"priority"`
 	IssueType   string      `json:"issue_type"`
 	State       string      `json:"state"`
-	Labels      []string    `json:"labels,omitempty"`
-	BlockedBy   []string    `json:"blocked_by,omitempty"`
+	Labels      []string    `json:"labels"`
+	BlockedBy   []string    `json:"blocked_by"`
 	BranchName  string      `json:"branch_name,omitempty"`
 	URL         string      `json:"url,omitempty"`
 	Repo        *RepoTarget `json:"repo,omitempty"`
@@ -87,8 +85,8 @@ func IssueFromStore(issue appstore.Issue) Issue {
 		Priority:    int(issue.Priority),
 		IssueType:   issue.IssueType,
 		State:       string(issue.State),
-		Labels:      append([]string(nil), issue.Labels...),
-		BlockedBy:   append([]string(nil), issue.BlockedBy...),
+		Labels:      copyStringSlice(issue.Labels),
+		BlockedBy:   copyStringSlice(issue.BlockedBy),
 		BranchName:  issue.BranchName,
 		URL:         issue.URL,
 		Repo:        RepoTargetFromStore(issue.Repo),
@@ -105,7 +103,7 @@ func IssuesFromStore(issues []appstore.Issue) []Issue {
 	return result
 }
 
-func RepoTargetFromStore(repo *beansmodel.RepoTarget) *RepoTarget {
+func RepoTargetFromStore(repo *appstore.RepoTarget) *RepoTarget {
 	if repo == nil {
 		return nil
 	}
@@ -140,9 +138,9 @@ func (r CreateIssueRequest) ToStoreInput(prefix, actor string) appstore.CreateIs
 }
 
 func (r UpdateIssueRequest) ToStoreInput() appstore.UpdateIssueInput {
-	var state *beansmodel.IssueState
+	var state *appstore.IssueState
 	if r.State != nil {
-		converted := beansmodel.IssueState(*r.State)
+		converted := appstore.IssueState(*r.State)
 		state = &converted
 	}
 	return appstore.UpdateIssueInput{
@@ -174,6 +172,15 @@ func (r *IssueRepoInput) toStoreInput() *appstore.IssueRepoInput {
 func copyOptionalSlice(in []string) []string {
 	if in == nil {
 		return nil
+	}
+	out := make([]string, len(in))
+	copy(out, in)
+	return out
+}
+
+func copyStringSlice(in []string) []string {
+	if in == nil {
+		return []string{}
 	}
 	out := make([]string, len(in))
 	copy(out, in)
