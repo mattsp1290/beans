@@ -661,7 +661,7 @@ func TestMemoryInsertAndScopedSearch(t *testing.T) {
 		Prefix: "mem",
 		Body:   "project design note for alpha",
 		Type:   "project",
-		Tags:   []string{"alpha", "design"},
+		Tags:   []string{"design", "alpha", "alpha"},
 	})
 	if err != nil {
 		t.Fatalf("InsertMemory project: %v", err)
@@ -719,7 +719,7 @@ func TestMemoryInsertAndScopedSearch(t *testing.T) {
 
 	tagged, err := s.SearchMemories(ctx, "", store.MemoryFilter{
 		Prefix: "mem",
-		Tags:   []string{"alpha", "design"},
+		Tags:   []string{"design", "alpha", "alpha"},
 		Limit:  10,
 	})
 	if err != nil {
@@ -747,6 +747,24 @@ func TestMemoryInsertAndScopedSearch(t *testing.T) {
 	}
 	if got, want := memoryIDs(limited), []int64{partialTag.ID}; !slices.Equal(got, want) {
 		t.Fatalf("limited memory IDs = %v, want %v", got, want)
+	}
+
+	if _, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "mem", Body: "bad empty tag", Tags: []string{""},
+	}); err == nil {
+		t.Fatal("InsertMemory empty tag succeeded, want error")
+	}
+	if _, err := s.InsertMemory(ctx, store.MemoryInput{
+		Prefix: "mem", Body: "bad long tag", Tags: []string{strings.Repeat("x", 256)},
+	}); err == nil {
+		t.Fatal("InsertMemory long tag succeeded, want error")
+	}
+	if _, err := s.SearchMemories(ctx, "", store.MemoryFilter{
+		Prefix: "mem",
+		Tags:   []string{"alpha", ""},
+		Limit:  10,
+	}); err == nil {
+		t.Fatal("SearchMemories empty filter tag succeeded, want error")
 	}
 }
 

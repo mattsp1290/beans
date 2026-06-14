@@ -6,9 +6,11 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 	"unicode"
+	"unicode/utf8"
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -904,12 +906,18 @@ type MemoryFilter struct {
 
 const defaultMemoryLimit = 50
 
+const maxMemoryTagLength = 255
+
 // InsertMemory adds a new memory row. An empty Prefix stores NULL (global).
 // For non-global memories, the prefix must be registered in bn_projects.
 func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return Memory{}, err
+	}
+	tags, err := normalizeMemoryTags(in.Tags)
+	if err != nil {
+		return Memory{}, fmt.Errorf("store: InsertMemory tags: %w", err)
 	}
 
 	var prefix *string
@@ -925,17 +933,14 @@ func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error
 		Prefix:    prefix,
 		Body:      in.Body,
 		MType:     mtype,
-		Tags:      datatypes.JSON(encodedLabels(in.Tags)),
+		Tags:      datatypes.JSON(encodedLabels(tags)),
 		CreatedAt: newGORMTime(clockNowUTC()),
 	}
 	err = db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&memory).Error; err != nil {
 			return err
 		}
-		for _, tag := range uniqueStrings(in.Tags) {
-			if tag == "" {
-				continue
-			}
+		for _, tag := range tags {
 			if err := tx.Create(&gormMemoryTag{MemoryID: memory.ID, Tag: tag}).Error; err != nil {
 				return err
 			}
@@ -951,7 +956,7 @@ func (s *Store) InsertMemory(ctx context.Context, in MemoryInput) (Memory, error
 		Prefix:    prefix,
 		Body:      in.Body,
 		Type:      mtype,
-		Tags:      in.Tags,
+		Tags:      tags,
 		CreatedAt: memory.CreatedAt.UTC(),
 	}, nil
 }
@@ -973,6 +978,10 @@ func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter
 	}
 
 	q := db.WithContext(ctx).Model(&gormMemory{})
+	tags, err := normalizeMemoryTags(f.Tags)
+	if err != nil {
+		return nil, fmt.Errorf("store: SearchMemories tags: %w", err)
+	}
 	if !f.All {
 		// Scope to active project + globals.
 		pfx := f.Prefix
@@ -985,13 +994,17 @@ func (s *Store) SearchMemories(ctx context.Context, query string, f MemoryFilter
 		q = q.Where("mtype = ?", f.Type)
 	}
 
-	if len(f.Tags) > 0 {
-		for _, tag := range uniqueStrings(f.Tags) {
-			q = q.Where(
-				"EXISTS (SELECT 1 FROM bn_memory_tags mt WHERE mt.memory_id = bn_memories.id AND mt.tag = ?)",
-				tag,
-			)
-		}
+	if len(tags) > 0 {
+		q = q.Where(
+			`id IN (
+				SELECT memory_id
+				FROM bn_memory_tags
+				WHERE tag IN ?
+				GROUP BY memory_id
+				HAVING COUNT(DISTINCT tag) = ?
+			)`,
+			tags, len(tags),
+		)
 	}
 
 	var rows []gormMemory
@@ -1293,9 +1306,12 @@ func applyMemorySearch(q *gorm.DB, driver Driver, query string) *gorm.DB {
 	case DriverSQLite:
 		ftsQuery := sqliteFTSQuery(query)
 		if ftsQuery == "" {
-			return applyLikeMemorySearch(q, query)
+			return q.Where("1 = 0")
 		}
-		return q.Where("id IN (SELECT rowid FROM bn_memories_fts WHERE bn_memories_fts MATCH ?)", ftsQuery)
+		return q.
+			Joins("JOIN bn_memories_fts ON bn_memories_fts.rowid = bn_memories.id").
+			Where("bn_memories_fts MATCH ?", ftsQuery).
+			Order("bm25(bn_memories_fts) ASC")
 	default:
 		return applyLikeMemorySearch(q, query)
 	}
@@ -1320,6 +1336,29 @@ func sqliteFTSQuery(query string) string {
 		quoted = append(quoted, `"`+strings.ReplaceAll(term, `"`, `""`)+`"`)
 	}
 	return strings.Join(quoted, " ")
+}
+
+func normalizeMemoryTags(tags []string) ([]string, error) {
+	if len(tags) == 0 {
+		return nil, nil
+	}
+	seen := make(map[string]bool, len(tags))
+	out := make([]string, 0, len(tags))
+	for _, tag := range tags {
+		if tag == "" {
+			return nil, fmt.Errorf("memory tag must not be empty")
+		}
+		if utf8.RuneCountInString(tag) > maxMemoryTagLength {
+			return nil, fmt.Errorf("memory tag %q exceeds %d characters", tag, maxMemoryTagLength)
+		}
+		if seen[tag] {
+			continue
+		}
+		seen[tag] = true
+		out = append(out, tag)
+	}
+	sort.Strings(out)
+	return out, nil
 }
 
 func getRepoBySlugGORM(ctx context.Context, db *gorm.DB, prefix, slug string) (Repo, error) {
@@ -1440,19 +1479,6 @@ func reaches(graph map[string][]string, start, target string) bool {
 		stack = append(stack, graph[id]...)
 	}
 	return false
-}
-
-func uniqueStrings(values []string) []string {
-	seen := make(map[string]bool, len(values))
-	out := make([]string, 0, len(values))
-	for _, value := range values {
-		if seen[value] {
-			continue
-		}
-		seen[value] = true
-		out = append(out, value)
-	}
-	return out
 }
 
 func escapeLike(value string) string {
