@@ -265,7 +265,7 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"CREATE UNIQUE INDEX bn_repos_remote_url_idx ON bn_repos (remote_url)",
 	})
 	assertContainsDDL(t, DriverMySQL, mysqlSQL, []string{
-		"MODIFY remote_url VARCHAR(2048) NOT NULL",
+		"MODIFY remote_url VARCHAR(768) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL",
 		"CREATE UNIQUE INDEX bn_repos_remote_url_idx ON bn_repos (remote_url)",
 	})
 }

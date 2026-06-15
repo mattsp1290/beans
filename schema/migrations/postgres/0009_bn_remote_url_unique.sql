@@ -2,9 +2,9 @@
 --
 -- Add a UNIQUE index on bn_repos.remote_url so that the NormalizeRemoteURL
 -- canonical form (https://host/path, all SCP/ssh/https variants collapsed)
--- enforces one row per distinct repository. The write path (CreateRepo and the
--- auto-register entry point) must call NormalizeRemoteURL before writing so
--- that the index deduplication spans all three common transport forms:
+-- will enforce one row per distinct repository once the write path (CreateRepo
+-- and the auto-register entry point) calls NormalizeRemoteURL before writing
+-- (see beans-ph3 and beans-qea). The three common transport forms:
 --
 --   git@github.com:alice/app.git
 --   ssh://git@github.com/alice/app.git
