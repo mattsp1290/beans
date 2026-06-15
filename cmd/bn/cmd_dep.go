@@ -114,18 +114,27 @@ whichever edge exists — a 'blocks' edge or a 'parent-child' membership edge.`,
 }
 
 func newDepTreeCmd(rs *appState) *cobra.Command {
+	var allRepos bool
+
 	cmd := &cobra.Command{
 		Use:   "tree",
 		Short: "Print the dependency tree",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := rs.requirePrefix(); err != nil {
+			if !allRepos && rs.repoArg == "" {
+				if err := rs.requirePrefix(); err != nil {
+					return err
+				}
+			}
+
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
 				return err
 			}
 
 			// dep tree is the ordering (blocking) view. Membership edges
 			// (parent-child, etc.) are inspected via 'bn list --epic'.
-			edges, err := rs.store.ListBlockingDeps(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), f)
 			if err != nil {
 				return fmt.Errorf("dep tree: %w", err)
 			}
@@ -172,6 +181,7 @@ func newDepTreeCmd(rs *appState) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "show dependency tree across all repositories")
 	return cmd
 }
 
@@ -200,17 +210,26 @@ func printDepSubtree(w io.Writer, id string, children map[string][]string, prefi
 }
 
 func newDepCyclesCmd(rs *appState) *cobra.Command {
-	return &cobra.Command{
+	var allRepos bool
+
+	cmd := &cobra.Command{
 		Use:   "cycles",
 		Short: "Detect cycles in the dependency graph",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := rs.requirePrefix(); err != nil {
+			if !allRepos && rs.repoArg == "" {
+				if err := rs.requirePrefix(); err != nil {
+					return err
+				}
+			}
+
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
 				return err
 			}
 
 			// Only blocking edges form ordering cycles; membership edges never do.
-			edges, err := rs.store.ListBlockingDeps(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), f)
 			if err != nil {
 				return fmt.Errorf("dep cycles: %w", err)
 			}
@@ -228,6 +247,8 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 			return fmt.Errorf("%d cycle(s) detected", len(cycles))
 		},
 	}
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "detect cycles across all repositories")
+	return cmd
 }
 
 // detectCycles performs a DFS to find any cycles in the dep graph.
