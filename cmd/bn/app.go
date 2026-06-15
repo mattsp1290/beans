@@ -25,9 +25,15 @@ type appState struct {
 
 	// lazily set by initConn
 	store *store.Store
+
+	// injectable seam for git workspace queries; defaults to realGitResolver
+	git gitResolver
 }
 
 func newRootCmd(rs *appState) *cobra.Command {
+	if rs.git == nil {
+		rs.git = realGitResolver{}
+	}
 	root := &cobra.Command{
 		Use:           "bn",
 		Short:         "Database-backed issue tracker (bn = beans)",
