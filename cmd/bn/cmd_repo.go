@@ -400,10 +400,25 @@ func newRepoUpdateCmd(rs *appState) *cobra.Command {
 }
 
 func newRepoRemoveCmd(rs *appState) *cobra.Command {
-	return &cobra.Command{
+	var (
+		purge bool
+		force bool
+	)
+	cmd := &cobra.Command{
 		Use:   "remove <slug>",
-		Short: "Disable a repository",
-		Args:  cobra.ExactArgs(1),
+		Short: "Disable (or purge) a repository",
+		Long: `Disable a repository so it no longer participates in issue routing.
+
+Without --purge, the repo row is marked disabled (enabled=false) and all its
+issues and data are preserved. The repo can be re-enabled with repo update --enable.
+
+With --purge, the entire project is hard-deleted: the bn_projects row is removed
+and all associated data (repos, aliases, admins, memories) is cascade-deleted.
+Issues belonging to the project are also deleted. If the project has any issues,
+--purge requires --force to confirm the data loss.
+
+Under per-repo topology (prefix == slug), --purge removes the repo completely.`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
@@ -411,6 +426,15 @@ func newRepoRemoveCmd(rs *appState) *cobra.Command {
 			slug, err := cleanRepoSlug(args[0])
 			if err != nil {
 				return err
+			}
+			if purge {
+				// Under per-repo topology prefix == slug, so the project prefix
+				// to purge is rs.prefix (set from the repo whose slug matches).
+				if err := rs.store.DeleteProject(cmd.Context(), rs.prefix, force); err != nil {
+					return repoErr("repo remove --purge", err)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Purged project %s\n", rs.prefix)
+				return nil
 			}
 			repo, err := rs.store.DisableRepo(cmd.Context(), rs.prefix, slug, rs.actor)
 			if err != nil {
@@ -423,6 +447,9 @@ func newRepoRemoveCmd(rs *appState) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&purge, "purge", false, "hard-delete the project and all its data (irreversible)")
+	cmd.Flags().BoolVar(&force, "force", false, "with --purge, delete even if the project has issues")
+	return cmd
 }
 
 func cleanRepoSlug(raw string) (string, error) {
