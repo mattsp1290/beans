@@ -411,9 +411,9 @@ docker network inspect "$symphony_network" >/dev/null 2>&1 \
 say "network present: $symphony_network"
 
 say "== schema-version parity =="
-tbl="$(docker exec -i "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select to_regclass('bn_schema_versions') is not null" 2>/dev/null || true)"
+tbl="$(docker exec "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select to_regclass('bn_schema_versions') is not null" </dev/null 2>/dev/null || true)"
 [ "$tbl" = "t" ] || { echo "FAIL: bn_schema_versions not found in $pg_db; not a beans DB?" >&2; exit 1; }
-db_max="$(docker exec -i "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select coalesce(max(version_id),0) from bn_schema_versions" 2>/dev/null | tr -dc '0-9')"
+db_max="$(docker exec "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select coalesce(max(version_id),0) from bn_schema_versions" </dev/null 2>/dev/null | tr -dc '0-9')"
 db_max="${db_max:-0}"
 say "embedded_max=$embedded_max db_max=$db_max"
 if [ "$embedded_max" -gt "$db_max" ]; then
@@ -565,9 +565,9 @@ fi
 
 # ----- version-parity gate (critical) -------------------------------------- #
 current_phase="version-parity"
-tbl="$(docker exec -i "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select to_regclass('bn_schema_versions') is not null" 2>/dev/null || true)"
+tbl="$(docker exec "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select to_regclass('bn_schema_versions') is not null" </dev/null 2>/dev/null || true)"
 [ "$tbl" = "t" ] || { echo "FAIL: bn_schema_versions not found in $pg_db; not a beans DB?" >&2; exit 1; }
-db_max="$(docker exec -i "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select coalesce(max(version_id),0) from bn_schema_versions" 2>/dev/null | tr -dc '0-9')"
+db_max="$(docker exec "$pg_id" psql -U "$pg_user" -d "$pg_db" -tAc "select coalesce(max(version_id),0) from bn_schema_versions" </dev/null 2>/dev/null | tr -dc '0-9')"
 db_max="${db_max:-0}"
 { echo "embedded_max=$embedded_max"; echo "db_max=$db_max"; } > "$run_dir/version-parity.txt"
 if [ "$embedded_max" -gt "$db_max" ]; then
@@ -603,7 +603,7 @@ previous_api_id="$(docker image inspect "$api_image" --format '{{.Id}}' 2>/dev/n
 previous_ui_id="$(docker image inspect "$ui_image" --format '{{.Id}}' 2>/dev/null || true)"
 
 tmp_dump="$run_dir/symphony.sql.partial"
-if docker exec -i "$pg_id" pg_dump -Fc -U "$pg_user" -d "$pg_db" > "$tmp_dump" && [ -s "$tmp_dump" ]; then
+if docker exec "$pg_id" pg_dump -Fc -U "$pg_user" -d "$pg_db" </dev/null > "$tmp_dump" && [ -s "$tmp_dump" ]; then
   mv -f "$tmp_dump" "$run_dir/symphony.dump"
   wc -c "$run_dir/symphony.dump" > "$run_dir/symphony.dump.size"
 else
@@ -670,7 +670,7 @@ new_ui_id="$(docker image inspect "$ui_image" --format '{{.Id}}')"
 current_phase="secret-readability"
 if ! docker run --rm --entrypoint sh \
        -v "$dsn_secret":/run/secrets/bn_dsn:ro "$api_image" \
-       -c 'test -r /run/secrets/bn_dsn && head -c1 /run/secrets/bn_dsn >/dev/null' >/dev/null 2>&1; then
+       -c 'test -r /run/secrets/bn_dsn && head -c1 /run/secrets/bn_dsn >/dev/null' </dev/null >/dev/null 2>&1; then
   echo "FAIL: api container uid cannot read the mounted DSN secret ($dsn_secret)" >&2
   echo "       make it readable by the image user, or copy it to a bean-counter-owned path" >&2
   exit 1
