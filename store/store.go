@@ -393,6 +393,10 @@ func (s *Store) ListIssues(ctx context.Context, f ListFilter) ([]Issue, error) {
 // the ready semantics match the operator's WorkspaceConfig.TerminalStates
 // (never hardcoded to "closed").
 //
+// Only f.Prefix and f.AllRepos are consulted; f.States and f.Limit are
+// ignored (the caller supplies active/terminal state sets explicitly, and
+// result trimming is the caller's responsibility).
+//
 // Cross-prefix deps: an issue is only considered blocked by issues stored in
 // the same configured database. Dangling edges (blocked_by_id references a
 // deleted issue) are handled by ON DELETE CASCADE — if the blocker is deleted,

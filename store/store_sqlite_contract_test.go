@@ -1324,3 +1324,95 @@ func TestSQLiteStoreContractReadyIssuesAllRepos(t *testing.T) {
 		t.Fatalf("ReadyIssues AllRepos missing issues: got %v, want %s and %s", readyAll, issA.ID, issB.ID)
 	}
 }
+
+func TestSQLiteStoreContractListFilterAllReposWinsOverPrefix(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const prefixA = "allrepos-wins-a"
+	const prefixB = "allrepos-wins-b"
+	if err := s.EnsureProject(ctx, prefixA); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, prefixB); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	issA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixA, Title: "wins A", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue A: %v", err)
+	}
+	issB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "wins B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue B: %v", err)
+	}
+
+	// AllRepos=true with Prefix set — AllRepos must win; both issues returned.
+	all, err := s.ListIssues(ctx, ListFilter{Prefix: prefixA, AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListIssues: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range all {
+		ids[iss.ID] = true
+	}
+	if !ids[issA.ID] {
+		t.Fatalf("ListIssues AllRepos+Prefix missing issA")
+	}
+	if !ids[issB.ID] {
+		t.Fatalf("ListIssues AllRepos+Prefix missing issB — AllRepos must win over Prefix")
+	}
+}
+
+func TestSQLiteStoreContractReadyIssuesAllReposWithBlocker(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const prefixA = "cross-ready-a"
+	const prefixB = "cross-ready-b"
+	if err := s.EnsureProject(ctx, prefixA); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, prefixB); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	// In B: parent blocks child within same project.
+	parent, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "parent B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue parent: %v", err)
+	}
+	child, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "child B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue child: %v", err)
+	}
+	if err := s.AddDep(ctx, child.ID, parent.ID); err != nil {
+		t.Fatalf("AddDep: %v", err)
+	}
+
+	// Unblocked issue in A.
+	free, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixA, Title: "free A", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue free: %v", err)
+	}
+
+	term := []model.IssueState{"closed"}
+	active := []model.IssueState{"open"}
+
+	// Cross-repo ready: parent (unblocked) and free (unblocked) are ready; child is not.
+	readyAll, err := s.ReadyIssues(ctx, ListFilter{AllRepos: true}, term, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues AllRepos: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range readyAll {
+		ids[iss.ID] = true
+	}
+	if !ids[parent.ID] {
+		t.Fatalf("ReadyIssues AllRepos missing parent (expected ready)")
+	}
+	if !ids[free.ID] {
+		t.Fatalf("ReadyIssues AllRepos missing free (expected ready)")
+	}
+	if ids[child.ID] {
+		t.Fatalf("ReadyIssues AllRepos returned child (expected blocked, NOT-EXISTS should filter it)")
+	}
+}
