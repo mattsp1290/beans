@@ -11,13 +11,19 @@ import (
 type gitResolver interface {
 	// Toplevel returns the absolute path of the git working tree root for the
 	// given directory (empty string = cwd).  Returns ("", false, nil) when the
-	// directory is not inside a git repo.
+	// directory is not inside a git repo OR when any git error occurs (same
+	// convention as the underlying gitRoot helper).
 	Toplevel(dir string) (root string, ok bool, err error)
 
 	// RemoteURL returns the value of remote.origin.url for the repo rooted at
-	// root.  Returns ("", false, nil) when no remote.origin is configured.
+	// root.  Returns ("", false, nil) when remote.origin is unset OR when any
+	// git error occurs (git not found, permission denied, etc.) — all failures
+	// collapse to ok == false, err == nil, matching the Toplevel convention.
 	RemoteURL(root string) (url string, ok bool, err error)
 }
+
+// compile-time interface satisfaction check
+var _ gitResolver = realGitResolver{}
 
 // realGitResolver is the production implementation: shells out to git.
 type realGitResolver struct{}
@@ -40,34 +46,4 @@ func (realGitResolver) RemoteURL(root string) (string, bool, error) {
 		return "", false, nil
 	}
 	return url, true, nil
-}
-
-// fakeGitResolver is a test double that returns predetermined values without
-// touching the filesystem or spawning processes.
-type fakeGitResolver struct {
-	toplevel  string
-	remoteURL string
-	// err values are returned for every call when non-nil
-	toplevelErr  error
-	remoteURLErr error
-}
-
-func (f *fakeGitResolver) Toplevel(_ string) (string, bool, error) {
-	if f.toplevelErr != nil {
-		return "", false, f.toplevelErr
-	}
-	if f.toplevel == "" {
-		return "", false, nil
-	}
-	return f.toplevel, true, nil
-}
-
-func (f *fakeGitResolver) RemoteURL(_ string) (string, bool, error) {
-	if f.remoteURLErr != nil {
-		return "", false, f.remoteURLErr
-	}
-	if f.remoteURL == "" {
-		return "", false, nil
-	}
-	return f.remoteURL, true, nil
 }
