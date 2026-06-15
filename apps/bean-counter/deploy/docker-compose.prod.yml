@@ -43,7 +43,7 @@ services:
       # Read-only secret mount. The api runs as the non-root `bean-counter`
       # user, so the host file must be readable by that uid (verified in the
       # deploy preflight, not just checked for presence).
-      - ${BN_DSN_SECRET:-/home/infra-admin/symphony-secrets/bn_dsn}:/run/secrets/bn_dsn:ro
+      - ${BN_DSN_SECRET:-/home/infra-admin/bean-counter-secrets/bn_dsn}:/run/secrets/bn_dsn:ro
     restart: unless-stopped
     networks:
       - bean-counter-internal

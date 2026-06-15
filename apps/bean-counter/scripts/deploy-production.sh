@@ -40,7 +40,7 @@ DEFAULT_UI_IMAGE="bean-counter-ui:prod"
 DEFAULT_BN_PROJECT="local-symphony"
 DEFAULT_BN_ACTOR="bean-counter-ui"
 # shellcheck disable=SC2016
-DEFAULT_DSN_SECRET='$HOME/symphony-secrets/bn_dsn'
+DEFAULT_DSN_SECRET='$HOME/bean-counter-secrets/bn_dsn'
 DEFAULT_SYMPHONY_PROJECT="local-symphony"
 DEFAULT_SYMPHONY_NETWORK="local-symphony_symphony-internal"
 DEFAULT_PG_SERVICE="postgres"
@@ -109,7 +109,8 @@ Options:
   --bn-actor <name>      Write attribution (default: bean-counter-ui).
   --cors-origin <url>    CORS origin (default: http://<host-ip>:<ui-port>).
   --dsn-secret <path>    Remote DSN secret file. $HOME expanded on the remote
-                         (default: $HOME/symphony-secrets/bn_dsn).
+                         (default: $HOME/bean-counter-secrets/bn_dsn, owned by
+                         the api container uid so it stays non-root).
   --symphony-project <n> Compose project owning Postgres (default: local-symphony).
   --symphony-network <n> External Postgres network
                          (default: local-symphony_symphony-internal).

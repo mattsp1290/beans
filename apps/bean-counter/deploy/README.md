@@ -65,6 +65,24 @@ The secret (`BN_DSN`) is read on the remote from the mounted file, never passed
 over SSH argv, printed, or written into the deploy record (the rendered compose
 config is secret-scanned; captured logs are redacted).
 
+### One-time secret provisioning
+
+The api runs as the non-root image user (uid 100). The DSN secret must be
+readable by that uid. We keep a dedicated copy, owned by the container uid and
+not world-readable, separate from the orchestrator's `symphony-secrets` (which
+stays `0600`). On a new host, provision it once (needs root):
+
+```bash
+sudo install -d -m 0711 -o 1000 -g 1000 /home/infra-admin/bean-counter-secrets
+sudo install -m 0400 -o 100 -g 101 \
+  /home/infra-admin/symphony-secrets/bn_dsn \
+  /home/infra-admin/bean-counter-secrets/bn_dsn
+```
+
+The DSN must use the container host form (`@postgres:5432` / `host=postgres`)
+since the api joins the symphony network. `--check` verifies readability from
+the container uid before any deploy.
+
 ## Rollback
 
 Each run generates `rollback.md` from the captured previous state. Preferred path
@@ -76,7 +94,7 @@ docker compose -p bean-counter -f deploy/docker-compose.prod.yml stop api ui
 docker tag <previous_api_image_id> bean-counter-api:prod
 docker tag <previous_ui_image_id>  bean-counter-ui:prod
 UI_PORT=8088 SYMPHONY_NETWORK=local-symphony_symphony-internal \
-  BN_DSN_SECRET=$HOME/symphony-secrets/bn_dsn \
+  BN_DSN_SECRET=$HOME/bean-counter-secrets/bn_dsn \
   docker compose -p bean-counter -f deploy/docker-compose.prod.yml up -d --no-build api ui
 ```
 
