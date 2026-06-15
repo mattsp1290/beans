@@ -294,6 +294,58 @@ func TestImportDryRunDoesNotRequireDSN(t *testing.T) {
 	}
 }
 
+// TestImportCrossRepoNoCrossPrefixConflict verifies that importing a JSONL file
+// whose issue IDs carry a different prefix token does not trigger
+// CrossPrefixConflicts under per-repo topology (prefix == slug).
+// CrossPrefixConflict only fires when the SAME ID already exists in the DB under
+// a DIFFERENT prefix — a genuine ambiguity, not a slug-derivation coincidence.
+func TestImportCrossRepoNoCrossPrefixConflict(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	destStore, _ := newTestStore(t, "repo-b", "")
+
+	// JSONL from repo-a: IDs carry "repo-a-" prefix token, differing from dest.
+	jsonl := strings.Join([]string{
+		`{"id":"repo-a-abc123","title":"API task","status":"open","priority":2,"issue_type":"task"}`,
+		`{"id":"repo-a-def456","title":"API task 2","status":"open","priority":1,"issue_type":"feature"}`,
+	}, "\n")
+
+	items, warnings, err := parseImportJSONL(strings.NewReader(jsonl), "repo-b")
+	if err != nil || warnings != 0 || len(items) != 2 {
+		t.Fatalf("parseImportJSONL = items:%d warnings:%d err:%v, want 2/0/nil", len(items), warnings, err)
+	}
+
+	result, err := destStore.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: defaultTerminalStates,
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull: %v", err)
+	}
+	if result.CrossPrefixConflicts != 0 {
+		t.Errorf("CrossPrefixConflicts = %d, want 0 — cross-repo import must not false-conflict", result.CrossPrefixConflicts)
+	}
+	if result.Created != 2 {
+		t.Errorf("Created = %d, want 2", result.Created)
+	}
+
+	// Re-import the same items: must be idempotent (skipped, no new conflicts).
+	result2, err := destStore.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: defaultTerminalStates,
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("re-import ImportIssuesFull: %v", err)
+	}
+	if result2.CrossPrefixConflicts != 0 {
+		t.Errorf("re-import CrossPrefixConflicts = %d, want 0", result2.CrossPrefixConflicts)
+	}
+	if result2.Skipped != 2 {
+		t.Errorf("re-import Skipped = %d, want 2 (idempotent)", result2.Skipped)
+	}
+}
+
 func TestImportSummaryFromResultIncludesSkippedEdgeCounts(t *testing.T) {
 	t.Parallel()
 
