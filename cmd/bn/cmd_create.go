@@ -64,7 +64,11 @@ func newCreateCmd(rs *appState) *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("create: %w", err)
 				}
-				if repo != nil {
+				// Guard: only apply the repo if its prefix matches the current project.
+				// CreateIssue looks up the repo by (prefix, slug); a mismatch means the
+				// cwd repo belongs to a different project than --project/BN_PROJECT, and
+				// silently linking to it would produce a misleading "repo not found" error.
+				if repo != nil && repo.Prefix == rs.prefix {
 					repoSlug = repo.Slug
 				}
 			}
