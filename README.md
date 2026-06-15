@@ -64,9 +64,10 @@ database. The current repository is auto-detected from the git remote URL; no
   queries continue to work unchanged — `list`, `ready`, `dep tree`, and `dep
   cycles` all scope to the current repository by default.
 - **Auto-detect**: When you run `bn create` (or any command that needs repo
-  context), `bn` reads the `git remote get-url origin` URL, normalizes it, and
-  auto-registers the repo on first use. SCP form (`git@github.com:org/repo`),
-  HTTPS, and SSH URLs for the same physical repo resolve to the same entry.
+  context), `bn` reads the `git config --get remote.origin.url` value,
+  normalizes it, and auto-registers the repo on first use. SCP form
+  (`git@github.com:org/repo`), HTTPS, and SSH URLs for the same physical repo
+  resolve to the same entry.
 - **Local-only repos** (no remote) get a synthetic `file:///` URL key so they
   can still be registered and tracked.
 
@@ -110,11 +111,15 @@ bn dep add my-frontend-xyz789 my-api-abc123   # frontend waits on API
 | _(none)_ | list, ready, dep tree/cycles | Scope to current repo (from cwd git remote) |
 | `--all-repos` | list, ready, dep tree/cycles | Return issues from every registered repo |
 | `--repo <slug>` | list, ready, dep tree/cycles | Scope to the named repo (read-only, no auto-register) |
-| `--repo <url>` | create | Auto-register the given URL and link the issue |
+| `--repo <slug>` | create | Link the issue to an already-registered repo slug |
+
+Auto-registration on `bn create` is automatic: no `--repo` flag is needed. `bn`
+detects the git remote and registers the repo if it has not been seen before.
 
 ID-addressed commands (`show`, `update`, `close`, `delete`, `dep add/remove`)
-never filter by repo — they look up the issue directly by ID regardless of which
-repository is currently active.
+look up the issue by ID across all repos — `GetIssue` applies no prefix filter.
+They do require project context (provided automatically when inside any registered
+git repo directory), but the lookup itself is cross-repo.
 
 ## Repo Routing
 
