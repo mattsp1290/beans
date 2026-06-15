@@ -1551,6 +1551,21 @@ func getRepoBySlugGORM(ctx context.Context, db *gorm.DB, prefix, slug string) (R
 	return repoFromGORM(row), nil
 }
 
+func getRepoByRemoteURLGORM(ctx context.Context, db *gorm.DB, normalizedURL string) (Repo, error) {
+	var row gormRepo
+	err := db.WithContext(ctx).
+		Where("remote_url = ?", normalizedURL).
+		First(&row).
+		Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return Repo{}, fmt.Errorf("store: %w: no repo with remote URL %s", ErrNotFound, normalizedURL)
+	}
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: GetRepoByRemoteURL: %w", err)
+	}
+	return repoFromGORM(row), nil
+}
+
 func repoFromGORM(row gormRepo) Repo {
 	return Repo{
 		ID:             row.ID,

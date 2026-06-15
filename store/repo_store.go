@@ -225,7 +225,11 @@ func (s *Store) CreateRepo(ctx context.Context, in CreateRepoInput) (Repo, error
 	if displayName == "" {
 		displayName = in.Slug
 	}
-	remoteURL := strings.TrimSpace(in.RemoteURL)
+	rawURL := strings.TrimSpace(in.RemoteURL)
+	remoteURL, err := repo.NormalizeRemoteURL(rawURL)
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: CreateRepo: %w", err)
+	}
 	defaultBranch := repo.NormalizeDefaultBranch(in.DefaultBranch)
 	worktreeSubdir := strings.TrimSpace(in.WorktreeSubdir)
 	cloneStrategy := repo.NormalizeCloneStrategy(in.CloneStrategy)
@@ -414,6 +418,23 @@ func (s *Store) GetRepoBySlug(ctx context.Context, prefix, slug string) (Repo, e
 		return Repo{}, err
 	}
 	return getRepoBySlugGORM(ctx, db.WithContext(ctx), prefix, slug)
+}
+
+// GetRepoByRemoteURL returns the repo whose stored canonical remote URL matches
+// the given URL.  The input is normalized via NormalizeRemoteURL before
+// lookup, so any transport form (SCP, SSH URL, HTTPS) that collapses to the
+// same canonical key finds the same row.  Returns ErrNotFound when no
+// matching repo exists, so callers can fall through to auto-register.
+func (s *Store) GetRepoByRemoteURL(ctx context.Context, remoteURL string) (Repo, error) {
+	normalized, err := repo.NormalizeRemoteURL(remoteURL)
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: GetRepoByRemoteURL: %w", err)
+	}
+	db, err := s.p.gorm()
+	if err != nil {
+		return Repo{}, err
+	}
+	return getRepoByRemoteURLGORM(ctx, db.WithContext(ctx), normalized)
 }
 
 // ResolveRepoAlias resolves alias to the repo it references.
