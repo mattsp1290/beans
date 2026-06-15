@@ -1428,13 +1428,29 @@ func TestSQLiteStoreContractListDepsAllRepos(t *testing.T) {
 		}
 	}
 
-	parentA, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "parent A", Actor: "t"})
-	childA, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "child A", Actor: "t"})
-	_ = s.AddDep(ctx, childA.ID, parentA.ID)
+	parentA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "parent A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentA: %v", err)
+	}
+	childA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "child A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childA: %v", err)
+	}
+	if err := s.AddDep(ctx, childA.ID, parentA.ID); err != nil {
+		t.Fatalf("AddDep A: %v", err)
+	}
 
-	parentB, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "parent B", Actor: "t"})
-	childB, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "child B", Actor: "t"})
-	_ = s.AddDep(ctx, childB.ID, parentB.ID)
+	parentB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "parent B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentB: %v", err)
+	}
+	childB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "child B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childB: %v", err)
+	}
+	if err := s.AddDep(ctx, childB.ID, parentB.ID); err != nil {
+		t.Fatalf("AddDep B: %v", err)
+	}
 
 	// Prefix-scoped: each project sees only its own edges.
 	edgesA, err := s.ListDeps(ctx, ListFilter{Prefix: pfxA})
@@ -1472,13 +1488,29 @@ func TestSQLiteStoreContractListMembersAllRepos(t *testing.T) {
 		}
 	}
 
-	epicA, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "epic A", Actor: "t", IssueType: "epic"})
-	leafA, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "leaf A", Actor: "t"})
-	_ = s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild)
+	epicA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "epic A", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicA: %v", err)
+	}
+	leafA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "leaf A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leafA: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafA→epicA: %v", err)
+	}
 
-	epicB, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "epic B", Actor: "t", IssueType: "epic"})
-	leafB, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "leaf B", Actor: "t"})
-	_ = s.AddTypedDep(ctx, leafB.ID, epicB.ID, DepTypeParentChild)
+	epicB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "epic B", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicB: %v", err)
+	}
+	leafB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "leaf B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leafB: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafB.ID, epicB.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafB→epicB: %v", err)
+	}
 
 	// Prefix-scoped: each project sees only its own members.
 	membersA, err := s.ListMembers(ctx, ListFilter{Prefix: pfxA}, epicA.ID)
@@ -1516,9 +1548,17 @@ func TestSQLiteStoreContractListParentsAllRepos(t *testing.T) {
 		}
 	}
 
-	epicA, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "epic A", Actor: "t", IssueType: "epic"})
-	leafA, _ := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "leaf A", Actor: "t"})
-	_ = s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild)
+	epicA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "epic A", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicA: %v", err)
+	}
+	leafA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "leaf A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leafA: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafA→epicA: %v", err)
+	}
 
 	// Prefix-scoped: visible in own prefix.
 	parentsA, err := s.ListParents(ctx, ListFilter{Prefix: pfxA}, leafA.ID)
@@ -1551,5 +1591,68 @@ func TestSQLiteStoreContractListParentsAllRepos(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("ListParents AllRepos missing epicA: got %v", parentsAll)
+	}
+}
+
+func TestSQLiteStoreContractListBlockingDepsAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const pfxA = "blocking-all-a"
+	const pfxB = "blocking-all-b"
+	for _, pfx := range []string{pfxA, pfxB} {
+		if err := s.EnsureProject(ctx, pfx); err != nil {
+			t.Fatalf("EnsureProject %s: %v", pfx, err)
+		}
+	}
+
+	parentA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "parent A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentA: %v", err)
+	}
+	childA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "child A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childA: %v", err)
+	}
+	if err := s.AddDep(ctx, childA.ID, parentA.ID); err != nil {
+		t.Fatalf("AddDep A: %v", err)
+	}
+
+	parentB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "parent B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentB: %v", err)
+	}
+	childB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "child B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childB: %v", err)
+	}
+	if err := s.AddDep(ctx, childB.ID, parentB.ID); err != nil {
+		t.Fatalf("AddDep B: %v", err)
+	}
+
+	// Prefix-scoped: each project sees only its own blocking edges.
+	edgesA, err := s.ListBlockingDeps(ctx, ListFilter{Prefix: pfxA})
+	if err != nil {
+		t.Fatalf("ListBlockingDeps A: %v", err)
+	}
+	for _, e := range edgesA {
+		if e.IssueID == childB.ID {
+			t.Fatalf("ListBlockingDeps A returned edge from pfxB: %+v", e)
+		}
+	}
+	if len(edgesA) != 1 || edgesA[0].IssueID != childA.ID {
+		t.Fatalf("ListBlockingDeps A = %+v, want one edge childA→parentA", edgesA)
+	}
+
+	// AllRepos: blocking edges from both prefixes returned.
+	all, err := s.ListBlockingDeps(ctx, ListFilter{AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListBlockingDeps AllRepos: %v", err)
+	}
+	byChild := make(map[string]bool)
+	for _, e := range all {
+		byChild[e.IssueID] = true
+	}
+	if !byChild[childA.ID] || !byChild[childB.ID] {
+		t.Fatalf("ListBlockingDeps AllRepos missing edges: got %v", all)
 	}
 }

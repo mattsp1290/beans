@@ -816,9 +816,11 @@ func (s *Store) ListBlockingDeps(ctx context.Context, f ListFilter) ([]DepEdge, 
 // parentID — i.e. rows where blocked_by_id=parentID and dep_type='parent-child'.
 // Ordered by priority then creation time. Backs `bn list --epic`. Membership is
 // non-blocking, so this is the authoritative way to assert "every epic has ≥2
-// children" without raw SQL.
+// children" without raw SQL. A prefix-scoped query (AllRepos=false) guarantees
+// isolation — a foreign epic ID cannot leak another project's children.
 //
 // f.AllRepos=true omits the prefix clause, returning members across all projects.
+// f.States and f.Limit are not consulted.
 func (s *Store) ListMembers(ctx context.Context, f ListFilter, parentID string) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
@@ -852,9 +854,10 @@ func (s *Store) ListMembers(ctx context.Context, f ListFilter, parentID string) 
 // ListParents returns the parent/epic issues that childID is a parent-child
 // member of — i.e. rows where issue_id=childID and dep_type='parent-child',
 // joined to the parent on blocked_by_id. Inverse of ListMembers; gives a leaf
-// a read surface back to its epic (used by `bn show`).
+// a read surface back to its epic (used by `bn show`). Prefix-scoped by default
+// for the same isolation reason as ListMembers.
 //
-// f.AllRepos=true omits the prefix clause.
+// f.AllRepos=true omits the prefix clause. f.States and f.Limit are not consulted.
 func (s *Store) ListParents(ctx context.Context, f ListFilter, childID string) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
