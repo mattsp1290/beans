@@ -479,14 +479,14 @@ PAYLOAD
 #   $6 compose_project $7 compose_prod $8 bn_project $9 bn_actor $10 cors_origin
 #   $11 ui_port $12 dsn_secret $13 symphony_project $14 symphony_network
 #   $15 pg_service $16 pg_user $17 pg_db $18 embedded_max $19 no_rebuild
-#   $20 user_ref $21 local_preflight $22 health_timeout $23 revision_label
+#   $20 user_ref $21 local_preflight_b64 $22 health_timeout $23 revision_label
 remote_deploy_payload() {
   cat <<'PAYLOAD'
 target_sha="$1"; short_sha="$2"; repo_dir="$3"; api_image="$4"; ui_image="$5"
 compose_project="$6"; compose_prod="$7"; bn_project="$8"; bn_actor="$9"; cors_origin="${10}"
 ui_port="${11}"; dsn_secret="${12}"; symphony_project="${13}"; symphony_network="${14}"
 pg_service="${15}"; pg_user="${16}"; pg_db="${17}"; embedded_max="${18}"; no_rebuild="${19}"
-user_ref="${20}"; local_preflight="${21}"; health_timeout="${22}"; revision_label="${23}"
+user_ref="${20}"; local_preflight="$(printf '%s' "${21}" | base64 -d)"; health_timeout="${22}"; revision_label="${23}"
 
 expand_home() { case "$1" in '$HOME'/*) printf '%s\n' "$HOME/${1#'$HOME'/}";; '~'/*) printf '%s\n' "$HOME/${1#'~'/}";; *) printf '%s\n' "$1";; esac; }
 repo_dir="$(expand_home "$repo_dir")"
@@ -836,12 +836,17 @@ do_live() {
   require_clean_local_ref
   local_gates
   log "local gates passed; starting locked remote deploy"
+  # base64-encode the (multi-line) preflight summary: ssh flattens argv into a
+  # command string the remote shell re-parses, so a newline-bearing arg would
+  # leak its extra lines as remote commands. Encode -> single token -> decode.
+  local local_preflight_b64
+  local_preflight_b64="$(printf '%s' "$LOCAL_PREFLIGHT" | base64 | tr -d '\n')"
   remote_exec "$(remote_deploy_payload)" \
     "$TARGET_SHA" "$SHORT_SHA" "$REMOTE_REPO_DIR" "$API_IMAGE" "$UI_IMAGE" \
     "$COMPOSE_PROJECT" "$COMPOSE_PROD" "$BN_PROJECT" "$BN_ACTOR" "$CORS_ORIGIN" \
     "$UI_PORT" "$DSN_SECRET" "$SYMPHONY_PROJECT" "$SYMPHONY_NETWORK" \
     "$PG_SERVICE" "$PG_USER" "$PG_DB" "$EMBEDDED_MAX" "$NO_REBUILD" \
-    "$REF" "$LOCAL_PREFLIGHT" "$HEALTH_TIMEOUT" "$REVISION_LABEL"
+    "$REF" "$local_preflight_b64" "$HEALTH_TIMEOUT" "$REVISION_LABEL"
   log "live deploy complete"
 }
 
