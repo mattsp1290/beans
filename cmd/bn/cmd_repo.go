@@ -428,9 +428,13 @@ Under per-repo topology (prefix == slug), --purge removes the repo completely.`,
 				return err
 			}
 			if purge {
-				// Under per-repo topology prefix == slug, so the project prefix
-				// to purge is rs.prefix (set from the repo whose slug matches).
-				if err := rs.store.DeleteProject(cmd.Context(), rs.prefix, force); err != nil {
+				// Verify the named slug exists in this project before purging — guards
+				// against accidental wrong-project deletion when --project / BN_PROJECT
+				// is set to a different prefix than the slug being removed.
+				if _, err := rs.store.GetRepoBySlug(cmd.Context(), rs.prefix, slug); err != nil {
+					return repoErr("repo remove --purge", err)
+				}
+				if err := rs.store.DeleteProject(cmd.Context(), rs.prefix, rs.actor, force); err != nil {
 					return repoErr("repo remove --purge", err)
 				}
 				fmt.Fprintf(cmd.OutOrStdout(), "Purged project %s\n", rs.prefix)

@@ -101,6 +101,9 @@ func (s *Store) ProjectExists(ctx context.Context, prefix string) (bool, error) 
 
 // DeleteProject hard-deletes a project and all its data.
 //
+// actor must be a registered project admin; ErrUnauthorized is returned
+// otherwise (same authorization gate as other repo-registry mutations).
+//
 // Under per-repo topology (prefix == slug), this removes the project row,
 // its repo registration, all repo aliases, project admins, and memories
 // (via ON DELETE CASCADE from bn_projects). Issues are NOT cascaded by the
@@ -108,7 +111,10 @@ func (s *Store) ProjectExists(ctx context.Context, prefix string) (bool, error) 
 //
 // If force is false and the project has any issues, DeleteProject returns
 // ErrConflict so the caller can surface a confirmation prompt.
-func (s *Store) DeleteProject(ctx context.Context, prefix string, force bool) error {
+func (s *Store) DeleteProject(ctx context.Context, prefix, actor string, force bool) error {
+	if err := s.AuthorizeRepoAdmin(ctx, prefix, actor); err != nil {
+		return err
+	}
 	db, err := s.p.gorm()
 	if err != nil {
 		return err

@@ -129,6 +129,7 @@ func TestRepoRemovePurgeNoIssuesSucceeds(t *testing.T) {
 	if err := s.EnsureProject(ctx, r.Prefix); err != nil {
 		t.Fatalf("EnsureProject: %v", err)
 	}
+	bootstrapRepoAdmin(t, s, r.Prefix, "test")
 
 	rs := &appState{store: s, actor: "test", prefix: r.Prefix, git: &fakeGitResolver{}}
 	cmd := newRepoRemoveCmd(rs)
@@ -168,6 +169,7 @@ func TestRepoRemovePurgeRefusesWhenIssuesExist(t *testing.T) {
 	if err := s.EnsureProject(ctx, r.Prefix); err != nil {
 		t.Fatalf("EnsureProject: %v", err)
 	}
+	bootstrapRepoAdmin(t, s, r.Prefix, "test")
 	mustCreateIssue(t, s, r.Prefix, "existing task", r)
 
 	rs := &appState{store: s, actor: "test", prefix: r.Prefix, git: &fakeGitResolver{}}
@@ -199,6 +201,7 @@ func TestRepoRemovePurgeForceDeletesIssues(t *testing.T) {
 	if err := s.EnsureProject(ctx, r.Prefix); err != nil {
 		t.Fatalf("EnsureProject: %v", err)
 	}
+	bootstrapRepoAdmin(t, s, r.Prefix, "test")
 	mustCreateIssue(t, s, r.Prefix, "task to delete", r)
 	mustCreateIssue(t, s, r.Prefix, "another task", r)
 
