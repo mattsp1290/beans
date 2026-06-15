@@ -460,13 +460,38 @@ func TestSQLiteStoreContractGetRepoByRemoteURL(t *testing.T) {
 		t.Fatalf("GetRepoByRemoteURL unknown = %v, want ErrNotFound", err)
 	}
 
-	// Invalid URL returns an error (not ErrNotFound).
+	// Invalid URL returns a non-NotFound error (input error, not a missing row).
 	_, err = s.GetRepoByRemoteURL(ctx, "ftp://unsupported.example.com/repo.git")
 	if err == nil {
 		t.Fatal("GetRepoByRemoteURL unsupported scheme: want error, got nil")
 	}
 	if errors.Is(err, ErrNotFound) {
 		t.Fatal("GetRepoByRemoteURL unsupported scheme: want non-NotFound error")
+	}
+
+	// Empty input returns non-NotFound error (ErrNoRemote, not a missing row).
+	_, err = s.GetRepoByRemoteURL(ctx, "")
+	if err == nil {
+		t.Fatal("GetRepoByRemoteURL empty: want error, got nil")
+	}
+	if errors.Is(err, ErrNotFound) {
+		t.Fatal("GetRepoByRemoteURL empty: want non-NotFound error (ErrNoRemote)")
+	}
+
+	// A second CreateRepo with a different transport form for the same logical
+	// remote must be rejected with ErrConflict (proves the UNIQUE index blocks
+	// cross-transport duplicates once the write path normalizes).
+	_, err = s.CreateRepo(ctx, CreateRepoInput{
+		Prefix:        prefix,
+		Slug:          "myapp-dupe",
+		DisplayName:   "Dupe",
+		RemoteURL:     "https://github.com/alice/myapp.git",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	})
+	if !errors.Is(err, ErrConflict) {
+		t.Fatalf("CreateRepo duplicate remote (different transport form) = %v, want ErrConflict", err)
 	}
 }
 
