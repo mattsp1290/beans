@@ -26,6 +26,12 @@ func newDeleteCmd(rs *appState) *cobra.Command {
 			}
 
 			id := args[0]
+			if rs.resolvedRepo != nil {
+				if peek, gErr := rs.store.GetIssue(cmd.Context(), id); gErr == nil {
+					warnIfCrossRepo(cmd.ErrOrStderr(), rs, peek)
+				}
+			}
+
 			err := rs.store.DeleteIssue(cmd.Context(), id)
 			if err != nil {
 				if errors.Is(err, store.ErrNotFound) {
