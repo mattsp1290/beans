@@ -400,6 +400,101 @@ func TestSQLiteStoreContractReposAndAudit(t *testing.T) {
 	}
 }
 
+func TestSQLiteStoreContractGetRepoByRemoteURL(t *testing.T) {
+	t.Parallel()
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-remote-url"
+	ensureContractProject(t, s, ctx, prefix)
+
+	if err := s.AddRepoAdmin(ctx, prefix, "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin: %v", err)
+	}
+
+	// Register repo using the SCP transport form.  CreateRepo normalizes the
+	// stored remote_url so all three transport forms share one unique slot.
+	registered, err := s.CreateRepo(ctx, CreateRepoInput{
+		Prefix:        prefix,
+		Slug:          "myapp",
+		DisplayName:   "My App",
+		RemoteURL:     "git@github.com:alice/myapp.git",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo: %v", err)
+	}
+
+	// Canonical normalized URL stored in db.
+	const wantCanonical = "https://github.com/alice/myapp"
+	if registered.RemoteURL != wantCanonical {
+		t.Fatalf("CreateRepo stored RemoteURL = %q, want %q", registered.RemoteURL, wantCanonical)
+	}
+
+	// All three transport forms must find the same row.
+	forms := []struct {
+		name string
+		url  string
+	}{
+		{"scp", "git@github.com:alice/myapp.git"},
+		{"ssh-url", "ssh://git@github.com/alice/myapp.git"},
+		{"https-with-git", "https://github.com/alice/myapp.git"},
+		{"https-no-git", "https://github.com/alice/myapp"},
+	}
+	for _, tc := range forms {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := s.GetRepoByRemoteURL(ctx, tc.url)
+			if err != nil {
+				t.Fatalf("GetRepoByRemoteURL(%q): %v", tc.url, err)
+			}
+			if got.ID != registered.ID {
+				t.Fatalf("GetRepoByRemoteURL(%q) ID = %q, want %q", tc.url, got.ID, registered.ID)
+			}
+		})
+	}
+
+	// Unknown URL returns ErrNotFound.
+	_, err = s.GetRepoByRemoteURL(ctx, "https://github.com/nobody/absent.git")
+	if !errors.Is(err, ErrNotFound) {
+		t.Fatalf("GetRepoByRemoteURL unknown = %v, want ErrNotFound", err)
+	}
+
+	// Invalid URL returns a non-NotFound error (input error, not a missing row).
+	_, err = s.GetRepoByRemoteURL(ctx, "ftp://unsupported.example.com/repo.git")
+	if err == nil {
+		t.Fatal("GetRepoByRemoteURL unsupported scheme: want error, got nil")
+	}
+	if errors.Is(err, ErrNotFound) {
+		t.Fatal("GetRepoByRemoteURL unsupported scheme: want non-NotFound error")
+	}
+
+	// Empty input returns non-NotFound error (ErrNoRemote, not a missing row).
+	_, err = s.GetRepoByRemoteURL(ctx, "")
+	if err == nil {
+		t.Fatal("GetRepoByRemoteURL empty: want error, got nil")
+	}
+	if errors.Is(err, ErrNotFound) {
+		t.Fatal("GetRepoByRemoteURL empty: want non-NotFound error (ErrNoRemote)")
+	}
+
+	// A second CreateRepo with a different transport form for the same logical
+	// remote must be rejected with ErrConflict (proves the UNIQUE index blocks
+	// cross-transport duplicates once the write path normalizes).
+	_, err = s.CreateRepo(ctx, CreateRepoInput{
+		Prefix:        prefix,
+		Slug:          "myapp-dupe",
+		DisplayName:   "Dupe",
+		RemoteURL:     "https://github.com/alice/myapp.git",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	})
+	if !errors.Is(err, ErrConflict) {
+		t.Fatalf("CreateRepo duplicate remote (different transport form) = %v, want ErrConflict", err)
+	}
+}
+
 func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	s, ctx := newSQLiteContractStore(t)
 	const prefix = "sqlite-target"
@@ -438,7 +533,7 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	}
 	if got.Repo == nil ||
 		got.Repo.Slug != "core" ||
-		got.Repo.RemoteURL != "git@github.com:punk1290/core.git" ||
+		got.Repo.RemoteURL != "https://github.com/punk1290/core" ||
 		got.Repo.DefaultBranch != "main" ||
 		got.Repo.RequestedRef != "feature" ||
 		got.Repo.BaseRef != "main" ||
