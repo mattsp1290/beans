@@ -196,8 +196,9 @@ IMPORT
 
 MEMORY
   bn remember "insight" --type feedback
+  bn remember "global note" --global
   bn memories search terms
-  bn memories --all --json
+  bn memories --all-repos --json
 
 EXIT CODES
   0    success
