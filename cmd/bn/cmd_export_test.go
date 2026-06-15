@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"strings"
 	"testing"
@@ -113,6 +115,92 @@ func TestExportImportRoundTripsMixedEdges(t *testing.T) {
 	}
 	if len(got.ParentEdges) != 1 || got.ParentEdges[0] != "proj-epic" {
 		t.Fatalf("ParentEdges = %#v, want [proj-epic]", got.ParentEdges)
+	}
+}
+
+// TestExportCmdScopesToCurrentRepo verifies that the export command with no
+// flags returns only issues belonging to the current project prefix.
+func TestExportCmdScopesToCurrentRepo(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, repoA := newTestStore(t, "", "https://github.com/alice/api")
+	if repoA == nil {
+		t.Fatal("newTestStore did not register repoA")
+	}
+	if err := s.EnsureProject(ctx, repoA.Prefix); err != nil {
+		t.Fatalf("EnsureProject(api): %v", err)
+	}
+	repoB, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{RemoteURL: "https://github.com/alice/frontend", Actor: "test"})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo(frontend): %v", err)
+	}
+	if err := s.EnsureProject(ctx, repoB.Prefix); err != nil {
+		t.Fatalf("EnsureProject(frontend): %v", err)
+	}
+
+	issA := mustCreateIssue(t, s, repoA.Prefix, "api task", nil)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "frontend task", nil)
+
+	rs := &appState{store: s, actor: "test", prefix: repoA.Prefix, git: &fakeGitResolver{}}
+	cmd := newExportCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{}); err != nil {
+		t.Fatalf("export RunE: %v", err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, issA.ID) {
+		t.Errorf("export output missing repoA issue %s", issA.ID)
+	}
+	if strings.Contains(out, issB.ID) {
+		t.Errorf("export output unexpectedly contains repoB issue %s", issB.ID)
+	}
+}
+
+// TestExportCmdAllReposReturnsAllIssues verifies that --all-repos includes
+// issues from every registered project in the shared database.
+func TestExportCmdAllReposReturnsAllIssues(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, repoA := newTestStore(t, "", "https://github.com/alice/api")
+	if repoA == nil {
+		t.Fatal("newTestStore did not register repoA")
+	}
+	if err := s.EnsureProject(ctx, repoA.Prefix); err != nil {
+		t.Fatalf("EnsureProject(api): %v", err)
+	}
+	repoB, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{RemoteURL: "https://github.com/alice/frontend", Actor: "test"})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo(frontend): %v", err)
+	}
+	if err := s.EnsureProject(ctx, repoB.Prefix); err != nil {
+		t.Fatalf("EnsureProject(frontend): %v", err)
+	}
+
+	issA := mustCreateIssue(t, s, repoA.Prefix, "api task", nil)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "frontend task", nil)
+
+	rs := &appState{store: s, actor: "test", prefix: repoA.Prefix, git: &fakeGitResolver{}}
+	cmd := newExportCmd(rs)
+	// Set --all-repos by adding the flag and parsing args.
+	if err := cmd.Flags().Set("all-repos", "true"); err != nil {
+		t.Fatalf("set --all-repos: %v", err)
+	}
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{}); err != nil {
+		t.Fatalf("export --all-repos RunE: %v", err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, issA.ID) {
+		t.Errorf("export --all-repos missing repoA issue %s", issA.ID)
+	}
+	if !strings.Contains(out, issB.ID) {
+		t.Errorf("export --all-repos missing repoB issue %s", issB.ID)
 	}
 }
 
