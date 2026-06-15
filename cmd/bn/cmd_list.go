@@ -29,9 +29,12 @@ func newListCmd(rs *appState) *cobra.Command {
 			}
 
 			// --epic lists the parent-child members (children) of an epic, the
-			// authoritative way to assert "every epic has >=2 children".
+			// authoritative way to assert "every epic has >=2 children". Unlike
+			// the default list, members are returned in ALL states (open through
+			// closed) so the count is stable as children are completed; --status
+			// is not applied here.
 			if epic != "" {
-				members, err := rs.store.ListMembers(cmd.Context(), epic)
+				members, err := rs.store.ListMembers(cmd.Context(), rs.prefix, epic)
 				if err != nil {
 					return fmt.Errorf("list: %w", err)
 				}
@@ -81,7 +84,7 @@ func newListCmd(rs *appState) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&epic, "epic", "", "list parent-child members (children) of the given epic/parent id")
+	cmd.Flags().StringVar(&epic, "epic", "", "list parent-child members (children) of the given epic/parent id (all states)")
 	cmd.Flags().StringVar(&status, "status", "", "filter by state (open, in_progress, closed, …)")
 	cmd.Flags().BoolVar(&all, "all", false, "return all results (overrides default page cap)")
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, fmt.Sprintf("max results (default %d; 0 = default cap)", defaultListLimit))

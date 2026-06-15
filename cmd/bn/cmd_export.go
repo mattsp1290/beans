@@ -84,6 +84,8 @@ func toBDExportLine(iss store.Issue, edges []store.DepEdge) bdExportLine {
 	for _, e := range edges {
 		depType := e.DepType
 		if depType == "" {
+			// Persisted rows are NOT NULL, so this only guards hand-built DepEdges
+			// (e.g. in tests) that omit DepType; default them to blocks.
 			depType = store.DepTypeBlocks
 		}
 		deps = append(deps, bdExportDep{

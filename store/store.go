@@ -349,6 +349,8 @@ func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates [
 		Where("prefix = ?", prefix).
 		Where("state IN ?", active).
 		// Epics are organizational rollups, never a unit of dispatchable work.
+		// This is purely issue_type-based and independent of whether the epic has
+		// any members, so a childless epic is excluded too.
 		Where("issue_type <> ?", "epic").
 		Order("priority ASC").
 		Order("created_at ASC")
@@ -703,13 +705,38 @@ func (s *Store) ListDeps(ctx context.Context, prefix string) ([]DepEdge, error) 
 	return edges, nil
 }
 
+// ListBlockingDeps returns only the blocking (dep_type='blocks') edges for the
+// prefix, filtered in SQL rather than in Go. The ordering views (dep tree, dep
+// cycles) reason solely about blocking edges, so this avoids fetching and
+// discarding membership rows.
+func (s *Store) ListBlockingDeps(ctx context.Context, prefix string) ([]DepEdge, error) {
+	db, err := s.p.gorm()
+	if err != nil {
+		return nil, err
+	}
+
+	var edges []DepEdge
+	err = db.WithContext(ctx).
+		Table("bn_issue_deps AS d").
+		Select("d.issue_id, d.blocked_by_id, d.dep_type").
+		Joins("JOIN bn_issues i ON i.id = d.issue_id").
+		Where("i.prefix = ? AND d.dep_type = ?", prefix, DepTypeBlocks).
+		Order("d.issue_id ASC, d.blocked_by_id ASC").
+		Scan(&edges).
+		Error
+	if err != nil {
+		return nil, fmt.Errorf("store: ListBlockingDeps: %w", err)
+	}
+	return edges, nil
+}
+
 // ListMembers returns the issues that are parent-child members (children) of
 // parentID — i.e. rows where blocked_by_id=parentID and dep_type='parent-child'.
 // Ordered by priority then creation time. Backs `bn list --epic`. Membership is
 // non-blocking, so this is the authoritative way to assert "every epic has ≥2
-// children" without raw SQL. No prefix filter is needed: issue ids are globally
-// unique, so a parentID already scopes to one project.
-func (s *Store) ListMembers(ctx context.Context, parentID string) ([]Issue, error) {
+// children" without raw SQL. Scoped to prefix like every other list path, so a
+// foreign epic id never leaks another project's children.
+func (s *Store) ListMembers(ctx context.Context, prefix, parentID string) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
@@ -719,7 +746,7 @@ func (s *Store) ListMembers(ctx context.Context, parentID string) ([]Issue, erro
 	err = db.WithContext(ctx).
 		Table("bn_issues AS i").
 		Joins("JOIN bn_issue_deps d ON d.issue_id = i.id").
-		Where("d.blocked_by_id = ? AND d.dep_type = ?", parentID, DepTypeParentChild).
+		Where("i.prefix = ? AND d.blocked_by_id = ? AND d.dep_type = ?", prefix, parentID, DepTypeParentChild).
 		Order("i.priority ASC").
 		Order("i.created_at ASC").
 		Find(&rows).
@@ -736,6 +763,32 @@ func (s *Store) ListMembers(ctx context.Context, parentID string) ([]Issue, erro
 		return nil, err
 	}
 	return issues, nil
+}
+
+// ListParents returns the parent/epic issues that childID is a parent-child
+// member of — i.e. rows where issue_id=childID and dep_type='parent-child',
+// joined to the parent on blocked_by_id. This is the inverse of ListMembers and
+// gives a leaf a read surface back to its epic (used by `bn show`). Scoped to
+// prefix for the same isolation reason as ListMembers.
+func (s *Store) ListParents(ctx context.Context, prefix, childID string) ([]Issue, error) {
+	db, err := s.p.gorm()
+	if err != nil {
+		return nil, err
+	}
+
+	var rows []gormIssue
+	err = db.WithContext(ctx).
+		Table("bn_issues AS i").
+		Joins("JOIN bn_issue_deps d ON d.blocked_by_id = i.id").
+		Where("i.prefix = ? AND d.issue_id = ? AND d.dep_type = ?", prefix, childID, DepTypeParentChild).
+		Order("i.priority ASC").
+		Order("i.created_at ASC").
+		Find(&rows).
+		Error
+	if err != nil {
+		return nil, fmt.Errorf("store: ListParents: %w", err)
+	}
+	return issuesFromGORM(rows), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -809,11 +862,13 @@ type ImportResult struct {
 	Updated                   int // issues that already existed (merge mode only)
 	Skipped                   int // issues skipped because they already existed (create-only)
 	CrossPrefixConflicts      int // issue IDs already owned by another prefix
-	DepsAdded                 int // dep edges successfully inserted
-	DepsSkippedMissingBlocker int // dep edges skipped — blocker not in destination prefix
-	DepsSkippedDuplicate      int // dep edges skipped because they already existed
-	DepsSkippedSelf           int // dep edges skipped because issue_id == blocked_by_id
-	DepsSkippedCycle          int // dep edges skipped because they would create a cycle
+	DepsAdded                 int // blocking dep edges successfully inserted
+	DepsSkippedMissingBlocker int // blocking dep edges skipped — blocker not in destination prefix
+	DepsSkippedDuplicate      int // dep edges skipped because they already existed (any kind)
+	DepsSkippedSelf           int // dep edges skipped because issue_id == blocked_by_id (any kind)
+	DepsSkippedCycle          int // blocking dep edges skipped because they would create a cycle
+	ParentEdgesAdded          int // parent-child membership edges successfully inserted
+	ParentEdgesSkippedMissing int // parent-child edges skipped — parent not in destination prefix
 }
 
 // ImportIssuesFull loads a batch of issues with configurable mode and returns
@@ -949,8 +1004,10 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 			}
 
 			// Parent-child membership edges: non-blocking, so no cycle guard and
-			// no contribution to the blocking graph. Reuse the same self/missing/
-			// duplicate accounting as blocking deps.
+			// no contribution to the blocking graph. A missing parent and a
+			// successful insert use dedicated counters (ParentEdges*) so a dropped
+			// hierarchy edge is never reported as a broken *blocker*; self and
+			// duplicate are kind-neutral and share the existing buckets.
 			seenParents := make(map[string]bool, len(item.ParentEdges))
 			for _, parentID := range item.ParentEdges {
 				if parentID == item.ID {
@@ -965,16 +1022,19 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 				if exists, err := s.issueExistsInPrefix(ctx, tx, parentID, item.Prefix); err != nil {
 					return err
 				} else if !exists {
-					result.DepsSkippedMissingBlocker++
+					result.ParentEdgesSkippedMissing++
 					continue
 				}
+				// blocked_by_id stores the PARENT id for parent-child rows (the
+				// column is overloaded across edge kinds), so the same gormIssueDep
+				// shape carries both blocking and membership edges.
 				res := tx.Clauses(clause.OnConflict{DoNothing: true}).
 					Create(&gormIssueDep{IssueID: item.ID, BlockedByID: parentID, DepType: DepTypeParentChild})
 				if res.Error != nil {
 					return fmt.Errorf("store: ImportIssuesFull parent-child %s→%s: %w", item.ID, parentID, res.Error)
 				}
 				if res.RowsAffected > 0 {
-					result.DepsAdded++
+					result.ParentEdgesAdded++
 				} else {
 					result.DepsSkippedDuplicate++
 				}
@@ -1707,6 +1767,11 @@ func dedupeImportInputs(items []ImportInput) []ImportInput {
 	indexByID := make(map[string]int, len(items))
 	for _, item := range items {
 		if idx, ok := indexByID[item.ID]; ok {
+			// Contract: for a repeated id, edge slices (Deps, ParentEdges) are
+			// UNIONED while scalar fields are REPLACED wholesale (last write wins).
+			// The union is not de-duplicated here; downstream per-loop seen-maps
+			// and the (issue_id, blocked_by_id) PK absorb any duplicate edges, so
+			// a repeated edge is counted as skipped-duplicate, never written twice.
 			deps := append([]string{}, out[idx].Deps...)
 			deps = append(deps, item.Deps...)
 			parents := append([]string{}, out[idx].ParentEdges...)

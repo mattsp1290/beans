@@ -625,7 +625,7 @@ func TestSQLiteStoreContractEpicMembership(t *testing.T) {
 		t.Fatalf("leafA BlockedBy = %v, want empty (parent-child is non-blocking)", gotLeaf.BlockedBy)
 	}
 
-	members, err := s.ListMembers(ctx, epic.ID)
+	members, err := s.ListMembers(ctx, prefix, epic.ID)
 	if err != nil {
 		t.Fatalf("ListMembers: %v", err)
 	}
@@ -680,12 +680,118 @@ func TestSQLiteStoreContractOneEdgePerPair(t *testing.T) {
 		t.Fatalf("edges = %+v, want a single blocks edge", edges)
 	}
 	// And membership did not take hold: B has no parent-child children.
-	members, err := s.ListMembers(ctx, b.ID)
+	members, err := s.ListMembers(ctx, prefix, b.ID)
 	if err != nil {
 		t.Fatalf("ListMembers: %v", err)
 	}
 	if len(members) != 0 {
 		t.Fatalf("ListMembers = %d, want 0 (parent-child insert was rejected)", len(members))
+	}
+}
+
+func TestSQLiteStoreContractImportParentChild(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-import-pc"
+	ensureContractProject(t, s, ctx, prefix)
+	items := []ImportInput{
+		{ID: prefix + "-epic", Prefix: prefix, Title: "Epic", State: "open", Priority: 1, IssueType: "epic"},
+		{ID: prefix + "-leaf", Prefix: prefix, Title: "Leaf", State: "open", Priority: 1, IssueType: "task",
+			// epic (real), missing (absent), self, epic (duplicate).
+			ParentEdges: []string{prefix + "-epic", prefix + "-missing", prefix + "-leaf", prefix + "-epic"}},
+	}
+	res, err := s.ImportIssuesFull(ctx, items, ImportOptions{Mode: ImportModeCreateOnly, TerminalStates: []model.IssueState{"closed"}})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull: %v", err)
+	}
+	// Dedicated parent-edge counters; self/dup stay in the shared buckets; the
+	// missing parent must NOT land in DepsSkippedMissingBlocker.
+	if res.ParentEdgesAdded != 1 || res.ParentEdgesSkippedMissing != 1 || res.DepsSkippedSelf != 1 || res.DepsSkippedDuplicate != 1 {
+		t.Fatalf("import parent-edge counters = %+v, want added=1 missing=1 self=1 dup=1", res)
+	}
+	if res.DepsSkippedMissingBlocker != 0 || res.DepsAdded != 0 {
+		t.Fatalf("blocking counters leaked: DepsSkippedMissingBlocker=%d DepsAdded=%d, want 0/0", res.DepsSkippedMissingBlocker, res.DepsAdded)
+	}
+	members, err := s.ListMembers(ctx, prefix, prefix+"-epic")
+	if err != nil || len(members) != 1 || members[0].ID != prefix+"-leaf" {
+		t.Fatalf("ListMembers = %+v err=%v, want the leaf", members, err)
+	}
+	// Membership is non-blocking, so the leaf carries no BlockedBy.
+	leaf, err := s.GetIssue(ctx, prefix+"-leaf")
+	if err != nil {
+		t.Fatalf("GetIssue leaf: %v", err)
+	}
+	if len(leaf.BlockedBy) != 0 {
+		t.Fatalf("leaf BlockedBy = %v, want empty (membership is non-blocking)", leaf.BlockedBy)
+	}
+}
+
+func TestSQLiteStoreContractRemoveParentChild(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-rm-pc"
+	ensureContractProject(t, s, ctx, prefix)
+	epic, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Epic", Priority: 1, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	leaf := mustCreateContractIssue(t, s, ctx, prefix, "Leaf", 1)
+
+	if err := s.AddTypedDep(ctx, leaf.ID, epic.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep parent-child: %v", err)
+	}
+	// RemoveDep is type-agnostic: it removes the membership edge by pair.
+	if err := s.RemoveDep(ctx, leaf.ID, epic.ID); err != nil {
+		t.Fatalf("RemoveDep parent-child: %v", err)
+	}
+	members, err := s.ListMembers(ctx, prefix, epic.ID)
+	if err != nil {
+		t.Fatalf("ListMembers: %v", err)
+	}
+	if len(members) != 0 {
+		t.Fatalf("ListMembers after remove = %d, want 0", len(members))
+	}
+	if err := s.RemoveDep(ctx, leaf.ID, epic.ID); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("RemoveDep missing = %v, want ErrNotFound", err)
+	}
+}
+
+func TestSQLiteStoreContractListMembersPrefixScoped(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-scope-a"
+	const other = "sqlite-scope-b"
+	ensureContractProject(t, s, ctx, prefix)
+	ensureContractProject(t, s, ctx, other)
+
+	epicA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Epic A", Priority: 1, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicA: %v", err)
+	}
+	leafA := mustCreateContractIssue(t, s, ctx, prefix, "Leaf A", 1)
+	if err := s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep A: %v", err)
+	}
+
+	// Querying epicA's members from the OTHER prefix must return nothing —
+	// ListMembers is prefix-scoped like every other list path.
+	members, err := s.ListMembers(ctx, other, epicA.ID)
+	if err != nil {
+		t.Fatalf("ListMembers cross-prefix: %v", err)
+	}
+	if len(members) != 0 {
+		t.Fatalf("cross-prefix ListMembers = %d, want 0 (no leakage)", len(members))
+	}
+
+	// ListParents is likewise scoped: the leaf's parent is invisible from other.
+	parents, err := s.ListParents(ctx, other, leafA.ID)
+	if err != nil {
+		t.Fatalf("ListParents cross-prefix: %v", err)
+	}
+	if len(parents) != 0 {
+		t.Fatalf("cross-prefix ListParents = %d, want 0", len(parents))
+	}
+	// In-prefix, the parent is visible.
+	parents, err = s.ListParents(ctx, prefix, leafA.ID)
+	if err != nil || len(parents) != 1 || parents[0].ID != epicA.ID {
+		t.Fatalf("ListParents in-prefix = %+v err=%v, want epicA", parents, err)
 	}
 }
 

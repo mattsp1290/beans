@@ -51,6 +51,12 @@ edges gate readiness and cycle detection.`,
 			if err != nil {
 				return err
 			}
+			// Only 'blocks' and 'parent-child' carry semantics; any other accepted
+			// value is stored as a non-blocking edge. Warn so a typo like
+			// "-t blcoks" doesn't silently become a non-blocking edge.
+			if normalizedType != store.DepTypeBlocks && normalizedType != store.DepTypeParentChild {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %q is not a known edge type; stored as a non-blocking edge\n", normalizedType)
+			}
 
 			err = rs.store.AddTypedDep(cmd.Context(), childID, parentID, normalizedType)
 			if err != nil {
@@ -60,7 +66,9 @@ edges gate readiness and cycle detection.`,
 				case errors.Is(err, store.ErrCycle):
 					return fmt.Errorf("cycle: adding %s → %s would create a cycle", childID, parentID)
 				case errors.Is(err, store.ErrDuplicateDep):
-					fmt.Fprintf(cmd.OutOrStdout(), "%s already depends on %s\n", childID, parentID)
+					// One edge per pair: a pre-existing edge of any kind blocks a new
+					// one, so use neutral framing rather than asserting "depends on".
+					fmt.Fprintf(cmd.OutOrStdout(), "%s and %s already have a dependency edge\n", childID, parentID)
 					return nil
 				}
 				return fmt.Errorf("dep add: %w", err)
@@ -74,15 +82,19 @@ edges gate readiness and cycle detection.`,
 		},
 	}
 
-	cmd.Flags().StringVarP(&depType, "type", "t", store.DepTypeBlocks, "dependency type: blocks|parent-child (any non-empty value accepted)")
+	cmd.Flags().StringVarP(&depType, "type", "t", store.DepTypeBlocks, "dependency type: blocks|parent-child (any non-empty value up to 50 chars accepted)")
 	return cmd
 }
 
 func newDepRemoveCmd(rs *appState) *cobra.Command {
 	return &cobra.Command{
 		Use:   "remove <child> <parent>",
-		Short: "Remove a dependency edge",
-		Args:  cobra.ExactArgs(2),
+		Short: "Remove a dependency edge (blocking or parent-child membership)",
+		Long: `Remove the dependency edge between two issues.
+
+There is one edge per (child, parent) pair regardless of kind, so this removes
+whichever edge exists — a 'blocks' edge or a 'parent-child' membership edge.`,
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
@@ -111,13 +123,12 @@ func newDepTreeCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			allEdges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			// dep tree is the ordering (blocking) view. Membership edges
+			// (parent-child, etc.) are inspected via 'bn list --epic'.
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), rs.prefix)
 			if err != nil {
 				return fmt.Errorf("dep tree: %w", err)
 			}
-			// dep tree is the ordering (blocking) view. Membership edges
-			// (parent-child, etc.) are inspected via 'bn list --epic'.
-			edges := blockingEdges(allEdges)
 
 			if rs.jsonOut {
 				type edgeJSON struct {
@@ -198,12 +209,12 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			allEdges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			// Only blocking edges form ordering cycles; membership edges never do.
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), rs.prefix)
 			if err != nil {
 				return fmt.Errorf("dep cycles: %w", err)
 			}
-			// Only blocking edges form ordering cycles; membership edges never do.
-			cycles := detectCycles(blockingEdges(allEdges))
+			cycles := detectCycles(edges)
 			if len(cycles) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No cycles detected.")
 				return nil
@@ -217,19 +228,6 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 			return fmt.Errorf("%d cycle(s) detected", len(cycles))
 		},
 	}
-}
-
-// blockingEdges returns only the blocking (dep_type='blocks') edges. The
-// ordering views (dep tree, dep cycles) reason solely about blocking edges;
-// non-blocking membership edges are surfaced via 'bn list --epic'.
-func blockingEdges(edges []store.DepEdge) []store.DepEdge {
-	out := make([]store.DepEdge, 0, len(edges))
-	for _, e := range edges {
-		if e.DepType == store.DepTypeBlocks {
-			out = append(out, e)
-		}
-	}
-	return out
 }
 
 // detectCycles performs a DFS to find any cycles in the dep graph.

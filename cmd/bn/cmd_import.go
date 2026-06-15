@@ -50,6 +50,8 @@ type importSummary struct {
 	DepsSkippedDuplicate      int  `json:"deps_skipped_duplicate"`
 	DepsSkippedSelf           int  `json:"deps_skipped_self"`
 	DepsSkippedCycle          int  `json:"deps_skipped_cycle"`
+	ParentEdgesAdded          int  `json:"parent_edges_added"`
+	ParentEdgesSkippedMissing int  `json:"parent_edges_skipped_missing"`
 }
 
 func newImportCmd(rs *appState) *cobra.Command {
@@ -178,6 +180,8 @@ func importSummaryFromResult(result store.ImportResult, parsed, warnings int) im
 		DepsSkippedDuplicate:      result.DepsSkippedDuplicate,
 		DepsSkippedSelf:           result.DepsSkippedSelf,
 		DepsSkippedCycle:          result.DepsSkippedCycle,
+		ParentEdgesAdded:          result.ParentEdgesAdded,
+		ParentEdgesSkippedMissing: result.ParentEdgesSkippedMissing,
 	}
 }
 
@@ -195,6 +199,12 @@ func writeImportSummary(cmd *cobra.Command, jsonOut bool, summary importSummary)
 	}
 	fmt.Fprintf(w, "Import complete: created=%d updated=%d skipped=%d deps_added=%d",
 		summary.Created, summary.Updated, summary.Skipped, summary.DepsAdded)
+	if summary.ParentEdgesAdded > 0 {
+		fmt.Fprintf(w, " parent_edges_added=%d", summary.ParentEdgesAdded)
+	}
+	if summary.ParentEdgesSkippedMissing > 0 {
+		fmt.Fprintf(w, " parent_edges_skipped(missing_parent)=%d", summary.ParentEdgesSkippedMissing)
+	}
 	if summary.CrossPrefixConflicts > 0 {
 		fmt.Fprintf(w, " cross_prefix_conflicts=%d", summary.CrossPrefixConflicts)
 	}
