@@ -628,7 +628,7 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		if success != 1 || cycle+writeLock != 1 {
 			t.Fatalf("concurrent AddDep results success=%d cycle=%d writeLock=%d errs=%v, want one success and one rejected edge", success, cycle, writeLock, errs)
 		}
-		edges, err := s.ListDeps(ctx, prefix)
+		edges, err := s.ListDeps(ctx, ListFilter{Prefix: prefix})
 		if err != nil {
 			t.Fatalf("ListDeps after concurrent AddDep: %v", err)
 		}
@@ -2988,7 +2988,7 @@ func TestListDeps(t *testing.T) {
 		t.Fatalf("AddDep B→C: %v", err)
 	}
 
-	edges, err := s.ListDeps(ctx, "ld")
+	edges, err := s.ListDeps(ctx, ListFilter{Prefix: "ld"})
 	if err != nil {
 		t.Fatalf("ListDeps: %v", err)
 	}

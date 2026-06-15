@@ -32,7 +32,7 @@ func newExportCmd(rs *appState) *cobra.Command {
 			// Fetch every edge kind (blocks + parent-child + any custom) so the
 			// export round-trips hierarchy, not just blocking edges. ListDeps is
 			// ordered (issue_id, blocked_by_id, dep_type) for stable output.
-			edges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			edges, err := rs.store.ListDeps(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
 			if err != nil {
 				return fmt.Errorf("export: %w", err)
 			}

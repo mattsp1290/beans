@@ -39,11 +39,11 @@ func newShowCmd(rs *appState) *cobra.Command {
 			// Surface parent-child membership (non-blocking, so absent from
 			// BlockedBy): which epic(s) this issue belongs to, and — if it is a
 			// rollup — its children.
-			parents, err := rs.store.ListParents(cmd.Context(), rs.prefix, iss.ID)
+			parents, err := rs.store.ListParents(cmd.Context(), store.ListFilter{Prefix: rs.prefix}, iss.ID)
 			if err != nil {
 				return fmt.Errorf("show: %w", err)
 			}
-			children, err := rs.store.ListMembers(cmd.Context(), rs.prefix, iss.ID)
+			children, err := rs.store.ListMembers(cmd.Context(), store.ListFilter{Prefix: rs.prefix}, iss.ID)
 			if err != nil {
 				return fmt.Errorf("show: %w", err)
 			}
