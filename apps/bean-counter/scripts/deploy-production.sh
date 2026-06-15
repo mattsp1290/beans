@@ -440,11 +440,16 @@ fi
 
 say "== DSN secret (presence + container-host form; contents never printed) =="
 [ -f "$dsn_secret" ] || { echo "FAIL: DSN secret missing: $dsn_secret" >&2; exit 1; }
-if ! grep -qE '@postgres:5432|host=postgres([[:space:]]|$)' "$dsn_secret"; then
-  echo "FAIL: DSN secret does not use the container host form (@postgres:5432 / host=postgres)" >&2
+# Read the secret inside a container as the api uid (100), never as the deploy
+# operator: the secret is owned by uid 100 so the host operator cannot (and need
+# not) read it. This one check covers BOTH container-uid readability and the
+# required container-host DSN form.
+if ! docker run --rm -u 100:101 -v "$dsn_secret":/run/secrets/bn_dsn:ro alpine:3.22 \
+     grep -qE '@postgres:5432|host=postgres([[:space:]]|$)' /run/secrets/bn_dsn </dev/null >/dev/null 2>&1; then
+  echo "FAIL: DSN secret unreadable by the api uid, or not in the container host form (@postgres:5432 / host=postgres)" >&2
   exit 1
 fi
-say "dsn secret present and container-host form ok"
+say "dsn secret readable by api uid and in container-host form"
 
 say "== UI port free =="
 if (command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -qE "[:.]${ui_port}\\b") \
@@ -571,8 +576,11 @@ docker network inspect "$symphony_network" >/dev/null 2>&1 \
   || { echo "FAIL: external network missing: $symphony_network" >&2; exit 1; }
 
 [ -f "$dsn_secret" ] || { echo "FAIL: DSN secret missing: $dsn_secret" >&2; exit 1; }
-if ! grep -qE '@postgres:5432|host=postgres([[:space:]]|$)' "$dsn_secret"; then
-  echo "FAIL: DSN secret does not use the container host form" >&2; exit 1
+# Read the secret as the api uid (100) inside a container, not as the deploy
+# operator (the secret is owned by uid 100). Covers readability + host form.
+if ! docker run --rm -u 100:101 -v "$dsn_secret":/run/secrets/bn_dsn:ro alpine:3.22 \
+     grep -qE '@postgres:5432|host=postgres([[:space:]]|$)' /run/secrets/bn_dsn </dev/null >/dev/null 2>&1; then
+  echo "FAIL: DSN secret unreadable by the api uid, or not in the container host form" >&2; exit 1
 fi
 
 if (command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -qE "[:.]${ui_port}\\b") \
