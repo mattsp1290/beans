@@ -99,6 +99,51 @@ func (s *Store) ProjectExists(ctx context.Context, prefix string) (bool, error) 
 	return count > 0, nil
 }
 
+// DeleteProject hard-deletes a project and all its data.
+//
+// actor must be a registered project admin; ErrUnauthorized is returned
+// otherwise (same authorization gate as other repo-registry mutations).
+//
+// Under per-repo topology (prefix == slug), this removes the project row,
+// its repo registration, all repo aliases, project admins, and memories
+// (via ON DELETE CASCADE from bn_projects). Issues are NOT cascaded by the
+// schema FK, so this method deletes them explicitly before the project row.
+//
+// If force is false and the project has any issues, DeleteProject returns
+// ErrConflict so the caller can surface a confirmation prompt.
+func (s *Store) DeleteProject(ctx context.Context, prefix, actor string, force bool) error {
+	if err := s.AuthorizeRepoAdmin(ctx, prefix, actor); err != nil {
+		return err
+	}
+	db, err := s.p.gorm()
+	if err != nil {
+		return err
+	}
+	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var issueCount int64
+		if err := tx.Model(&gormIssue{}).Where("prefix = ?", prefix).Count(&issueCount).Error; err != nil {
+			return fmt.Errorf("store: DeleteProject: count issues: %w", err)
+		}
+		if issueCount > 0 && !force {
+			return fmt.Errorf("store: %w: project %q has %d issue(s); pass force=true to delete them",
+				ErrConflict, prefix, issueCount)
+		}
+		if issueCount > 0 {
+			if err := tx.Where("prefix = ?", prefix).Delete(&gormIssue{}).Error; err != nil {
+				return fmt.Errorf("store: DeleteProject: delete issues: %w", err)
+			}
+		}
+		res := tx.Where("prefix = ?", prefix).Delete(&gormProject{})
+		if res.Error != nil {
+			return fmt.Errorf("store: DeleteProject: %w", res.Error)
+		}
+		if res.RowsAffected == 0 {
+			return fmt.Errorf("store: %w: project %q", ErrNotFound, prefix)
+		}
+		return nil
+	})
+}
+
 // ---------------------------------------------------------------------------
 // Issue CRUD
 // ---------------------------------------------------------------------------
