@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -201,6 +203,88 @@ func TestConfigValidateRequiresAppFields(t *testing.T) {
 				t.Fatalf("Validate error = %v, want %s", err, tt.want)
 			}
 		})
+	}
+}
+
+func TestLoadEnvReadsDSNFromFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bn_dsn")
+	// Trailing newline is common when a secret is written with `echo`; it must
+	// be trimmed so the DSN is usable.
+	if err := os.WriteFile(path, []byte("postgres://user:secret@postgres:5432/beans\n"), 0o600); err != nil {
+		t.Fatalf("write dsn file: %v", err)
+	}
+
+	cfg, err := LoadEnv(mapLookup(map[string]string{
+		"BN_DSN_FILE": path,
+	}))
+	if err != nil {
+		t.Fatalf("LoadEnv error = %v", err)
+	}
+	if got := cfg.Store.DSN.Reveal(); got != "postgres://user:secret@postgres:5432/beans" {
+		t.Fatalf("dsn = %q, want trimmed file contents", got)
+	}
+}
+
+func TestLoadEnvRejectsBothDSNAndDSNFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bn_dsn")
+	if err := os.WriteFile(path, []byte("postgres://from-file@postgres:5432/beans"), 0o600); err != nil {
+		t.Fatalf("write dsn file: %v", err)
+	}
+
+	_, err := LoadEnv(mapLookup(map[string]string{
+		"BN_DSN":      "postgres://from-env@localhost/beans",
+		"BN_DSN_FILE": path,
+	}))
+	if err == nil || !strings.Contains(err.Error(), "only one of BN_DSN or BN_DSN_FILE") {
+		t.Fatalf("LoadEnv error = %v, want both-set rejection", err)
+	}
+	if strings.Contains(fmt.Sprint(err), "from-env") || strings.Contains(fmt.Sprint(err), "from-file") {
+		t.Fatalf("error leaked DSN: %v", err)
+	}
+}
+
+func TestLoadEnvMissingDSNFileErrorsWithoutLeak(t *testing.T) {
+	_, err := LoadEnv(mapLookup(map[string]string{
+		"BN_DSN_FILE": filepath.Join(t.TempDir(), "does-not-exist"),
+	}))
+	if err == nil || !strings.Contains(err.Error(), "reading BN_DSN_FILE") {
+		t.Fatalf("LoadEnv error = %v, want read failure", err)
+	}
+}
+
+func TestLoadEnvEmptyDSNFileIsEmptyDSN(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bn_dsn")
+	if err := os.WriteFile(path, []byte("   \n"), 0o600); err != nil {
+		t.Fatalf("write dsn file: %v", err)
+	}
+
+	_, err := LoadEnv(mapLookup(map[string]string{
+		"BN_DSN_FILE": path,
+	}))
+	if !errors.Is(err, appstore.ErrEmptyDSN) {
+		t.Fatalf("LoadEnv error = %v, want ErrEmptyDSN", err)
+	}
+}
+
+func TestDSNFromFileIsRedactedInFormatting(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bn_dsn")
+	if err := os.WriteFile(path, []byte("postgres://user:secret@postgres:5432/beans"), 0o600); err != nil {
+		t.Fatalf("write dsn file: %v", err)
+	}
+
+	cfg, err := LoadEnv(mapLookup(map[string]string{
+		"BN_DSN_FILE": path,
+	}))
+	if err != nil {
+		t.Fatalf("LoadEnv error = %v", err)
+	}
+	formatted := fmt.Sprintf("%v", cfg.Store)
+	if strings.Contains(formatted, "secret") || strings.Contains(formatted, "postgres://") {
+		t.Fatalf("formatted store config leaked file-sourced DSN: %s", formatted)
 	}
 }
 

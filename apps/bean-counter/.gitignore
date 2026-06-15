@@ -32,6 +32,9 @@ go.work.sum
 # .idea/
 # .vscode/
 
+# ai litter
+.agents/reviews/
+
 # Beads / Dolt files (added by bd init)
 .dolt/
 *.db
