@@ -6,6 +6,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"net"
+	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -680,4 +683,304 @@ func generateRepoID() (string, error) {
 		return "", fmt.Errorf("store: generate repo id: %w", err)
 	}
 	return "repo-" + hex.EncodeToString(b[:]), nil
+}
+
+// ---------------------------------------------------------------------------
+// Auto-register (topology-a slug-disambiguation)
+// ---------------------------------------------------------------------------
+
+var (
+	slugNonAlphanumRE = regexp.MustCompile(`[^a-z0-9._-]+`)
+	slugLeadingRE     = regexp.MustCompile(`^[^a-z0-9]+`)
+)
+
+// normalizeSlugCandidate applies the Step 0 normalization from the topology-a
+// disambiguation algorithm: lowercase → collapse non-slug chars to "-" → strip
+// leading non-alphanumeric → strip trailing "-".  Returns "" when the result
+// is empty, signalling the caller to skip this candidate.
+func normalizeSlugCandidate(s string) string {
+	s = strings.ToLower(s)
+	s = slugNonAlphanumRE.ReplaceAllString(s, "-")
+	s = slugLeadingRE.ReplaceAllString(s, "")
+	s = strings.TrimRight(s, "-")
+	return s
+}
+
+// repoHostShortname derives the single-label shortname from a host string
+// (which may include a port) per the topology-a spec:
+//
+//   - Strip port.
+//   - If the result is an IP address or "localhost", use it literally (dots/colons → dashes).
+//   - Otherwise, use the first DNS label.
+func repoHostShortname(host string) string {
+	if h, _, err := net.SplitHostPort(host); err == nil {
+		host = h
+	}
+	host = strings.ToLower(host)
+	if net.ParseIP(host) != nil {
+		return strings.NewReplacer(".", "-", ":", "-").Replace(host)
+	}
+	if host == "localhost" {
+		return "localhost"
+	}
+	if idx := strings.IndexByte(host, '.'); idx > 0 {
+		return host[:idx]
+	}
+	return host
+}
+
+// parseRepoURLParts extracts the host, owner, and repo-name segments from a
+// normalized remote URL (output of NormalizeRemoteURL).  For single-segment
+// paths (e.g. file:///tmp/repo), owner is empty.
+func parseRepoURLParts(normalized string) (host, owner, repoName string, err error) {
+	u, parseErr := url.Parse(normalized)
+	if parseErr != nil {
+		return "", "", "", fmt.Errorf("parse URL components: %w", parseErr)
+	}
+	host = u.Host
+
+	path := strings.TrimLeft(u.Path, "/")
+	// Defensive: NormalizeRemoteURL already strips .git, but strip again for safety.
+	path = strings.TrimSuffix(path, ".git")
+
+	var segs []string
+	for _, seg := range strings.Split(path, "/") {
+		if seg != "" {
+			segs = append(segs, seg)
+		}
+	}
+	switch len(segs) {
+	case 0:
+		return host, "", "", fmt.Errorf("URL has no path components: %s", normalized)
+	case 1:
+		return host, "", segs[0], nil
+	default:
+		return host, segs[0], segs[len(segs)-1], nil
+	}
+}
+
+// slugCandidateList returns the ordered candidate prefix strings for the
+// four-step slug-disambiguation algorithm (before Step 0 normalization).
+//
+// Order: step 1 (bare repo name), step 2 (owner-qualified, if owner ≠ ""),
+// step 3 (host-qualified, skipped when host is empty, e.g. file:// URLs),
+// step 4 (numeric suffixes 2-99 on the step-2 or step-1 base).
+func slugCandidateList(host, owner, repoName string) []string {
+	short := repoHostShortname(host)
+	candidates := make([]string, 0, 101)
+
+	// Step 1
+	candidates = append(candidates, repoName)
+
+	// Step 2 (owner-qualified, only when owner is present)
+	var ownerRepo string
+	if owner != "" {
+		ownerRepo = owner + "-" + repoName
+		candidates = append(candidates, ownerRepo)
+	}
+
+	// Step 3 (host-qualified; skip when host is empty so file:// repos don't
+	// emit a leading-dash candidate that collapses to the same slug as step 1/2)
+	if short != "" {
+		if owner != "" {
+			candidates = append(candidates, short+"-"+owner+"-"+repoName)
+		} else {
+			candidates = append(candidates, short+"-"+repoName)
+		}
+	}
+
+	// Step 4 (numeric suffix; base = step-2 form if owner present, else step-1)
+	base := repoName
+	if owner != "" {
+		base = ownerRepo
+	}
+	for i := 2; i <= 99; i++ {
+		candidates = append(candidates, fmt.Sprintf("%s-%d", base, i))
+	}
+
+	return candidates
+}
+
+// AutoRegisterInput carries the parameters for a non-interactive repo
+// auto-register.
+type AutoRegisterInput struct {
+	// RemoteURL is the repository's remote URL (any transport form; normalized
+	// internally).  For local-only repos with no remote, pass a synthetic
+	// file:///abs/git/toplevel URL.
+	RemoteURL string
+	// DefaultBranch is the default branch name; empty string → "main".
+	DefaultBranch string
+	// AuthRef is the auth credential reference (e.g. "ssh-key:default").
+	// Empty string → repo.AuthRefTestNone ("test:none"), which is valid for
+	// local-only repos and CI environments.
+	AuthRef string
+	// Actor is the entity triggering the registration (e.g. "system" or a
+	// username).  Used for audit rows.
+	Actor string
+}
+
+// AutoRegisterRepo looks up or creates a bn_projects + bn_repos row pair for
+// the given remote URL following the topology-a prefix==slug convention (see
+// docs/specs/topology-a-prefix-equals-slug.md).
+//
+// If a repo already exists for the normalized URL, it is returned immediately
+// (idempotent by canonical URL).  Otherwise the four-step slug-disambiguation
+// algorithm is run to find a free prefix, then the project and repo are
+// created atomically in one transaction.
+//
+// Returns ErrSlugExhausted if all candidates remain taken after 5 full-sequence
+// retries.
+func (s *Store) AutoRegisterRepo(ctx context.Context, in AutoRegisterInput) (Repo, error) {
+	// Normalize the URL to the canonical form used as the idempotency key.
+	normalized, err := repo.NormalizeRemoteURL(in.RemoteURL)
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
+	}
+
+	// Idempotency: return existing row immediately if the URL is already registered.
+	existing, err := s.GetRepoByRemoteURL(ctx, normalized)
+	if err == nil {
+		return existing, nil
+	}
+	if !errors.Is(err, ErrNotFound) {
+		return Repo{}, err
+	}
+
+	db, err := s.p.gorm()
+	if err != nil {
+		return Repo{}, err
+	}
+
+	authRef := strings.TrimSpace(in.AuthRef)
+	if authRef == "" {
+		authRef = repo.AuthRefTestNone
+	}
+	defaultBranch := repo.NormalizeDefaultBranch(in.DefaultBranch)
+	cloneStrategy := repo.NormalizeCloneStrategy("")
+	actor := strings.TrimSpace(in.Actor)
+
+	// Validate inputs with the same rules as CreateRepo so both write paths
+	// share one validation gate.
+	if err := repo.ValidateTarget(repo.Target{
+		RemoteURL:     normalized,
+		DefaultBranch: defaultBranch,
+		CloneStrategy: cloneStrategy,
+		AuthRef:       authRef,
+	}); err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo validation: %w", err)
+	}
+
+	// Parse normalized URL into host/owner/repo-name components.
+	host, owner, repoName, err := parseRepoURLParts(normalized)
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
+	}
+
+	candidates := slugCandidateList(host, owner, repoName)
+
+	for _, raw := range candidates {
+		slug := normalizeSlugCandidate(raw)
+		if slug == "" {
+			continue
+		}
+
+		// Pre-check outside tx; check-then-act race is absorbed by ErrConflict retry.
+		exists, err := s.ProjectExists(ctx, slug)
+		if err != nil {
+			return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
+		}
+		if exists {
+			continue
+		}
+
+		result, err := s.autoRegisterTx(ctx, db, slug, normalized, defaultBranch, cloneStrategy, authRef, actor)
+		if err == nil {
+			return result, nil
+		}
+		if errors.Is(err, ErrConflict) {
+			// A concurrent writer may have claimed this slug or registered the same
+			// URL. Re-check for the URL case before advancing candidates — otherwise
+			// all candidates exhaust and we'd return the misleading ErrSlugExhausted.
+			if got, lookupErr := s.GetRepoByRemoteURL(ctx, normalized); lookupErr == nil {
+				return got, nil
+			}
+			continue
+		}
+		return Repo{}, err
+	}
+
+	return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", ErrSlugExhausted)
+}
+
+// autoRegisterTx creates a bn_projects row (idempotent via OnConflict DoNothing)
+// and a bn_repos row inside a single transaction, then writes an audit row.
+// Returns ErrConflict when either unique constraint fires (slug already taken or
+// remote_url already registered concurrently), letting the caller advance to the
+// next slug candidate or re-resolve via GetRepoByRemoteURL.
+func (s *Store) autoRegisterTx(ctx context.Context, db *gorm.DB, slug, normalizedURL, defaultBranch, cloneStrategy, authRef, actor string) (Repo, error) {
+	id, err := generateRepoID()
+	if err != nil {
+		return Repo{}, err
+	}
+
+	metadata, encErr := encodeJSONObject(nil)
+	if encErr != nil {
+		return Repo{}, fmt.Errorf("store: autoRegisterTx: %w", encErr)
+	}
+	now := newGORMTime(clockNowUTC())
+
+	row := gormRepo{
+		ID:            id,
+		Prefix:        slug,
+		Slug:          slug,
+		DisplayName:   slug,
+		RemoteURL:     normalizedURL,
+		DefaultBranch: defaultBranch,
+		CloneStrategy: cloneStrategy,
+		AuthRef:       authRef,
+		Enabled:       true,
+		Metadata:      datatypes.JSON(metadata),
+		CreatedAt:     now,
+		UpdatedAt:     now,
+		CreatedBy:     actor,
+		UpdatedBy:     actor,
+	}
+
+	var result Repo
+	txErr := db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Insert the bn_projects row. OnConflict{DoNothing} makes this idempotent:
+		// if the project already exists, no error is returned and the repo insert
+		// below will surface the slug conflict via the UNIQUE(prefix,slug) index.
+		if projErr := tx.WithContext(ctx).
+			Clauses(clause.OnConflict{DoNothing: true}).
+			Create(&gormProject{Prefix: slug, CreatedAt: now}).
+			Error; projErr != nil {
+			return fmt.Errorf("store: autoRegisterTx: %w", projErr)
+		}
+
+		if err := tx.WithContext(ctx).Create(&row).Error; err != nil {
+			if isDupKeyConflict(err) {
+				return fmt.Errorf("store: %w: repo slug or remote URL %s", ErrConflict, slug)
+			}
+			return fmt.Errorf("store: autoRegisterTx: %w", err)
+		}
+
+		result = repoFromGORM(row)
+
+		if err := insertRepoAudit(ctx, tx, RepoAuditInput{
+			Prefix:    slug,
+			RepoID:    result.ID,
+			Action:    "repo.auto_register",
+			Actor:     actor,
+			NewValues: repoAuditValues(result),
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return Repo{}, txErr
+	}
+	return result, nil
 }
