@@ -31,6 +31,12 @@ func mustCreateIssue(t *testing.T, s *store.Store, prefix, title string, repo *s
 // TestCreateAutoDetectsAndLinksRepo verifies that bn create, with no --repo
 // flag and no .bn marker, auto-detects the git repo via fakeGitResolver,
 // registers it, and records the issue against that repo.
+//
+// NOTE: readActiveProjectConfig("") is called inside RunE and walks up from the
+// test CWD (cmd/bn/) looking for a .bn marker.  There is no .bn file at the
+// beans repo root, so priority-2 resolution falls through to git auto-detect.
+// If a .bn marker is ever created at the repo root, this test will change
+// meaning — add t.Chdir(t.TempDir()) to make it hermetic at that point.
 func TestCreateAutoDetectsAndLinksRepo(t *testing.T) {
 	ctx := context.Background()
 
@@ -154,6 +160,16 @@ func TestCreatePrefixGuardSkipsCrossProjectRepo(t *testing.T) {
 		t.Fatalf("RunE: %v", err)
 	}
 
+	// Positive control: auto-detect must have actually run and found the foreign
+	// repo.  Without this check the test would pass even if tryGitAutoDetect
+	// silently no-ops (e.g. if the guard code were deleted).
+	if rs.resolvedRepo == nil {
+		t.Fatal("resolvedRepo is nil — tryGitAutoDetect did not run; prefix guard was never exercised")
+	}
+	if rs.resolvedRepo.Prefix == myProject {
+		t.Fatalf("resolvedRepo.Prefix = %q == myProject — test setup error: not a cross-project scenario", myProject)
+	}
+
 	issueID := strings.TrimSpace(buf.String())
 	got, err := s.GetIssue(ctx, issueID)
 	if err != nil {
@@ -192,7 +208,7 @@ func TestListScopesToCurrentRepo(t *testing.T) {
 	}
 
 	issA := mustCreateIssue(t, s, repoA.Prefix, "issue-in-A", repoA)
-	_ = mustCreateIssue(t, s, repoB.Prefix, "issue-in-B", &repoB)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "issue-in-B", &repoB)
 
 	// List with rs.prefix = repoA.Prefix; allRepos defaults to false.
 	rs := &appState{
@@ -217,8 +233,8 @@ func TestListScopesToCurrentRepo(t *testing.T) {
 	if !strings.Contains(out, issA.ID) {
 		t.Errorf("list output missing repoA issue %q", issA.ID)
 	}
-	if strings.Contains(out, "issue-in-B") {
-		t.Error("list output unexpectedly includes issue-in-B from repoB")
+	if strings.Contains(out, issB.ID) {
+		t.Errorf("list output unexpectedly includes issue from repoB: %q", issB.ID)
 	}
 }
 
@@ -304,7 +320,7 @@ func TestReadyScopesToCurrentRepo(t *testing.T) {
 	}
 
 	issA := mustCreateIssue(t, s, repoA.Prefix, "ready-issue-A", repoA)
-	_ = mustCreateIssue(t, s, repoB.Prefix, "ready-issue-B", &repoB)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "ready-issue-B", &repoB)
 
 	rs := &appState{
 		store:  s,
@@ -324,8 +340,8 @@ func TestReadyScopesToCurrentRepo(t *testing.T) {
 	if !strings.Contains(out, issA.ID) {
 		t.Errorf("ready output missing repoA issue %q", issA.ID)
 	}
-	if strings.Contains(out, "ready-issue-B") {
-		t.Error("ready output unexpectedly includes issue from repoB")
+	if strings.Contains(out, issB.ID) {
+		t.Errorf("ready output unexpectedly includes issue from repoB: %q", issB.ID)
 	}
 }
 
@@ -407,7 +423,7 @@ func TestListRepoArgSlugFiltersToThatRepo(t *testing.T) {
 	}
 
 	issA := mustCreateIssue(t, s, repoA.Prefix, "slug-issue-A", repoA)
-	_ = mustCreateIssue(t, s, repoB.Prefix, "slug-issue-B", &repoB)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "slug-issue-B", &repoB)
 
 	// Scope to repoA via --repo slug even though rs.prefix points to repoB.
 	rs := &appState{
@@ -432,8 +448,8 @@ func TestListRepoArgSlugFiltersToThatRepo(t *testing.T) {
 	if !strings.Contains(out, issA.ID) {
 		t.Errorf("list --repo=%s missing issA %q", repoA.Slug, issA.ID)
 	}
-	if strings.Contains(out, "slug-issue-B") {
-		t.Errorf("list --repo=%s unexpectedly includes issue from repoB", repoA.Slug)
+	if strings.Contains(out, issB.ID) {
+		t.Errorf("list --repo=%s unexpectedly includes issue from repoB: %q", repoA.Slug, issB.ID)
 	}
 }
 

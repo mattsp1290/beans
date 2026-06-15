@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	store "github.com/mattsp1290/beans/store"
@@ -275,8 +276,8 @@ func TestResolveListFilterRejectsPathArg(t *testing.T) {
 	if err == nil {
 		t.Fatal("resolveListFilter path: want error, got nil")
 	}
-	if got := err.Error(); got == "" {
-		t.Fatal("error message is empty")
+	if !strings.Contains(err.Error(), "file:///") {
+		t.Fatalf("expected file:/// hint in error, got %q", err.Error())
 	}
 }
 
@@ -291,6 +292,9 @@ func TestResolveListFilterMutualExclusion(t *testing.T) {
 	_, err := rs.resolveListFilter(context.Background(), true)
 	if err == nil {
 		t.Fatal("resolveListFilter allRepos+repoArg: want error, got nil")
+	}
+	if !strings.Contains(err.Error(), "mutually exclusive") {
+		t.Fatalf("expected 'mutually exclusive' in error, got %q", err.Error())
 	}
 }
 
@@ -331,10 +335,6 @@ type countingFakeGitResolver struct {
 func (c *countingFakeGitResolver) Toplevel(dir string) (string, bool, error) {
 	*c.calls++
 	return c.fakeGitResolver.Toplevel(dir)
-}
-
-func (c *countingFakeGitResolver) RemoteURL(root string) (string, bool, error) {
-	return c.fakeGitResolver.RemoteURL(root)
 }
 
 // Compile-time interface check for countingFakeGitResolver.
