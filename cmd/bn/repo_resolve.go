@@ -111,6 +111,11 @@ func (rs *appState) resolveRepoArg(ctx context.Context, arg string) (*store.Repo
 // warnIfCrossRepo writes a warning to w when rs.resolvedRepo is set and the
 // issue's assigned repo differs from the current repo context.  The lookup is
 // never rejected — cross-repo ID operations are always valid; this is advisory.
+//
+// Slug comparison is correct under topology (a) where prefix == slug — each
+// slug is globally unique within the database.  In a multi-prefix topology,
+// comparing by Repo ID would be more precise; that migration belongs in a
+// future bead.
 func warnIfCrossRepo(w io.Writer, rs *appState, iss store.Issue) {
 	if rs.resolvedRepo == nil || iss.Repo == nil {
 		return

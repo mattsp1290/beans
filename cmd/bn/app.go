@@ -131,21 +131,6 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 		}
 	}
 
-	// Resolve an explicit --repo flag into rs.resolvedRepo so that commands
-	// which validate the issue's repo (show, update, close, delete) can compare
-	// it against the current context without each command performing its own
-	// resolution round-trip.
-	if rs.repoArg != "" && rs.resolvedRepo == nil {
-		repo, err := rs.resolveRepoArg(ctx, rs.repoArg)
-		if err != nil {
-			return err
-		}
-		rs.resolvedRepo = repo
-		if rs.prefix == "" {
-			rs.prefix = repo.Prefix
-		}
-	}
-
 	return nil
 }
 

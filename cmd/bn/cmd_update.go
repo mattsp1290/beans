@@ -144,7 +144,6 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 				}
 				return fmt.Errorf("update: %w", err)
 			}
-			warnIfCrossRepo(cmd.ErrOrStderr(), rs, iss)
 
 			if rs.jsonOut {
 				return writeJSON(toIssueJSON(iss))
