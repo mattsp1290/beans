@@ -619,6 +619,66 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	}
 }
 
+// TestSQLiteStoreContractCreateIssueDerivesPrefix verifies the topology-a
+// contract: when CreateIssue receives a RemoteURL in its IssueRepoInput, the
+// issue prefix is derived from the auto-registered repo (prefix == slug), and
+// two issues created in distinct repos get distinct, non-colliding prefixes.
+func TestSQLiteStoreContractCreateIssueDerivesPrefix(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	// Issue in the first repo — auto-register via RemoteURL.
+	i1, err := s.CreateIssue(ctx, CreateIssueInput{
+		Title: "Issue in repo alpha",
+		Repo: &IssueRepoInput{
+			RemoteURL: "https://github.com/acme/alpha.git",
+		},
+		Actor: "system",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue repo alpha: %v", err)
+	}
+
+	// Issue in the second repo — different canonical URL → different prefix.
+	i2, err := s.CreateIssue(ctx, CreateIssueInput{
+		Title: "Issue in repo beta",
+		Repo: &IssueRepoInput{
+			RemoteURL: "git@github.com:acme/beta.git",
+		},
+		Actor: "system",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue repo beta: %v", err)
+	}
+
+	// IDs must be prefixed with their repo's slug.
+	if !strings.HasPrefix(i1.ID, "alpha-") {
+		t.Errorf("i1.ID = %q, want alpha-* prefix", i1.ID)
+	}
+	if !strings.HasPrefix(i2.ID, "beta-") {
+		t.Errorf("i2.ID = %q, want beta-* prefix", i2.ID)
+	}
+
+	// Prefixes must differ.
+	if i1.ID[:strings.LastIndex(i1.ID, "-")] == i2.ID[:strings.LastIndex(i2.ID, "-")] {
+		t.Errorf("both issues share the same prefix segment; want distinct prefixes")
+	}
+
+	// Third issue in alpha via a different transport form — same repo, same prefix.
+	i3, err := s.CreateIssue(ctx, CreateIssueInput{
+		Title: "Second issue in repo alpha",
+		Repo: &IssueRepoInput{
+			RemoteURL: "git@github.com:acme/alpha.git",
+		},
+		Actor: "system",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue repo alpha (2nd): %v", err)
+	}
+	if !strings.HasPrefix(i3.ID, "alpha-") {
+		t.Errorf("i3.ID = %q, want alpha-* prefix (same repo as i1)", i3.ID)
+	}
+}
+
 func TestSQLiteStoreContractMemories(t *testing.T) {
 	s, ctx := newSQLiteContractStore(t)
 	const prefix = "sqlite-memory"
