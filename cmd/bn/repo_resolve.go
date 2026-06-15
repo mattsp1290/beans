@@ -46,20 +46,28 @@ func classifyRepoArg(s string) repoArgForm {
 // the precedence: --repo flag > .bn marker repo field > cwd git auto-detect > nil.
 //
 // The caller receives nil when no repo context is available; that is valid for
-// commands where a repo is optional.
+// commands where a repo is optional.  This function is consumed by beans-75l
+// (cmd_list.go) and beans-7kv (cmd_create.go) in subsequent iterations.
 func (rs *appState) resolveRepoContext(ctx context.Context) (*store.Repo, error) {
 	// Priority 1: --repo flag
 	if rs.repoArg != "" {
 		return rs.resolveRepoArg(ctx, rs.repoArg)
 	}
 
-	// Priority 2: .bn marker repo field
+	// Priority 2: .bn marker repo field.  Use rs.prefix (already resolved by
+	// initConn) as the project scope to avoid treating the slug as both prefix
+	// and slug — they are the same under topology (a), but using rs.prefix is
+	// explicit and correct in the general case.
 	cfg, err := readActiveProjectConfig("")
 	if err == nil && cfg.Repo != "" {
 		slug := cfg.Repo
-		repo, err := rs.store.GetRepoBySlug(ctx, slug, slug)
+		prefix := rs.prefix
+		if prefix == "" {
+			prefix = slug // topology-a fallback: prefix == slug
+		}
+		repo, err := rs.store.GetRepoBySlug(ctx, prefix, slug)
 		if err != nil {
-			return nil, fmt.Errorf("bn: --repo from .bn marker: slug %q: %w", slug, err)
+			return nil, fmt.Errorf("bn: .bn marker repo %q not found: %w", slug, err)
 		}
 		return &repo, nil
 	}
@@ -117,7 +125,14 @@ func (rs *appState) tryGitAutoDetect(ctx context.Context) error {
 	} else {
 		// Local-only repo (no remote.origin): synthesize a file:// URL from
 		// the git toplevel so AutoRegisterRepo has a non-empty canonical key.
-		regURL = "file://" + filepath.ToSlash(root)
+		// filepath.ToSlash converts Windows backslashes, and the leading slash
+		// ensures the URL has an empty host ("file:///") rather than treating
+		// a Windows drive letter as a host ("file://C:/...").
+		slashRoot := filepath.ToSlash(root)
+		if !strings.HasPrefix(slashRoot, "/") {
+			slashRoot = "/" + slashRoot
+		}
+		regURL = "file://" + slashRoot
 	}
 
 	repo, err := rs.store.AutoRegisterRepo(ctx, store.AutoRegisterInput{

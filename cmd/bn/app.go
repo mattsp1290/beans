@@ -120,6 +120,11 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 
 	// Priority 4: cwd git auto-detect (only when no explicit prefix found above
 	// and not running bn init, which manages its own prefix).
+	// Side effect: in zero-config mode, even read-only commands (bn list, bn
+	// ready) will call AutoRegisterRepo and create project/repo/audit rows for
+	// any git repo encountered.  This is intentional — it enables "just works"
+	// ergonomics without requiring bn init.  Users who want read-only behavior
+	// must provide an explicit --project or BN_PROJECT to skip auto-detect.
 	if rs.prefix == "" && !skipMarker {
 		if err := rs.tryGitAutoDetect(ctx); err != nil {
 			return err

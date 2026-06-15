@@ -73,23 +73,18 @@ func TestTryGitAutoDetectNoGitRepo(t *testing.T) {
 	}
 }
 
-func TestTryGitAutoDetectCallsRemoteWithToplevel(t *testing.T) {
+// TestFakeGitResolverRecordsCallArgs verifies that fakeGitResolver records the
+// dir/root arguments so callers can assert correct wiring (e.g. RemoteURL is
+// called with the root that Toplevel returned, not cwd).
+func TestFakeGitResolverRecordsCallArgs(t *testing.T) {
 	t.Parallel()
 
 	fake := &fakeGitResolver{
 		toplevel:  "/repo/root",
-		remoteURL: "", // no remote — should synthesize file:// URL
+		remoteURL: "",
 	}
-	// No store: auto-detect is best-effort; without a store the function
-	// should return nil (it panics if store is nil and is called — but with
-	// no remote the URL synthesized is file:///repo/root, and AutoRegisterRepo
-	// would need the store; our fakeGitResolver ensures we reach that path).
-	// This test validates the argument-passing wiring: lastToplevelDir = ""
-	// (cwd) and lastRemoteURLRoot = the root returned by Toplevel.
-	rs := &appState{git: fake}
-	// We can't call tryGitAutoDetect without a store, so just verify wiring
-	// by calling the seam directly.
-	root, ok, err := rs.git.Toplevel("")
+
+	root, ok, err := fake.Toplevel("")
 	if err != nil || !ok || root != "/repo/root" {
 		t.Fatalf("Toplevel: got (%q, %v, %v), want (/repo/root, true, nil)", root, ok, err)
 	}
@@ -97,7 +92,7 @@ func TestTryGitAutoDetectCallsRemoteWithToplevel(t *testing.T) {
 		t.Errorf("lastToplevelDir = %q, want empty (cwd)", fake.lastToplevelDir)
 	}
 
-	_, _, _ = rs.git.RemoteURL(root)
+	_, _, _ = fake.RemoteURL(root)
 	if fake.lastRemoteURLRoot != "/repo/root" {
 		t.Errorf("lastRemoteURLRoot = %q, want /repo/root", fake.lastRemoteURLRoot)
 	}
