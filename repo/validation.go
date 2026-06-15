@@ -199,6 +199,134 @@ func ValidateAuthRef(authRef string) error {
 	return nil
 }
 
+// ErrNoRemote is returned by NormalizeRemoteURL when the input is empty,
+// indicating a local-only repository with no configured remote. Callers that
+// need a canonical key for a local-only repo should derive a synthetic
+// file:// URL from the absolute git toplevel path and call NormalizeRemoteURL
+// again with that value.
+var ErrNoRemote = errors.New("repository: no remote URL (local-only repo)")
+
+// defaultPorts maps URL schemes to their default port strings. A port equal to
+// the scheme's default is stripped from the canonical key.
+var defaultPorts = map[string]string{
+	"https": "443",
+	"http":  "80",
+	"ssh":   "22",
+	"git":   "9418",
+}
+
+// NormalizeRemoteURL returns a canonical URL string suitable as a stable
+// lookup key for a remote repository. The canonical form is:
+//
+//	https://{lowercase-host}[:{non-default-port}]/{path}
+//
+// where {path} has the trailing ".git" suffix stripped. The three common
+// transport forms of the same hosted repository all collapse to one key:
+//
+//	git@github.com:alice/app.git        → https://github.com/alice/app
+//	ssh://git@github.com/alice/app.git  → https://github.com/alice/app
+//	https://github.com/alice/app.git    → https://github.com/alice/app
+//
+// file:// and absolute bare-path remotes are normalized to:
+//
+//	file://{clean-abs-path}             (trailing ".git" stripped)
+//
+// A relative bare path is an ambiguous canonical key and returns an error.
+// An empty remote (local-only repo with no remote configured) returns
+// ErrNoRemote; callers should supply a synthetic file:// key derived from
+// the absolute git toplevel in that case.
+func NormalizeRemoteURL(remote string) (string, error) {
+	remote = strings.TrimSpace(remote)
+	if remote == "" {
+		return "", ErrNoRemote
+	}
+	if strings.ContainsAny(remote, "\x00\r\n") {
+		return "", errors.New("repository: remote_url contains control characters")
+	}
+
+	if isSCPRemote(remote) {
+		return normalizeSCP(remote)
+	}
+
+	u, err := url.Parse(remote)
+	if err != nil {
+		return "", fmt.Errorf("repository: NormalizeRemoteURL parse: %w", err)
+	}
+
+	switch strings.ToLower(u.Scheme) {
+	case "https", "http", "ssh", "git":
+		return normalizeHostedURL(u)
+	case "file":
+		return normalizeFileURL(u)
+	case "":
+		return normalizeBarePath(remote)
+	default:
+		return "", fmt.Errorf("repository: NormalizeRemoteURL: unsupported scheme %q", u.Scheme)
+	}
+}
+
+func normalizeHostedURL(u *url.URL) (string, error) {
+	host := strings.ToLower(u.Hostname())
+	if host == "" {
+		return "", fmt.Errorf("repository: NormalizeRemoteURL: missing host in URL")
+	}
+
+	port := u.Port()
+	if dp := defaultPorts[strings.ToLower(u.Scheme)]; dp != "" && port == dp {
+		port = ""
+	}
+
+	hostField := host
+	if port != "" {
+		hostField = host + ":" + port
+	}
+
+	path := strings.TrimSuffix(u.Path, ".git")
+	path = strings.TrimRight(path, "/")
+	if path == "" {
+		path = "/"
+	}
+
+	return "https://" + hostField + path, nil
+}
+
+func normalizeSCP(remote string) (string, error) {
+	colon := strings.IndexByte(remote, ':')
+	hostPart := remote[:colon]
+	pathPart := remote[colon+1:]
+
+	if at := strings.LastIndexByte(hostPart, '@'); at >= 0 {
+		hostPart = hostPart[at+1:]
+	}
+
+	host := strings.ToLower(strings.TrimSpace(hostPart))
+	if host == "" {
+		return "", errors.New("repository: NormalizeRemoteURL: empty host in SCP remote")
+	}
+
+	path := strings.TrimSuffix(pathPart, ".git")
+	path = strings.Trim(path, "/")
+
+	return "https://" + host + "/" + path, nil
+}
+
+func normalizeFileURL(u *url.URL) (string, error) {
+	path := strings.TrimSuffix(u.Path, ".git")
+	path = strings.TrimRight(path, "/")
+	if path == "" {
+		return "", errors.New("repository: NormalizeRemoteURL: empty path in file URL")
+	}
+	return "file://" + path, nil
+}
+
+func normalizeBarePath(remote string) (string, error) {
+	if !filepath.IsAbs(remote) {
+		return "", fmt.Errorf("repository: NormalizeRemoteURL: relative path %q is ambiguous as a canonical key; use an absolute path or file:// URL", remote)
+	}
+	path := strings.TrimSuffix(filepath.Clean(remote), ".git")
+	return "file://" + path, nil
+}
+
 func isSCPRemote(remote string) bool {
 	if strings.Contains(remote, "://") {
 		return false
