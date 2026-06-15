@@ -119,18 +119,20 @@ type CreateIssueInput struct {
 
 // IssueRepoInput attaches repo routing metadata to an issue.
 //
-// Resolution precedence under topology-a (prefix == slug):
-//  1. RemoteURL — auto-registers the repo if needed; the issue prefix is derived
-//     from the registered repo's Prefix field.
-//  2. RepoSlug — looks up the repo by slug alone; the issue prefix is derived
-//     from the registered repo's Prefix field.
+// Topology-a resolution in CreateIssue:
+//  - RemoteURL set: AutoRegisterRepo runs before the issue transaction and the
+//    issue prefix is derived from the registered repo's Prefix field.
+//  - RemoteURL empty, RepoSlug set: legacy path — CallerPrefix must be supplied
+//    via CreateIssueInput.Prefix, and the repo is looked up by (prefix, slug).
+//  - Both empty: no repo link is created; CreateIssueInput.Prefix is used.
 //
-// When both are empty, the caller must provide CreateIssueInput.Prefix and the
-// repo field is treated as absent.
+// RemoteURL is honored only by CreateIssue.  UpdateIssue ignores it — pass
+// RepoSlug to re-link an issue to a repo after creation.
 type IssueRepoInput struct {
-	// RemoteURL is an optional remote URL (any transport form).  When set,
-	// AutoRegisterRepo is called before the issue transaction so the bn_projects
-	// FK is satisfied and the issue prefix is derived from the repo.
+	// RemoteURL is an optional remote URL (any transport form; Create-only).
+	// When set, AutoRegisterRepo is called before the issue transaction so the
+	// bn_projects FK is satisfied and the issue prefix is derived from the repo.
+	// Ignored by UpdateIssue.
 	RemoteURL      string
 	RepoSlug       string
 	RequestedRef   string
@@ -162,11 +164,16 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 	// stable across retries.  AutoRegisterRepo commits its own transaction and
 	// ensures the bn_projects row exists before we open the issue transaction.
 	//
-	// Topology-a: when RemoteURL is provided, the issue prefix is derived from
+	// When RemoteURL is provided (topology-a), the issue prefix is derived from
 	// the registered repo (prefix == slug).  When only RepoSlug is provided
-	// (legacy path), the caller's in.Prefix is preserved — insertIssueRepoGORM
-	// will look up the repo by (prefix, slug) as before.
+	// (legacy path), in.Prefix is used verbatim — insertIssueRepoGORM will look
+	// up the repo by (prefix, slug) as before.
 	effectivePrefix := in.Prefix
+	// repoSlug is a local copy so we don't mutate the caller's IssueRepoInput.
+	var repoSlug string
+	if in.Repo != nil {
+		repoSlug = in.Repo.RepoSlug
+	}
 	if in.Repo != nil && strings.TrimSpace(in.Repo.RemoteURL) != "" {
 		resolved, regErr := s.AutoRegisterRepo(ctx, AutoRegisterInput{
 			RemoteURL: in.Repo.RemoteURL,
@@ -176,9 +183,12 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 			return Issue{}, fmt.Errorf("store: CreateIssue repo resolve: %w", regErr)
 		}
 		effectivePrefix = resolved.Prefix
-		if in.Repo.RepoSlug == "" {
-			in.Repo.RepoSlug = resolved.Slug
+		if strings.TrimSpace(repoSlug) == "" {
+			repoSlug = resolved.Slug
 		}
+	}
+	if strings.TrimSpace(effectivePrefix) == "" {
+		return Issue{}, fmt.Errorf("store: CreateIssue: prefix is required (set Prefix or provide Repo.RemoteURL)")
 	}
 
 	labels := encodedLabels(in.Labels)
@@ -212,8 +222,12 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 				return err
 			}
 			if in.Repo != nil {
+				// Build a local copy so insertIssueRepoGORM gets the resolved slug
+				// without mutating the caller's IssueRepoInput.
+				repoIn := *in.Repo
+				repoIn.RepoSlug = repoSlug
 				var repoErr error
-				repoTarget, repoErr = insertIssueRepoGORM(ctx, tx, id, effectivePrefix, *in.Repo)
+				repoTarget, repoErr = insertIssueRepoGORM(ctx, tx, id, effectivePrefix, repoIn)
 				if repoErr != nil {
 					return repoErr
 				}
