@@ -22,12 +22,16 @@ type appState struct {
 	prefix  string
 	actor   string
 	jsonOut bool
+	repoArg string // raw --repo flag value (slug or remote URL)
 
 	// lazily set by initConn
 	store *store.Store
 
 	// injectable seam for git workspace queries; defaults to realGitResolver
 	git gitResolver
+
+	// set by tryGitAutoDetect or resolveRepoContext; nil until resolved
+	resolvedRepo *store.Repo
 }
 
 func newRootCmd(rs *appState) *cobra.Command {
@@ -47,6 +51,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 	root.PersistentFlags().StringVar(&rs.prefix, "project", "", "project prefix (overrides $BN_PROJECT)")
 	root.PersistentFlags().StringVar(&rs.actor, "actor", "", "audit actor (overrides $BN_ACTOR)")
 	root.PersistentFlags().BoolVar(&rs.jsonOut, "json", false, "machine-readable JSON output")
+	root.PersistentFlags().StringVar(&rs.repoArg, "repo", "", "repo slug or remote URL (overrides git auto-detect)")
 
 	root.AddCommand(
 		newInitCmd(rs),
@@ -83,6 +88,13 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 		return err
 	}
 
+	// Open the store first so auto-detect can call AutoRegisterRepo.
+	st, err := store.New(ctx, cfg)
+	if err != nil {
+		return fmt.Errorf("bn: connect: %w", err)
+	}
+	rs.store = st
+
 	if rs.actor == "" {
 		if v := os.Getenv("BN_ACTOR"); v != "" {
 			rs.actor = v
@@ -99,17 +111,21 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 		rs.actor = os.Getenv("USER")
 	}
 
+	// Priority 1-3: --project flag → BN_PROJECT env → .bn marker project field.
 	prefix, err := resolveProjectPrefix(rs.prefix, skipMarker)
 	if err != nil {
 		return err
 	}
 	rs.prefix = prefix
 
-	st, err := store.New(ctx, cfg)
-	if err != nil {
-		return fmt.Errorf("bn: connect: %w", err)
+	// Priority 4: cwd git auto-detect (only when no explicit prefix found above
+	// and not running bn init, which manages its own prefix).
+	if rs.prefix == "" && !skipMarker {
+		if err := rs.tryGitAutoDetect(ctx); err != nil {
+			return err
+		}
 	}
-	rs.store = st
+
 	return nil
 }
 
