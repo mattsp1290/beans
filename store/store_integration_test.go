@@ -208,7 +208,7 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		if !slices.Equal(gotChild.BlockedBy, []string{parent.ID}) {
 			t.Fatalf("child blockers = %v, want parent", gotChild.BlockedBy)
 		}
-		ready, err := s.ReadyIssues(ctx, prefix, []model.IssueState{"closed"}, []model.IssueState{"open"})
+		ready, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: prefix}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 		if err != nil {
 			t.Fatalf("ReadyIssues initial: %v", err)
 		}
@@ -227,7 +227,7 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		if closedParent.State != "closed" || !closedParent.UpdatedAt.After(parent.UpdatedAt) {
 			t.Fatalf("closed parent = %+v, want closed and newer updated_at", closedParent)
 		}
-		ready, err = s.ReadyIssues(ctx, prefix, []model.IssueState{"closed"}, []model.IssueState{"open"})
+		ready, err = s.ReadyIssues(ctx, store.ListFilter{Prefix: prefix}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 		if err != nil {
 			t.Fatalf("ReadyIssues after close: %v", err)
 		}
@@ -628,7 +628,7 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		if success != 1 || cycle+writeLock != 1 {
 			t.Fatalf("concurrent AddDep results success=%d cycle=%d writeLock=%d errs=%v, want one success and one rejected edge", success, cycle, writeLock, errs)
 		}
-		edges, err := s.ListDeps(ctx, ListFilter{Prefix: prefix})
+		edges, err := s.ListDeps(ctx, store.ListFilter{Prefix: prefix})
 		if err != nil {
 			t.Fatalf("ListDeps after concurrent AddDep: %v", err)
 		}
@@ -1806,7 +1806,7 @@ func TestCreateIssueWithRepo(t *testing.T) {
 	}
 	assertIssueRepoTarget(t, listed[0], repo.ID)
 
-	ready, err := s.ReadyIssues(ctx, "route", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	ready, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: "route"}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues: %v", err)
 	}
@@ -2302,7 +2302,7 @@ func TestReadyIssues(t *testing.T) {
 	active := []model.IssueState{"open"}
 
 	// With no issues closed: only C is ready.
-	ready, err := s.ReadyIssues(ctx, "rdy", terminal, active)
+	ready, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: "rdy"}, terminal, active)
 	if err != nil {
 		t.Fatalf("ReadyIssues: %v", err)
 	}
@@ -2314,7 +2314,7 @@ func TestReadyIssues(t *testing.T) {
 	if err := s.CloseIssue(ctx, c, "test", ""); err != nil {
 		t.Fatalf("CloseIssue C: %v", err)
 	}
-	ready, err = s.ReadyIssues(ctx, "rdy", terminal, active)
+	ready, err = s.ReadyIssues(ctx, store.ListFilter{Prefix: "rdy"}, terminal, active)
 	if err != nil {
 		t.Fatalf("ReadyIssues after C closed: %v", err)
 	}
@@ -2326,7 +2326,7 @@ func TestReadyIssues(t *testing.T) {
 	if err := s.CloseIssue(ctx, b, "test", ""); err != nil {
 		t.Fatalf("CloseIssue B: %v", err)
 	}
-	ready, err = s.ReadyIssues(ctx, "rdy", terminal, active)
+	ready, err = s.ReadyIssues(ctx, store.ListFilter{Prefix: "rdy"}, terminal, active)
 	if err != nil {
 		t.Fatalf("ReadyIssues after B closed: %v", err)
 	}
@@ -2370,7 +2370,7 @@ func TestReadyIssues_CustomTerminal(t *testing.T) {
 	}
 
 	// Using only "closed" as terminal: child is still blocked (parent is "done", not "closed").
-	ready, err := s.ReadyIssues(ctx, "cterm", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	ready, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: "cterm"}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues closed-only terminal: %v", err)
 	}
@@ -2379,7 +2379,7 @@ func TestReadyIssues_CustomTerminal(t *testing.T) {
 	}
 
 	// Using "closed" AND "done" as terminal: child is ready.
-	ready, err = s.ReadyIssues(ctx, "cterm", []model.IssueState{"closed", "done"}, []model.IssueState{"open"})
+	ready, err = s.ReadyIssues(ctx, store.ListFilter{Prefix: "cterm"}, []model.IssueState{"closed", "done"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues with done terminal: %v", err)
 	}
@@ -2412,7 +2412,7 @@ func TestReadyIssuesOrderingAndEmptyActiveStates(t *testing.T) {
 		created = append(created, iss)
 	}
 
-	empty, err := s.ReadyIssues(ctx, "rord", []model.IssueState{"closed"}, nil)
+	empty, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: "rord"}, []model.IssueState{"closed"}, nil)
 	if err != nil {
 		t.Fatalf("ReadyIssues empty active states: %v", err)
 	}
@@ -2420,7 +2420,7 @@ func TestReadyIssuesOrderingAndEmptyActiveStates(t *testing.T) {
 		t.Fatalf("ReadyIssues empty active states returned %v, want empty", issueIDs(empty))
 	}
 
-	ready, err := s.ReadyIssues(ctx, "rord", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	ready, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: "rord"}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues: %v", err)
 	}
@@ -2988,7 +2988,7 @@ func TestListDeps(t *testing.T) {
 		t.Fatalf("AddDep B→C: %v", err)
 	}
 
-	edges, err := s.ListDeps(ctx, ListFilter{Prefix: "ld"})
+	edges, err := s.ListDeps(ctx, store.ListFilter{Prefix: "ld"})
 	if err != nil {
 		t.Fatalf("ListDeps: %v", err)
 	}
@@ -3013,4 +3013,331 @@ func issueIDs(issues []store.Issue) []string {
 		ids[i] = iss.ID
 	}
 	return ids
+}
+
+// ---------------------------------------------------------------------------
+// Repo-scoping integration tests (beans-awx)
+// ---------------------------------------------------------------------------
+
+// TestAutoRegisterRepoDistinctPrefixes verifies that two repos with different
+// remote URLs receive distinct, non-colliding prefixes (topology-a criterion 5).
+func TestAutoRegisterRepoDistinctPrefixes(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	r1, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/alice/proj-a.git",
+		Actor:     "system",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo proj-a: %v", err)
+	}
+
+	r2, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/alice/proj-b.git",
+		Actor:     "system",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo proj-b: %v", err)
+	}
+
+	if r1.Prefix == r2.Prefix {
+		t.Fatalf("two distinct repos received the same prefix %q", r1.Prefix)
+	}
+	if r1.Slug != r1.Prefix {
+		t.Fatalf("topology-a violation: r1.Slug %q != r1.Prefix %q", r1.Slug, r1.Prefix)
+	}
+	if r2.Slug != r2.Prefix {
+		t.Fatalf("topology-a violation: r2.Slug %q != r2.Prefix %q", r2.Slug, r2.Prefix)
+	}
+
+	// Both projects must exist in bn_projects.
+	ok1, err := s.ProjectExists(ctx, r1.Prefix)
+	if err != nil || !ok1 {
+		t.Fatalf("project for r1 missing: exists=%v err=%v", ok1, err)
+	}
+	ok2, err := s.ProjectExists(ctx, r2.Prefix)
+	if err != nil || !ok2 {
+		t.Fatalf("project for r2 missing: exists=%v err=%v", ok2, err)
+	}
+}
+
+// TestAutoRegisterRepoSlugDisambiguation verifies that a second repo with the
+// same bare repo-name gets a qualified slug (step 2: owner-qualified).
+func TestAutoRegisterRepoSlugDisambiguation(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	r1, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/alpha/shared.git",
+		Actor:     "system",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo alpha/shared: %v", err)
+	}
+	if r1.Slug != "shared" {
+		t.Fatalf("expected step-1 slug %q, got %q", "shared", r1.Slug)
+	}
+
+	r2, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/beta/shared.git",
+		Actor:     "system",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo beta/shared: %v", err)
+	}
+	if r2.Slug != "beta-shared" {
+		t.Fatalf("expected step-2 slug %q, got %q", "beta-shared", r2.Slug)
+	}
+	if r1.Prefix == r2.Prefix {
+		t.Fatalf("disambiguated repos share the same prefix %q", r1.Prefix)
+	}
+}
+
+// TestGetRepoByRemoteURLNormalization verifies that GetRepoByRemoteURL returns
+// the same row for all three transport forms of the same URL (criterion: 0009
+// unique index on the normalized remote_url).
+func TestGetRepoByRemoteURLNormalization(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	r, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/testorg/testapp.git",
+		Actor:     "system",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo: %v", err)
+	}
+	if r.RemoteURL != "https://github.com/testorg/testapp" {
+		t.Fatalf("RemoteURL = %q, want canonical https form without .git", r.RemoteURL)
+	}
+
+	// SCP form must resolve to the same row.
+	bySCP, err := s.GetRepoByRemoteURL(ctx, "git@github.com:testorg/testapp.git")
+	if err != nil {
+		t.Fatalf("GetRepoByRemoteURL (SCP): %v", err)
+	}
+	if bySCP.ID != r.ID {
+		t.Fatalf("SCP lookup ID = %q, want %q", bySCP.ID, r.ID)
+	}
+
+	// ssh:// form.
+	bySSH, err := s.GetRepoByRemoteURL(ctx, "ssh://git@github.com/testorg/testapp.git")
+	if err != nil {
+		t.Fatalf("GetRepoByRemoteURL (ssh://): %v", err)
+	}
+	if bySSH.ID != r.ID {
+		t.Fatalf("ssh:// lookup ID = %q, want %q", bySSH.ID, r.ID)
+	}
+}
+
+// TestRemoteURLUniqueIndexEnforced verifies that the 0009 unique index on
+// bn_repos.remote_url prevents two rows with the same normalized URL.
+func TestRemoteURLUniqueIndexEnforced(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	// First registration via CreateRepo (direct, not AutoRegister).
+	if err := s.EnsureProject(ctx, "idx-test"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "idx-test", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin: %v", err)
+	}
+	_, err := s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "idx-test",
+		Slug:          "idx-app",
+		RemoteURL:     "git@github.com:idx-org/idx-app.git",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo: %v", err)
+	}
+
+	// Second registration with the same normalized URL (https form) must be rejected.
+	if err := s.EnsureProject(ctx, "idx-test2"); err != nil {
+		t.Fatalf("EnsureProject 2: %v", err)
+	}
+	if err := s.AddRepoAdmin(ctx, "idx-test2", "alice", "alice", true); err != nil {
+		t.Fatalf("AddRepoAdmin 2: %v", err)
+	}
+	_, err = s.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        "idx-test2",
+		Slug:          "idx-app-dup",
+		RemoteURL:     "https://github.com/idx-org/idx-app",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	})
+	if err == nil {
+		t.Fatal("expected error for duplicate remote_url, got nil")
+	}
+}
+
+// TestListFilterRepoScopingIntegration verifies AllRepos=true vs prefix-scoped
+// ListIssues/ReadyIssues/ListDeps/ListMembers/ListParents across two projects.
+func TestListFilterRepoScopingIntegration(t *testing.T) {
+	t.Parallel()
+	s := testStore(t)
+	ctx := context.Background()
+
+	const pfxA = "scope-int-a"
+	const pfxB = "scope-int-b"
+	for _, pfx := range []string{pfxA, pfxB} {
+		if err := s.EnsureProject(ctx, pfx); err != nil {
+			t.Fatalf("EnsureProject %s: %v", pfx, err)
+		}
+	}
+
+	issA, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: pfxA, Title: "issue A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue A: %v", err)
+	}
+	issB, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: pfxB, Title: "issue B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue B: %v", err)
+	}
+
+	// ListIssues: prefix-scoped returns own issues only.
+	listA, err := s.ListIssues(ctx, store.ListFilter{Prefix: pfxA})
+	if err != nil {
+		t.Fatalf("ListIssues A: %v", err)
+	}
+	for _, iss := range listA {
+		if iss.ID == issB.ID {
+			t.Fatalf("ListIssues A returned issue from pfxB")
+		}
+	}
+
+	// ListIssues: AllRepos=true returns issues from both.
+	all, err := s.ListIssues(ctx, store.ListFilter{AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListIssues AllRepos: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range all {
+		ids[iss.ID] = true
+	}
+	if !ids[issA.ID] || !ids[issB.ID] {
+		t.Fatalf("ListIssues AllRepos missing issues: %v", all)
+	}
+
+	// ReadyIssues: prefix-scoped.
+	termStates := []model.IssueState{"closed"}
+	activeStates := []model.IssueState{"open"}
+	readyA, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: pfxA}, termStates, activeStates)
+	if err != nil {
+		t.Fatalf("ReadyIssues A: %v", err)
+	}
+	for _, iss := range readyA {
+		if iss.ID == issB.ID {
+			t.Fatalf("ReadyIssues A returned issue from pfxB")
+		}
+	}
+
+	// ReadyIssues: AllRepos=true.
+	readyAll, err := s.ReadyIssues(ctx, store.ListFilter{AllRepos: true}, termStates, activeStates)
+	if err != nil {
+		t.Fatalf("ReadyIssues AllRepos: %v", err)
+	}
+	ids = make(map[string]bool)
+	for _, iss := range readyAll {
+		ids[iss.ID] = true
+	}
+	if !ids[issA.ID] || !ids[issB.ID] {
+		t.Fatalf("ReadyIssues AllRepos missing issues: %v", readyAll)
+	}
+
+	// ListDeps: add a dep in pfxA; pfxB sees nothing.
+	blocker, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: pfxA, Title: "blocker A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue blocker: %v", err)
+	}
+	if err := s.AddDep(ctx, issA.ID, blocker.ID); err != nil {
+		t.Fatalf("AddDep: %v", err)
+	}
+	depsA, err := s.ListDeps(ctx, store.ListFilter{Prefix: pfxA})
+	if err != nil {
+		t.Fatalf("ListDeps A: %v", err)
+	}
+	if len(depsA) != 1 {
+		t.Fatalf("ListDeps A = %d edges, want 1", len(depsA))
+	}
+	depsB, err := s.ListDeps(ctx, store.ListFilter{Prefix: pfxB})
+	if err != nil {
+		t.Fatalf("ListDeps B: %v", err)
+	}
+	if len(depsB) != 0 {
+		t.Fatalf("ListDeps B = %d edges, want 0 (no leakage from pfxA)", len(depsB))
+	}
+	depsAll, err := s.ListDeps(ctx, store.ListFilter{AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListDeps AllRepos: %v", err)
+	}
+	if len(depsAll) < 1 {
+		t.Fatalf("ListDeps AllRepos = 0 edges, want at least pfxA edge")
+	}
+
+	// ListMembers/ListParents: add epic/leaf in pfxA; pfxB sees nothing.
+	epic, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: pfxA, Title: "epic", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	leaf, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: pfxA, Title: "leaf", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leaf: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leaf.ID, epic.ID, store.DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep: %v", err)
+	}
+
+	// From pfxB: members and parents invisible.
+	membersB, err := s.ListMembers(ctx, store.ListFilter{Prefix: pfxB}, epic.ID)
+	if err != nil {
+		t.Fatalf("ListMembers B: %v", err)
+	}
+	if len(membersB) != 0 {
+		t.Fatalf("ListMembers B = %d, want 0 (no leakage)", len(membersB))
+	}
+	parentsB, err := s.ListParents(ctx, store.ListFilter{Prefix: pfxB}, leaf.ID)
+	if err != nil {
+		t.Fatalf("ListParents B: %v", err)
+	}
+	if len(parentsB) != 0 {
+		t.Fatalf("ListParents B = %d, want 0 (no leakage)", len(parentsB))
+	}
+
+	// AllRepos: visible.
+	membersAll, err := s.ListMembers(ctx, store.ListFilter{AllRepos: true}, epic.ID)
+	if err != nil {
+		t.Fatalf("ListMembers AllRepos: %v", err)
+	}
+	foundLeaf := false
+	for _, m := range membersAll {
+		if m.ID == leaf.ID {
+			foundLeaf = true
+		}
+	}
+	if !foundLeaf {
+		t.Fatalf("ListMembers AllRepos missing leaf: %v", membersAll)
+	}
+	parentsAll, err := s.ListParents(ctx, store.ListFilter{AllRepos: true}, leaf.ID)
+	if err != nil {
+		t.Fatalf("ListParents AllRepos: %v", err)
+	}
+	foundEpic := false
+	for _, p := range parentsAll {
+		if p.ID == epic.ID {
+			foundEpic = true
+		}
+	}
+	if !foundEpic {
+		t.Fatalf("ListParents AllRepos missing epic: %v", parentsAll)
+	}
 }
