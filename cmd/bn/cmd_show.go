@@ -34,6 +34,19 @@ func newShowCmd(rs *appState) *cobra.Command {
 			}
 
 			printIssueDetail(cmd, iss)
+
+			// Surface parent-child membership (non-blocking, so absent from
+			// BlockedBy): which epic(s) this issue belongs to, and — if it is a
+			// rollup — its children.
+			parents, err := rs.store.ListParents(cmd.Context(), rs.prefix, iss.ID)
+			if err != nil {
+				return fmt.Errorf("show: %w", err)
+			}
+			children, err := rs.store.ListMembers(cmd.Context(), rs.prefix, iss.ID)
+			if err != nil {
+				return fmt.Errorf("show: %w", err)
+			}
+			printMembership(cmd, parents, children)
 			return nil
 		},
 	}
@@ -85,4 +98,24 @@ func printIssueDetail(cmd *cobra.Command, iss store.Issue) {
 	}
 	fmt.Fprintf(w, "\nCreated: %s\n", iss.CreatedAt.Format("2006-01-02 15:04:05"))
 	fmt.Fprintf(w, "Updated: %s\n", iss.UpdatedAt.Format("2006-01-02 15:04:05"))
+}
+
+// printMembership renders the parent-child relationships for an issue: the
+// epic(s) it belongs to (parents) and, when it is a rollup, its children.
+func printMembership(cmd *cobra.Command, parents, children []store.Issue) {
+	w := cmd.OutOrStdout()
+	if len(parents) > 0 {
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "Member of:")
+		for _, p := range parents {
+			fmt.Fprintf(w, "  %s  %s\n", p.ID, p.Title)
+		}
+	}
+	if len(children) > 0 {
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "Children:")
+		for _, c := range children {
+			fmt.Fprintf(w, "  %s  [%s]  %s\n", c.ID, c.State, c.Title)
+		}
+	}
 }

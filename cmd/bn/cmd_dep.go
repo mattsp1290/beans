@@ -27,16 +27,38 @@ func newDepCmd(rs *appState) *cobra.Command {
 }
 
 func newDepAddCmd(rs *appState) *cobra.Command {
-	return &cobra.Command{
+	var depType string
+
+	cmd := &cobra.Command{
 		Use:   "add <child> <parent>",
-		Short: "Block child until parent is terminal",
-		Args:  cobra.ExactArgs(2),
+		Short: "Add a dependency edge (default: block child until parent is terminal)",
+		Long: `Add a dependency edge between two issues.
+
+Default (--type blocks): <child> is blocked until <parent> reaches a terminal state.
+--type parent-child: record <child> as a member of <parent> (e.g. an epic) WITHOUT
+blocking either side. Membership is queryable via 'bn dep tree' and 'bn list --epic'.
+
+Any non-empty type up to 50 characters is accepted (bd-compatible); only 'blocks'
+edges gate readiness and cycle detection.`,
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
 			}
 			childID, parentID := args[0], args[1]
-			err := rs.store.AddDep(cmd.Context(), childID, parentID)
+
+			normalizedType, err := store.ValidateDepType(depType)
+			if err != nil {
+				return err
+			}
+			// Only 'blocks' and 'parent-child' carry semantics; any other accepted
+			// value is stored as a non-blocking edge. Warn so a typo like
+			// "-t blcoks" doesn't silently become a non-blocking edge.
+			if normalizedType != store.DepTypeBlocks && normalizedType != store.DepTypeParentChild {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %q is not a known edge type; stored as a non-blocking edge\n", normalizedType)
+			}
+
+			err = rs.store.AddTypedDep(cmd.Context(), childID, parentID, normalizedType)
 			if err != nil {
 				switch {
 				case errors.Is(err, store.ErrNotFound):
@@ -44,22 +66,35 @@ func newDepAddCmd(rs *appState) *cobra.Command {
 				case errors.Is(err, store.ErrCycle):
 					return fmt.Errorf("cycle: adding %s → %s would create a cycle", childID, parentID)
 				case errors.Is(err, store.ErrDuplicateDep):
-					fmt.Fprintf(cmd.OutOrStdout(), "%s already depends on %s\n", childID, parentID)
+					// One edge per pair: a pre-existing edge of any kind blocks a new
+					// one, so use neutral framing rather than asserting "depends on".
+					fmt.Fprintf(cmd.OutOrStdout(), "%s and %s already have a dependency edge\n", childID, parentID)
 					return nil
 				}
 				return fmt.Errorf("dep add: %w", err)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s now depends on %s\n", childID, parentID)
+			if normalizedType == store.DepTypeParentChild {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s is now a child of %s\n", childID, parentID)
+			} else {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s now depends on %s\n", childID, parentID)
+			}
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVarP(&depType, "type", "t", store.DepTypeBlocks, "dependency type: blocks|parent-child (any non-empty value up to 50 chars accepted)")
+	return cmd
 }
 
 func newDepRemoveCmd(rs *appState) *cobra.Command {
 	return &cobra.Command{
 		Use:   "remove <child> <parent>",
-		Short: "Remove a dependency edge",
-		Args:  cobra.ExactArgs(2),
+		Short: "Remove a dependency edge (blocking or parent-child membership)",
+		Long: `Remove the dependency edge between two issues.
+
+There is one edge per (child, parent) pair regardless of kind, so this removes
+whichever edge exists — a 'blocks' edge or a 'parent-child' membership edge.`,
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := rs.requirePrefix(); err != nil {
 				return err
@@ -88,7 +123,9 @@ func newDepTreeCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			edges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			// dep tree is the ordering (blocking) view. Membership edges
+			// (parent-child, etc.) are inspected via 'bn list --epic'.
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), rs.prefix)
 			if err != nil {
 				return fmt.Errorf("dep tree: %w", err)
 			}
@@ -172,11 +209,11 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			edges, err := rs.store.ListDeps(cmd.Context(), rs.prefix)
+			// Only blocking edges form ordering cycles; membership edges never do.
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), rs.prefix)
 			if err != nil {
 				return fmt.Errorf("dep cycles: %w", err)
 			}
-
 			cycles := detectCycles(edges)
 			if len(cycles) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No cycles detected.")

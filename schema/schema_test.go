@@ -27,6 +27,7 @@ var expectedMigrations = []struct {
 	{5, "bn_issue_repos"},
 	{6, "bn_memory_tags"},
 	{7, "bn_semantic_guards"},
+	{8, "bn_dep_type"},
 }
 
 // TestListMigrationsParsesEmbedded verifies every dialect's embedded migration
@@ -236,6 +237,7 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"CREATE TABLE IF NOT EXISTS bn_memory_tags",
 		"CREATE TABLE bn_dep_graph_guard",
 		"CREATE TABLE bn_project_admin_bootstraps",
+		"ADD COLUMN dep_type VARCHAR(64) NOT NULL DEFAULT 'blocks'",
 	})
 	assertContainsDDL(t, DriverSQLite, sqliteSQL, []string{
 		"TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP",
@@ -245,6 +247,11 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"CREATE TABLE bn_memory_tags",
 		"CREATE TABLE bn_dep_graph_guard",
 		"CREATE TABLE bn_project_admin_bootstraps",
+		"ADD COLUMN dep_type TEXT NOT NULL DEFAULT 'blocks'",
+	})
+
+	assertContainsDDL(t, DriverPostgres, postgresSQL, []string{
+		"ADD COLUMN dep_type TEXT NOT NULL DEFAULT 'blocks'",
 	})
 }
 
