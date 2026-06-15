@@ -30,7 +30,7 @@ func newReadyCmd(rs *appState) *cobra.Command {
 
 			issues, err := rs.store.ReadyIssues(
 				cmd.Context(),
-				rs.prefix,
+				store.ListFilter{Prefix: rs.prefix},
 				defaultTerminalStates,
 				defaultActiveStates,
 			)

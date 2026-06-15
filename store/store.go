@@ -336,11 +336,17 @@ func (s *Store) GetIssue(ctx context.Context, id string) (Issue, error) {
 	return iss, nil
 }
 
-// ListFilter scopes a ListIssues call.
+// ListFilter scopes a ListIssues / ReadyIssues call.
+//
+// Three-state prefix scoping:
+//   - Prefix non-empty, AllRepos false  → WHERE prefix = Prefix  (default repo scope)
+//   - Prefix empty,     AllRepos false  → WHERE prefix = ""      (matches nothing; explicit "no issues")
+//   - AllRepos true                     → prefix filter omitted   (cross-repo / global listing)
 type ListFilter struct {
-	Prefix string
-	States []model.IssueState // nil/empty = all states
-	Limit  int                // 0 = no limit
+	Prefix   string
+	States   []model.IssueState // nil/empty = all states
+	Limit    int                // 0 = no limit
+	AllRepos bool               // true = omit the prefix WHERE clause entirely
 }
 
 // ListIssues returns issues matching the filter with BlockedBy populated.
@@ -351,9 +357,11 @@ func (s *Store) ListIssues(ctx context.Context, f ListFilter) ([]Issue, error) {
 	}
 
 	q := db.WithContext(ctx).
-		Where("prefix = ?", f.Prefix).
 		Order("priority ASC").
 		Order("created_at ASC")
+	if !f.AllRepos {
+		q = q.Where("prefix = ?", f.Prefix)
+	}
 	if len(f.States) > 0 {
 		strs := make([]string, len(f.States))
 		for i, st := range f.States {
@@ -385,11 +393,15 @@ func (s *Store) ListIssues(ctx context.Context, f ListFilter) ([]Issue, error) {
 // the ready semantics match the operator's WorkspaceConfig.TerminalStates
 // (never hardcoded to "closed").
 //
+// Only f.Prefix and f.AllRepos are consulted; f.States and f.Limit are
+// ignored (the caller supplies active/terminal state sets explicitly, and
+// result trimming is the caller's responsibility).
+//
 // Cross-prefix deps: an issue is only considered blocked by issues stored in
 // the same configured database. Dangling edges (blocked_by_id references a
 // deleted issue) are handled by ON DELETE CASCADE — if the blocker is deleted,
 // the edge disappears and the child becomes unblocked automatically.
-func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates []model.IssueState, activeStates []model.IssueState) ([]Issue, error) {
+func (s *Store) ReadyIssues(ctx context.Context, f ListFilter, terminalStates []model.IssueState, activeStates []model.IssueState) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
@@ -405,8 +417,11 @@ func (s *Store) ReadyIssues(ctx context.Context, prefix string, terminalStates [
 	}
 
 	q := db.WithContext(ctx).
-		Where("prefix = ?", prefix).
-		Where("state IN ?", active).
+		Where("state IN ?", active)
+	if !f.AllRepos {
+		q = q.Where("prefix = ?", f.Prefix)
+	}
+	q = q.
 		// Epics are organizational rollups, never a unit of dispatchable work.
 		// This is purely issue_type-based and independent of whether the epic has
 		// any members, so a childless epic is excluded too.

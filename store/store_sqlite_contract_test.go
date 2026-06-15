@@ -161,7 +161,7 @@ func TestSQLiteStoreContractDependencies(t *testing.T) {
 	if !slices.Equal(gotChild.BlockedBy, []string{parent.ID}) {
 		t.Fatalf("child BlockedBy = %v, want parent", gotChild.BlockedBy)
 	}
-	ready, err := s.ReadyIssues(ctx, prefix, []model.IssueState{"closed"}, []model.IssueState{"open"})
+	ready, err := s.ReadyIssues(ctx, ListFilter{Prefix: prefix}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues initial: %v", err)
 	}
@@ -171,7 +171,7 @@ func TestSQLiteStoreContractDependencies(t *testing.T) {
 	if err := s.CloseIssue(ctx, parent.ID, "alice", "done"); err != nil {
 		t.Fatalf("CloseIssue parent: %v", err)
 	}
-	ready, err = s.ReadyIssues(ctx, prefix, []model.IssueState{"closed"}, []model.IssueState{"open"})
+	ready, err = s.ReadyIssues(ctx, ListFilter{Prefix: prefix}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues after close: %v", err)
 	}
@@ -821,7 +821,7 @@ func TestSQLiteStoreContractEpicMembership(t *testing.T) {
 
 	terminal := []model.IssueState{"closed", "done"}
 	active := []model.IssueState{"open"}
-	ready, err := s.ReadyIssues(ctx, prefix, terminal, active)
+	ready, err := s.ReadyIssues(ctx, ListFilter{Prefix: prefix}, terminal, active)
 	if err != nil {
 		t.Fatalf("ReadyIssues: %v", err)
 	}
@@ -837,7 +837,7 @@ func TestSQLiteStoreContractEpicMembership(t *testing.T) {
 
 	// Epic with no terminal states configured must still exclude the epic and
 	// keep leaves ready (covers the no-JOIN ready branch).
-	readyNoTerm, err := s.ReadyIssues(ctx, prefix, nil, active)
+	readyNoTerm, err := s.ReadyIssues(ctx, ListFilter{Prefix: prefix}, nil, active)
 	if err != nil {
 		t.Fatalf("ReadyIssues no-terminal: %v", err)
 	}
@@ -1211,4 +1211,208 @@ func TestSQLiteStoreContractAutoRegisterRepo(t *testing.T) {
 			t.Error("empty URL returned ErrSlugExhausted instead of validation error")
 		}
 	})
+}
+
+func TestSQLiteStoreContractListFilterAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	// Create two projects/repos with issues.
+	const prefixA = "list-filter-a"
+	const prefixB = "list-filter-b"
+	if err := s.EnsureProject(ctx, prefixA); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, prefixB); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	issA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixA, Title: "issue in A", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue A: %v", err)
+	}
+	issB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "issue in B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue B: %v", err)
+	}
+
+	// (a) Default scope: prefix filter applied — each project sees only its own issues.
+	listA, err := s.ListIssues(ctx, ListFilter{Prefix: prefixA})
+	if err != nil {
+		t.Fatalf("ListIssues A: %v", err)
+	}
+	if len(listA) != 1 || listA[0].ID != issA.ID {
+		t.Fatalf("ListIssues A = %+v, want only issA", listA)
+	}
+
+	listB, err := s.ListIssues(ctx, ListFilter{Prefix: prefixB})
+	if err != nil {
+		t.Fatalf("ListIssues B: %v", err)
+	}
+	if len(listB) != 1 || listB[0].ID != issB.ID {
+		t.Fatalf("ListIssues B = %+v, want only issB", listB)
+	}
+
+	// (b) AllRepos=true: prefix filter omitted — returns issues from all projects.
+	all, err := s.ListIssues(ctx, ListFilter{AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListIssues AllRepos: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range all {
+		ids[iss.ID] = true
+	}
+	if !ids[issA.ID] || !ids[issB.ID] {
+		t.Fatalf("ListIssues AllRepos missing issues: got %v, want %s and %s", all, issA.ID, issB.ID)
+	}
+
+	// (c) Empty prefix with AllRepos=false: matches nothing.
+	none, err := s.ListIssues(ctx, ListFilter{Prefix: ""})
+	if err != nil {
+		t.Fatalf("ListIssues empty prefix: %v", err)
+	}
+	// May include issues from other tests with prefix="", but our two issues must not appear.
+	for _, iss := range none {
+		if iss.ID == issA.ID || iss.ID == issB.ID {
+			t.Fatalf("ListIssues empty prefix returned %s (want only prefix='' rows)", iss.ID)
+		}
+	}
+}
+
+func TestSQLiteStoreContractReadyIssuesAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const prefixA = "ready-all-a"
+	const prefixB = "ready-all-b"
+	if err := s.EnsureProject(ctx, prefixA); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, prefixB); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	issA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixA, Title: "ready in A", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue A: %v", err)
+	}
+	issB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "ready in B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue B: %v", err)
+	}
+
+	term := []model.IssueState{"closed"}
+	active := []model.IssueState{"open"}
+
+	// Prefix-scoped: each project sees only its own ready issues.
+	readyA, err := s.ReadyIssues(ctx, ListFilter{Prefix: prefixA}, term, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues A: %v", err)
+	}
+	if len(readyA) != 1 || readyA[0].ID != issA.ID {
+		t.Fatalf("ReadyIssues A = %+v, want only issA", readyA)
+	}
+
+	// AllRepos: cross-project ready list includes both.
+	readyAll, err := s.ReadyIssues(ctx, ListFilter{AllRepos: true}, term, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues AllRepos: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range readyAll {
+		ids[iss.ID] = true
+	}
+	if !ids[issA.ID] || !ids[issB.ID] {
+		t.Fatalf("ReadyIssues AllRepos missing issues: got %v, want %s and %s", readyAll, issA.ID, issB.ID)
+	}
+}
+
+func TestSQLiteStoreContractListFilterAllReposWinsOverPrefix(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const prefixA = "allrepos-wins-a"
+	const prefixB = "allrepos-wins-b"
+	if err := s.EnsureProject(ctx, prefixA); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, prefixB); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	issA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixA, Title: "wins A", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue A: %v", err)
+	}
+	issB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "wins B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue B: %v", err)
+	}
+
+	// AllRepos=true with Prefix set — AllRepos must win; both issues returned.
+	all, err := s.ListIssues(ctx, ListFilter{Prefix: prefixA, AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListIssues: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range all {
+		ids[iss.ID] = true
+	}
+	if !ids[issA.ID] {
+		t.Fatalf("ListIssues AllRepos+Prefix missing issA")
+	}
+	if !ids[issB.ID] {
+		t.Fatalf("ListIssues AllRepos+Prefix missing issB — AllRepos must win over Prefix")
+	}
+}
+
+func TestSQLiteStoreContractReadyIssuesAllReposWithBlocker(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const prefixA = "cross-ready-a"
+	const prefixB = "cross-ready-b"
+	if err := s.EnsureProject(ctx, prefixA); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, prefixB); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	// In B: parent blocks child within same project.
+	parent, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "parent B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue parent: %v", err)
+	}
+	child, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixB, Title: "child B", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue child: %v", err)
+	}
+	if err := s.AddDep(ctx, child.ID, parent.ID); err != nil {
+		t.Fatalf("AddDep: %v", err)
+	}
+
+	// Unblocked issue in A.
+	free, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefixA, Title: "free A", Actor: "test"})
+	if err != nil {
+		t.Fatalf("CreateIssue free: %v", err)
+	}
+
+	term := []model.IssueState{"closed"}
+	active := []model.IssueState{"open"}
+
+	// Cross-repo ready: parent (unblocked) and free (unblocked) are ready; child is not.
+	readyAll, err := s.ReadyIssues(ctx, ListFilter{AllRepos: true}, term, active)
+	if err != nil {
+		t.Fatalf("ReadyIssues AllRepos: %v", err)
+	}
+	ids := make(map[string]bool)
+	for _, iss := range readyAll {
+		ids[iss.ID] = true
+	}
+	if !ids[parent.ID] {
+		t.Fatalf("ReadyIssues AllRepos missing parent (expected ready)")
+	}
+	if !ids[free.ID] {
+		t.Fatalf("ReadyIssues AllRepos missing free (expected ready)")
+	}
+	if ids[child.ID] {
+		t.Fatalf("ReadyIssues AllRepos returned child (expected blocked, NOT-EXISTS should filter it)")
+	}
 }
