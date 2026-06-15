@@ -375,6 +375,9 @@ func (s *Store) UpdateRepo(ctx context.Context, prefix, slug string, in UpdateRe
 		}
 
 		if err := tx.Model(&gormRepo{}).Where("id = ?", oldRepo.ID).Updates(updates).Error; err != nil {
+			if isDupKeyConflict(err) {
+				return fmt.Errorf("store: %w: duplicate remote URL", ErrConflict)
+			}
 			return fmt.Errorf("store: UpdateRepo: %w", err)
 		}
 		repo, err := getRepoBySlugGORM(ctx, tx, prefix, slug)

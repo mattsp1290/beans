@@ -541,6 +541,32 @@ func TestSQLiteStoreContractUpdateRepoNormalizesRemoteURL(t *testing.T) {
 	if got.ID != registered.ID {
 		t.Fatalf("GetRepoByRemoteURL after update ID = %q, want %q", got.ID, registered.ID)
 	}
+	if got.RemoteURL != wantCanonical {
+		t.Fatalf("GetRepoByRemoteURL after update RemoteURL = %q, want %q", got.RemoteURL, wantCanonical)
+	}
+
+	// Register a second repo, then attempt to update its remote to collide with
+	// the first repo's canonical URL.  UpdateRepo must return ErrConflict.
+	_, err = s.CreateRepo(ctx, CreateRepoInput{
+		Prefix:        prefix,
+		Slug:          "other",
+		DisplayName:   "Other",
+		RemoteURL:     "git@github.com:alice/other.git",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo other: %v", err)
+	}
+	collidingURL := "https://github.com/alice/app.git"
+	_, err = s.UpdateRepo(ctx, prefix, "other", UpdateRepoInput{
+		RemoteURL: &collidingURL,
+		Actor:     "alice",
+	})
+	if !errors.Is(err, ErrConflict) {
+		t.Fatalf("UpdateRepo to colliding remote = %v, want ErrConflict", err)
+	}
 }
 
 func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
