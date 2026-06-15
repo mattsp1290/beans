@@ -120,11 +120,11 @@ type CreateIssueInput struct {
 // IssueRepoInput attaches repo routing metadata to an issue.
 //
 // Topology-a resolution in CreateIssue:
-//  - RemoteURL set: AutoRegisterRepo runs before the issue transaction and the
-//    issue prefix is derived from the registered repo's Prefix field.
-//  - RemoteURL empty, RepoSlug set: legacy path — CallerPrefix must be supplied
-//    via CreateIssueInput.Prefix, and the repo is looked up by (prefix, slug).
-//  - Both empty: no repo link is created; CreateIssueInput.Prefix is used.
+//   - RemoteURL set: AutoRegisterRepo runs before the issue transaction and the
+//     issue prefix is derived from the registered repo's Prefix field.
+//   - RemoteURL empty, RepoSlug set: legacy path — CallerPrefix must be supplied
+//     via CreateIssueInput.Prefix, and the repo is looked up by (prefix, slug).
+//   - Both empty: no repo link is created; CreateIssueInput.Prefix is used.
 //
 // RemoteURL is honored only by CreateIssue.  UpdateIssue ignores it — pass
 // RepoSlug to re-link an issue to a repo after creation.

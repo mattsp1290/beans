@@ -132,7 +132,7 @@ func warnIfCrossRepo(w io.Writer, rs *appState, iss store.Issue) {
 //
 //   - allRepos=true  → ListFilter{AllRepos: true}  (cross-repo view)
 //   - repoArg set    → read-only lookup via GetRepoByRemoteURL or GetRepoBySlug;
-//                      errors if the repo is not found
+//     errors if the repo is not found
 //   - default        → requirePrefix() then ListFilter{Prefix: rs.prefix}
 //
 // Unlike resolveRepoContext, this helper never writes (no AutoRegisterRepo).
