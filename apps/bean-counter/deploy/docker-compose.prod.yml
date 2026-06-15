@@ -40,7 +40,7 @@ services:
       BN_DSN_FILE: /run/secrets/bn_dsn
       BN_PROJECT_PREFIX: ${BN_PROJECT_PREFIX:-local-symphony}
       BN_ACTOR: ${BN_ACTOR:-bean-counter-ui}
-      BN_CORS_ORIGIN: ${BN_CORS_ORIGIN:-http://10.0.0.106:8088}
+      BN_CORS_ORIGIN: ${BN_CORS_ORIGIN:-https://counter.birb.homes}
       BN_ADDR: :8080
     volumes:
       # Read-only secret mount. The api runs as the non-root `bean-counter`
@@ -48,6 +48,12 @@ services:
       # deploy preflight, not just checked for presence).
       - ${BN_DSN_SECRET:-/home/infra-admin/bean-counter-secrets/bn_dsn}:/run/secrets/bn_dsn:ro
     restart: unless-stopped
+    # Published on the host so the Traefik ingress (counter.birb.homes/api) can
+    # reach it at the node IP. The kube-router FORWARD policy drops the docker
+    # bridge, so the UI does NOT proxy /api container-to-container; Traefik
+    # path-routes /api here directly. See deploy/k8s/bean-counter-ingress.yaml.
+    ports:
+      - "0.0.0.0:${API_PORT:-8081}:8080"
     networks:
       - bean-counter-internal
       - symphony

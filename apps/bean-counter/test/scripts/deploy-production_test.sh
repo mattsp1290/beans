@@ -80,17 +80,21 @@ assert_rc "unknown arg rejected" 1 $?
 assert_rc "invalid --ui-port rejected" 1 $?
 
 out="$( source "$SCRIPT" >/dev/null 2>&1; set +eu +o pipefail
-        parse_args --ref main >/dev/null 2>&1; printf '%s|%s|%s|%s' "$REF" "$MODE" "$UI_PORT" "$CORS_ORIGIN" )"
-assert_eq "valid parse: ref/mode/ui-port/cors" "main|live|8088|http://10.0.0.106:8088" "$out"
+        parse_args --ref main >/dev/null 2>&1; printf '%s|%s|%s|%s|%s' "$REF" "$MODE" "$UI_PORT" "$API_PORT" "$CORS_ORIGIN" )"
+assert_eq "valid parse: ref/mode/ui-port/api-port/cors" "main|live|8088|8081|https://counter.birb.homes" "$out"
 
 out="$( source "$SCRIPT" >/dev/null 2>&1; set +eu +o pipefail
         parse_args --ref main --check >/dev/null 2>&1; printf '%s' "$MODE" )"
 assert_eq "--check sets MODE=check" "check" "$out"
 
 out="$( source "$SCRIPT" >/dev/null 2>&1; set +eu +o pipefail
-        parse_args --ref main --dry-run --ui-port 9090 --host me@host >/dev/null 2>&1
+        parse_args --ref main --dry-run --ui-port 9090 --cors-origin https://x.example >/dev/null 2>&1
         printf '%s|%s|%s' "$MODE" "$UI_PORT" "$CORS_ORIGIN" )"
-assert_eq "--dry-run + custom port/host derives cors" "dry-run|9090|http://host:9090" "$out"
+assert_eq "--dry-run + custom port + explicit cors override" "dry-run|9090|https://x.example" "$out"
+
+# --api-port must differ from --ui-port
+( source "$SCRIPT" >/dev/null 2>&1; set +e; parse_args --ref main --api-port 8088 ) >/dev/null 2>&1
+assert_rc "--api-port == --ui-port rejected" 1 $?
 
 # ----- summary ------------------------------------------------------------- #
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"

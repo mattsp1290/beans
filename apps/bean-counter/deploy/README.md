@@ -16,16 +16,28 @@ the infra host (`infra-admin@10.0.0.106`). Full design:
 
 bean-counter is a read/write dashboard over the **beans** tracker. In production
 its API points at the shared local-symphony Postgres (`BN_PROJECT_PREFIX=local-symphony`),
-so it shows live orchestrator tracker data. The UI is published on
-`0.0.0.0:8088` (`http://10.0.0.106:8088`) — **unauthenticated LAN access** to a
-read/write view. The DSN is never placed in the environment or compose file: the
-api reads it from a bind-mounted secret via `BN_DSN_FILE=/run/secrets/bn_dsn`.
+so it shows live orchestrator tracker data. The DSN is never placed in the
+environment or compose file: the api reads it from a bind-mounted secret via
+`BN_DSN_FILE=/run/secrets/bn_dsn`.
+
+The infra host is a **k8s node** whose kube-router `FORWARD` policy is `DROP`, so
+container-to-container traffic on the bean-counter docker bridge is dropped — the
+UI cannot proxy `/api` to the api over the bridge. Instead, **both** containers
+publish on host ports and **Traefik path-routes** (the `*.birb.homes` pattern,
+same as Forgejo). The api joins the `local-symphony_symphony-internal` network
+only to reach Postgres (allowed by the firewall):
 
 ```
-LAN :8088 ─► ui (nginx) ──/api/──► api (fiber) ──► shared local-symphony Postgres
-                                         (joins external network
-                                          local-symphony_symphony-internal)
+                       ┌─ counter.birb.homes (Traefik ingress, TLS via cert-manager)
+browser ──https──►─────┤  /      ─► host :8088 ─► ui  (nginx, static Svelte)
+                       └  /api    ─► host :8081 ─► api (fiber) ─► shared local-symphony Postgres
 ```
+
+- DNS: `counter.birb.homes` → the host/Traefik (cert via DNS-01, LAN-only).
+- k8s manifest: `deploy/k8s/bean-counter-ingress.yaml` (Service + manual
+  Endpoints → `10.0.0.106:{8088,8081}` + path-routing Ingress).
+- The api is also reachable directly on `10.0.0.106:8081` (unauthenticated LAN);
+  same for the ui on `:8088`. Hardening (auth) is tracked as follow-up.
 
 ## Deploying
 

@@ -35,6 +35,8 @@ DEFAULT_HOST="infra-admin@10.0.0.106"
 # shellcheck disable=SC2016
 DEFAULT_REPO_DIR='$HOME/git/bean-counter'
 DEFAULT_UI_PORT="8088"
+DEFAULT_API_PORT="8081"
+DEFAULT_CORS_ORIGIN="https://counter.birb.homes"
 DEFAULT_API_IMAGE="bean-counter-api:prod"
 DEFAULT_UI_IMAGE="bean-counter-ui:prod"
 DEFAULT_BN_PROJECT="local-symphony"
@@ -58,6 +60,7 @@ HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-180}"
 REMOTE_HOST="$DEFAULT_HOST"
 REMOTE_REPO_DIR="$DEFAULT_REPO_DIR"
 UI_PORT="$DEFAULT_UI_PORT"
+API_PORT="$DEFAULT_API_PORT"
 API_IMAGE="$DEFAULT_API_IMAGE"
 UI_IMAGE="$DEFAULT_UI_IMAGE"
 BN_PROJECT="$DEFAULT_BN_PROJECT"
@@ -103,6 +106,8 @@ Options:
   --repo-dir <path>      Remote checkout. $HOME expanded on the remote
                          (default: $HOME/git/bean-counter).
   --ui-port <port>       Host port for the UI, bound 0.0.0.0 (default: 8088).
+  --api-port <port>      Host port for the API, bound 0.0.0.0 (default: 8081).
+                         Traefik path-routes counter.birb.homes/api here.
   --image-api <tag>      API image tag (default: bean-counter-api:prod).
   --image-ui <tag>       UI image tag (default: bean-counter-ui:prod).
   --bn-project <prefix>  Beans project prefix to view (default: local-symphony).
@@ -221,6 +226,7 @@ parse_args() {
       --host)             REMOTE_HOST="${2:-}"; shift 2 ;;
       --repo-dir)         REMOTE_REPO_DIR="${2:-}"; shift 2 ;;
       --ui-port)          UI_PORT="${2:-}"; shift 2 ;;
+      --api-port)         API_PORT="${2:-}"; shift 2 ;;
       --image-api)        API_IMAGE="${2:-}"; shift 2 ;;
       --image-ui)         UI_IMAGE="${2:-}"; shift 2 ;;
       --bn-project)       BN_PROJECT="${2:-}"; shift 2 ;;
@@ -248,10 +254,14 @@ parse_args() {
 
   UI_PORT="$(normalize_ui_port "$UI_PORT")" \
     || fatal "--ui-port must be an integer in [1,65535]"
+  API_PORT="$(normalize_ui_port "$API_PORT")" \
+    || fatal "--api-port must be an integer in [1,65535]"
+  if [ "$UI_PORT" = "$API_PORT" ]; then
+    fatal "--ui-port and --api-port must differ (both $UI_PORT)"
+  fi
 
   if [ -z "$CORS_ORIGIN" ]; then
-    local host_part="${REMOTE_HOST##*@}"
-    CORS_ORIGIN="http://${host_part}:${UI_PORT}"
+    CORS_ORIGIN="$DEFAULT_CORS_ORIGIN"
   fi
 }
 
@@ -395,12 +405,12 @@ local docker build: PASS$build_note"
 # Read-only remote preflight for --check. No lock, no mutation.
 #   $1 repo_dir $2 compose_project $3 compose_prod $4 symphony_project
 #   $5 symphony_network $6 pg_service $7 pg_user $8 pg_db $9 dsn_secret
-#   $10 ui_port $11 embedded_max
+#   $10 ui_port $11 embedded_max $12 api_port
 remote_check_payload() {
   cat <<'PAYLOAD'
 repo_dir="$1"; compose_project="$2"; compose_prod="$3"; symphony_project="$4"
 symphony_network="$5"; pg_service="$6"; pg_user="$7"; pg_db="$8"; dsn_secret="$9"
-ui_port="${10}"; embedded_max="${11}"
+ui_port="${10}"; embedded_max="${11}"; api_port="${12}"
 
 expand_home() { case "$1" in '$HOME'/*) printf '%s\n' "$HOME/${1#'$HOME'/}";; '~'/*) printf '%s\n' "$HOME/${1#'~'/}";; *) printf '%s\n' "$1";; esac; }
 repo_dir="$(expand_home "$repo_dir")"
@@ -451,15 +461,18 @@ if ! docker run --rm -u 100:101 -v "$dsn_secret":/run/secrets/bn_dsn:ro alpine:3
 fi
 say "dsn secret readable by api uid and in container-host form"
 
-say "== UI port free =="
-if (command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -qE "[:.]${ui_port}\\b") \
-   || (command -v netstat >/dev/null 2>&1 && netstat -ltn 2>/dev/null | grep -qE "[:.]${ui_port}\\b"); then
-  echo "FAIL: UI port $ui_port already in use on host" >&2; exit 1
-fi
-say "ui port $ui_port free"
+say "== UI/API ports free =="
+port_in_use() {
+  (command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -qE "[:.]${1}\\b") \
+  || (command -v netstat >/dev/null 2>&1 && netstat -ltn 2>/dev/null | grep -qE "[:.]${1}\\b")
+}
+for p in "$ui_port" "$api_port"; do
+  if port_in_use "$p"; then echo "FAIL: port $p already in use on host" >&2; exit 1; fi
+done
+say "ui port $ui_port and api port $api_port free"
 
 say "== compose config render + secret scan + db-service check =="
-if ! UI_PORT="$ui_port" SYMPHONY_NETWORK="$symphony_network" BN_DSN_SECRET="$dsn_secret" \
+if ! UI_PORT="$ui_port" API_PORT="$api_port" SYMPHONY_NETWORK="$symphony_network" BN_DSN_SECRET="$dsn_secret" \
      docker compose -p "$compose_project" -f "$compose_prod" config > /tmp/bc-check-config.$$ 2>/tmp/bc-check-config.err.$$; then
   echo "FAIL: docker compose config did not render" >&2
   sed -E 's#postgres://[^[:space:]"]*#postgres://REDACTED#g' /tmp/bc-check-config.err.$$ >&2 || true
@@ -486,6 +499,7 @@ PAYLOAD
 #   $11 ui_port $12 dsn_secret $13 symphony_project $14 symphony_network
 #   $15 pg_service $16 pg_user $17 pg_db $18 embedded_max $19 no_rebuild
 #   $20 user_ref $21 local_preflight_b64 $22 health_timeout $23 revision_label
+#   $24 api_port
 remote_deploy_payload() {
   cat <<'PAYLOAD'
 target_sha="$1"; short_sha="$2"; repo_dir="$3"; api_image="$4"; ui_image="$5"
@@ -493,6 +507,7 @@ compose_project="$6"; compose_prod="$7"; bn_project="$8"; bn_actor="$9"; cors_or
 ui_port="${11}"; dsn_secret="${12}"; symphony_project="${13}"; symphony_network="${14}"
 pg_service="${15}"; pg_user="${16}"; pg_db="${17}"; embedded_max="${18}"; no_rebuild="${19}"
 user_ref="${20}"; local_preflight="$(printf '%s' "${21}" | base64 -d)"; health_timeout="${22}"; revision_label="${23}"
+api_port="${24}"
 
 expand_home() { case "$1" in '$HOME'/*) printf '%s\n' "$HOME/${1#'$HOME'/}";; '~'/*) printf '%s\n' "$HOME/${1#'~'/}";; *) printf '%s\n' "$1";; esac; }
 repo_dir="$(expand_home "$repo_dir")"
@@ -583,10 +598,17 @@ if ! docker run --rm -u 100:101 -v "$dsn_secret":/run/secrets/bn_dsn:ro alpine:3
   echo "FAIL: DSN secret unreadable by the api uid, or not in the container host form" >&2; exit 1
 fi
 
-if (command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -qE "[:.]${ui_port}\\b") \
-   || (command -v netstat >/dev/null 2>&1 && netstat -ltn 2>/dev/null | grep -qE "[:.]${ui_port}\\b"); then
-  echo "FAIL: UI port $ui_port already in use on host" >&2; exit 1
-fi
+port_in_use() {
+  (command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -qE "[:.]${1}\\b") \
+  || (command -v netstat >/dev/null 2>&1 && netstat -ltn 2>/dev/null | grep -qE "[:.]${1}\\b")
+}
+# Allow a port already held by THIS bean-counter project (a redeploy reuses it);
+# only fail if something else owns it. Compose recreate reuses the published port.
+for p in "$ui_port" "$api_port"; do
+  if port_in_use "$p" && ! docker compose -p "$compose_project" -f "$compose_prod" ps 2>/dev/null | grep -q .; then
+    echo "FAIL: port $p already in use on host (not by bean-counter)" >&2; exit 1
+  fi
+done
 
 # ----- version-parity gate (critical) -------------------------------------- #
 current_phase="version-parity"
@@ -603,7 +625,7 @@ say "version parity ok (embedded=$embedded_max <= db=$db_max)"
 
 # ----- compose config render + secret scan --------------------------------- #
 current_phase="compose-config"
-export UI_PORT="$ui_port" SYMPHONY_NETWORK="$symphony_network" BN_DSN_SECRET="$dsn_secret"
+export UI_PORT="$ui_port" API_PORT="$api_port" SYMPHONY_NETWORK="$symphony_network" BN_DSN_SECRET="$dsn_secret"
 export BEAN_COUNTER_API_IMAGE="$api_image" BEAN_COUNTER_UI_IMAGE="$ui_image"
 export BN_PROJECT_PREFIX="$bn_project" BN_ACTOR="$bn_actor" BN_CORS_ORIGIN="$cors_origin"
 if ! dcp config > "$run_dir/compose-config.yml" 2>"$run_dir/compose-config.err.raw"; then
@@ -654,7 +676,7 @@ current_phase="rollback-doc"
   echo "docker compose -p $compose_project -f $compose_prod stop api ui"
   if [ -n "$previous_api_id" ]; then echo "docker tag $previous_api_id $api_image"; else echo "# no previous api image id; rebuild from $previous_sha"; fi
   if [ -n "$previous_ui_id" ];  then echo "docker tag $previous_ui_id $ui_image";  else echo "# no previous ui image id; rebuild from $previous_sha"; fi
-  echo "UI_PORT=$ui_port SYMPHONY_NETWORK=$symphony_network BN_DSN_SECRET=$dsn_secret \\"
+  echo "UI_PORT=$ui_port API_PORT=$api_port SYMPHONY_NETWORK=$symphony_network BN_DSN_SECRET=$dsn_secret \\"
   echo "  BEAN_COUNTER_API_IMAGE=$api_image BEAN_COUNTER_UI_IMAGE=$ui_image \\"
   echo "  BN_PROJECT_PREFIX=$bn_project BN_ACTOR=$bn_actor BN_CORS_ORIGIN=$cors_origin \\"
   echo "  docker compose -p $compose_project -f $compose_prod up -d --no-build api ui"
@@ -735,17 +757,21 @@ fi
 { echo "== docker after up =="; dcp ps; } > "$run_dir/docker-after.txt" 2>&1
 
 # ----- smoke gate (read-only) ---------------------------------------------- #
+# Each service is checked on its OWN host-published port, NOT through the UI's
+# /api proxy: the kube-router FORWARD policy drops the ui->api docker-bridge hop,
+# so in production Traefik path-routes /api to the api directly. Mirror that here.
 current_phase="smoke"
-base="http://127.0.0.1:$ui_port"
+ui_base="http://127.0.0.1:$ui_port"
+api_base="http://127.0.0.1:$api_port"
 get() { wget -qO- --timeout=10 "$1"; }
 
-hz="$(get "$base/healthz" || true)"
+hz="$(get "$ui_base/healthz" || true)"
 case "$hz" in *ok*) : ;; *) echo "FAIL: UI /healthz did not return ok (got: ${hz:-<none>})" >&2; exit 1;; esac
 
-rz="$(get "$base/api/v1/readyz" || true)"
-[ -n "$rz" ] || { echo "FAIL: /api/v1/readyz returned empty" >&2; exit 1; }
+rz="$(get "$api_base/api/v1/readyz" || true)"
+[ -n "$rz" ] || { echo "FAIL: api /api/v1/readyz returned empty" >&2; exit 1; }
 
-issues="$(get "$base/api/v1/issues?limit=1" || true)"
+issues="$(get "$api_base/api/v1/issues?limit=1" || true)"
 case "$issues" in
   *'"issues"'*) : ;;
   *) echo "FAIL: /api/v1/issues did not return a valid issues response" >&2; exit 1 ;;
@@ -801,7 +827,7 @@ Planned deploy:
   ref:           $REF
   target_sha:    $TARGET_SHA
   short_sha:     $SHORT_SHA
-  ui-port:       $UI_PORT   cors: $CORS_ORIGIN
+  ui-port:       $UI_PORT   api-port: $API_PORT   cors: $CORS_ORIGIN
   images:        $API_IMAGE , $UI_IMAGE
   compose:       -p $COMPOSE_PROJECT -f $COMPOSE_PROD
   bn project:    $BN_PROJECT   actor: $BN_ACTOR
@@ -837,7 +863,7 @@ do_check() {
   remote_exec "$(remote_check_payload)" \
     "$REMOTE_REPO_DIR" "$COMPOSE_PROJECT" "$COMPOSE_PROD" "$SYMPHONY_PROJECT" \
     "$SYMPHONY_NETWORK" "$PG_SERVICE" "$PG_USER" "$PG_DB" "$DSN_SECRET" \
-    "$UI_PORT" "$EMBEDDED_MAX"
+    "$UI_PORT" "$EMBEDDED_MAX" "$API_PORT"
   log "check complete: no production state was changed"
 }
 
@@ -855,7 +881,8 @@ do_live() {
     "$COMPOSE_PROJECT" "$COMPOSE_PROD" "$BN_PROJECT" "$BN_ACTOR" "$CORS_ORIGIN" \
     "$UI_PORT" "$DSN_SECRET" "$SYMPHONY_PROJECT" "$SYMPHONY_NETWORK" \
     "$PG_SERVICE" "$PG_USER" "$PG_DB" "$EMBEDDED_MAX" "$NO_REBUILD" \
-    "$REF" "$local_preflight_b64" "$HEALTH_TIMEOUT" "$REVISION_LABEL"
+    "$REF" "$local_preflight_b64" "$HEALTH_TIMEOUT" "$REVISION_LABEL" \
+    "$API_PORT"
   log "live deploy complete"
 }
 
