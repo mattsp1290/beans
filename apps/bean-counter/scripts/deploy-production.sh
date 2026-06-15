@@ -376,8 +376,14 @@ local docker build: SKIPPED (--skip-local-build)"
       --label "$REVISION_LABEL=$TARGET_SHA" -t "$API_IMAGE" .
     DOCKER_BUILDKIT=1 run docker build "${ssh_args[@]}" \
       --label "$REVISION_LABEL=$TARGET_SHA" -t "$UI_IMAGE" ./frontend
+    # Plain if (not `cmd && ...` or `var=$(test && echo)`) so a false BUILD_SSH
+    # test does not return non-zero into an assignment and trip `set -e`.
+    local build_note=""
+    if [ "$BUILD_SSH" -eq 1 ]; then
+      build_note=" (--ssh default)"
+    fi
     LOCAL_PREFLIGHT="$LOCAL_PREFLIGHT
-local docker build: PASS$( [ "$BUILD_SSH" -eq 1 ] && echo ' (--ssh default)')"
+local docker build: PASS$build_note"
   fi
 }
 
