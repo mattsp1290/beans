@@ -28,6 +28,7 @@ var expectedMigrations = []struct {
 	{6, "bn_memory_tags"},
 	{7, "bn_semantic_guards"},
 	{8, "bn_dep_type"},
+	{9, "bn_remote_url_unique"},
 }
 
 // TestListMigrationsParsesEmbedded verifies every dialect's embedded migration
@@ -104,6 +105,12 @@ func TestMigrationRequiredObjects(t *testing.T) {
 			assertContainsDDL(t, driver, byVersion[7].SQL, []string{
 				"CREATE TABLE bn_dep_graph_guard",
 				"CREATE TABLE bn_project_admin_bootstraps",
+			})
+
+			assertContainsDDL(t, driver, byVersion[9].SQL, []string{
+				"bn_repos_remote_url_idx",
+				"bn_repos",
+				"remote_url",
 			})
 
 			stateSQL := byVersion[3].SQL
@@ -252,6 +259,14 @@ func TestDialectSpecificDDL(t *testing.T) {
 
 	assertContainsDDL(t, DriverPostgres, postgresSQL, []string{
 		"ADD COLUMN dep_type TEXT NOT NULL DEFAULT 'blocks'",
+		"CREATE UNIQUE INDEX bn_repos_remote_url_idx ON bn_repos (remote_url)",
+	})
+	assertContainsDDL(t, DriverSQLite, sqliteSQL, []string{
+		"CREATE UNIQUE INDEX bn_repos_remote_url_idx ON bn_repos (remote_url)",
+	})
+	assertContainsDDL(t, DriverMySQL, mysqlSQL, []string{
+		"MODIFY remote_url VARCHAR(2048) NOT NULL",
+		"CREATE UNIQUE INDEX bn_repos_remote_url_idx ON bn_repos (remote_url)",
 	})
 }
 
