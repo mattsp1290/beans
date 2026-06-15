@@ -3175,8 +3175,8 @@ func TestRemoteURLUniqueIndexEnforced(t *testing.T) {
 		DefaultBranch: "main",
 		Actor:         "alice",
 	})
-	if err == nil {
-		t.Fatal("expected error for duplicate remote_url, got nil")
+	if !errors.Is(err, store.ErrConflict) {
+		t.Fatalf("expected ErrConflict for duplicate remote_url, got %v", err)
 	}
 }
 
@@ -3228,17 +3228,24 @@ func TestListFilterRepoScopingIntegration(t *testing.T) {
 		t.Fatalf("ListIssues AllRepos missing issues: %v", all)
 	}
 
-	// ReadyIssues: prefix-scoped.
+	// ReadyIssues: prefix-scoped — issA must appear, issB must not.
 	termStates := []model.IssueState{"closed"}
 	activeStates := []model.IssueState{"open"}
 	readyA, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: pfxA}, termStates, activeStates)
 	if err != nil {
 		t.Fatalf("ReadyIssues A: %v", err)
 	}
+	foundIssA := false
 	for _, iss := range readyA {
 		if iss.ID == issB.ID {
 			t.Fatalf("ReadyIssues A returned issue from pfxB")
 		}
+		if iss.ID == issA.ID {
+			foundIssA = true
+		}
+	}
+	if !foundIssA {
+		t.Fatalf("ReadyIssues A missing issA: %v", readyA)
 	}
 
 	// ReadyIssues: AllRepos=true.
