@@ -6,17 +6,17 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mattsp1290/beans/model"
-	store "github.com/mattsp1290/beans/store"
 )
 
 const defaultListLimit = 50
 
 func newListCmd(rs *appState) *cobra.Command {
 	var (
-		status string
-		all    bool
-		limit  int
-		epic   string
+		status   string
+		all      bool
+		allRepos bool
+		limit    int
+		epic     string
 	)
 
 	cmd := &cobra.Command{
@@ -24,7 +24,8 @@ func newListCmd(rs *appState) *cobra.Command {
 		Short: "List issues",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := rs.requirePrefix(); err != nil {
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
 				return err
 			}
 
@@ -34,7 +35,7 @@ func newListCmd(rs *appState) *cobra.Command {
 			// closed) so the count is stable as children are completed; --status
 			// is not applied here.
 			if epic != "" {
-				members, err := rs.store.ListMembers(cmd.Context(), store.ListFilter{Prefix: rs.prefix}, epic)
+				members, err := rs.store.ListMembers(cmd.Context(), f, epic)
 				if err != nil {
 					return fmt.Errorf("list: %w", err)
 				}
@@ -48,8 +49,6 @@ func newListCmd(rs *appState) *cobra.Command {
 				printIssueTable(cmd, members)
 				return nil
 			}
-
-			f := store.ListFilter{Prefix: rs.prefix}
 
 			if status != "" {
 				if !allowedStates[status] {
@@ -87,6 +86,7 @@ func newListCmd(rs *appState) *cobra.Command {
 	cmd.Flags().StringVar(&epic, "epic", "", "list parent-child members (children) of the given epic/parent id (all states)")
 	cmd.Flags().StringVar(&status, "status", "", "filter by state (open, in_progress, closed, …)")
 	cmd.Flags().BoolVar(&all, "all", false, "return all results (overrides default page cap)")
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "list issues across all repositories (distinct from --all which controls page cap)")
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, fmt.Sprintf("max results (default %d; 0 = default cap)", defaultListLimit))
 	return cmd
 }

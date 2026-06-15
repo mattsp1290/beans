@@ -17,23 +17,22 @@ var defaultTerminalStates = []model.IssueState{"closed", "done"}
 var defaultActiveStates = []model.IssueState{"open"}
 
 func newReadyCmd(rs *appState) *cobra.Command {
-	var limit int
+	var (
+		limit    int
+		allRepos bool
+	)
 
 	cmd := &cobra.Command{
 		Use:   "ready",
 		Short: "List open, unblocked issues",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := rs.requirePrefix(); err != nil {
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
 				return err
 			}
 
-			issues, err := rs.store.ReadyIssues(
-				cmd.Context(),
-				store.ListFilter{Prefix: rs.prefix},
-				defaultTerminalStates,
-				defaultActiveStates,
-			)
+			issues, err := rs.store.ReadyIssues(cmd.Context(), f, defaultTerminalStates, defaultActiveStates)
 			if err != nil {
 				return fmt.Errorf("ready: %w", err)
 			}
@@ -56,6 +55,7 @@ func newReadyCmd(rs *appState) *cobra.Command {
 	}
 
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, "max results (0 = no limit)")
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "list ready issues across all repositories")
 	return cmd
 }
 
