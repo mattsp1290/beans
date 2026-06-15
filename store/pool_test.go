@@ -116,7 +116,7 @@ func TestSQLiteIssueDependencyImportAndMemorySmoke(t *testing.T) {
 	if len(got.BlockedBy) != 1 || got.BlockedBy[0] != parent.ID {
 		t.Fatalf("child blockers = %v, want %s", got.BlockedBy, parent.ID)
 	}
-	ready, err := s.ReadyIssues(ctx, "sqlite", []model.IssueState{"closed"}, []model.IssueState{"open"})
+	ready, err := s.ReadyIssues(ctx, ListFilter{Prefix: "sqlite"}, []model.IssueState{"closed"}, []model.IssueState{"open"})
 	if err != nil {
 		t.Fatalf("ReadyIssues: %v", err)
 	}
