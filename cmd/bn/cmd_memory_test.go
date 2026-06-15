@@ -64,9 +64,17 @@ func TestRememberCmdStoresPerRepo(t *testing.T) {
 
 	// Not visible from proj-b alone (SearchMemories with proj-b prefix shows
 	// proj-b rows + globals; proj-a row should be absent).
+	// Insert a proj-b global so the search is non-vacuous — if memsB were
+	// empty the absence check below would pass for the wrong reason.
+	if _, err := s.InsertMemory(ctx, store.MemoryInput{Prefix: "", Body: "shared global"}); err != nil {
+		t.Fatalf("InsertMemory global: %v", err)
+	}
 	memsB, err := s.SearchMemories(ctx, "", store.MemoryFilter{Prefix: "proj-b"})
 	if err != nil {
 		t.Fatalf("SearchMemories(proj-b): %v", err)
+	}
+	if len(memsB) == 0 {
+		t.Fatal("SearchMemories(proj-b) returned nothing — global row must appear, test is vacuous without it")
 	}
 	for _, m := range memsB {
 		if m.Body == "proj-a insight" {
