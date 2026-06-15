@@ -1002,3 +1002,153 @@ func hasDepEdge(edges []DepEdge, issueID, blockedByID string) bool {
 	}
 	return false
 }
+
+// ---------------------------------------------------------------------------
+// AutoRegisterRepo contract tests
+// ---------------------------------------------------------------------------
+
+func TestSQLiteStoreContractAutoRegisterRepo(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	t.Run("basic registration creates project and repo", func(t *testing.T) {
+		r, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "git@github.com:alice/myapp.git",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("AutoRegisterRepo: %v", err)
+		}
+		if r.RemoteURL != "https://github.com/alice/myapp" {
+			t.Errorf("RemoteURL = %q, want canonical https form", r.RemoteURL)
+		}
+		// Slug should be "myapp" (step 1, bare repo name)
+		if r.Slug != "myapp" {
+			t.Errorf("Slug = %q, want %q", r.Slug, "myapp")
+		}
+		if r.Prefix != r.Slug {
+			t.Errorf("Prefix %q != Slug %q", r.Prefix, r.Slug)
+		}
+
+		// Project must exist in bn_projects
+		exists, err := s.ProjectExists(ctx, r.Slug)
+		if err != nil {
+			t.Fatalf("ProjectExists: %v", err)
+		}
+		if !exists {
+			t.Errorf("project %q not created", r.Slug)
+		}
+	})
+
+	t.Run("idempotent across transport forms", func(t *testing.T) {
+		// First call creates the row.
+		r1, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "https://github.com/alice/repo2.git",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("first AutoRegisterRepo: %v", err)
+		}
+
+		// Same repo via SCP form must return the identical row.
+		r2, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "git@github.com:alice/repo2.git",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("second AutoRegisterRepo (SCP): %v", err)
+		}
+		if r1.ID != r2.ID {
+			t.Errorf("IDs differ: %q vs %q", r1.ID, r2.ID)
+		}
+
+		// Same repo via ssh:// URL.
+		r3, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "ssh://git@github.com/alice/repo2.git",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("third AutoRegisterRepo (ssh://): %v", err)
+		}
+		if r1.ID != r3.ID {
+			t.Errorf("IDs differ: %q vs %q", r1.ID, r3.ID)
+		}
+	})
+
+	t.Run("slug disambiguation when bare name is taken", func(t *testing.T) {
+		// Register a repo that claims slug "core".
+		r1, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "https://github.com/alpha/core.git",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("first repo: %v", err)
+		}
+		if r1.Slug != "core" {
+			t.Errorf("expected step-1 slug %q, got %q", "core", r1.Slug)
+		}
+
+		// Second repo with same bare name → step 2 (owner-qualified).
+		r2, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "https://github.com/beta/core.git",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("second repo: %v", err)
+		}
+		if r2.Slug != "beta-core" {
+			t.Errorf("expected step-2 slug %q, got %q", "beta-core", r2.Slug)
+		}
+
+		// Third owner-qualified collision → step 3 (host-qualified).
+		r3, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "https://github.com/alpha/core",
+			Actor:     "system",
+		})
+		// r1 is already registered at this canonical URL — idempotent return expected.
+		if err != nil {
+			t.Fatalf("idempotent third call: %v", err)
+		}
+		if r3.ID != r1.ID {
+			t.Errorf("expected idempotent return of r1, got different ID %q", r3.ID)
+		}
+	})
+
+	t.Run("local-only file:// URL", func(t *testing.T) {
+		r, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "file:///home/alice/projects/localrepo",
+			Actor:     "system",
+		})
+		if err != nil {
+			t.Fatalf("AutoRegisterRepo (file://): %v", err)
+		}
+		if r.RemoteURL != "file:///home/alice/projects/localrepo" {
+			t.Errorf("RemoteURL = %q, want original canonical", r.RemoteURL)
+		}
+		if r.Slug == "" {
+			t.Error("Slug is empty for file:// URL")
+		}
+	})
+
+	t.Run("invalid URL returns error", func(t *testing.T) {
+		_, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "ftp://example.com/repo.git",
+			Actor:     "system",
+		})
+		if err == nil {
+			t.Error("expected error for unsupported scheme, got nil")
+		}
+	})
+
+	t.Run("empty URL returns error", func(t *testing.T) {
+		_, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL: "",
+			Actor:     "system",
+		})
+		if err == nil {
+			t.Error("expected error for empty URL, got nil")
+		}
+		if errors.Is(err, ErrSlugExhausted) {
+			t.Error("empty URL returned ErrSlugExhausted instead of validation error")
+		}
+	})
+}

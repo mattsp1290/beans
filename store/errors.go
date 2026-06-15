@@ -37,6 +37,11 @@ var (
 	// ErrInvalidIssueState is returned when a caller supplies an issue state
 	// outside the store schema's portable lifecycle vocabulary.
 	ErrInvalidIssueState = errors.New("store: invalid issue state")
+
+	// ErrSlugExhausted is returned by AutoRegisterRepo when all slug
+	// disambiguation candidates (steps 1-3 + numeric suffixes 2-99) are
+	// already taken in bn_projects.
+	ErrSlugExhausted = errors.New("store: slug disambiguation exhausted all candidates")
 )
 
 func isPKConflict(err error) bool {
