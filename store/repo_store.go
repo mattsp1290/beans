@@ -319,7 +319,11 @@ func (s *Store) UpdateRepo(ctx context.Context, prefix, slug string, in UpdateRe
 			AuthRef:        oldRepo.AuthRef,
 		}
 		if in.RemoteURL != nil {
-			target.RemoteURL = strings.TrimSpace(*in.RemoteURL)
+			norm, nerr := repo.NormalizeRemoteURL(strings.TrimSpace(*in.RemoteURL))
+			if nerr != nil {
+				return fmt.Errorf("store: UpdateRepo: %w", nerr)
+			}
+			target.RemoteURL = norm
 		}
 		if in.DefaultBranch != nil {
 			target.DefaultBranch = repo.NormalizeDefaultBranch(*in.DefaultBranch)
