@@ -231,10 +231,16 @@ var defaultPorts = map[string]string{
 //
 //	file://{clean-abs-path}             (trailing ".git" stripped)
 //
+// Path case is intentionally preserved — the host is lowercased but the path
+// component is not, since path case-sensitivity is host-dependent. Callers
+// that need case-insensitive collapse (e.g. GitHub) must lowercase the input
+// path before calling.
+//
 // A relative bare path is an ambiguous canonical key and returns an error.
 // An empty remote (local-only repo with no remote configured) returns
 // ErrNoRemote; callers should supply a synthetic file:// key derived from
 // the absolute git toplevel in that case.
+// Windows-style drive paths (C:\...) are not supported and return an error.
 func NormalizeRemoteURL(remote string) (string, error) {
 	remote = strings.TrimSpace(remote)
 	if remote == "" {
@@ -265,6 +271,13 @@ func NormalizeRemoteURL(remote string) (string, error) {
 	}
 }
 
+// trimPathSuffix strips trailing slashes then the ".git" suffix from a path.
+// The slash-first order matters: "repo.git/" has a trailing slash that must be
+// removed before TrimSuffix can match ".git".
+func trimPathSuffix(path string) string {
+	return strings.TrimSuffix(strings.TrimRight(path, "/"), ".git")
+}
+
 func normalizeHostedURL(u *url.URL) (string, error) {
 	host := strings.ToLower(u.Hostname())
 	if host == "" {
@@ -281,8 +294,7 @@ func normalizeHostedURL(u *url.URL) (string, error) {
 		hostField = host + ":" + port
 	}
 
-	path := strings.TrimSuffix(u.Path, ".git")
-	path = strings.TrimRight(path, "/")
+	path := trimPathSuffix(u.Path)
 	if path == "" {
 		path = "/"
 	}
@@ -304,15 +316,18 @@ func normalizeSCP(remote string) (string, error) {
 		return "", errors.New("repository: NormalizeRemoteURL: empty host in SCP remote")
 	}
 
-	path := strings.TrimSuffix(pathPart, ".git")
-	path = strings.Trim(path, "/")
+	// Trim leading/trailing slashes before stripping .git so that paths like
+	// "alice/app.git/" correctly have the suffix removed.
+	path := strings.Trim(trimPathSuffix(strings.TrimLeft(pathPart, "/")), "/")
 
 	return "https://" + host + "/" + path, nil
 }
 
 func normalizeFileURL(u *url.URL) (string, error) {
-	path := strings.TrimSuffix(u.Path, ".git")
-	path = strings.TrimRight(path, "/")
+	if h := u.Host; h != "" && !strings.EqualFold(h, "localhost") {
+		return "", fmt.Errorf("repository: NormalizeRemoteURL: file:// URL must not specify a host, got %q; use ssh:// for network file remotes", h)
+	}
+	path := trimPathSuffix(u.Path)
 	if path == "" {
 		return "", errors.New("repository: NormalizeRemoteURL: empty path in file URL")
 	}
@@ -333,6 +348,11 @@ func isSCPRemote(remote string) bool {
 	}
 	colon := strings.IndexByte(remote, ':')
 	if colon <= 0 {
+		return false
+	}
+	// A single-character "host" before the colon is a Windows drive letter
+	// (e.g. C:\repo), not an SCP hostname.
+	if colon == 1 {
 		return false
 	}
 	slash := strings.IndexAny(remote, `/\`)

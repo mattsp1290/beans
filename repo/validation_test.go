@@ -105,6 +105,22 @@ func TestNormalizeRemoteURL(t *testing.T) {
 		{"abs-bare-path-no-git", "/tmp/repo", "file:///tmp/repo", false, nil},
 		// Self-hosted with path depth > 2 (GitLab subgroup).
 		{"deep-path", "https://gitlab.example.com/group/sub/repo.git", "https://gitlab.example.com/group/sub/repo", false, nil},
+		// Trailing slash before .git — must still strip .git (order matters).
+		{"https-trailing-slash", "https://github.com/alice/app.git/", "https://github.com/alice/app", false, nil},
+		// SCP with trailing slash.
+		{"scp-trailing-slash", "git@github.com:alice/app.git/", "https://github.com/alice/app", false, nil},
+		// file:// trailing slash.
+		{"file-trailing-slash", "file:///tmp/repo.git/", "file:///tmp/repo", false, nil},
+		// file:// with non-localhost host → error.
+		{"file-url-with-host", "file://server/share/repo.git", "", true, nil},
+		// file://localhost is allowed (local file URL convention).
+		{"file-url-localhost", "file://localhost/tmp/repo.git", "file:///tmp/repo", false, nil},
+		// Windows path → error (not SCP, not abs path on POSIX, no scheme).
+		{"windows-path-backslash", `C:\repo\app.git`, "", true, nil},
+		// Mixed-case path is preserved (path case is intentionally not folded).
+		{"https-mixed-case-path", "https://github.com/Alice/App.git", "https://github.com/Alice/App", false, nil},
+		// Userinfo in HTTPS is stripped (not part of canonical key).
+		{"https-with-userinfo", "https://user:token@github.com/alice/app.git", "https://github.com/alice/app", false, nil},
 		// Empty → ErrNoRemote.
 		{"empty", "", "", true, ErrNoRemote},
 		// Whitespace only → ErrNoRemote.
@@ -135,6 +151,34 @@ func TestNormalizeRemoteURL(t *testing.T) {
 				t.Fatalf("NormalizeRemoteURL(%q) = %q, want %q", tc.in, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestNormalizeRemoteURLIdempotent(t *testing.T) {
+	t.Parallel()
+	// Normalizing an already-normalized URL must produce the same result.
+	inputs := []string{
+		"git@github.com:alice/app.git",
+		"ssh://git@github.com/alice/app.git",
+		"https://github.com/alice/app.git",
+		"https://github.com/alice/app.git/",
+		"file:///tmp/repo.git",
+		"/tmp/repo.git",
+		"ssh://git@git.corp.example.com:2222/alice/app.git",
+	}
+	for _, in := range inputs {
+		first, err := NormalizeRemoteURL(in)
+		if err != nil {
+			continue // error cases don't need idempotence check
+		}
+		second, err := NormalizeRemoteURL(first)
+		if err != nil {
+			t.Errorf("NormalizeRemoteURL(NormalizeRemoteURL(%q)) error: %v", in, err)
+			continue
+		}
+		if first != second {
+			t.Errorf("NormalizeRemoteURL not idempotent for %q: first=%q second=%q", in, first, second)
+		}
 	}
 }
 
