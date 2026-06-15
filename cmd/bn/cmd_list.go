@@ -34,7 +34,7 @@ func newListCmd(rs *appState) *cobra.Command {
 			// closed) so the count is stable as children are completed; --status
 			// is not applied here.
 			if epic != "" {
-				members, err := rs.store.ListMembers(cmd.Context(), rs.prefix, epic)
+				members, err := rs.store.ListMembers(cmd.Context(), store.ListFilter{Prefix: rs.prefix}, epic)
 				if err != nil {
 					return fmt.Errorf("list: %w", err)
 				}

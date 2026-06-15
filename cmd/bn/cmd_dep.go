@@ -125,7 +125,7 @@ func newDepTreeCmd(rs *appState) *cobra.Command {
 
 			// dep tree is the ordering (blocking) view. Membership edges
 			// (parent-child, etc.) are inspected via 'bn list --epic'.
-			edges, err := rs.store.ListBlockingDeps(cmd.Context(), rs.prefix)
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
 			if err != nil {
 				return fmt.Errorf("dep tree: %w", err)
 			}
@@ -210,7 +210,7 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 			}
 
 			// Only blocking edges form ordering cycles; membership edges never do.
-			edges, err := rs.store.ListBlockingDeps(cmd.Context(), rs.prefix)
+			edges, err := rs.store.ListBlockingDeps(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
 			if err != nil {
 				return fmt.Errorf("dep cycles: %w", err)
 			}

@@ -756,49 +756,57 @@ type DepEdge struct {
 	DepType     string
 }
 
-// ListDeps returns all dependency edges (every kind) for issues in the given
-// prefix, ordered deterministically for stable export/tree output.
-func (s *Store) ListDeps(ctx context.Context, prefix string) ([]DepEdge, error) {
+// ListDeps returns all dependency edges (every kind) for issues matching the
+// filter, ordered deterministically for stable export/tree output.
+//
+// f.AllRepos=true omits the prefix clause, returning edges across all projects.
+// Under topology (a) this is equivalent to cross-repo scope.
+func (s *Store) ListDeps(ctx context.Context, f ListFilter) ([]DepEdge, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	var edges []DepEdge
-	err = db.WithContext(ctx).
+	q := db.WithContext(ctx).
 		Table("bn_issue_deps AS d").
 		Select("d.issue_id, d.blocked_by_id, d.dep_type").
-		Joins("JOIN bn_issues i ON i.id = d.issue_id").
-		Where("i.prefix = ?", prefix).
-		Order("d.issue_id ASC, d.blocked_by_id ASC, d.dep_type ASC").
-		Scan(&edges).
-		Error
-	if err != nil {
+		Joins("JOIN bn_issues i ON i.id = d.issue_id")
+	if !f.AllRepos {
+		q = q.Where("i.prefix = ?", f.Prefix)
+	}
+	q = q.Order("d.issue_id ASC, d.blocked_by_id ASC, d.dep_type ASC")
+
+	var edges []DepEdge
+	if err := q.Scan(&edges).Error; err != nil {
 		return nil, fmt.Errorf("store: ListDeps: %w", err)
 	}
 	return edges, nil
 }
 
-// ListBlockingDeps returns only the blocking (dep_type='blocks') edges for the
-// prefix, filtered in SQL rather than in Go. The ordering views (dep tree, dep
-// cycles) reason solely about blocking edges, so this avoids fetching and
-// discarding membership rows.
-func (s *Store) ListBlockingDeps(ctx context.Context, prefix string) ([]DepEdge, error) {
+// ListBlockingDeps returns only the blocking (dep_type='blocks') edges for
+// issues matching the filter, filtered in SQL rather than in Go. The ordering
+// views (dep tree, dep cycles) reason solely about blocking edges, so this
+// avoids fetching and discarding membership rows.
+//
+// f.AllRepos=true omits the prefix clause.
+func (s *Store) ListBlockingDeps(ctx context.Context, f ListFilter) ([]DepEdge, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	var edges []DepEdge
-	err = db.WithContext(ctx).
+	q := db.WithContext(ctx).
 		Table("bn_issue_deps AS d").
 		Select("d.issue_id, d.blocked_by_id, d.dep_type").
-		Joins("JOIN bn_issues i ON i.id = d.issue_id").
-		Where("i.prefix = ? AND d.dep_type = ?", prefix, DepTypeBlocks).
-		Order("d.issue_id ASC, d.blocked_by_id ASC").
-		Scan(&edges).
-		Error
-	if err != nil {
+		Joins("JOIN bn_issues i ON i.id = d.issue_id")
+	if !f.AllRepos {
+		q = q.Where("i.prefix = ?", f.Prefix)
+	}
+	q = q.Where("d.dep_type = ?", DepTypeBlocks).
+		Order("d.issue_id ASC, d.blocked_by_id ASC")
+
+	var edges []DepEdge
+	if err := q.Scan(&edges).Error; err != nil {
 		return nil, fmt.Errorf("store: ListBlockingDeps: %w", err)
 	}
 	return edges, nil
@@ -808,24 +816,28 @@ func (s *Store) ListBlockingDeps(ctx context.Context, prefix string) ([]DepEdge,
 // parentID — i.e. rows where blocked_by_id=parentID and dep_type='parent-child'.
 // Ordered by priority then creation time. Backs `bn list --epic`. Membership is
 // non-blocking, so this is the authoritative way to assert "every epic has ≥2
-// children" without raw SQL. Scoped to prefix like every other list path, so a
-// foreign epic id never leaks another project's children.
-func (s *Store) ListMembers(ctx context.Context, prefix, parentID string) ([]Issue, error) {
+// children" without raw SQL. A prefix-scoped query (AllRepos=false) guarantees
+// isolation — a foreign epic ID cannot leak another project's children.
+//
+// f.AllRepos=true omits the prefix clause, returning members across all projects.
+// f.States and f.Limit are not consulted.
+func (s *Store) ListMembers(ctx context.Context, f ListFilter, parentID string) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	var rows []gormIssue
-	err = db.WithContext(ctx).
+	q := db.WithContext(ctx).
 		Table("bn_issues AS i").
 		Joins("JOIN bn_issue_deps d ON d.issue_id = i.id").
-		Where("i.prefix = ? AND d.blocked_by_id = ? AND d.dep_type = ?", prefix, parentID, DepTypeParentChild).
-		Order("i.priority ASC").
-		Order("i.created_at ASC").
-		Find(&rows).
-		Error
-	if err != nil {
+		Where("d.blocked_by_id = ? AND d.dep_type = ?", parentID, DepTypeParentChild)
+	if !f.AllRepos {
+		q = q.Where("i.prefix = ?", f.Prefix)
+	}
+	q = q.Order("i.priority ASC").Order("i.created_at ASC")
+
+	var rows []gormIssue
+	if err := q.Find(&rows).Error; err != nil {
 		return nil, fmt.Errorf("store: ListMembers: %w", err)
 	}
 
@@ -841,25 +853,28 @@ func (s *Store) ListMembers(ctx context.Context, prefix, parentID string) ([]Iss
 
 // ListParents returns the parent/epic issues that childID is a parent-child
 // member of — i.e. rows where issue_id=childID and dep_type='parent-child',
-// joined to the parent on blocked_by_id. This is the inverse of ListMembers and
-// gives a leaf a read surface back to its epic (used by `bn show`). Scoped to
-// prefix for the same isolation reason as ListMembers.
-func (s *Store) ListParents(ctx context.Context, prefix, childID string) ([]Issue, error) {
+// joined to the parent on blocked_by_id. Inverse of ListMembers; gives a leaf
+// a read surface back to its epic (used by `bn show`). Prefix-scoped by default
+// for the same isolation reason as ListMembers.
+//
+// f.AllRepos=true omits the prefix clause. f.States and f.Limit are not consulted.
+func (s *Store) ListParents(ctx context.Context, f ListFilter, childID string) ([]Issue, error) {
 	db, err := s.p.gorm()
 	if err != nil {
 		return nil, err
 	}
 
-	var rows []gormIssue
-	err = db.WithContext(ctx).
+	q := db.WithContext(ctx).
 		Table("bn_issues AS i").
 		Joins("JOIN bn_issue_deps d ON d.blocked_by_id = i.id").
-		Where("i.prefix = ? AND d.issue_id = ? AND d.dep_type = ?", prefix, childID, DepTypeParentChild).
-		Order("i.priority ASC").
-		Order("i.created_at ASC").
-		Find(&rows).
-		Error
-	if err != nil {
+		Where("d.issue_id = ? AND d.dep_type = ?", childID, DepTypeParentChild)
+	if !f.AllRepos {
+		q = q.Where("i.prefix = ?", f.Prefix)
+	}
+	q = q.Order("i.priority ASC").Order("i.created_at ASC")
+
+	var rows []gormIssue
+	if err := q.Find(&rows).Error; err != nil {
 		return nil, fmt.Errorf("store: ListParents: %w", err)
 	}
 	return issuesFromGORM(rows), nil

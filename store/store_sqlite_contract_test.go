@@ -147,7 +147,7 @@ func TestSQLiteStoreContractDependencies(t *testing.T) {
 		t.Fatalf("cycle AddDep = %v, want ErrCycle", err)
 	}
 
-	edges, err := s.ListDeps(ctx, prefix)
+	edges, err := s.ListDeps(ctx, ListFilter{Prefix: prefix})
 	if err != nil {
 		t.Fatalf("ListDeps: %v", err)
 	}
@@ -854,7 +854,7 @@ func TestSQLiteStoreContractEpicMembership(t *testing.T) {
 		t.Fatalf("leafA BlockedBy = %v, want empty (parent-child is non-blocking)", gotLeaf.BlockedBy)
 	}
 
-	members, err := s.ListMembers(ctx, prefix, epic.ID)
+	members, err := s.ListMembers(ctx, ListFilter{Prefix: prefix}, epic.ID)
 	if err != nil {
 		t.Fatalf("ListMembers: %v", err)
 	}
@@ -863,7 +863,7 @@ func TestSQLiteStoreContractEpicMembership(t *testing.T) {
 	}
 
 	// ListDeps surfaces the edge kind; dep cycles must ignore parent-child.
-	edges, err := s.ListDeps(ctx, prefix)
+	edges, err := s.ListDeps(ctx, ListFilter{Prefix: prefix})
 	if err != nil {
 		t.Fatalf("ListDeps: %v", err)
 	}
@@ -901,7 +901,7 @@ func TestSQLiteStoreContractOneEdgePerPair(t *testing.T) {
 	}
 
 	// The surviving edge is the blocking one: A is blocked by B.
-	edges, err := s.ListDeps(ctx, prefix)
+	edges, err := s.ListDeps(ctx, ListFilter{Prefix: prefix})
 	if err != nil {
 		t.Fatalf("ListDeps: %v", err)
 	}
@@ -909,7 +909,7 @@ func TestSQLiteStoreContractOneEdgePerPair(t *testing.T) {
 		t.Fatalf("edges = %+v, want a single blocks edge", edges)
 	}
 	// And membership did not take hold: B has no parent-child children.
-	members, err := s.ListMembers(ctx, prefix, b.ID)
+	members, err := s.ListMembers(ctx, ListFilter{Prefix: prefix}, b.ID)
 	if err != nil {
 		t.Fatalf("ListMembers: %v", err)
 	}
@@ -940,7 +940,7 @@ func TestSQLiteStoreContractImportParentChild(t *testing.T) {
 	if res.DepsSkippedMissingBlocker != 0 || res.DepsAdded != 0 {
 		t.Fatalf("blocking counters leaked: DepsSkippedMissingBlocker=%d DepsAdded=%d, want 0/0", res.DepsSkippedMissingBlocker, res.DepsAdded)
 	}
-	members, err := s.ListMembers(ctx, prefix, prefix+"-epic")
+	members, err := s.ListMembers(ctx, ListFilter{Prefix: prefix}, prefix+"-epic")
 	if err != nil || len(members) != 1 || members[0].ID != prefix+"-leaf" {
 		t.Fatalf("ListMembers = %+v err=%v, want the leaf", members, err)
 	}
@@ -971,7 +971,7 @@ func TestSQLiteStoreContractRemoveParentChild(t *testing.T) {
 	if err := s.RemoveDep(ctx, leaf.ID, epic.ID); err != nil {
 		t.Fatalf("RemoveDep parent-child: %v", err)
 	}
-	members, err := s.ListMembers(ctx, prefix, epic.ID)
+	members, err := s.ListMembers(ctx, ListFilter{Prefix: prefix}, epic.ID)
 	if err != nil {
 		t.Fatalf("ListMembers: %v", err)
 	}
@@ -1001,7 +1001,7 @@ func TestSQLiteStoreContractListMembersPrefixScoped(t *testing.T) {
 
 	// Querying epicA's members from the OTHER prefix must return nothing —
 	// ListMembers is prefix-scoped like every other list path.
-	members, err := s.ListMembers(ctx, other, epicA.ID)
+	members, err := s.ListMembers(ctx, ListFilter{Prefix: other}, epicA.ID)
 	if err != nil {
 		t.Fatalf("ListMembers cross-prefix: %v", err)
 	}
@@ -1010,7 +1010,7 @@ func TestSQLiteStoreContractListMembersPrefixScoped(t *testing.T) {
 	}
 
 	// ListParents is likewise scoped: the leaf's parent is invisible from other.
-	parents, err := s.ListParents(ctx, other, leafA.ID)
+	parents, err := s.ListParents(ctx, ListFilter{Prefix: other}, leafA.ID)
 	if err != nil {
 		t.Fatalf("ListParents cross-prefix: %v", err)
 	}
@@ -1018,7 +1018,7 @@ func TestSQLiteStoreContractListMembersPrefixScoped(t *testing.T) {
 		t.Fatalf("cross-prefix ListParents = %d, want 0", len(parents))
 	}
 	// In-prefix, the parent is visible.
-	parents, err = s.ListParents(ctx, prefix, leafA.ID)
+	parents, err = s.ListParents(ctx, ListFilter{Prefix: prefix}, leafA.ID)
 	if err != nil || len(parents) != 1 || parents[0].ID != epicA.ID {
 		t.Fatalf("ListParents in-prefix = %+v err=%v, want epicA", parents, err)
 	}
@@ -1414,5 +1414,245 @@ func TestSQLiteStoreContractReadyIssuesAllReposWithBlocker(t *testing.T) {
 	}
 	if ids[child.ID] {
 		t.Fatalf("ReadyIssues AllRepos returned child (expected blocked, NOT-EXISTS should filter it)")
+	}
+}
+
+func TestSQLiteStoreContractListDepsAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const pfxA = "deps-all-a"
+	const pfxB = "deps-all-b"
+	for _, pfx := range []string{pfxA, pfxB} {
+		if err := s.EnsureProject(ctx, pfx); err != nil {
+			t.Fatalf("EnsureProject %s: %v", pfx, err)
+		}
+	}
+
+	parentA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "parent A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentA: %v", err)
+	}
+	childA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "child A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childA: %v", err)
+	}
+	if err := s.AddDep(ctx, childA.ID, parentA.ID); err != nil {
+		t.Fatalf("AddDep A: %v", err)
+	}
+
+	parentB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "parent B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentB: %v", err)
+	}
+	childB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "child B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childB: %v", err)
+	}
+	if err := s.AddDep(ctx, childB.ID, parentB.ID); err != nil {
+		t.Fatalf("AddDep B: %v", err)
+	}
+
+	// Prefix-scoped: each project sees only its own edges.
+	edgesA, err := s.ListDeps(ctx, ListFilter{Prefix: pfxA})
+	if err != nil {
+		t.Fatalf("ListDeps A: %v", err)
+	}
+	for _, e := range edgesA {
+		if e.IssueID == childB.ID {
+			t.Fatalf("ListDeps A returned edge from pfxB: %+v", e)
+		}
+	}
+
+	// AllRepos: edges from both prefixes returned.
+	all, err := s.ListDeps(ctx, ListFilter{AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListDeps AllRepos: %v", err)
+	}
+	byChild := make(map[string]bool)
+	for _, e := range all {
+		byChild[e.IssueID] = true
+	}
+	if !byChild[childA.ID] || !byChild[childB.ID] {
+		t.Fatalf("ListDeps AllRepos missing edges: got %v", all)
+	}
+}
+
+func TestSQLiteStoreContractListMembersAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const pfxA = "members-all-a"
+	const pfxB = "members-all-b"
+	for _, pfx := range []string{pfxA, pfxB} {
+		if err := s.EnsureProject(ctx, pfx); err != nil {
+			t.Fatalf("EnsureProject %s: %v", pfx, err)
+		}
+	}
+
+	epicA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "epic A", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicA: %v", err)
+	}
+	leafA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "leaf A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leafA: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafA→epicA: %v", err)
+	}
+
+	epicB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "epic B", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicB: %v", err)
+	}
+	leafB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "leaf B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leafB: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafB.ID, epicB.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafB→epicB: %v", err)
+	}
+
+	// Prefix-scoped: each project sees only its own members.
+	membersA, err := s.ListMembers(ctx, ListFilter{Prefix: pfxA}, epicA.ID)
+	if err != nil {
+		t.Fatalf("ListMembers A: %v", err)
+	}
+	if len(membersA) != 1 || membersA[0].ID != leafA.ID {
+		t.Fatalf("ListMembers A = %+v, want only leafA", membersA)
+	}
+
+	// AllRepos: leafA visible as member of epicA even when filter has no prefix.
+	allMembers, err := s.ListMembers(ctx, ListFilter{AllRepos: true}, epicA.ID)
+	if err != nil {
+		t.Fatalf("ListMembers AllRepos: %v", err)
+	}
+	found := false
+	for _, m := range allMembers {
+		if m.ID == leafA.ID {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("ListMembers AllRepos missing leafA: got %v", allMembers)
+	}
+}
+
+func TestSQLiteStoreContractListParentsAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const pfxA = "parents-all-a"
+	const pfxB = "parents-all-b"
+	for _, pfx := range []string{pfxA, pfxB} {
+		if err := s.EnsureProject(ctx, pfx); err != nil {
+			t.Fatalf("EnsureProject %s: %v", pfx, err)
+		}
+	}
+
+	epicA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "epic A", Actor: "t", IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epicA: %v", err)
+	}
+	leafA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "leaf A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue leafA: %v", err)
+	}
+	if err := s.AddTypedDep(ctx, leafA.ID, epicA.ID, DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep leafA→epicA: %v", err)
+	}
+
+	// Prefix-scoped: visible in own prefix.
+	parentsA, err := s.ListParents(ctx, ListFilter{Prefix: pfxA}, leafA.ID)
+	if err != nil {
+		t.Fatalf("ListParents A: %v", err)
+	}
+	if len(parentsA) != 1 || parentsA[0].ID != epicA.ID {
+		t.Fatalf("ListParents A = %+v, want epicA", parentsA)
+	}
+
+	// Prefix-scoped from pfxB: invisible (no leakage).
+	parentsB, err := s.ListParents(ctx, ListFilter{Prefix: pfxB}, leafA.ID)
+	if err != nil {
+		t.Fatalf("ListParents B: %v", err)
+	}
+	if len(parentsB) != 0 {
+		t.Fatalf("ListParents B = %+v, want 0 (no leakage)", parentsB)
+	}
+
+	// AllRepos: epicA visible as parent even without a prefix.
+	parentsAll, err := s.ListParents(ctx, ListFilter{AllRepos: true}, leafA.ID)
+	if err != nil {
+		t.Fatalf("ListParents AllRepos: %v", err)
+	}
+	found := false
+	for _, p := range parentsAll {
+		if p.ID == epicA.ID {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("ListParents AllRepos missing epicA: got %v", parentsAll)
+	}
+}
+
+func TestSQLiteStoreContractListBlockingDepsAllRepos(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+
+	const pfxA = "blocking-all-a"
+	const pfxB = "blocking-all-b"
+	for _, pfx := range []string{pfxA, pfxB} {
+		if err := s.EnsureProject(ctx, pfx); err != nil {
+			t.Fatalf("EnsureProject %s: %v", pfx, err)
+		}
+	}
+
+	parentA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "parent A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentA: %v", err)
+	}
+	childA, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxA, Title: "child A", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childA: %v", err)
+	}
+	if err := s.AddDep(ctx, childA.ID, parentA.ID); err != nil {
+		t.Fatalf("AddDep A: %v", err)
+	}
+
+	parentB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "parent B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue parentB: %v", err)
+	}
+	childB, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: pfxB, Title: "child B", Actor: "t"})
+	if err != nil {
+		t.Fatalf("CreateIssue childB: %v", err)
+	}
+	if err := s.AddDep(ctx, childB.ID, parentB.ID); err != nil {
+		t.Fatalf("AddDep B: %v", err)
+	}
+
+	// Prefix-scoped: each project sees only its own blocking edges.
+	edgesA, err := s.ListBlockingDeps(ctx, ListFilter{Prefix: pfxA})
+	if err != nil {
+		t.Fatalf("ListBlockingDeps A: %v", err)
+	}
+	for _, e := range edgesA {
+		if e.IssueID == childB.ID {
+			t.Fatalf("ListBlockingDeps A returned edge from pfxB: %+v", e)
+		}
+	}
+	if len(edgesA) != 1 || edgesA[0].IssueID != childA.ID {
+		t.Fatalf("ListBlockingDeps A = %+v, want one edge childA→parentA", edgesA)
+	}
+
+	// AllRepos: blocking edges from both prefixes returned.
+	all, err := s.ListBlockingDeps(ctx, ListFilter{AllRepos: true})
+	if err != nil {
+		t.Fatalf("ListBlockingDeps AllRepos: %v", err)
+	}
+	byChild := make(map[string]bool)
+	for _, e := range all {
+		byChild[e.IssueID] = true
+	}
+	if !byChild[childA.ID] || !byChild[childB.ID] {
+		t.Fatalf("ListBlockingDeps AllRepos missing edges: got %v", all)
 	}
 }
