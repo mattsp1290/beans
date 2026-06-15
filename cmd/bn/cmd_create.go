@@ -48,15 +48,28 @@ func newCreateCmd(rs *appState) *cobra.Command {
 				}
 				repoSlug = cfg.Repo
 			}
-			if repoSlug == "" && (strings.TrimSpace(requestedRef) != "" || strings.TrimSpace(worktreeSubdir) != "") {
-				return fmt.Errorf("--repo is required when --ref or --subdir is set outside an activated repo")
-			}
+			// Validate user-supplied slug before falling through to auto-detect.
 			if repoSlug != "" {
 				var err error
 				repoSlug, err = cleanRepoSlug(repoSlug)
 				if err != nil {
 					return err
 				}
+			}
+			// Git auto-detect: if inside a git repo with no explicit --repo, auto-register
+			// and record the issue against the detected repo. The global --repo flag (if set
+			// as a URL or slug before the subcommand) is also resolved here.
+			if repoSlug == "" {
+				repo, err := rs.resolveRepoContext(cmd.Context())
+				if err != nil {
+					return fmt.Errorf("create: %w", err)
+				}
+				if repo != nil {
+					repoSlug = repo.Slug
+				}
+			}
+			if repoSlug == "" && (strings.TrimSpace(requestedRef) != "" || strings.TrimSpace(worktreeSubdir) != "") {
+				return fmt.Errorf("--repo is required when --ref or --subdir is set outside an activated repo")
 			}
 
 			// D8: auto-register the project so bn init is not required before create.
