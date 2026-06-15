@@ -14,7 +14,10 @@ import (
 type Store interface {
 	AddDep(context.Context, string, string) error
 	RemoveDep(context.Context, string, string) error
-	ListDeps(context.Context, string) ([]appstore.DepEdge, error)
+	// ListBlockingDeps returns only blocking (dep_type="blocks") edges. beans
+	// 0008 added parent-child membership edges that ListDeps now also returns;
+	// the dependency views deliberately ignore non-blocking edges.
+	ListBlockingDeps(context.Context, string) ([]appstore.DepEdge, error)
 }
 
 type Config struct {
@@ -34,7 +37,7 @@ type Handler struct {
 }
 
 func (h Handler) list(c fiber.Ctx) error {
-	deps, err := h.cfg.Store.ListDeps(c.Context(), h.cfg.ProjectPrefix)
+	deps, err := h.cfg.Store.ListBlockingDeps(c.Context(), h.cfg.ProjectPrefix)
 	if err != nil {
 		return err
 	}

@@ -11,7 +11,9 @@ import (
 
 type Store interface {
 	ListIssues(context.Context, appstore.ListFilter) ([]appstore.Issue, error)
-	ListDeps(context.Context, string) ([]appstore.DepEdge, error)
+	// ListBlockingDeps returns only blocking (dep_type="blocks") edges; the
+	// graph view ignores the parent-child membership edges beans 0008 added.
+	ListBlockingDeps(context.Context, string) ([]appstore.DepEdge, error)
 }
 
 type Config struct {
@@ -33,7 +35,7 @@ func (h Handler) get(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	deps, err := h.cfg.Store.ListDeps(c.Context(), h.cfg.ProjectPrefix)
+	deps, err := h.cfg.Store.ListBlockingDeps(c.Context(), h.cfg.ProjectPrefix)
 	if err != nil {
 		return err
 	}

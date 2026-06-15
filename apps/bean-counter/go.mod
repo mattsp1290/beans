@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/gofiber/fiber/v3 v3.3.0
-	github.com/mattsp1290/beans v0.1.1
+	github.com/mattsp1290/beans v0.1.2-0.20260615002029-e52dce57b52c
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.42.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0
 )
