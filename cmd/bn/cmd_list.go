@@ -24,12 +24,6 @@ func newListCmd(rs *appState) *cobra.Command {
 		Short: "List issues",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if !allRepos && rs.repoArg == "" {
-				if err := rs.requirePrefix(); err != nil {
-					return err
-				}
-			}
-
 			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
 			if err != nil {
 				return err

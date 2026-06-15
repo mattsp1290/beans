@@ -131,37 +131,45 @@ func warnIfCrossRepo(w io.Writer, rs *appState, iss store.Issue) {
 // tree/cycles) using the three-way tri-state:
 //
 //   - allRepos=true  → ListFilter{AllRepos: true}  (cross-repo view)
-//   - repoArg set    → resolve via read-only lookup, use repo.Slug as prefix
-//   - default        → ListFilter{Prefix: rs.prefix}
+//   - repoArg set    → read-only lookup via GetRepoByRemoteURL or GetRepoBySlug;
+//                      errors if the repo is not found
+//   - default        → requirePrefix() then ListFilter{Prefix: rs.prefix}
 //
-// Unlike resolveRepoContext (which may call AutoRegisterRepo for URL forms),
-// this helper never writes — it uses GetRepoByRemoteURL or GetRepoBySlug only.
-// A missing --repo arg is a hard error; the caller must validate rs.prefix
-// separately if the default path is used.
+// Unlike resolveRepoContext, this helper never writes (no AutoRegisterRepo).
+// --all-repos and --repo are mutually exclusive and return an error if combined.
 func (rs *appState) resolveListFilter(ctx context.Context, allRepos bool) (store.ListFilter, error) {
+	if allRepos && rs.repoArg != "" {
+		return store.ListFilter{}, fmt.Errorf("--all-repos and --repo are mutually exclusive")
+	}
 	if allRepos {
 		return store.ListFilter{AllRepos: true}, nil
 	}
-	if rs.repoArg == "" {
-		return store.ListFilter{Prefix: rs.prefix}, nil
-	}
-
-	// --repo was provided: resolve via read-only lookup (no auto-register).
-	// GetRepoByRemoteURL normalizes the URL internally, so no pre-normalization needed.
-	var prefix string
-	switch classifyRepoArg(rs.repoArg) {
-	case repoArgPath:
-		return store.ListFilter{}, fmt.Errorf("--repo: path-style argument not supported; use a slug or remote URL")
-	case repoArgURL:
-		repo, err := rs.store.GetRepoByRemoteURL(ctx, rs.repoArg)
-		if err != nil {
-			return store.ListFilter{}, fmt.Errorf("repo not found for URL %q: %w", rs.repoArg, err)
+	if rs.repoArg != "" {
+		var prefix string
+		switch classifyRepoArg(rs.repoArg) {
+		case repoArgPath:
+			return store.ListFilter{}, fmt.Errorf("--repo: path-style argument not supported; use a slug or a remote URL (for local repos, use file:///abs/path)")
+		case repoArgURL:
+			// GetRepoByRemoteURL normalizes the URL internally.
+			repo, err := rs.store.GetRepoByRemoteURL(ctx, rs.repoArg)
+			if err != nil {
+				return store.ListFilter{}, fmt.Errorf("repo not found for URL %q: %w", rs.repoArg, err)
+			}
+			prefix = repo.Slug
+		default: // slug form
+			repo, err := rs.store.GetRepoBySlug(ctx, rs.repoArg, rs.repoArg)
+			if err != nil {
+				return store.ListFilter{}, fmt.Errorf("repo %q not found; to register a repo provide a remote URL", rs.repoArg)
+			}
+			prefix = repo.Slug
 		}
-		prefix = repo.Slug
-	default: // slug form
-		prefix = rs.repoArg
+		return store.ListFilter{Prefix: prefix}, nil
 	}
-	return store.ListFilter{Prefix: prefix}, nil
+	// Default: require a project context (--project, $BN_PROJECT, .bn marker, or git auto-detect).
+	if err := rs.requirePrefix(); err != nil {
+		return store.ListFilter{}, err
+	}
+	return store.ListFilter{Prefix: rs.prefix}, nil
 }
 
 // tryGitAutoDetect attempts to discover the current git repo and auto-register

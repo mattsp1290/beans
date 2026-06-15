@@ -121,12 +121,6 @@ func newDepTreeCmd(rs *appState) *cobra.Command {
 		Short: "Print the dependency tree",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if !allRepos && rs.repoArg == "" {
-				if err := rs.requirePrefix(); err != nil {
-					return err
-				}
-			}
-
 			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
 			if err != nil {
 				return err
@@ -217,12 +211,6 @@ func newDepCyclesCmd(rs *appState) *cobra.Command {
 		Short: "Detect cycles in the dependency graph",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if !allRepos && rs.repoArg == "" {
-				if err := rs.requirePrefix(); err != nil {
-					return err
-				}
-			}
-
 			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
 			if err != nil {
 				return err
