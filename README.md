@@ -51,6 +51,76 @@ SQLite uses a pure-Go driver and is the default no-Docker development and test
 path. MySQL DSNs should use `parseTime=true` and `loc=UTC` so timestamps scan
 and compare consistently.
 
+## Multi-Repository Workflow
+
+`bn` supports work spanning multiple git repositories within a single shared
+database. The current repository is auto-detected from the git remote URL; no
+`--repo` flag is required for everyday use.
+
+### How it works
+
+- **Topology**: Each registered repository gets its own project prefix equal to
+  its slug (derived from the remote URL). This means all existing per-prefix
+  queries continue to work unchanged — `list`, `ready`, `dep tree`, and `dep
+  cycles` all scope to the current repository by default.
+- **Auto-detect**: When you run `bn create` (or any command that needs repo
+  context), `bn` reads the `git config --get remote.origin.url` value,
+  normalizes it, and auto-registers the repo on first use. SCP form
+  (`git@github.com:org/repo`), HTTPS, and SSH URLs for the same physical repo
+  resolve to the same entry.
+- **Local-only repos** (no remote) get a synthetic `file:///` URL key so they
+  can still be registered and tracked.
+
+### Example: two repos sharing a database
+
+```bash
+# Shared store (both repos use the same BN_DSN)
+export BN_DRIVER=sqlite
+export BN_DSN='file:/tmp/shared.db?_pragma=foreign_keys(1)'
+
+# In repo-a/
+cd ~/repos/my-api
+bn create "add /health endpoint" -p 1
+#  → auto-registers github.com/org/my-api, creates my-api-abc123
+
+# In repo-b/
+cd ~/repos/my-frontend
+bn create "wire /health status badge" -p 2
+#  → auto-registers github.com/org/my-frontend, creates my-frontend-xyz789
+
+# Back in repo-a/ — only sees my-api issues by default
+bn list
+bn ready
+
+# Cross-repo view
+bn list --all-repos
+bn ready --all-repos
+
+# Explicit repo override (slug form)
+bn list --repo my-frontend
+
+# ID-addressed commands are always cross-repo
+bn show my-frontend-xyz789
+bn dep add my-frontend-xyz789 my-api-abc123   # frontend waits on API
+```
+
+### Flag reference
+
+| Flag | Commands | Effect |
+|------|----------|--------|
+| _(none)_ | list, ready, dep tree/cycles | Scope to current repo (from cwd git remote) |
+| `--all-repos` | list, ready, dep tree/cycles | Return issues from every registered repo |
+| `--repo <slug>` | list, ready, dep tree/cycles | Scope to the named repo (read-only, no auto-register) |
+| `--repo <slug>` | create | Link the issue to an already-registered repo slug |
+
+Auto-registration on `bn create` is automatic: no `--repo` flag is needed. `bn`
+detects the git remote and registers the repo if it has not been seen before.
+
+ID-addressed commands (`show`, `update`, `close`, `delete`, `dep add/remove`)
+look up the issue by ID across all repos — `GetIssue` applies no prefix filter.
+They do require project context (provided automatically when inside any registered
+git repo directory), but the lookup itself is cross-repo.
+
 ## Repo Routing
 
 The repo registry commands manage repository targets attached to issues:
