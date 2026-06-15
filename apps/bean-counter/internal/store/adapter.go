@@ -29,6 +29,14 @@ const (
 	DriverSQLite   = beansstore.DriverSQLite
 )
 
+// Dependency edge kinds (beans 0008). Only DepTypeBlocks gates readiness and
+// cycle detection; DepTypeParentChild is non-blocking membership. Re-exported so
+// callers and tests can reference them without importing beans/store directly.
+const (
+	DepTypeBlocks      = beansstore.DepTypeBlocks
+	DepTypeParentChild = beansstore.DepTypeParentChild
+)
+
 var (
 	ErrNotFound          = beansstore.ErrNotFound
 	ErrCycle             = beansstore.ErrCycle
@@ -130,12 +138,6 @@ func (a *Adapter) EnsureProject(ctx context.Context) error {
 // requires an initialized Adapter with a non-nil Store.
 func (a *Adapter) ReadyIssues(ctx context.Context) ([]Issue, error) {
 	return a.store.ReadyIssues(ctx, a.projectPrefix, a.terminalStates, a.activeStates)
-}
-
-// ListDeps returns all dependency edges for the configured project prefix. It
-// requires an initialized Adapter with a non-nil Store.
-func (a *Adapter) ListDeps(ctx context.Context) ([]DepEdge, error) {
-	return a.store.ListDeps(ctx, a.projectPrefix)
 }
 
 // Close releases database resources owned by the underlying store.

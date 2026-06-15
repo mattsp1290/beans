@@ -168,6 +168,15 @@ func TestSQLiteHandlersValidationAndErrorMapping(t *testing.T) {
 
 func sqliteHandlersApp(t *testing.T) (*fiber.App, func()) {
 	t.Helper()
+	app, _, closeStore := sqliteHandlersAppWithStore(t)
+	return app, closeStore
+}
+
+// sqliteHandlersAppWithStore is sqliteHandlersApp but also returns the raw beans
+// store, so tests can seed edge kinds (e.g. parent-child) that have no HTTP
+// route.
+func sqliteHandlersAppWithStore(t *testing.T) (*fiber.App, *appstore.Store, func()) {
+	t.Helper()
 	ctx := context.Background()
 	adapter, err := appstore.NewAdapter(ctx, appstore.AdapterConfig{
 		Store: appstore.Config{
@@ -206,7 +215,7 @@ func sqliteHandlersApp(t *testing.T) (*fiber.App, func()) {
 			})
 		},
 	})
-	return app, adapter.Close
+	return app, adapter.Store(), adapter.Close
 }
 
 func sqliteCreateIssue(t *testing.T, app *fiber.App, body string) sqliteIssueResponse {

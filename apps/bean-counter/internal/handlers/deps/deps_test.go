@@ -35,7 +35,7 @@ func (s *fakeStore) RemoveDep(_ context.Context, issueID, blockedByID string) er
 	return s.err
 }
 
-func (s *fakeStore) ListDeps(_ context.Context, prefix string) ([]appstore.DepEdge, error) {
+func (s *fakeStore) ListBlockingDeps(_ context.Context, prefix string) ([]appstore.DepEdge, error) {
 	s.listPrefix = prefix
 	return s.deps, s.err
 }
