@@ -35,9 +35,11 @@ package-level type aliases:
 - Errors: `ErrNotFound`, `ErrCycle`, `ErrDuplicateDep`, `ErrConflict`,
   `ErrDisabled`, `ErrEmptyDSN`, `ErrUnsupportedDriver`.
 
-Handlers may use `Adapter.Store()` for raw CRUD/dependency/graph operations.
-Use `Adapter.ReadyIssues` and `Adapter.ListDeps` when behavior must be scoped
-by the configured project prefix and state buckets.
+Handlers may use `Adapter.Store()` for raw CRUD/dependency/graph operations
+(the raw store also exposes `ListBlockingDeps`, which the `/deps` and `/graph`
+handlers use to ignore the parent-child membership edges beans records since
+migration 0008). Use `Adapter.ReadyIssues` when behavior must be scoped by the
+configured project prefix and state buckets.
 
 ## Driver Selection
 

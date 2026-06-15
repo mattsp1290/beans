@@ -312,6 +312,16 @@ require_clean_local_ref() {
     fatal "local worktree is not clean (tracked changes or untracked files); commit/stash first"
   fi
 
+  # The worktree MUST be checked out to the resolved target SHA. Local gates
+  # (go test, integration, docker build) and the embedded-migration parity input
+  # are computed from the worktree, so deploying from a different branch would
+  # validate the wrong code and record a wrong parity value (a TOCTOU gap).
+  local head_sha
+  head_sha="$(git rev-parse HEAD)"
+  if [ "$head_sha" != "$TARGET_SHA" ]; then
+    fatal "worktree HEAD ($head_sha) is not the target SHA ($TARGET_SHA); check out the target first (e.g. 'git checkout main' for --ref main) so local gates and the parity check validate exactly what ships"
+  fi
+
   if grep -nE 'replace[[:space:]]+.*github\.com/mattsp1290/beans' go.mod >/dev/null 2>&1; then
     fatal "go.mod contains a local replace for $BEANS_MODULE; remove it before deploying"
   fi
