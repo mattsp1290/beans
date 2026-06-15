@@ -72,6 +72,21 @@ jobs:
       - name: Build
         run: npm run build
 
+  deploy-scripts:
+    name: Deploy scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Shellcheck
+        run: shellcheck scripts/deploy-production.sh test/scripts/deploy-production_test.sh
+
+      - name: Unit tests (pure helpers + arg parsing)
+        run: bash test/scripts/deploy-production_test.sh
+
   integration:
     name: Integration (${{ matrix.database }})
     runs-on: ubuntu-latest

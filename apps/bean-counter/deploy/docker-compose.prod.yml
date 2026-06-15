@@ -1,0 +1,90 @@
+# Production Compose for bean-counter on the infra host (10.0.0.106).
+#
+# Self-contained on purpose: it carries its own build definitions and defines
+# ONLY `api` + `ui`. It must NOT be layered with docker-compose.stack.yml — that
+# file defines a `db` service and a named Postgres volume and wires
+# `api.depends_on: db`, any of which could start a stray Postgres. Production
+# uses the EXISTING Postgres owned by the local-symphony stack.
+#
+# Always invoke with an explicit project name so commands can never resolve to
+# the local-symphony project:
+#
+#   docker compose -p bean-counter -f deploy/docker-compose.prod.yml up -d api ui
+#   docker compose -p bean-counter -f deploy/docker-compose.prod.yml config
+#   docker compose -p bean-counter -f deploy/docker-compose.prod.yml down   # never -v
+#
+# The DSN is never placed in this file or the environment: the api reads it from
+# a bind-mounted secret file via BN_DSN_FILE. See .agents/plans/deploy/.
+#
+# Required/!overridable variables (set by scripts/deploy-production.sh):
+#   UI_PORT                 host port for the UI            (default 8088)
+#   BEAN_COUNTER_API_IMAGE  api image tag                   (default bean-counter-api:prod)
+#   BEAN_COUNTER_UI_IMAGE   ui image tag                    (default bean-counter-ui:prod)
+#   BN_PROJECT_PREFIX       beans project prefix            (default local-symphony)
+#   BN_ACTOR                write attribution               (default bean-counter-ui)
+#   BN_CORS_ORIGIN          LAN origin serving the UI       (default http://10.0.0.106:8088)
+#   BN_DSN_SECRET           host path to the bn DSN secret  (default infra secrets path)
+#   SYMPHONY_NETWORK        external Postgres network name  (default local-symphony_symphony-internal)
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${BEAN_COUNTER_API_IMAGE:-bean-counter-api:prod}
+    environment:
+      BN_DRIVER: postgres
+      BN_DSN_FILE: /run/secrets/bn_dsn
+      BN_PROJECT_PREFIX: ${BN_PROJECT_PREFIX:-local-symphony}
+      BN_ACTOR: ${BN_ACTOR:-bean-counter-ui}
+      BN_CORS_ORIGIN: ${BN_CORS_ORIGIN:-http://10.0.0.106:8088}
+      BN_ADDR: :8080
+    volumes:
+      # Read-only secret mount. The api runs as the non-root `bean-counter`
+      # user, so the host file must be readable by that uid (verified in the
+      # deploy preflight, not just checked for presence).
+      - ${BN_DSN_SECRET:-/home/infra-admin/symphony-secrets/bn_dsn}:/run/secrets/bn_dsn:ro
+    restart: unless-stopped
+    networks:
+      - bean-counter-internal
+      - symphony
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/api/v1/readyz >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  ui:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ${BEAN_COUNTER_UI_IMAGE:-bean-counter-ui:prod}
+    environment:
+      API_UPSTREAM: http://api:8080
+      NGINX_RESOLVER: 127.0.0.11
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${UI_PORT:-8088}:8080"
+    networks:
+      - bean-counter-internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+networks:
+  # Private network for ui -> api traffic, scoped to the bean-counter project.
+  bean-counter-internal:
+    driver: bridge
+  # The EXISTING Postgres network owned by the local-symphony stack. It must
+  # already exist (the symphony stack must be up). The api joins it to reach the
+  # shared Postgres by its service name `postgres`, so the bn_dsn secret's
+  # container host form (@postgres:5432) is reused verbatim — no DSN rewrite.
+  symphony:
+    external: true
+    name: ${SYMPHONY_NETWORK:-local-symphony_symphony-internal}

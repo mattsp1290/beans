@@ -34,6 +34,11 @@ func Load() (Config, error) {
 }
 
 func LoadEnv(lookup LookupFunc) (Config, error) {
+	dsn, err := resolveDSN(lookup)
+	if err != nil {
+		return Config{}, err
+	}
+
 	cfg := Config{
 		Addr:          getString(lookup, "BN_ADDR", defaultAddr),
 		ProjectPrefix: getString(lookup, "BN_PROJECT_PREFIX", defaultProjectPrefix),
@@ -41,7 +46,7 @@ func LoadEnv(lookup LookupFunc) (Config, error) {
 		CORSOrigin:    getString(lookup, "BN_CORS_ORIGIN", defaultCORSOrigin),
 		Store: appstore.Config{
 			Driver: appstore.DriverPostgres,
-			DSN:    appstore.SecretDSN(getString(lookup, "BN_DSN", "")),
+			DSN:    appstore.SecretDSN(dsn),
 		},
 	}
 
@@ -94,6 +99,43 @@ func getString(lookup LookupFunc, key, fallback string) string {
 		return strings.TrimSpace(value)
 	}
 	return fallback
+}
+
+// resolveDSN reads the database DSN from either BN_DSN (inline) or BN_DSN_FILE
+// (path to a file holding the DSN). The file form keeps the secret out of the
+// process environment, argv, and any rendered compose config — see
+// .agents/plans/deploy/. Exactly one source may be set; setting both is an
+// error. A read failure is reported without revealing file contents. An empty
+// or whitespace-only result falls through to Store.Validate, which returns
+// ErrEmptyDSN.
+func resolveDSN(lookup LookupFunc) (string, error) {
+	inline, inlineSet := lookupNonEmpty(lookup, "BN_DSN")
+	path, pathSet := lookupNonEmpty(lookup, "BN_DSN_FILE")
+
+	if !pathSet {
+		return inline, nil
+	}
+	if inlineSet {
+		return "", fmt.Errorf("config: set only one of BN_DSN or BN_DSN_FILE, not both")
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		// %w carries the path (not secret) but never the DSN contents.
+		return "", fmt.Errorf("config: reading BN_DSN_FILE: %w", err)
+	}
+	return strings.TrimSpace(string(data)), nil
+}
+
+// lookupNonEmpty returns the trimmed value for key and whether it was both
+// present and non-empty after trimming.
+func lookupNonEmpty(lookup LookupFunc, key string) (string, bool) {
+	if value, ok := lookup(key); ok {
+		if trimmed := strings.TrimSpace(value); trimmed != "" {
+			return trimmed, true
+		}
+	}
+	return "", false
 }
 
 func getInt32(lookup LookupFunc, key string) (int32, error) {
