@@ -763,11 +763,11 @@ func parseRepoURLParts(normalized string) (host, owner, repoName string, err err
 // four-step slug-disambiguation algorithm (before Step 0 normalization).
 //
 // Order: step 1 (bare repo name), step 2 (owner-qualified, if owner ≠ ""),
-// step 3 (host-qualified), step 4 (numeric suffixes 2-99 on the step-2 or
-// step-1 base).
+// step 3 (host-qualified, skipped when host is empty, e.g. file:// URLs),
+// step 4 (numeric suffixes 2-99 on the step-2 or step-1 base).
 func slugCandidateList(host, owner, repoName string) []string {
 	short := repoHostShortname(host)
-	candidates := make([]string, 0, 102)
+	candidates := make([]string, 0, 101)
 
 	// Step 1
 	candidates = append(candidates, repoName)
@@ -779,11 +779,14 @@ func slugCandidateList(host, owner, repoName string) []string {
 		candidates = append(candidates, ownerRepo)
 	}
 
-	// Step 3 (host-qualified)
-	if owner != "" {
-		candidates = append(candidates, short+"-"+owner+"-"+repoName)
-	} else {
-		candidates = append(candidates, short+"-"+repoName)
+	// Step 3 (host-qualified; skip when host is empty so file:// repos don't
+	// emit a leading-dash candidate that collapses to the same slug as step 1/2)
+	if short != "" {
+		if owner != "" {
+			candidates = append(candidates, short+"-"+owner+"-"+repoName)
+		} else {
+			candidates = append(candidates, short+"-"+repoName)
+		}
 	}
 
 	// Step 4 (numeric suffix; base = step-2 form if owner present, else step-1)
@@ -853,7 +856,19 @@ func (s *Store) AutoRegisterRepo(ctx context.Context, in AutoRegisterInput) (Rep
 		authRef = repo.AuthRefTestNone
 	}
 	defaultBranch := repo.NormalizeDefaultBranch(in.DefaultBranch)
+	cloneStrategy := repo.NormalizeCloneStrategy("")
 	actor := strings.TrimSpace(in.Actor)
+
+	// Validate inputs with the same rules as CreateRepo so both write paths
+	// share one validation gate.
+	if err := repo.ValidateTarget(repo.Target{
+		RemoteURL:     normalized,
+		DefaultBranch: defaultBranch,
+		CloneStrategy: cloneStrategy,
+		AuthRef:       authRef,
+	}); err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo validation: %w", err)
+	}
 
 	// Parse normalized URL into host/owner/repo-name components.
 	host, owner, repoName, err := parseRepoURLParts(normalized)
@@ -863,43 +878,46 @@ func (s *Store) AutoRegisterRepo(ctx context.Context, in AutoRegisterInput) (Rep
 
 	candidates := slugCandidateList(host, owner, repoName)
 
-	const maxRetries = 5
-	for range maxRetries {
-		for _, raw := range candidates {
-			slug := normalizeSlugCandidate(raw)
-			if slug == "" {
-				continue
-			}
-
-			// Pre-check outside tx; check-then-act race is absorbed by ErrConflict retry.
-			exists, err := s.ProjectExists(ctx, slug)
-			if err != nil {
-				return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
-			}
-			if exists {
-				continue
-			}
-
-			result, err := s.autoRegisterTx(ctx, db, slug, normalized, defaultBranch, authRef, actor)
-			if err == nil {
-				return result, nil
-			}
-			if errors.Is(err, ErrConflict) {
-				// Concurrent registration claimed this slug; try the next candidate.
-				continue
-			}
-			return Repo{}, err
+	for _, raw := range candidates {
+		slug := normalizeSlugCandidate(raw)
+		if slug == "" {
+			continue
 		}
+
+		// Pre-check outside tx; check-then-act race is absorbed by ErrConflict retry.
+		exists, err := s.ProjectExists(ctx, slug)
+		if err != nil {
+			return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
+		}
+		if exists {
+			continue
+		}
+
+		result, err := s.autoRegisterTx(ctx, db, slug, normalized, defaultBranch, cloneStrategy, authRef, actor)
+		if err == nil {
+			return result, nil
+		}
+		if errors.Is(err, ErrConflict) {
+			// A concurrent writer may have claimed this slug or registered the same
+			// URL. Re-check for the URL case before advancing candidates — otherwise
+			// all candidates exhaust and we'd return the misleading ErrSlugExhausted.
+			if got, lookupErr := s.GetRepoByRemoteURL(ctx, normalized); lookupErr == nil {
+				return got, nil
+			}
+			continue
+		}
+		return Repo{}, err
 	}
 
 	return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", ErrSlugExhausted)
 }
 
 // autoRegisterTx creates a bn_projects row (idempotent via OnConflict DoNothing)
-// and a bn_repos row inside a single transaction.  Returns ErrConflict when
-// either unique constraint fires, allowing the caller to advance to the next
-// slug candidate.
-func (s *Store) autoRegisterTx(ctx context.Context, db *gorm.DB, slug, normalizedURL, defaultBranch, authRef, actor string) (Repo, error) {
+// and a bn_repos row inside a single transaction, then writes an audit row.
+// Returns ErrConflict when either unique constraint fires (slug already taken or
+// remote_url already registered concurrently), letting the caller advance to the
+// next slug candidate or re-resolve via GetRepoByRemoteURL.
+func (s *Store) autoRegisterTx(ctx context.Context, db *gorm.DB, slug, normalizedURL, defaultBranch, cloneStrategy, authRef, actor string) (Repo, error) {
 	id, err := generateRepoID()
 	if err != nil {
 		return Repo{}, err
@@ -918,7 +936,7 @@ func (s *Store) autoRegisterTx(ctx context.Context, db *gorm.DB, slug, normalize
 		DisplayName:   slug,
 		RemoteURL:     normalizedURL,
 		DefaultBranch: defaultBranch,
-		CloneStrategy: repo.NormalizeCloneStrategy(""),
+		CloneStrategy: cloneStrategy,
 		AuthRef:       authRef,
 		Enabled:       true,
 		Metadata:      datatypes.JSON(metadata),
@@ -930,14 +948,13 @@ func (s *Store) autoRegisterTx(ctx context.Context, db *gorm.DB, slug, normalize
 
 	var result Repo
 	txErr := db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		projErr := tx.WithContext(ctx).
+		// Insert the bn_projects row. OnConflict{DoNothing} makes this idempotent:
+		// if the project already exists, no error is returned and the repo insert
+		// below will surface the slug conflict via the UNIQUE(prefix,slug) index.
+		if projErr := tx.WithContext(ctx).
 			Clauses(clause.OnConflict{DoNothing: true}).
 			Create(&gormProject{Prefix: slug, CreatedAt: now}).
-			Error
-		if projErr != nil {
-			if isDupKeyConflict(projErr) {
-				return fmt.Errorf("store: %w: project prefix %s", ErrConflict, slug)
-			}
+			Error; projErr != nil {
 			return fmt.Errorf("store: autoRegisterTx: %w", projErr)
 		}
 
@@ -949,6 +966,17 @@ func (s *Store) autoRegisterTx(ctx context.Context, db *gorm.DB, slug, normalize
 		}
 
 		result = repoFromGORM(row)
+
+		if err := insertRepoAudit(ctx, tx, RepoAuditInput{
+			Prefix:    slug,
+			RepoID:    result.ID,
+			Action:    "repo.auto_register",
+			Actor:     actor,
+			NewValues: repoAuditValues(result),
+		}); err != nil {
+			return err
+		}
+
 		return nil
 	})
 	if txErr != nil {
