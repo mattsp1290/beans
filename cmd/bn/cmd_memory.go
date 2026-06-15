@@ -138,7 +138,8 @@ Use quotes or --type/--tag to narrow results.`,
 		},
 	}
 
-	cmd.Flags().BoolVar(&all, "all", false, "search across all projects")
+	cmd.Flags().BoolVar(&all, "all", false, "search across all repos and projects")
+	cmd.Flags().BoolVar(&all, "all-repos", false, "search across all repos and projects (alias for --all)")
 	cmd.Flags().StringVar(&memType, "type", "", "filter by type")
 	cmd.Flags().StringArrayVar(&tags, "tag", nil, "filter by tag (repeatable)")
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, "max results (default 50)")
@@ -170,16 +171,20 @@ ENVIRONMENT
   BN_ACTOR    Default actor for audit notes
 
 WORKFLOW
-  1. bn init --prefix=<proj>     Register a project (creates .bn marker)
-  2. bn repo admin add --bootstrap <actor>
-                                  Bootstrap repo registry admin
-  3. bn repo add <slug> --remote <url> --auth <auth-ref>
-                                  Onboard repositories for workspace routing
-  4. bn create "Task title"       Create issues (auto-registers project)
+  Single-repo (custom prefix):
+  1. bn init --prefix=<proj>     Register project + write .bn marker
+  2. bn create "Task title"       Create issues
      bn dep add <child> <parent>  Wire dependencies
-  5. bn ready                     List unblocked, open issues
-  6. bn show <id>                  Inspect an issue
-  7. bn close <id> -r "done"      Close (idempotent)
+  3. bn ready                     List unblocked, open issues
+  4. bn show <id>                  Inspect an issue
+  5. bn close <id> -r "done"      Close (idempotent)
+
+  Multi-repo (auto-detect, no bn init needed):
+  1. Set BN_DRIVER + BN_DSN (shared database)
+  2. cd ~/repos/my-api && bn create "..."
+     → auto-registers repo, prefix == slug derived from remote URL
+  3. bn list / bn ready           Scoped to current repo by default
+     bn list --all-repos          All repos in the shared database
 
 SKILL INTEGRATION
   A .bn file at the repo root tells skills to use bn instead of bd.
