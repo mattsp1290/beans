@@ -286,6 +286,12 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 		// while Prefix is rewritten to destPrefix. Queries scope by the prefix column
 		// so this is functionally correct, but the id-prefix and prefix-column diverge
 		// for cross-project imports. This is intentional for bd-migration compatibility.
+		//
+		// Under per-repo topology (prefix == slug derived from remote URL), importing
+		// a cross-repo export (source prefix != destPrefix) never produces a false
+		// CrossPrefixConflict: the conflict guard fires only when the SAME issue ID
+		// already exists in the DB under a DIFFERENT prefix — a genuine ambiguity, not
+		// a coincidence of slug derivation.
 		items = append(items, store.ImportInput{
 			ID:          raw.ID,
 			Prefix:      destPrefix,

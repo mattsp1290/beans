@@ -13,18 +13,26 @@ import (
 )
 
 func newExportCmd(rs *appState) *cobra.Command {
-	var outputPath string
+	var (
+		outputPath string
+		allRepos   bool
+	)
 
 	cmd := &cobra.Command{
 		Use:   "export",
 		Short: "Export issues as bd-compatible JSONL",
-		Args:  cobra.NoArgs,
+		Long: `Export issues as bd-compatible JSONL (one issue per line).
+
+By default exports the current repository only. Use --all-repos to export every
+repository in the shared database, or --repo <slug> to export a named repository.`,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if err := rs.requirePrefix(); err != nil {
-				return err
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
+				return fmt.Errorf("export: %w", err)
 			}
 
-			issues, err := rs.store.ListIssues(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
+			issues, err := rs.store.ListIssues(cmd.Context(), f)
 			if err != nil {
 				return fmt.Errorf("export: %w", err)
 			}
@@ -32,7 +40,7 @@ func newExportCmd(rs *appState) *cobra.Command {
 			// Fetch every edge kind (blocks + parent-child + any custom) so the
 			// export round-trips hierarchy, not just blocking edges. ListDeps is
 			// ordered (issue_id, blocked_by_id, dep_type) for stable output.
-			edges, err := rs.store.ListDeps(cmd.Context(), store.ListFilter{Prefix: rs.prefix})
+			edges, err := rs.store.ListDeps(cmd.Context(), f)
 			if err != nil {
 				return fmt.Errorf("export: %w", err)
 			}
@@ -43,12 +51,12 @@ func newExportCmd(rs *appState) *cobra.Command {
 
 			w := cmd.OutOrStdout()
 			if outputPath != "" {
-				f, err := os.Create(outputPath)
+				out, err := os.Create(outputPath)
 				if err != nil {
 					return fmt.Errorf("export: create %s: %w", outputPath, err)
 				}
-				defer f.Close()
-				w = f
+				defer out.Close()
+				w = out
 			}
 
 			if err := writeExportJSONL(w, issues, depsByChild); err != nil {
@@ -59,6 +67,7 @@ func newExportCmd(rs *appState) *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&outputPath, "output", "o", "", "write JSONL export to file (default: stdout)")
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "export all repos in the shared database")
 	return cmd
 }
 
