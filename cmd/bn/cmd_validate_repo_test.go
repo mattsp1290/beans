@@ -242,4 +242,3 @@ func TestWarnIfCrossRepoTriggersWhenRepoAssigned(t *testing.T) {
 		t.Errorf("warning missing context repo %q: %s", "other-repo", warning)
 	}
 }
-

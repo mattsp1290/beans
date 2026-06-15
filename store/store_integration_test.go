@@ -1207,8 +1207,10 @@ func TestRepoRegistryValidatesRepoTargets(t *testing.T) {
 		AuthRef:   "test:none",
 		Actor:     "alice",
 	})
-	if err == nil || !strings.Contains(err.Error(), "validation") {
-		t.Fatalf("CreateRepo bad remote = %v, want validation error", err)
+	// NormalizeRemoteURL rejects unsupported schemes before ValidateTarget runs,
+	// so the error message says "unsupported scheme" rather than "validation".
+	if err == nil {
+		t.Fatalf("CreateRepo bad remote = nil, want error for ftp:// URL")
 	}
 
 	badSubdir := "../outside"
@@ -1879,7 +1881,8 @@ func assertIssueRepoTarget(t *testing.T, iss store.Issue, repoID string) {
 	if iss.Repo.ID != repoID {
 		t.Fatalf("repo ID = %q, want %q", iss.Repo.ID, repoID)
 	}
-	if iss.Repo.Slug != "boxy" || iss.Repo.RemoteURL != "git@github.com:punk1290/boxy.git" {
+	// CreateRepo normalizes the URL (SCP → HTTPS, strips .git) on insert.
+	if iss.Repo.Slug != "boxy" || iss.Repo.RemoteURL != "https://github.com/punk1290/boxy" {
 		t.Fatalf("repo target = %+v, want boxy remote", iss.Repo)
 	}
 	if iss.Repo.DefaultBranch != "trunk" || iss.Repo.BaseRef != "trunk" {
@@ -1968,7 +1971,8 @@ func TestUpdateIssueRepoTarget(t *testing.T) {
 	if got.Repo == nil || got.Repo.ID != repoB.ID || got.Repo.Slug != "repo-b" {
 		t.Fatalf("updated repo = %+v, want repo-b", got.Repo)
 	}
-	if got.Repo.RemoteURL != "git@github.com:punk1290/repo-b.git" ||
+	// CreateRepo normalizes SCP → HTTPS and strips .git on insert.
+	if got.Repo.RemoteURL != "https://github.com/punk1290/repo-b" ||
 		got.Repo.DefaultBranch != "trunk" || got.Repo.BaseRef != "trunk" ||
 		got.Repo.CloneStrategy != "fresh-clone" {
 		t.Fatalf("updated repo inherited registry fields = %+v", got.Repo)

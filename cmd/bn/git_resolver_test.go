@@ -14,8 +14,8 @@ type fakeGitResolver struct {
 	// lastToplevelDir and lastRemoteURLRoot record the arguments of the most
 	// recent call so tests can assert correct wiring (e.g. RemoteURL receives
 	// the root returned by Toplevel, not cwd).
-	lastToplevelDir    string
-	lastRemoteURLRoot  string
+	lastToplevelDir   string
+	lastRemoteURLRoot string
 }
 
 func (f *fakeGitResolver) Toplevel(dir string) (string, bool, error) {
