@@ -34,6 +34,9 @@ services:
     image: ${BEAN_COUNTER_API_IMAGE:-bean-counter-api:prod}
     environment:
       BN_DRIVER: postgres
+      # Clear the sqlite BN_DSN the image bakes in as a standalone default;
+      # otherwise BN_DSN + BN_DSN_FILE are both set and config load fails.
+      BN_DSN: ""
       BN_DSN_FILE: /run/secrets/bn_dsn
       BN_PROJECT_PREFIX: ${BN_PROJECT_PREFIX:-local-symphony}
       BN_ACTOR: ${BN_ACTOR:-bean-counter-ui}
