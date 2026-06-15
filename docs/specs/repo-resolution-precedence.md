@@ -24,20 +24,29 @@ independently.
 ## Prefix resolution chain
 
 Unchanged from the existing implementation (`resolveProjectPrefix`, app.go:172),
-with the auto-detect case inserted between env and marker:
+with the auto-detect case appended after the marker:
 
 | Priority | Source | Notes |
 |---|---|---|
 | 1 | `--project <prefix>` flag | Explicit always wins |
 | 2 | `BN_PROJECT` env var | Per-shell override |
-| 3 | Cwd git auto-detect | Only when 1 and 2 are absent AND no `.bn` project field exists |
-| 4 | `.bn` marker `project` field | Persisted across commands in a git repo |
+| 3 | `.bn` marker `project` field | Persisted across commands in a git repo |
+| 4 | Cwd git auto-detect | Only when 1, 2, and 3 are all absent |
 | 5 | Error: prefix required | Emitted at command execution, not at init |
 
-Auto-detect (priority 3) fires **only** when priorities 1, 2, and 4 are all
-absent. If `.bn` exists with a `project` field, auto-detect is skipped entirely.
-This gives users explicit control via `bn init --prefix=<prefix>` without
-fight with auto-detect on every invocation.
+Auto-detect (priority 4) fires **only** when priorities 1, 2, and 3 are all
+absent. If `.bn` exists with a `project` field, auto-detect is skipped
+entirely. This gives users explicit control via `bn init --prefix=<prefix>`
+without fight with auto-detect on every invocation.
+
+When auto-detect fires, the derived prefix comes from `AutoRegisterRepo`'s
+return value (`Repo.Prefix`). A prefix explicitly set via `--project` or
+`BN_PROJECT` always wins: if auto-detect also fires (e.g. on a repo-aware
+command), the resolved auto-detect prefix is used **only for the repo
+association** — the explicit prefix remains the command's operating prefix.
+If the two disagree (explicit prefix ≠ auto-detected prefix), the explicit
+prefix is used and the issue is created under that project with the
+auto-registered repo's slug attached.
 
 ---
 
@@ -48,36 +57,52 @@ New; applies to commands that accept a repo context (e.g. `bn create --repo`):
 | Priority | Source | Notes |
 |---|---|---|
 | 1 | `--repo <value>` flag | Explicit slug or remote URL |
-| 2 | Cwd git auto-detect | `git rev-parse --show-toplevel` → `git config --get remote.origin.url` → `AutoRegisterRepo` |
-| 3 | `.bn` marker `repo` field | Slug of the repo written by `bn init --repo` |
-| 4 | No repo context | `IssueRepoInput` is nil; command creates issue without a repo link |
+| 2 | `.bn` marker `repo` field | Slug written by `bn init --repo` |
+| 3 | Cwd git auto-detect | `git rev-parse --show-toplevel` → URL → `AutoRegisterRepo` |
+| 4 | No repo context | `IssueRepoInput` is nil; issue created without a repo link |
 
-Priorities 1 and 2 are mutually exclusive: when `--repo` is provided,
-auto-detect is skipped. When neither `--repo` nor auto-detect applies,
-the `.bn` marker repo field is used. Commands that require a repo (e.g.
-`bn create --require-repo`) must error at priority 4 with a clear message.
+Priority 1 supersedes all others: when `--repo` is provided, auto-detect and
+the `.bn` marker repo field are both skipped. The `.bn` marker repo field
+(priority 2) is checked before auto-detect (priority 3). Commands that require
+a repo context error at priority 4 with: `"this command requires a repo; use
+--repo <slug-or-url>"`.
 
-### When auto-detect fires
+### Repo-aware commands and auto-detect opt-in
 
-Auto-detect fires on priority 2 only when ALL of the following are true:
-- `--repo` flag is absent
-- The command is "repo-aware" (the command opts in by calling the auto-detect path)
-- Priority 3 (`.bn` repo field) is also absent
+Auto-detect is not a global behavior — each command must explicitly opt in by
+calling the resolution helper. The commands that opt in are limited to those
+that benefit from "just work in my current repo" ergonomics (e.g. `bn create`,
+`bn list`, `bn ready`). Commands that operate on specific issues by ID do not
+opt in. The exact set is an implementation detail of beans-3u3; this record
+defines the chain, not the set.
 
-If auto-detect fires, its result is passed to `AutoRegisterRepo` (idempotent by
-normalized URL) and the returned `Repo.Prefix` is used as the effective prefix
-for the command. This is the only case where prefix resolution is deferred past
-priority 4 of the prefix chain above.
+Whether `--repo` is a root persistent flag or per-command is left to beans-3u3
+to decide based on ergonomics. If persistent, the value is always available;
+if per-command, each opt-in command declares it.
 
 ---
 
 ## What `--repo` accepts
 
-`--repo` accepts exactly two forms:
+`--repo` accepts exactly two forms, distinguished by a CLI-level pre-check
+**before** `NormalizeRemoteURL` is called:
+
+### Discriminator (applied in order)
+
+1. If the value contains `://` → **URL form** (Form 2).
+2. If the value starts with `git@` → **URL form** (Form 2, SCP-syntax SSH).
+3. If the value starts with `/`, `./`, `../`, `~`, or matches a Windows drive
+   letter pattern (`C:\`) → **path form** → rejected (Form 3 below).
+4. Otherwise → **slug form** (Form 1).
+
+This pre-check is applied before `NormalizeRemoteURL` because the library's
+`normalizeBarePath` accepts absolute paths and converts them to `file://` —
+the CLI explicitly rejects them to keep `--repo` focused on slugs and explicit
+remote URLs.
 
 ### Form 1: Registered slug
 
-A slug matching `[a-z0-9][a-z0-9._-]*` with no `://` or `@` → slug lookup:
+A value not matching Form 2 or Form 3 patterns — e.g.:
 
 ```
 --repo myapp
@@ -85,35 +110,39 @@ A slug matching `[a-z0-9][a-z0-9._-]*` with no `://` or `@` → slug lookup:
 --repo github-owner-myapp
 ```
 
-Behavior: `GetRepoBySlug(prefix, slug)`. Under topology (a), `slug == prefix`,
-so the lookup is `GetRepoBySlug(slug, slug)`. If the slug is not found:
-`bn` returns an error — NOT auto-register-by-name, because a bare slug carries
+Behavior: `GetRepoBySlug(slug, slug)` (under topology (a), prefix == slug, so
+both arguments are the slug). `GetRepoBySlug` already exists at
+`store/repo_store.go:424`. If the slug is not found: error at the CLI layer
+(not the store layer) — NOT auto-register-by-name, because a bare slug carries
 no URL from which to derive the canonical identity.
 
-Error: `repo "myapp" not found; to register a repo provide a remote URL`
+Error (emitted by `cmd/bn`, not `store`): `repo "myapp" not found; to register a repo provide a remote URL`
 
 ### Form 2: Remote URL
 
-Any string recognized as a URL by `NormalizeRemoteURL`: HTTPS URLs, SCP-syntax
-SSH (`git@host:path`), SSH scheme (`ssh://`), local `file://` paths:
+Any string containing `://` or starting with `git@`:
 
 ```
 --repo https://github.com/alice/myapp
 --repo git@github.com:alice/myapp
---repo file:///home/alice/myapp
+--repo ssh://git@github.com/alice/myapp
 ```
+
+Note: `file://` URLs ARE accepted (they pass through `NormalizeRemoteURL`), but
+bare local paths (`/home/alice/myapp`) are rejected (Form 3) even though the
+library would accept them. If a user wants to pass a local path, they must use
+the explicit `file:///home/alice/myapp` form.
 
 Behavior: `AutoRegisterRepo(ctx, AutoRegisterInput{RemoteURL: value})`.
 Idempotent: returns the existing row if already registered. Sets both the repo
 and the prefix from the returned `Repo.Prefix`.
 
-### Form 3 (rejected): Local filesystem path
+### Form 3 (rejected at CLI layer): Local filesystem path
 
-Bare paths (`/home/alice/myapp`, `./myapp`, `../sibling`) are NOT accepted by
-`--repo`. If a user wants to register a local repo at a specific path, they
-run `bn repo add --path /path/to/repo` (separate command, future work).
-Attempting a local path via `--repo` returns:
-`"--repo: path-style argument not supported; use a slug or remote URL"`
+Bare paths starting with `/`, `./`, `../`, `~`, or Windows drive letters are
+rejected with:
+
+`"--repo: path-style argument not supported; use a slug or a remote URL (for local repos, use file:///abs/path)"`
 
 ---
 
@@ -121,51 +150,70 @@ Attempting a local path via `--repo` returns:
 
 ### 1. Interaction between auto-detect and an existing `.bn` marker
 
-`.bn` is authoritative when present. Auto-detect is skipped if:
-- `.bn` exists with `project` set → prefix chain priority 4 fires, auto-detect never runs
-- `.bn` exists with `repo` set → repo chain priority 3 fires, auto-detect skipped
+`.bn` is authoritative when present:
+- `.bn` with `project` set → prefix chain priority 3 fires, auto-detect (priority 4) never runs.
+- `.bn` with `repo` set → repo chain priority 2 fires, auto-detect (priority 3) skipped.
 
-Example: a mono-repo with `project=monorepo` in `.bn`. `bn create "Fix bug"`
-inside that repo uses `prefix=monorepo` and no repo link, regardless of what
-`git config --get remote.origin.url` returns. To opt into auto-detect, remove
-`project` from `.bn` or use `--project` to override to a specific prefix that
-triggers lookup.
+To opt out of a persisted `.bn` marker and use auto-detect instead: delete the
+`.bn` file entirely (not just remove the `project` field — the parser at
+`app.go:352` requires `project` to be present and errors if the file exists but
+the field is absent). Alternatively, use `--project` or `--repo` flags to
+override per-invocation without touching the file.
 
 ### 2. Outside any git repo
 
 `gitRoot()` returns `("", false, nil)`. Auto-detect short-circuits with no
-result. Repo chain falls through to `.bn` marker (if found by directory walk)
-or no-repo. Prefix chain falls through normally.
+result. Repo chain falls through to `.bn` marker (if found by the directory
+walk in `activeProjectMarkerPath`) or no-repo (priority 4). Prefix chain falls
+through normally.
 
 No error is produced by the auto-detect path alone — it is silent when no git
-context exists. The command may error downstream if prefix is required.
+context exists. The command errors downstream only if prefix is required and no
+other source provided it.
 
 ### 3. Local-only repo — no remote configured
 
 `gitRoot()` succeeds (returns the toplevel) but `RemoteURL()` returns
 `("", false, nil)` (no `remote.origin` configured).
 
-Fallback slug: the **basename of the git toplevel directory**, normalized via
-`normalizeSlugCandidate`. Example: `/home/alice/my_project` → slug candidate
-`my_project`.
+Because `AutoRegisterRepo` calls `NormalizeRemoteURL` first and that function
+returns `ErrNoRemote` on an empty string, passing an empty URL is not valid.
+The cwd auto-detect path MUST synthesize a `file://` URL from the git toplevel
+instead:
 
-`AutoRegisterRepo` is called with an empty `RemoteURL`. The store stores it
-with empty `remote_url` and treats idempotency by slug (not URL) for this case.
-Subsequent calls from the same directory produce the same slug via the basename
-fallback; calls from a different directory with the same basename collide and
-trigger the slug-disambiguation algorithm normally.
+```
+file_url = "file://" + gitToplevl   // e.g. "file:///home/alice/my_project"
+```
 
-The `.bn` marker is written after successful registration with the derived slug
-so future invocations skip auto-detect.
+`AutoRegisterRepo` is then called with `RemoteURL: file_url`. `NormalizeRemoteURL`
+accepts this and produces a canonical form. Idempotency is by the canonical
+`file:///abs/path` URL (consistent with the "`file://` URL idempotency by path"
+non-decision at the bottom of this record).
+
+Example:
+- Git toplevel: `/home/alice/my_project`
+- Synthesized URL: `file:///home/alice/my_project`
+- Candidate slug from URL parse: `my_project`
+- Registration: creates prefix=`my_project`, slug=`my_project`
+- On re-run from the same directory: `GetRepoByRemoteURL("file:///home/alice/my_project")` hits the idempotency fast-path and returns the existing row.
+
+The synthesized `file://` URL is written to the `.bn` marker's `remote` field
+so future invocations use the `.bn` marker (priority 2) and skip auto-detect.
+
+Note: the file URL key is the **resolved absolute path of the git toplevel**,
+not the cwd. This ensures two sessions in different subdirectories of the same
+repo resolve to the same registration.
 
 ### 4. Nested / submodule repos
 
 `git rev-parse --show-toplevel` returns the **inner repo's** root (standard git
-behavior for submodules). This is the correct behavior: each submodule is an
+behavior for submodules — git considers the submodule's `.git` when resolving
+`--show-toplevel`). This is the correct behavior: each submodule is an
 independent git repo and is treated as an independent registered repo in `bn`.
 
 No special handling is required. The outer repo and inner submodule generate two
-separate `bn_repos` rows with distinct normalized URLs and distinct prefixes.
+separate `bn_repos` rows with distinct normalized URLs (or distinct `file://`
+paths for local-only) and distinct prefixes.
 
 ### 5. Bare / detached repos
 
@@ -185,9 +233,10 @@ which is unaffected by HEAD state. No special handling needed.
 | Situation | Message |
 |---|---|
 | `--repo <slug>` not found | `repo "{slug}" not found; to register a repo provide a remote URL` |
-| `--repo <path>` style argument | `--repo: path-style argument not supported; use a slug or remote URL` |
-| All slug candidates exhausted | `AutoRegisterRepo: all slug candidates exhausted for URL "{url}"` (wraps `ErrSlugExhausted`) |
+| `--repo <path>` style argument | `--repo: path-style argument not supported; use a slug or a remote URL (for local repos, use file:///abs/path)` |
+| All slug candidates exhausted | `AutoRegisterRepo: slug disambiguation exhausted all candidates` (wraps `ErrSlugExhausted`) |
 | Prefix required and missing | `project prefix required: use --project, set BN_PROJECT, or run bn init --prefix=<project>` (existing message, unchanged) |
+| Repo required and missing | `this command requires a repo; use --repo <slug-or-url>` |
 
 ---
 
@@ -195,8 +244,8 @@ which is unaffected by HEAD state. No special handling needed.
 
 | Issue | Responsibility |
 |---|---|
-| beans-3u3 | Wire the full resolution chain in `cmd/bn/app.go`; add `--repo` flag to `newRootCmd` persistent flags |
-| beans-75l | `GetRepoBySlug(prefix, slug)` — the form-1 `--repo` lookup path |
+| beans-3u3 | Wire the full resolution chain in `cmd/bn/app.go`; add `--repo` flag; implement the Form 1/2/3 discriminator; synthesize `file://` URL for local-only repos |
+| beans-75l | `GetRepoBySlug` CMD integration — store method exists at `repo_store.go:424`; beans-75l wires it to the CLI `--repo <slug>` path |
 | beans-7kv | `bn repo add --path` (local-path registration, deferred) |
 | beans-kf2 | `gitResolver` seam (complete — provides `Toplevel` + `RemoteURL`) |
 
@@ -207,9 +256,13 @@ which is unaffected by HEAD state. No special handling needed.
 - **Multiple remotes**: `git config --get remote.origin.url` uses `origin` by
   convention. Support for `--remote-name` to select a different remote is
   deferred to a future issue.
-- **`file://` URL idempotency by path**: for local repos with a `file://`
-  remote, `NormalizeRemoteURL` produces a canonical `file:///abs/path` form;
-  idempotency is by that canonical URL, same as remote repos.
+- **`file://` URL idempotency by path**: for local repos (no remote and
+  local-only), `NormalizeRemoteURL` on the synthesized `file:///abs/toplevel`
+  URL produces a canonical form; idempotency is by that canonical URL, same as
+  remote repos. The `file://` synthesizer lives in the cwd-auto-detect layer
+  inside `cmd/bn` (not in the store or `gitResolver`).
 - **Cross-prefix auto-detect**: auto-detect never reads issues from multiple
   prefixes in one command. Each invocation is scoped to a single resolved
   prefix.
+- **`--require-repo` flag**: referenced as a possible future flag on commands
+  that mandate a repo context; not implemented in beans-3u3 scope.
