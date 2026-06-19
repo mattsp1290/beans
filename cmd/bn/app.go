@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,6 +31,9 @@ type appState struct {
 	// injectable seam for git workspace queries; defaults to realGitResolver
 	git gitResolver
 
+	// injectable seam for diagnostic warnings; defaults to os.Stderr
+	stderr io.Writer
+
 	// set by tryGitAutoDetect or resolveRepoContext; nil until resolved
 	resolvedRepo *store.Repo
 }
@@ -37,6 +41,9 @@ type appState struct {
 func newRootCmd(rs *appState) *cobra.Command {
 	if rs.git == nil {
 		rs.git = realGitResolver{}
+	}
+	if rs.stderr == nil {
+		rs.stderr = os.Stderr
 	}
 	root := &cobra.Command{
 		Use:           "bn",

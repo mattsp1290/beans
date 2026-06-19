@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -205,7 +206,18 @@ func (rs *appState) tryGitAutoDetect(ctx context.Context) error {
 		Actor:     rs.actor,
 	})
 	if err != nil {
-		return nil // auto-detect is best-effort; real errors surface elsewhere
+		// Auto-detect stays best-effort: a registration failure must not abort
+		// commands that don't need a resolved prefix. But we ARE in a git repo
+		// with a usable remote, so a failure here is unexpected and would
+		// otherwise surface only as a confusing downstream "prefix required"
+		// error. Surface the underlying cause for diagnosability, then fall
+		// through.
+		w := rs.stderr
+		if w == nil {
+			w = os.Stderr
+		}
+		fmt.Fprintf(w, "bn: git auto-detect: could not auto-register repo %q: %v\n", regURL, err)
+		return nil
 	}
 
 	rs.resolvedRepo = &repo

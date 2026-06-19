@@ -1,12 +1,47 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"strings"
 	"testing"
 
 	store "github.com/mattsp1290/beans/store"
 )
+
+// TestTryGitAutoDetectSurfacesRegisterError verifies that when AutoRegisterRepo
+// fails inside a real git repo (here: the store is closed), tryGitAutoDetect
+// stays best-effort (returns nil, leaves resolvedRepo unset) but writes a
+// diagnostic to rs.stderr so the failure does not surface only as a downstream
+// "prefix required" error.
+func TestTryGitAutoDetectSurfacesRegisterError(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, _ := newTestStore(t, "", "")
+	s.Close() // force AutoRegisterRepo to fail
+
+	var stderr bytes.Buffer
+	rs := &appState{
+		store:  s,
+		actor:  "test",
+		stderr: &stderr,
+		git: &fakeGitResolver{
+			toplevel:  "/home/alice/myapp",
+			remoteURL: "https://github.com/alice/myapp",
+		},
+	}
+
+	if err := rs.tryGitAutoDetect(ctx); err != nil {
+		t.Fatalf("tryGitAutoDetect should stay best-effort, got err: %v", err)
+	}
+	if rs.resolvedRepo != nil {
+		t.Fatal("resolvedRepo should be nil when registration failed")
+	}
+	if got := stderr.String(); !strings.Contains(got, "could not auto-register repo") {
+		t.Fatalf("expected diagnostic on stderr, got %q", got)
+	}
+}
 
 // TestTryGitAutoDetectRegistersNewRepo verifies that tryGitAutoDetect calls
 // AutoRegisterRepo with the git remote URL, sets rs.resolvedRepo, and sets
