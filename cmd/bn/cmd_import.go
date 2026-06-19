@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mattsp1290/beans/model"
 	store "github.com/mattsp1290/beans/store"
 )
 
@@ -81,7 +82,9 @@ close_reason and owner are not imported.`,
 					return err
 				}
 				rs.prefix = prefix
-				return nil
+				// Dry-run skips the DB but still validates statuses, so load the
+				// workflow config here too (initConn does it on the live path).
+				return rs.ensureWorkflow()
 			}
 			return rs.initConn(cmd.Context())
 		},
@@ -143,7 +146,7 @@ close_reason and owner are not imported.`,
 			}
 
 			result, err := rs.store.ImportIssuesFull(cmd.Context(), items, store.ImportOptions{
-				TerminalStates: defaultTerminalStates,
+				TerminalStates: activeWorkflow.Terminal,
 				Mode:           importMode,
 			})
 			if err != nil {
@@ -256,7 +259,7 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 			warnings++
 			continue
 		}
-		if !isAllowedState(raw.Status) {
+		if !activeWorkflow.IsValid(model.IssueState(raw.Status)) {
 			warnings++
 			continue
 		}

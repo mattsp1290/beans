@@ -35,7 +35,8 @@ type Issue struct {
 // Store is safe for concurrent use; the underlying database pool handles
 // concurrency.
 type Store struct {
-	p *pool
+	p        *pool
+	workflow model.WorkflowConfig
 }
 
 // New dials the configured database, runs migrations, and returns a ready Store.
@@ -51,12 +52,30 @@ func New(ctx context.Context, cfg Config) (*Store, error) {
 		p.close()
 		return nil, err
 	}
+	// SQLite DDL migrations that rebuild a table (e.g. 0010 dropping the state
+	// CHECK) must toggle PRAGMA foreign_keys and run their statements on a single
+	// connection — a different pooled connection would still enforce FKs and
+	// cascade-delete child rows on DROP TABLE. Pin to one connection for the
+	// migration window, then restore the default pool afterward.
+	if cfg.driverOrDefault() == DriverSQLite {
+		migrationDB.SetMaxOpenConns(1)
+	}
 	if err := schema.Migrate(ctx, migrationDB, cfg.schemaDriver()); err != nil {
 		p.close()
 		return nil, fmt.Errorf("store: migrate: %w", err)
 	}
+	if cfg.driverOrDefault() == DriverSQLite {
+		// Restore the configured pool sizing (0 == driver default / unlimited),
+		// undoing the single-connection pin used for the DDL migration.
+		migrationDB.SetMaxOpenConns(int(cfg.MaxConns))
+	}
 
-	return &Store{p: p}, nil
+	workflow := cfg.Workflow
+	if len(workflow.Statuses) == 0 {
+		workflow = model.DefaultWorkflowConfig()
+	}
+
+	return &Store{p: p, workflow: workflow}, nil
 }
 
 // Close releases all pool connections. Idempotent.
@@ -238,6 +257,7 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 
 	labels := encodedLabels(in.Labels)
 	typ := issueType(in.IssueType)
+	defaultState := string(s.workflow.DefaultState())
 
 	for range idGenRetries {
 		id, genErr := generateID(effectivePrefix)
@@ -254,7 +274,7 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 			Description: in.Description,
 			Priority:    in.Priority,
 			IssueType:   typ,
-			State:       "open",
+			State:       defaultState,
 			Labels:      datatypes.JSON(labels),
 			BranchName:  nullableStr(in.BranchName),
 			URL:         nullableStr(in.URL),
@@ -299,7 +319,7 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 					Title:       in.Title,
 					Description: in.Description,
 					Priority:    model.Priority(in.Priority + 1), // 0-indexed store → 1-indexed core
-					State:       "open",
+					State:       model.IssueState(defaultState),
 					Labels:      in.Labels,
 					BranchName:  in.BranchName,
 					URL:         in.URL,
@@ -548,7 +568,7 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 		updates["priority"] = *in.Priority
 	}
 	if in.State != nil {
-		if !isValidIssueState(*in.State) {
+		if !s.workflow.IsValid(*in.State) {
 			return Issue{}, fmt.Errorf("%w: %s", ErrInvalidIssueState, *in.State)
 		}
 		updates["state"] = string(*in.State)
@@ -1049,6 +1069,15 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 			}
 			if alreadyExists && existing.Prefix != item.Prefix {
 				result.CrossPrefixConflicts++
+				continue
+			}
+
+			// Write-strict: never persist a status outside the configured
+			// vocabulary. The CLI pre-filters import rows, but guard here too so
+			// the store boundary is self-defending now that the DB CHECK that
+			// previously rejected bad states is gone (migration 0010).
+			if item.State != "" && !s.workflow.IsValid(model.IssueState(item.State)) {
+				result.Skipped++
 				continue
 			}
 
@@ -1760,15 +1789,6 @@ func terminalStateSet(states []model.IssueState) map[model.IssueState]bool {
 		out[state] = true
 	}
 	return out
-}
-
-func isValidIssueState(state model.IssueState) bool {
-	switch state {
-	case "open", "in_progress", "blocked", "closed", "done":
-		return true
-	default:
-		return false
-	}
 }
 
 func lockDepGraphGuard(tx *gorm.DB) error {

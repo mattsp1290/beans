@@ -11,24 +11,6 @@ import (
 	store "github.com/mattsp1290/beans/store"
 )
 
-// cliTerminalStates is the set of states considered terminal at the CLI layer.
-// Matches the default used by bn ready and bn import.
-var cliTerminalStates = map[model.IssueState]bool{
-	"closed": true,
-	"done":   true,
-}
-
-// allowedStates is the complete set of valid issue states at the CLI boundary.
-// Validating here keeps bogus values out of the DB before they silently strand
-// issues (invisible to both ready and terminal accounting).
-var allowedStates = map[string]bool{
-	"open": true, "in_progress": true, "blocked": true, "closed": true, "done": true,
-}
-
-func isAllowedState(state string) bool {
-	return allowedStates[state]
-}
-
 func newUpdateCmd(rs *appState) *cobra.Command {
 	var (
 		claim          bool
@@ -58,7 +40,7 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 
 			// D6: check if the target state change would re-open a terminal issue.
 			// Both --claim (→ in_progress) and --status=<non-terminal> re-open.
-			wantsReopen := claim || repoChanged || (status != "" && !cliTerminalStates[model.IssueState(status)])
+			wantsReopen := claim || repoChanged || (status != "" && !activeWorkflow.IsTerminal(model.IssueState(status)))
 			if wantsReopen {
 				cur, err := rs.store.GetIssue(cmd.Context(), id)
 				if err != nil {
@@ -67,7 +49,7 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 					}
 					return fmt.Errorf("update: %w", err)
 				}
-				if cliTerminalStates[cur.State] && !force {
+				if activeWorkflow.IsTerminal(cur.State) && !force {
 					return fmt.Errorf(
 						"issue %s is %s (terminal); use --force to re-open",
 						id, cur.State,
@@ -90,8 +72,8 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 			}
 
 			if status != "" {
-				if !isAllowedState(status) {
-					return fmt.Errorf("invalid status %q (allowed: open, in_progress, blocked, closed, done)", status)
+				if !activeWorkflow.IsValid(model.IssueState(status)) {
+					return fmt.Errorf("invalid status %q (allowed: %s)", status, strings.Join(activeWorkflow.StatusNames(), ", "))
 				}
 				st := model.IssueState(status)
 				in.State = &st
@@ -155,7 +137,7 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 	}
 
 	cmd.Flags().BoolVar(&claim, "claim", false, "transition to in_progress and note 'claimed by <actor>'")
-	cmd.Flags().StringVar(&status, "status", "", "set state (open, in_progress, blocked, closed, done)")
+	cmd.Flags().StringVar(&status, "status", "", "set state (see configured workflow statuses; default: "+strings.Join(activeWorkflow.StatusNames(), ", ")+")")
 	cmd.Flags().StringVar(&title, "title", "", "set title")
 	cmd.Flags().StringVar(&description, "description", "", "set description")
 	cmd.Flags().StringVar(&notes, "notes", "", "append a note")

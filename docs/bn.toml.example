@@ -1,0 +1,51 @@
+# Example bn workflow status configuration.
+#
+# Copy to `bn.toml` (or convert to `bn.yaml`) in your project root, or point
+# BN_CONFIG at this file. With no config file present, bn uses these same
+# built-in defaults.
+#
+# Discovery precedence:
+#   1. BN_CONFIG=/path/to/bn.toml   (explicit; a missing file is an error)
+#   2. bn.toml / bn.yaml / bn.yml   (walking up from the working directory)
+#   3. $XDG_CONFIG_HOME/bn/config.{toml,yaml,yml}  (or ~/.config/bn/...)
+#
+# Any omitted key inherits the built-in default, so a file that sets only
+# `default` keeps the default vocabulary for everything else. Note the merge is
+# per-key: if you redefine `statuses` with a custom vocabulary, also redefine
+# `default`, `active`, and `terminal` — otherwise they keep their built-in
+# values (e.g. active=["open"]) which will no longer be in your `statuses` and
+# startup validation will reject the config.
+
+[workflow]
+# Ordered status vocabulary. Order drives display; the application layer rejects
+# any write (create / update --status / import) of a status not listed here.
+statuses = [
+  "open",
+  "in_progress",
+  "ready_for_review",
+  "ready_for_validation",
+  "ready_for_merge",
+  "blocked",
+  "closed",
+  "done",
+]
+
+# Status assigned to newly created issues. Must be one of `statuses`.
+default = "open"
+
+# Dispatchable statuses surfaced by `bn ready`. Must be a subset of `statuses`
+# and must not overlap `terminal`.
+active = ["open"]
+
+# Terminal statuses: they satisfy blocking dependencies and signal workspace
+# cleanup. Must be a subset of `statuses`.
+terminal = ["closed", "done"]
+
+# Optional, reserved for a future phase. When omitted, status transitions are
+# unrestricted (any valid status may move to any other). Enforcement is not yet
+# implemented; this section is accepted and validated but not applied.
+# [workflow.transitions]
+# in_progress          = ["ready_for_review"]
+# ready_for_review     = ["ready_for_validation", "in_progress"]
+# ready_for_validation = ["ready_for_merge", "ready_for_review"]
+# ready_for_merge      = ["closed"]
