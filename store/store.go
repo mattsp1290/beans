@@ -550,6 +550,15 @@ type AppendNotesInput struct {
 	Body  string
 }
 
+// IssueNote is one immutable note appended to an issue.
+type IssueNote struct {
+	ID        int64
+	IssueID   string
+	Actor     string
+	Body      string
+	CreatedAt time.Time
+}
+
 // UpdateIssue applies a partial update to an issue. Returns ErrNotFound if
 // the issue does not exist. At least one field must be set.
 func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput) (Issue, error) {
@@ -639,6 +648,63 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 		return Issue{}, err
 	}
 	return s.GetIssue(ctx, id)
+}
+
+// ListIssueNotes returns an issue's notes in append order. An issue with no
+// notes returns an empty slice.
+func (s *Store) ListIssueNotes(ctx context.Context, id string) ([]IssueNote, error) {
+	db, err := s.p.gorm()
+	if err != nil {
+		return nil, err
+	}
+
+	var rows []gormIssueNote
+	if err := db.WithContext(ctx).
+		Where("issue_id = ?", id).
+		Order("created_at ASC, id ASC").
+		Find(&rows).Error; err != nil {
+		return nil, fmt.Errorf("store: ListIssueNotes: %w", err)
+	}
+
+	notes := make([]IssueNote, 0, len(rows))
+	for _, row := range rows {
+		notes = append(notes, storeIssueNote(row))
+	}
+	return notes, nil
+}
+
+// LatestIssueNote returns the most recently appended note for an issue.
+func (s *Store) LatestIssueNote(ctx context.Context, id string) (IssueNote, error) {
+	db, err := s.p.gorm()
+	if err != nil {
+		return IssueNote{}, err
+	}
+
+	var row gormIssueNote
+	err = db.WithContext(ctx).
+		Where("issue_id = ?", id).
+		Order("created_at DESC, id DESC").
+		First(&row).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return IssueNote{}, fmt.Errorf("store: %w: note for issue %s", ErrNotFound, id)
+	}
+	if err != nil {
+		return IssueNote{}, fmt.Errorf("store: LatestIssueNote: %w", err)
+	}
+	return storeIssueNote(row), nil
+}
+
+func storeIssueNote(row gormIssueNote) IssueNote {
+	note := IssueNote{
+		ID:        row.ID,
+		IssueID:   row.IssueID,
+		Body:      row.Body,
+		CreatedAt: row.CreatedAt.Time,
+	}
+	if row.Actor != nil {
+		note.Actor = *row.Actor
+	}
+	return note
 }
 
 // CloseIssue sets an issue's state to "closed". Idempotent: closing an already-

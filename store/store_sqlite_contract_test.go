@@ -101,6 +101,34 @@ func TestSQLiteStoreContractIssueLifecycle(t *testing.T) {
 	if !closed.UpdatedAt.After(updated.UpdatedAt) {
 		t.Fatalf("closed updated_at = %s, want after %s", closed.UpdatedAt, updated.UpdatedAt)
 	}
+
+	notes, err := s.ListIssueNotes(ctx, created.ID)
+	if err != nil {
+		t.Fatalf("ListIssueNotes: %v", err)
+	}
+	if len(notes) != 3 {
+		t.Fatalf("ListIssueNotes len = %d, want 3", len(notes))
+	}
+	if notes[0].IssueID != created.ID || notes[0].Actor != "alice" || notes[0].Body != "created by alice" {
+		t.Fatalf("first note = %+v, want create note", notes[0])
+	}
+	if notes[1].IssueID != created.ID || notes[1].Actor != "alice" || notes[1].Body != "moving" {
+		t.Fatalf("second note = %+v, want appended update note", notes[1])
+	}
+	if notes[2].IssueID != created.ID || notes[2].Actor != "alice" || notes[2].Body != "done" {
+		t.Fatalf("third note = %+v, want close reason note", notes[2])
+	}
+	if !notes[1].CreatedAt.After(notes[0].CreatedAt) || !notes[2].CreatedAt.After(notes[1].CreatedAt) {
+		t.Fatalf("note order timestamps = %s, %s, %s; want append order", notes[0].CreatedAt, notes[1].CreatedAt, notes[2].CreatedAt)
+	}
+	latestNote, err := s.LatestIssueNote(ctx, created.ID)
+	if err != nil {
+		t.Fatalf("LatestIssueNote: %v", err)
+	}
+	if latestNote.ID != notes[2].ID || latestNote.Body != "done" {
+		t.Fatalf("LatestIssueNote = %+v, want third note %+v", latestNote, notes[2])
+	}
+
 	if err := s.CloseIssue(ctx, created.ID, "alice", "duplicate close"); err != nil {
 		t.Fatalf("CloseIssue idempotent: %v", err)
 	}
@@ -110,6 +138,27 @@ func TestSQLiteStoreContractIssueLifecycle(t *testing.T) {
 	}
 	if !closedAgain.UpdatedAt.Equal(closed.UpdatedAt) {
 		t.Fatalf("idempotent close changed updated_at from %s to %s", closed.UpdatedAt, closedAgain.UpdatedAt)
+	}
+
+	withoutNotes, err := s.CreateIssue(ctx, CreateIssueInput{
+		Prefix:      prefix,
+		Title:       "no notes",
+		Description: "empty note timeline",
+		Priority:    int(model.PriorityMedium),
+		IssueType:   "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue without notes: %v", err)
+	}
+	emptyNotes, err := s.ListIssueNotes(ctx, withoutNotes.ID)
+	if err != nil {
+		t.Fatalf("ListIssueNotes empty: %v", err)
+	}
+	if len(emptyNotes) != 0 {
+		t.Fatalf("ListIssueNotes empty len = %d, want 0", len(emptyNotes))
+	}
+	if _, err := s.LatestIssueNote(ctx, withoutNotes.ID); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("LatestIssueNote empty err = %v, want ErrNotFound", err)
 	}
 
 	if err := s.DeleteIssue(ctx, created.ID); err != nil {
