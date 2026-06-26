@@ -1,0 +1,40 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 10,
+  "branch": "bead-swarm/iteration-10-extend-gitresolver-seam-to-capture-full",
+  "slug": "extend-gitresolver-seam-to-capture-full",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "parent-degraded",
+  "degraded_reason": "Codex spawn_agent tooling was unavailable; one selected bead was implemented serially. Review requirement was satisfied with two independent Codex exec subagents.",
+  "selected_beads": ["beans-ceh.8"],
+  "beads_done": ["beans-ceh.8"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./cmd/bn -run 'Test(FakeGitResolverHeadCommitRecordsCallArgs|RealGitResolverHeadCommit|IsFullLowercaseHexCommit)' passed",
+    "go test ./cmd/bn passed",
+    "make test passed"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "degraded",
+  "findings_fixed_re_reviewed": false,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [
+    "Git Fixture Edge Reviewer requested explicit tests for missing git and permission-denied HeadCommit failures; fixed in commit 992638e80bfe4d18054ad96b9f204fcbabdf77f4."
+  ],
+  "reviews": [
+    {
+      "reviewer": "resolver-correctness-reviewer",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-10-extend-gitresolver-seam-to-capture-full-2026-06-26/resolver-correctness-reviewer/04-action-items.md"
+    },
+    {
+      "reviewer": "git-fixture-edge-reviewer",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-10-extend-gitresolver-seam-to-capture-full-2026-06-26/git-fixture-edge-reviewer/04-action-items.md"
+    }
+  ],
+  "status": "complete"
+}

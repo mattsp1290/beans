@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-10-extend-gitresolver-seam-to-capture-full",
+  "base_ref": "main",
+  "head_sha": "fddd6aac70f85d22423dbc576a03749a554a6e76",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "resolver-correctness-reviewer",
+      "display_name": "Resolver Correctness Reviewer",
+      "role": "Focuses on production resolver semantics, failure handling, and API contract compatibility."
+    },
+    {
+      "slug": "git-fixture-edge-reviewer",
+      "display_name": "Git Fixture Edge Reviewer",
+      "role": "Focuses on git fixture realism, edge-case coverage, and test maintainability."
+    }
+  ]
+}
