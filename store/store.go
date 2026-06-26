@@ -622,10 +622,22 @@ func (s *Store) UpdateIssue(ctx context.Context, id string, in UpdateIssueInput)
 		}
 
 		if in.Repo != nil {
+			repoIn := *in.Repo
+			if _, err := validateCreationCommit(repoIn.CreationCommit); err != nil {
+				return fmt.Errorf("store: UpdateIssue repo creation_commit: %w", err)
+			}
+			var existingRepo gormIssueRepo
+			err := tx.Select("creation_commit").Where("issue_id = ?", id).First(&existingRepo).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("store: UpdateIssue repo fetch: %w", err)
+			}
+			if err == nil {
+				repoIn.CreationCommit = existingRepo.CreationCommit
+			}
 			if err := tx.Where("issue_id = ?", id).Delete(&gormIssueRepo{}).Error; err != nil {
 				return fmt.Errorf("store: UpdateIssue repo delete: %w", err)
 			}
-			if _, err := insertIssueRepoGORM(ctx, tx, id, prefix, *in.Repo); err != nil {
+			if _, err := insertIssueRepoGORM(ctx, tx, id, prefix, repoIn); err != nil {
 				return err
 			}
 			if err := tx.Model(&gormIssue{}).

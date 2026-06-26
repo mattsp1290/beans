@@ -636,6 +636,16 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("CreateRepo: %v", err)
 	}
+	if _, err := s.CreateRepo(ctx, CreateRepoInput{
+		Prefix:        prefix,
+		Slug:          "api",
+		RemoteURL:     "git@github.com:punk1290/api.git",
+		AuthRef:       "ssh-key:github-default",
+		DefaultBranch: "main",
+		Actor:         "alice",
+	}); err != nil {
+		t.Fatalf("CreateRepo api: %v", err)
+	}
 	issue, err := s.CreateIssue(ctx, CreateIssueInput{
 		Prefix: prefix,
 		Title:  "Targeted",
@@ -689,6 +699,68 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 		t.Fatalf("ReadyIssues repo creation_commit = %+v, want %q", ready, creationCommit)
 	}
 
+	retargeted, err := s.UpdateIssue(ctx, issue.ID, UpdateIssueInput{
+		Repo: &IssueRepoInput{RepoSlug: "api"},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue retarget repo: %v", err)
+	}
+	if retargeted.Repo == nil ||
+		retargeted.Repo.Slug != "api" ||
+		retargeted.Repo.CreationCommit != creationCommit {
+		t.Fatalf("retargeted repo = %+v, want api preserving creation_commit %q", retargeted.Repo, creationCommit)
+	}
+
+	updatedRoute, err := s.UpdateIssue(ctx, issue.ID, UpdateIssueInput{
+		Repo: &IssueRepoInput{
+			RepoSlug:       "api",
+			RequestedRef:   "release",
+			WorktreeSubdir: "services/api",
+		},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue repo ref/subdir: %v", err)
+	}
+	if updatedRoute.Repo == nil ||
+		updatedRoute.Repo.RequestedRef != "release" ||
+		updatedRoute.Repo.WorktreeSubdir != "services/api" ||
+		updatedRoute.Repo.CreationCommit != creationCommit {
+		t.Fatalf("updated repo route = %+v, want ref/subdir update preserving creation_commit %q", updatedRoute.Repo, creationCommit)
+	}
+
+	differentValidCommit := "89abcdef0123456789abcdef0123456789abcdef"
+	preserved, err := s.UpdateIssue(ctx, issue.ID, UpdateIssueInput{
+		Repo: &IssueRepoInput{
+			RepoSlug:       "core",
+			CreationCommit: differentValidCommit,
+			WorktreeSubdir: "services/core",
+		},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue repo explicit replacement commit: %v", err)
+	}
+	if preserved.Repo == nil ||
+		preserved.Repo.Slug != "core" ||
+		preserved.Repo.CreationCommit != creationCommit {
+		t.Fatalf("explicit replacement commit repo = %+v, want original creation_commit %q", preserved.Repo, creationCommit)
+	}
+
+	_, err = s.UpdateIssue(ctx, issue.ID, UpdateIssueInput{
+		Repo: &IssueRepoInput{RepoSlug: "core", CreationCommit: "HEAD"},
+	})
+	if err == nil || !strings.Contains(err.Error(), "creation_commit") || !strings.Contains(err.Error(), "full lowercase 40-character hex object ID") {
+		t.Fatalf("UpdateIssue invalid creation_commit error = %v, want clear validation error", err)
+	}
+	afterInvalidUpdate, err := s.GetIssue(ctx, issue.ID)
+	if err != nil {
+		t.Fatalf("GetIssue after invalid UpdateIssue creation_commit: %v", err)
+	}
+	if afterInvalidUpdate.Repo == nil ||
+		afterInvalidUpdate.Repo.CreationCommit != creationCommit ||
+		afterInvalidUpdate.Repo.Slug != "core" {
+		t.Fatalf("repo after invalid UpdateIssue creation_commit = %+v, want unchanged core target with %q", afterInvalidUpdate.Repo, creationCommit)
+	}
+
 	emptyCommitIssue, err := s.CreateIssue(ctx, CreateIssueInput{
 		Prefix: prefix,
 		Title:  "Targeted empty commit",
@@ -699,6 +771,40 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	}
 	if emptyCommitIssue.Repo == nil || emptyCommitIssue.Repo.CreationCommit != "" {
 		t.Fatalf("empty creation_commit repo target = %+v, want empty string", emptyCommitIssue.Repo)
+	}
+
+	updateEmptyCommitIssue, err := s.CreateIssue(ctx, CreateIssueInput{
+		Prefix: prefix,
+		Title:  "Update adds empty commit repo",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue update-empty target: %v", err)
+	}
+	updateEmptyCommitIssue, err = s.UpdateIssue(ctx, updateEmptyCommitIssue.ID, UpdateIssueInput{
+		Repo: &IssueRepoInput{RepoSlug: "core", CreationCommit: ""},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue with empty creation_commit: %v", err)
+	}
+	if updateEmptyCommitIssue.Repo == nil || updateEmptyCommitIssue.Repo.CreationCommit != "" {
+		t.Fatalf("UpdateIssue empty creation_commit repo target = %+v, want empty string", updateEmptyCommitIssue.Repo)
+	}
+
+	updateImportedCommitIssue, err := s.CreateIssue(ctx, CreateIssueInput{
+		Prefix: prefix,
+		Title:  "Update adds imported commit repo",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue update-import target: %v", err)
+	}
+	updateImportedCommitIssue, err = s.UpdateIssue(ctx, updateImportedCommitIssue.ID, UpdateIssueInput{
+		Repo: &IssueRepoInput{RepoSlug: "core", CreationCommit: differentValidCommit},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue with imported creation_commit: %v", err)
+	}
+	if updateImportedCommitIssue.Repo == nil || updateImportedCommitIssue.Repo.CreationCommit != differentValidCommit {
+		t.Fatalf("UpdateIssue imported creation_commit repo target = %+v, want %q", updateImportedCommitIssue.Repo, differentValidCommit)
 	}
 
 	invalidCommits := []string{
@@ -721,8 +827,8 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListIssues after invalid creation_commit: %v", err)
 	}
-	if len(afterInvalid) != 2 {
-		t.Fatalf("issue count after invalid creation_commit attempts = %d, want 2", len(afterInvalid))
+	if len(afterInvalid) != 4 {
+		t.Fatalf("issue count after invalid creation_commit attempts = %d, want 4", len(afterInvalid))
 	}
 
 	_, err = s.CreateIssue(ctx, CreateIssueInput{
