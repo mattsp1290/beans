@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-4-preserve-creation-commit-when-updateissue",
+  "base_ref": "main",
+  "head_sha": "9857c8053ef8d82ceaf61f3aa9a24f615477a521",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "creation-commit-preservation",
+      "display_name": "Creation Commit Preservation",
+      "role": "Checks UpdateIssue preservation of bn_issue_repos.creation_commit and acceptance coverage for beans-ceh.6."
+    },
+    {
+      "slug": "update-route-contract",
+      "display_name": "Update Route Contract",
+      "role": "Checks transactional correctness, validation ordering, update route semantics, and regression risk."
+    }
+  ]
+}
