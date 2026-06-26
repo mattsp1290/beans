@@ -1,0 +1,11 @@
+{
+  "iteration": 13,
+  "branch": "bead-swarm/iteration-13-document-creation-time-commit-snapshots",
+  "slug": "document-creation-time-commit-snapshots",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "selected_beads": ["beans-ceh.14"],
+  "beads_done_pending_close": [],
+  "beads_blocked": [],
+  "beads_partial": []
+}
