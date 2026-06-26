@@ -1,0 +1,11 @@
+{
+  "iteration": 3,
+  "branch": "bead-swarm/iteration-3-thread-creationcommit-through-issuerepoinp",
+  "slug": "thread-creationcommit-through-issuerepoinp",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "selected_beads": ["beans-ceh.5"],
+  "beads_done_pending_close": [],
+  "beads_blocked": [],
+  "beads_partial": []
+}
