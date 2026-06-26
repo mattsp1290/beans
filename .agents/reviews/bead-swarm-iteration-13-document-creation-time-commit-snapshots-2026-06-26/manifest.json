@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-13-document-creation-time-commit-snapshots",
+  "base_ref": "main",
+  "head_sha": "1137d1d5d4507acfdc1ee3301306e1895de358f1",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "routing-semantics-reviewer",
+      "display_name": "Routing Semantics Reviewer",
+      "role": "Checks whether the docs accurately describe repo resolution, identity matching, and creation_commit persistence semantics."
+    },
+    {
+      "slug": "operator-docs-reviewer",
+      "display_name": "Operator Docs Reviewer",
+      "role": "Checks whether the README and specs are clear, actionable, and complete for users operating multi-repo workflows."
+    }
+  ]
+}

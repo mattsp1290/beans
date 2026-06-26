@@ -45,8 +45,9 @@ return value (`Repo.Prefix`). A prefix explicitly set via `--project` or
 command), the resolved auto-detect prefix is used **only for the repo
 association** — the explicit prefix remains the command's operating prefix.
 If the two disagree (explicit prefix ≠ auto-detected prefix), the explicit
-prefix is used and the issue is created under that project with the
-auto-registered repo's slug attached.
+prefix is used and the auto-detected repo is not attached to the issue. This
+prevents an issue under one project from silently linking to a repo row owned by
+another prefix.
 
 ---
 
@@ -224,7 +225,7 @@ The cwd auto-detect path MUST synthesize a `file://` URL from the git toplevel
 instead:
 
 ```
-file_url = "file://" + gitToplevl   // e.g. "file:///home/alice/my_project"
+file_url = "file://" + gitToplevel   // e.g. "file:///home/alice/my_project"
 ```
 
 `AutoRegisterRepo` is then called with `RemoteURL: file_url`. `NormalizeRemoteURL`
