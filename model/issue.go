@@ -100,6 +100,7 @@ type RepoTarget struct {
 	BaseRef        string         `json:"base_ref,omitempty" db:"base_ref"`
 	WorkBranch     string         `json:"work_branch,omitempty" db:"work_branch"`
 	WorktreeSubdir string         `json:"worktree_subdir,omitempty" db:"worktree_subdir"`
+	CreationCommit string         `json:"creation_commit,omitempty" db:"creation_commit"`
 	CloneStrategy  string         `json:"clone_strategy" db:"clone_strategy"`
 	AuthRef        string         `json:"auth_ref" db:"auth_ref"`
 	Metadata       map[string]any `json:"metadata,omitempty" db:"metadata"`

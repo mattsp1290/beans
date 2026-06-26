@@ -149,6 +149,7 @@ type gormIssueRepo struct {
 	BaseRef        string         `gorm:"column:base_ref;not null"`
 	WorkBranch     string         `gorm:"column:work_branch;not null"`
 	WorktreeSubdir string         `gorm:"column:worktree_subdir;not null"`
+	CreationCommit string         `gorm:"column:creation_commit;not null"`
 	Metadata       datatypes.JSON `gorm:"column:metadata;not null"`
 	CreatedAt      gormTime       `gorm:"column:created_at;not null"`
 	UpdatedAt      gormTime       `gorm:"column:updated_at;not null"`
