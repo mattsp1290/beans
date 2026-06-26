@@ -55,8 +55,9 @@ func TestCreateAutoDetectsAndLinksRepo(t *testing.T) {
 		prefix: repo.Prefix,
 		actor:  "test",
 		git: &fakeGitResolver{
-			toplevel:  "/home/alice/myapp",
-			remoteURL: "https://github.com/alice/myapp",
+			toplevel:   "/home/alice/myapp",
+			remoteURL:  "https://github.com/alice/myapp",
+			headCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		},
 	}
 
@@ -85,6 +86,9 @@ func TestCreateAutoDetectsAndLinksRepo(t *testing.T) {
 	}
 	if got.Repo.Slug != repo.Slug {
 		t.Fatalf("issue.Repo.Slug = %q, want %q", got.Repo.Slug, repo.Slug)
+	}
+	if got.Repo.CreationCommit != "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" {
+		t.Fatalf("issue.Repo.CreationCommit = %q, want cwd HEAD", got.Repo.CreationCommit)
 	}
 }
 

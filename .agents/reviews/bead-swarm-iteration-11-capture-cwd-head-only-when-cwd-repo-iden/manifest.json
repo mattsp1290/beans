@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-11-capture-cwd-head-only-when-cwd-repo-iden",
+  "base_ref": "main",
+  "head_sha": "e83fb869bf2ed15158a1a3466cf2518b3dd747ed",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "repo-identity-correctness-auditor",
+      "display_name": "Repo Identity Correctness Auditor",
+      "role": "Checks whether creation_commit capture is gated by the same normalized repo identity that create links."
+    },
+    {
+      "slug": "cli-regression-coverage-auditor",
+      "display_name": "CLI Regression Coverage Auditor",
+      "role": "Checks command behavior, edge-case coverage, and regression risk around create-time repo routing."
+    }
+  ]
+}
