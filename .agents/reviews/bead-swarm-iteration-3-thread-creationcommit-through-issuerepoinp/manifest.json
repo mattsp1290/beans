@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-3-thread-creationcommit-through-issuerepoinp",
+  "base_ref": "main",
+  "head_sha": "547ae3057f11034e15ba3d7775f9e5a701d278ff",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "store-boundary-correctness",
+      "display_name": "Store Boundary Correctness",
+      "role": "Checks validation, persistence, and transactional behavior at the store API boundary."
+    },
+    {
+      "slug": "hydration-contract-coverage",
+      "display_name": "Hydration Contract Coverage",
+      "role": "Checks read-path hydration consistency and focused test coverage against the acceptance criteria."
+    }
+  ]
+}
