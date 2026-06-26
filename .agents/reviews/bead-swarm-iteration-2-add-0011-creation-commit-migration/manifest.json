@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-2-add-0011-creation-commit-migration",
+  "base_ref": "main",
+  "head_sha": "16aaf126893cada37ec6dee87b030ddde1dbe081",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "schema-migration-correctness",
+      "display_name": "Schema Migration Correctness Reviewer",
+      "role": "Verify migration ordering, DDL expectations, and runtime migration behavior for schema safety."
+    },
+    {
+      "slug": "dialect-portability",
+      "display_name": "Dialect Portability Reviewer",
+      "role": "Independently check dialect-specific SQL compatibility, cross-database parity, and test coverage gaps."
+    }
+  ]
+}
