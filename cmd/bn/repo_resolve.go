@@ -156,7 +156,22 @@ func (rs *appState) cwdCreationCommitForRepo(ctx context.Context, selected *stor
 	if err != nil || !ok {
 		return ""
 	}
+	if !isFullLowerHexObjectID(sha) {
+		return ""
+	}
 	return sha
+}
+
+func isFullLowerHexObjectID(value string) bool {
+	if len(value) != 40 {
+		return false
+	}
+	for _, ch := range value {
+		if !((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f')) {
+			return false
+		}
+	}
+	return true
 }
 
 // resolveListFilter builds a ListFilter for listing commands (list, ready, dep

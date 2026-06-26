@@ -122,7 +122,7 @@ func newCreateCmd(rs *appState) *cobra.Command {
 			}
 
 			if rs.jsonOut {
-				return writeJSON(toIssueJSON(iss))
+				return writeJSONTo(cmd.OutOrStdout(), toIssueJSON(iss))
 			}
 
 			fmt.Fprintf(cmd.OutOrStdout(), "Created %s: %s\n", iss.ID, iss.Title)
