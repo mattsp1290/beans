@@ -21,8 +21,8 @@ import (
 //
 // The system is read-tolerant / write-strict: callers must reject *writes* of a
 // status outside Statuses, but reading a row whose status is not in the config
-// must never panic — an unknown status classifies as Hold (conservatively
-// excluded from dispatch and never counted terminal).
+// must never panic. Unknown statuses are invalid, non-active, and non-terminal,
+// so they are conservatively excluded from dispatch and never counted done.
 type WorkflowConfig struct {
 	// Statuses is the ordered status vocabulary. Order drives display.
 	Statuses []IssueState
