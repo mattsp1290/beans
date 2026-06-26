@@ -2098,6 +2098,37 @@ func TestUpdateIssueRepoTarget(t *testing.T) {
 		t.Fatalf("updated repo metadata = %+v, want reason=test", got.Repo.Metadata)
 	}
 
+	reset, err := s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{
+		Repo: &store.IssueRepoInput{RepoSlug: "repo-a"},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue retarget with repo only: %v", err)
+	}
+	if reset.Repo == nil || reset.Repo.ID != repoA.ID || reset.Repo.Slug != "repo-a" {
+		t.Fatalf("repo-only retarget repo = %+v, want repo-a", reset.Repo)
+	}
+	if reset.Repo.RequestedRef != "" ||
+		reset.Repo.BaseRef != "main" ||
+		reset.Repo.WorktreeSubdir != "" ||
+		len(reset.Repo.Metadata) != 0 {
+		t.Fatalf("repo-only retarget carried old issue repo fields: %+v", reset.Repo)
+	}
+
+	got, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       "repo-b",
+			RequestedRef:   "feature/input",
+			WorktreeSubdir: "services/override",
+			Metadata:       map[string]any{"reason": "test"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("UpdateIssue restore repo-b target: %v", err)
+	}
+	if got.Repo == nil || got.Repo.ID != repoB.ID {
+		t.Fatalf("restored repo = %+v, want repo-b", got.Repo)
+	}
+
 	badTitle := "should rollback"
 	badSubdir := "."
 	_, err = s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{

@@ -113,8 +113,14 @@ func TestTryGitAutoDetectLocalOnlyRepo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetRepoByRemoteURL file:///home/alice/local-only: %v", err)
 	}
+	if got.RemoteURL != "file:///home/alice/local-only" {
+		t.Fatalf("registered remote URL = %q, want synthesized file:///home/alice/local-only", got.RemoteURL)
+	}
 	if got.Slug != rs.resolvedRepo.Slug {
 		t.Fatalf("store slug %q != resolvedRepo slug %q", got.Slug, rs.resolvedRepo.Slug)
+	}
+	if rs.prefix != got.Prefix {
+		t.Fatalf("prefix = %q, want synthesized repo prefix %q", rs.prefix, got.Prefix)
 	}
 }
 

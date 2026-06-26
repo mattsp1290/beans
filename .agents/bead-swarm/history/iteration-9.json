@@ -1,0 +1,42 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 9,
+  "branch": "bead-swarm/iteration-9-add-characterization-tests-for-current-re",
+  "slug": "add-characterization-tests-for-current-re",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "orchestrator-subagent",
+  "degraded_reason": null,
+  "selected_beads": ["beans-ceh.3"],
+  "beads_done": ["beans-ceh.3"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./cmd/bn: pass",
+    "go test -tags=integration ./store -run TestUpdateIssueRepoTarget -count=1: pass",
+    "go test ./store: pass",
+    "make test: pass",
+    "post-review go test ./cmd/bn: pass",
+    "post-review go test -tags=integration ./store -run TestUpdateIssueRepoTarget -count=1: pass",
+    "post-review make test: pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": true,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [],
+  "reviews": [
+    {
+      "reviewer": "route-precedence-auditor",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-9-add-characterization-tests-for-current-re/route-precedence-auditor/04-action-items.md"
+    },
+    {
+      "reviewer": "retarget-contract-auditor",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-9-add-characterization-tests-for-current-re/retarget-contract-auditor/04-action-items.md"
+    }
+  ],
+  "status": "complete"
+}
