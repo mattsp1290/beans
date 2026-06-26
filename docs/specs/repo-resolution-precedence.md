@@ -67,6 +67,48 @@ the `.bn` marker repo field are both skipped. The `.bn` marker repo field
 a repo context error at priority 4 with: `"this command requires a repo; use
 --repo <slug-or-url>"`.
 
+### Creation-time commit snapshot
+
+When `bn create` creates an issue with a repo link, it makes a best-effort
+snapshot of the exact cwd `HEAD` commit and stores it on the issue's
+`bn_issue_repos.creation_commit` field. This is immutable issue metadata: it
+describes where the associated repo was when the issue was created. It is not a
+field on the `bn_repos` registry row, and changing a repo's registration later
+does not rewrite existing issue snapshots.
+
+The snapshot is captured only after the repo-resolution chain selects the issue
+repo, and only when the cwd git identity resolves to the same registered repo
+row:
+
+| Selected repo source | Capture rule |
+|---|---|
+| Cwd git auto-detect | Auto-detect registers or resolves the cwd repo, selects that same repo for the issue, then records `git rev-parse HEAD` from that cwd repo. |
+| `.bn` marker `repo` field | The marker selects the repo. `bn create` still probes cwd git identity and records HEAD only if the cwd remote (or local-only `file://` identity) resolves to that marker repo row. |
+| Explicit `--repo` | The flag selects the repo. `bn create` records cwd HEAD only if the cwd repo identity resolves to the same repo row selected by the flag. |
+| No repo context | No `bn_issue_repos` row is created, so no commit snapshot exists. |
+
+The comparison uses registered repo identity, not string equality on the raw
+flag or marker value. Remote URLs are normalized through the repo registry, and
+local-only repos use the same synthesized `file:///abs/git-toplevel` identity
+described below.
+
+Dirty state is intentionally not recorded. The snapshot is just the full
+lowercase 40-character object ID returned by `git rev-parse HEAD`; it does not
+include whether the worktree had staged or unstaged changes, untracked files, or
+a generated diff.
+
+If the cwd repo does not match the selected repo, `creation_commit` is left
+empty and the issue link still points at the selected repo. If the prefix guard
+rejects an auto-detected repo because the command is operating under a different
+explicit project prefix, no repo link is attached and therefore no snapshot is
+stored.
+
+Snapshot capture is best-effort. It leaves `creation_commit` empty when cwd is
+outside a git worktree, the cwd repo cannot be resolved in the registry, HEAD is
+unborn or otherwise unavailable, git returns an error, or the resolved HEAD is
+not a full lowercase 40-character hex object ID. These failures do not block
+issue creation.
+
 ### Repo-aware commands and auto-detect opt-in
 
 Auto-detect is not a global behavior — each command must explicitly opt in by
@@ -203,6 +245,10 @@ so future invocations use the `.bn` marker (priority 2) and skip auto-detect.
 Note: the file URL key is the **resolved absolute path of the git toplevel**,
 not the cwd. This ensures two sessions in different subdirectories of the same
 repo resolve to the same registration.
+
+Creation-time commit snapshots for local-only repos use this same synthesized
+`file://` identity. A local-only issue captures cwd HEAD only when the selected
+repo row is the row registered for that exact git toplevel path.
 
 ### 4. Nested / submodule repos
 

@@ -195,6 +195,13 @@ string and (b) is not already present in `bn_projects`.
   keyed on the **normalized remote URL** (via `GetRepoByRemoteURL`), never on the
   derived slug. Two distinct remotes that happen to normalize to the same slug are
   distinct repos; only an exact URL match is a duplicate.
+- **Creation commit is issue metadata, not registry state:** `creation_commit`
+  lives on `bn_issue_repos`, where it snapshots the selected issue repo's cwd
+  `HEAD` at issue creation time when the cwd git identity matches that selected
+  repo. It is not part of the `bn_repos` row, so auto-register idempotency,
+  slug disambiguation, and repo updates never mutate historical issue snapshots.
+  The snapshot records only the exact commit object ID; dirty worktree state is
+  intentionally outside topology (a) and outside repo registry semantics.
 
 ### Transaction safety
 

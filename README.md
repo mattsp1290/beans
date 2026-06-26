@@ -109,6 +109,19 @@ database. The current repository is auto-detected from the git remote URL; no
   resolve to the same entry.
 - **Local-only repos** (no remote) get a synthetic `file:///` URL key so they
   can still be registered and tracked.
+- **Creation commit**: Issues linked to a repo store the exact cwd `HEAD`
+  commit at creation time in `creation_commit` when the cwd repo identity
+  matches the selected issue repo. Dirty state is not recorded.
+
+Creation-commit capture follows repo selection. With normal auto-detect, the
+auto-detected cwd repo is selected and its HEAD is stored. With an active `.bn`
+repo marker or an explicit `--repo`, that selected repo still captures HEAD only
+when the current directory resolves to the same registered repo row. Local-only
+repos compare by the synthesized `file:///abs/git-toplevel` identity. If cwd is
+outside git, HEAD is unavailable, git returns an unusable object ID, or cwd is a
+different registered repo, issue creation still succeeds and `creation_commit`
+is left empty. The field is immutable issue routing metadata on
+`bn_issue_repos`, not mutable repo registry state.
 
 ### Example: two repos sharing a database
 
