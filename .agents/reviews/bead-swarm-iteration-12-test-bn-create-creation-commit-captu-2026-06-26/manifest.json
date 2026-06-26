@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-12-test-bn-create-creation-commit-captu",
+  "base_ref": "main",
+  "head_sha": "565d196b8440cc0dbb8026fa8265e9dfb1a23954",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "capture-boundary-auditor",
+      "display_name": "Capture Boundary Auditor",
+      "role": "Focuses on creation_commit capture correctness, identity guards, and invalid git output handling."
+    },
+    {
+      "slug": "cli-contract-sentinel",
+      "display_name": "CLI Contract Sentinel",
+      "role": "Focuses on CLI JSON/output contracts, test reliability, and regression risk around command behavior."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 12,
+  "branch": "bead-swarm/iteration-12-test-bn-create-creation-commit-captu",
+  "slug": "test-bn-create-creation-commit-captu",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "parent-degraded",
+  "degraded_reason": "native spawn_agent/wait_agent subagent tools were unavailable; single-bead implementation was performed in the orchestrator, with two independent Codex exec reviewer subagents for the review gate",
+  "selected_beads": ["beans-ceh.10"],
+  "beads_done": ["beans-ceh.10"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./cmd/bn: pass",
+    "make test: pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": true,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [],
+  "reviews": [
+    {
+      "reviewer": "capture-boundary-auditor",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-12-test-bn-create-creation-commit-captu-2026-06-26/capture-boundary-auditor/04-action-items.md",
+      "critical": 0,
+      "important": 0,
+      "suggestions": 2
+    },
+    {
+      "reviewer": "cli-contract-sentinel",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-12-test-bn-create-creation-commit-captu-2026-06-26/cli-contract-sentinel/04-action-items.md",
+      "critical": 0,
+      "important": 0,
+      "suggestions": 1
+    }
+  ],
+  "status": "complete"
+}
