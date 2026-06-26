@@ -1,0 +1,54 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 14,
+  "branch": "bead-swarm/iteration-14-run-creation-commit-feature-quality-gates",
+  "slug": "run-creation-commit-feature-quality-gates",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "orchestrator-subagent",
+  "degraded_reason": "Implementation worker subagents were not used because max workers was 1 and the selected bead was a gate/regression-fix task. Reviews ran as two independent codex exec subprocesses.",
+  "selected_beads": [
+    "beans-ceh.15"
+  ],
+  "beads_done": [
+    "beans-ceh.15"
+  ],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "docker info --format '{{.ServerVersion}}': passed, Docker server 28.3.3 available; Docker-backed testcontainers gate was run",
+    "make test: passed before code fix",
+    "make vet: passed before code fix",
+    "make lint: failed with installed golangci-lint v2.1.6 built with go1.24.4 against repo Go target 1.25",
+    "PATH=/tmp/beans-golangci-new.2tW0bU:$PATH make lint: failed before code fix with staticcheck QF1001 in cmd/bn/cmd_import.go, cmd/bn/repo_resolve.go, and store/store.go",
+    "make test: passed after code fix",
+    "make vet: passed after code fix",
+    "PATH=/tmp/beans-golangci-new.2tW0bU:$PATH make lint: passed after code fix, 0 issues",
+    "go test -tags=integration ./...: passed after code fix; store package completed in 138.869s"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": true,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [],
+  "reviews": [
+    {
+      "reviewer": "schema-contract-reviewer",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-14-run-creation-commit-feature-quality-gates/schema-contract-reviewer/04-action-items.md",
+      "critical_count": 0,
+      "important_count": 0,
+      "suggestion_count": 0
+    },
+    {
+      "reviewer": "cli-json-reviewer",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-14-run-creation-commit-feature-quality-gates/cli-json-reviewer/04-action-items.md",
+      "critical_count": 0,
+      "important_count": 0,
+      "suggestion_count": 0
+    }
+  ],
+  "status": "complete"
+}
