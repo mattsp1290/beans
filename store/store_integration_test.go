@@ -383,6 +383,34 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 			t.Fatalf("ReadyIssues = %+v, want issue %v with creation_commit %q", readyIssues, want, creationCommit)
 		}
 
+		_, err = s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: prefix,
+			Title:  "Invalid commit target",
+			Repo:   &store.IssueRepoInput{RepoSlug: "core", CreationCommit: "HEAD"},
+		})
+		if err == nil || !strings.Contains(err.Error(), "creation_commit") {
+			t.Fatalf("CreateIssue invalid creation_commit = %v, want validation error", err)
+		}
+		afterInvalidCreate, err := s.ListIssues(ctx, store.ListFilter{Prefix: prefix})
+		if err != nil {
+			t.Fatalf("ListIssues after invalid creation_commit: %v", err)
+		}
+		if got, want := issueIDs(afterInvalidCreate), []string{issue.ID}; !slices.Equal(got, want) {
+			t.Fatalf("issues after invalid creation_commit = %v, want %v", got, want)
+		}
+
+		emptyCommitIssue, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix: prefix,
+			Title:  "Default empty commit target",
+			Repo:   &store.IssueRepoInput{RepoSlug: "core", CreationCommit: ""},
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue empty creation_commit: %v", err)
+		}
+		if emptyCommitIssue.Repo == nil || emptyCommitIssue.Repo.CreationCommit != "" {
+			t.Fatalf("empty creation_commit repo target = %+v, want empty string", emptyCommitIssue.Repo)
+		}
+
 		retargeted, err := s.UpdateIssue(ctx, issue.ID, store.UpdateIssueInput{
 			Repo: &store.IssueRepoInput{
 				RepoSlug:       "api",
@@ -397,12 +425,31 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 			retargeted.Repo.ID != apiRepo.ID ||
 			retargeted.Repo.Slug != "api" ||
 			retargeted.Repo.RequestedRef != "release" ||
+			retargeted.Repo.BaseRef != "main" ||
+			retargeted.Repo.WorkBranch != "" ||
 			retargeted.Repo.WorktreeSubdir != "services/api" ||
 			retargeted.Repo.CreationCommit != creationCommit {
 			t.Fatalf("retargeted repo = %+v, want api route preserving creation_commit %q", retargeted.Repo, creationCommit)
 		}
+		differentValidCommit := "89abcdef0123456789abcdef0123456789abcdef"
+		explicitReplacement, err := s.UpdateIssue(ctx, issue.ID, store.UpdateIssueInput{
+			Repo: &store.IssueRepoInput{
+				RepoSlug:       "core",
+				CreationCommit: differentValidCommit,
+				WorktreeSubdir: "services/core",
+			},
+		})
+		if err != nil {
+			t.Fatalf("UpdateIssue explicit replacement creation_commit: %v", err)
+		}
+		if explicitReplacement.Repo == nil ||
+			explicitReplacement.Repo.Slug != "core" ||
+			explicitReplacement.Repo.WorktreeSubdir != "services/core" ||
+			explicitReplacement.Repo.CreationCommit != creationCommit {
+			t.Fatalf("explicit replacement repo = %+v, want original creation_commit %q", explicitReplacement.Repo, creationCommit)
+		}
 		_, err = s.UpdateIssue(ctx, issue.ID, store.UpdateIssueInput{
-			Repo: &store.IssueRepoInput{RepoSlug: "core", CreationCommit: "HEAD"},
+			Repo: &store.IssueRepoInput{RepoSlug: "api", CreationCommit: "HEAD"},
 		})
 		if err == nil || !strings.Contains(err.Error(), "creation_commit") {
 			t.Fatalf("UpdateIssue invalid creation_commit = %v, want validation error", err)
@@ -412,9 +459,9 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 			t.Fatalf("GetIssue after invalid creation_commit: %v", err)
 		}
 		if afterInvalidRepoUpdate.Repo == nil ||
-			afterInvalidRepoUpdate.Repo.Slug != "api" ||
+			afterInvalidRepoUpdate.Repo.Slug != "core" ||
 			afterInvalidRepoUpdate.Repo.CreationCommit != creationCommit {
-			t.Fatalf("repo after invalid creation_commit = %+v, want unchanged api with %q", afterInvalidRepoUpdate.Repo, creationCommit)
+			t.Fatalf("repo after invalid creation_commit = %+v, want unchanged core with %q", afterInvalidRepoUpdate.Repo, creationCommit)
 		}
 
 		if _, err := s.DisableRepo(ctx, prefix, "core", "alice"); err != nil {
