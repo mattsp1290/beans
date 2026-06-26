@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -136,8 +137,8 @@ func TestRealGitResolverHeadCommitReturnsExactHeadDuringRebaseState(t *testing.T
 		t.Fatal("rebase main: want conflict, got success")
 	}
 	want := revParseHead(t, root)
-	if want == "" || want == topic || want == base {
-		t.Fatalf("rebase state HEAD = %s, want an active rebase HEAD at or from main %s", want, main)
+	if want != main {
+		t.Fatalf("rebase state HEAD = %s, want main commit %s; topic commit was %s and base was %s", want, main, topic, base)
 	}
 	assertHeadCommit(t, realGitResolver{}, root, want)
 }
@@ -160,6 +161,32 @@ func TestRealGitResolverHeadCommitBestEffortFailures(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("git not found", func(t *testing.T) {
+		t.Setenv("PATH", t.TempDir())
+		sha, ok, err := resolver.HeadCommit(t.TempDir())
+		if err != nil || ok || sha != "" {
+			t.Fatalf("HeadCommit with git missing: got (%q, %v, %v), want empty ok=false nil", sha, ok, err)
+		}
+	})
+
+	t.Run("permission denied", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("chmod-based execute permission denial is Unix-specific")
+		}
+		root := t.TempDir()
+		if err := os.Chmod(root, 0); err != nil {
+			t.Fatalf("chmod test root: %v", err)
+		}
+		t.Cleanup(func() {
+			_ = os.Chmod(root, 0o755)
+		})
+
+		sha, ok, err := resolver.HeadCommit(root)
+		if err != nil || ok || sha != "" {
+			t.Fatalf("HeadCommit with permission denied: got (%q, %v, %v), want empty ok=false nil", sha, ok, err)
+		}
+	})
 }
 
 func TestIsFullLowercaseHexCommit(t *testing.T) {
