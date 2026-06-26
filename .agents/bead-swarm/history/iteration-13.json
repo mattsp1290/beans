@@ -1,0 +1,46 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 13,
+  "branch": "bead-swarm/iteration-13-document-creation-time-commit-snapshots",
+  "slug": "document-creation-time-commit-snapshots",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "orchestrator-subagent",
+  "degraded_reason": "Interactive spawn_agent tools were not available; single-bead implementation was performed serially by the orchestrator, and reviews ran as two independent codex exec subprocesses.",
+  "selected_beads": ["beans-ceh.14"],
+  "beads_done": ["beans-ceh.14"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "make test: passed before review",
+    "make test: passed after review fixes"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": false,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [
+    "Routing Semantics Reviewer reported one Important docs contradiction; fixed in docs/specs/repo-resolution-precedence.md.",
+    "Operator Docs Reviewer reported no Critical or Important findings."
+  ],
+  "reviews": [
+    {
+      "reviewer": "routing-semantics-reviewer",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-13-document-creation-time-commit-snapshots-2026-06-26/routing-semantics-reviewer/04-action-items.md",
+      "critical_count": 0,
+      "important_count": 1,
+      "suggestion_count": 1
+    },
+    {
+      "reviewer": "operator-docs-reviewer",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-13-document-creation-time-commit-snapshots-2026-06-26/operator-docs-reviewer/04-action-items.md",
+      "critical_count": 0,
+      "important_count": 0,
+      "suggestion_count": 2
+    }
+  ],
+  "status": "complete"
+}
