@@ -1043,8 +1043,23 @@ type ImportInput struct {
 	Labels      []string
 	BranchName  string
 	URL         string
+	Repo        *ImportRepoInput
 	Deps        []string // blocked_by ids (dep_type='blocks')
 	ParentEdges []string // parent/epic ids this issue is a parent-child member of
+}
+
+// ImportRepoInput carries repo routing metadata from bn's JSONL extension.
+type ImportRepoInput struct {
+	RemoteURL      string
+	RepoSlug       string
+	DefaultBranch  string
+	AuthRef        string
+	RequestedRef   string
+	BaseRef        string
+	WorkBranch     string
+	WorktreeSubdir string
+	CreationCommit string
+	Metadata       map[string]any
 }
 
 // ImportIssues loads a batch of issues into the store using merge semantics.
@@ -1118,6 +1133,11 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 		return ImportResult{}, nil
 	}
 	items = dedupeImportInputs(items)
+	prepared, err := s.prepareImportRepoInputs(ctx, items)
+	if err != nil {
+		return ImportResult{}, err
+	}
+	items = prepared
 
 	var lastErr error
 	for attempt := 0; attempt < 3; attempt++ {
@@ -1176,6 +1196,9 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 				if res.RowsAffected > 0 {
 					result.Created++
 					written[item.ID] = true
+					if err := insertImportIssueRepo(ctx, tx, item); err != nil {
+						return err
+					}
 				} else {
 					result.Skipped++
 				}
@@ -1189,6 +1212,9 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 				}
 				result.Created++
 				written[item.ID] = true
+				if err := insertImportIssueRepo(ctx, tx, item); err != nil {
+					return err
+				}
 				continue
 			}
 
@@ -1200,6 +1226,9 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 			}
 			result.Updated++
 			written[item.ID] = true
+			if err := insertImportIssueRepo(ctx, tx, item); err != nil {
+				return err
+			}
 		}
 
 		if err := lockDepGraphGuard(tx); err != nil {
@@ -1291,6 +1320,81 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 		return ImportResult{}, err
 	}
 	return result, nil
+}
+
+func (s *Store) prepareImportRepoInputs(ctx context.Context, items []ImportInput) ([]ImportInput, error) {
+	out := make([]ImportInput, len(items))
+	copy(out, items)
+	for i := range out {
+		repoIn := out[i].Repo
+		if repoIn == nil {
+			continue
+		}
+		repoCopy := *repoIn
+		out[i].Repo = &repoCopy
+		repoIn = out[i].Repo
+		creationCommit, err := validateCreationCommit(repoIn.CreationCommit)
+		if err != nil {
+			return nil, fmt.Errorf("store: ImportIssuesFull repo %s creation_commit: %w", out[i].ID, err)
+		}
+		repoIn.CreationCommit = creationCommit
+
+		remoteURL := strings.TrimSpace(repoIn.RemoteURL)
+		repoSlug := strings.TrimSpace(repoIn.RepoSlug)
+		if remoteURL == "" {
+			if repoSlug == "" {
+				return nil, fmt.Errorf("store: ImportIssuesFull repo %s: repo.remote_url or repo.slug is required", out[i].ID)
+			}
+			repoIn.RepoSlug = repoSlug
+			if creationCommit != "" {
+				if _, err := s.GetRepoBySlug(ctx, out[i].Prefix, repoSlug); err != nil {
+					return nil, fmt.Errorf("store: ImportIssuesFull repo %s creation_commit requires resolvable repo.slug %q in prefix %q: %w", out[i].ID, repoSlug, out[i].Prefix, err)
+				}
+			}
+			continue
+		}
+
+		resolved, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
+			RemoteURL:     remoteURL,
+			DefaultBranch: repoIn.DefaultBranch,
+			AuthRef:       repoIn.AuthRef,
+			Actor:         "import",
+		})
+		if err != nil {
+			return nil, fmt.Errorf("store: ImportIssuesFull repo %s resolve remote_url: %w", out[i].ID, err)
+		}
+		out[i].Prefix = resolved.Prefix
+		repoIn.RepoSlug = resolved.Slug
+		repoIn.RemoteURL = ""
+	}
+	return out, nil
+}
+
+func insertImportIssueRepo(ctx context.Context, tx *gorm.DB, item ImportInput) error {
+	if item.Repo == nil {
+		return nil
+	}
+	var existing gormIssueRepo
+	err := tx.WithContext(ctx).Select("issue_id").Where("issue_id = ?", item.ID).First(&existing).Error
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return fmt.Errorf("store: ImportIssuesFull repo %s: %w", item.ID, err)
+	}
+	_, err = insertIssueRepoGORM(ctx, tx, item.ID, item.Prefix, IssueRepoInput{
+		RepoSlug:       item.Repo.RepoSlug,
+		RequestedRef:   item.Repo.RequestedRef,
+		BaseRef:        item.Repo.BaseRef,
+		WorkBranch:     item.Repo.WorkBranch,
+		WorktreeSubdir: item.Repo.WorktreeSubdir,
+		CreationCommit: item.Repo.CreationCommit,
+		Metadata:       item.Repo.Metadata,
+	})
+	if err != nil {
+		return fmt.Errorf("store: ImportIssuesFull repo %s: %w", item.ID, err)
+	}
+	return nil
 }
 
 // ---------------------------------------------------------------------------

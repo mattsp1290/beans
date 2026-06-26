@@ -28,7 +28,25 @@ type bdExportLine struct {
 	Labels       []string      `json:"labels"`
 	BranchName   string        `json:"branch_name"`
 	URL          string        `json:"url"`
+	Repo         *bdExportRepo `json:"repo,omitempty"`
 	Dependencies []bdExportDep `json:"dependencies"`
+}
+
+// bdExportRepo is bn's optional extension to bd-compatible JSONL. Older bd
+// exports omit it; bn imports keep accepting those rows unchanged.
+type bdExportRepo struct {
+	ID             string         `json:"id,omitempty"`
+	Slug           string         `json:"slug,omitempty"`
+	RemoteURL      string         `json:"remote_url,omitempty"`
+	DefaultBranch  string         `json:"default_branch,omitempty"`
+	CreationCommit string         `json:"creation_commit,omitempty"`
+	RequestedRef   string         `json:"requested_ref,omitempty"`
+	BaseRef        string         `json:"base_ref,omitempty"`
+	WorkBranch     string         `json:"work_branch,omitempty"`
+	WorktreeSubdir string         `json:"worktree_subdir,omitempty"`
+	CloneStrategy  string         `json:"clone_strategy,omitempty"`
+	AuthRef        string         `json:"auth_ref,omitempty"`
+	Metadata       map[string]any `json:"metadata,omitempty"`
 }
 
 // bdExportDep is one edge from bd's dependencies[].
@@ -237,7 +255,9 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 	sc := bufio.NewScanner(r)
 	sc.Buffer(make([]byte, 1024*1024), 1024*1024) // 1 MiB line buffer
 
+	lineNo := 0
 	for sc.Scan() {
+		lineNo++
 		line := strings.TrimSpace(sc.Text())
 		if line == "" || line[0] == '#' {
 			continue
@@ -262,6 +282,10 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 		if !activeWorkflow.IsValid(model.IssueState(raw.Status)) {
 			warnings++
 			continue
+		}
+		repoInput, err := importRepoInput(raw.Repo)
+		if err != nil {
+			return nil, warnings, fmt.Errorf("line %d: %w", lineNo, err)
 		}
 
 		// Extract dep edges where this issue is the child (issue_id == raw.ID).
@@ -306,6 +330,7 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 			Labels:      raw.Labels,
 			BranchName:  raw.BranchName,
 			URL:         raw.URL,
+			Repo:        repoInput,
 			Deps:        deps,
 			ParentEdges: parentEdges,
 		})
@@ -315,4 +340,48 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 		return nil, warnings, err
 	}
 	return items, warnings, nil
+}
+
+func importRepoInput(raw *bdExportRepo) (*store.ImportRepoInput, error) {
+	if raw == nil {
+		return nil, nil
+	}
+	creationCommit, err := validateImportCreationCommit(raw.CreationCommit)
+	if err != nil {
+		return nil, fmt.Errorf("repo.creation_commit: %w", err)
+	}
+	if creationCommit != "" && strings.TrimSpace(raw.RemoteURL) == "" && strings.TrimSpace(raw.Slug) == "" {
+		return nil, fmt.Errorf("repo.creation_commit requires repo.remote_url or repo.slug")
+	}
+	if strings.TrimSpace(raw.RemoteURL) == "" && strings.TrimSpace(raw.Slug) == "" {
+		return nil, fmt.Errorf("repo requires remote_url or slug")
+	}
+	return &store.ImportRepoInput{
+		RemoteURL:      raw.RemoteURL,
+		RepoSlug:       raw.Slug,
+		DefaultBranch:  raw.DefaultBranch,
+		AuthRef:        raw.AuthRef,
+		RequestedRef:   raw.RequestedRef,
+		BaseRef:        raw.BaseRef,
+		WorkBranch:     raw.WorkBranch,
+		WorktreeSubdir: raw.WorktreeSubdir,
+		CreationCommit: creationCommit,
+		Metadata:       raw.Metadata,
+	}, nil
+}
+
+func validateImportCreationCommit(value string) (string, error) {
+	commit := strings.TrimSpace(value)
+	if commit == "" {
+		return "", nil
+	}
+	if len(commit) != 40 {
+		return "", fmt.Errorf("must be a full lowercase 40-character hex object ID")
+	}
+	for _, ch := range commit {
+		if !((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f')) {
+			return "", fmt.Errorf("must be a full lowercase 40-character hex object ID")
+		}
+	}
+	return commit, nil
 }
