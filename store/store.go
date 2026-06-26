@@ -1820,7 +1820,7 @@ func validateCreationCommit(value string) (string, error) {
 		return "", fmt.Errorf("must be a full lowercase 40-character hex object ID")
 	}
 	for _, ch := range commit {
-		if !((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f')) {
+		if (ch < '0' || ch > '9') && (ch < 'a' || ch > 'f') {
 			return "", fmt.Errorf("must be a full lowercase 40-character hex object ID")
 		}
 	}
