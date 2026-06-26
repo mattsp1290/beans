@@ -67,6 +67,29 @@ func TestWorkflowConfigDefaultStateFallback(t *testing.T) {
 	}
 }
 
+func TestWorkflowConfigStatusNames(t *testing.T) {
+	w := DefaultWorkflowConfig()
+	got := w.StatusNames()
+	want := []string{
+		"open",
+		"in_progress",
+		"ready_for_review",
+		"ready_for_validation",
+		"ready_for_merge",
+		"blocked",
+		"closed",
+		"done",
+	}
+	if len(got) != len(want) {
+		t.Fatalf("StatusNames len = %d, want %d", len(got), len(want))
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("StatusNames[%d] = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
+
 func TestWorkflowConfigValidate(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -118,6 +141,15 @@ func TestWorkflowConfigValidate(t *testing.T) {
 				Statuses:    []IssueState{"open", "closed"},
 				Default:     "open",
 				Transitions: map[IssueState][]IssueState{"open": {"ghost"}},
+			},
+			wantErr: true,
+		},
+		{
+			name: "transition source not in statuses",
+			cfg: WorkflowConfig{
+				Statuses:    []IssueState{"open", "closed"},
+				Default:     "open",
+				Transitions: map[IssueState][]IssueState{"ghost": {"open"}},
 			},
 			wantErr: true,
 		},
