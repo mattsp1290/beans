@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-8-cover-creation-commit-persistence",
+  "base_ref": "main",
+  "head_sha": "13bcc0d293f0ee12e0dd81d367f5fb1e379298e8",
+  "pass": "post-fix-rereview",
+  "reviewers": [
+    {
+      "slug": "dialect-contract-auditor",
+      "display_name": "Dialect Contract Auditor",
+      "role": "Checks cross-dialect store contract coverage for creation_commit persistence, hydration, validation, and update immutability."
+    },
+    {
+      "slug": "regression-safety-auditor",
+      "display_name": "Regression Safety Auditor",
+      "role": "Checks whether tests catch realistic creation_commit store regressions across create, read, ready, validation, empty-default, and update paths."
+    }
+  ]
+}
