@@ -164,6 +164,80 @@ func TestToBDExportLineEmitsRepoMetadata(t *testing.T) {
 	}
 }
 
+func TestExportCmdEmitsNestedRepoCreationCommitWithOmitEmpty(t *testing.T) {
+	ctx := context.Background()
+	creationCommit := strings.Repeat("b", 40)
+	s, repo := newTestStore(t, "", "https://github.com/acme/api")
+	if repo == nil {
+		t.Fatal("newTestStore did not register repo")
+	}
+	if err := s.EnsureProject(ctx, repo.Prefix); err != nil {
+		t.Fatalf("EnsureProject(%q): %v", repo.Prefix, err)
+	}
+
+	captured, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repo.Prefix,
+		Title:  "captured export",
+		Actor:  "test",
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       repo.Slug,
+			CreationCommit: creationCommit,
+			RequestedRef:   "feature",
+			BaseRef:        "main",
+			WorkBranch:     "work/captured",
+			WorktreeSubdir: "services/api",
+			Metadata:       map[string]any{"lane": "blue"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue captured: %v", err)
+	}
+	legacy, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repo.Prefix,
+		Title:  "legacy export",
+		Actor:  "test",
+		Repo:   &store.IssueRepoInput{RepoSlug: repo.Slug},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue legacy: %v", err)
+	}
+
+	rs := &appState{store: s, actor: "test", prefix: repo.Prefix, git: &fakeGitResolver{}}
+	cmd := newExportCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{}); err != nil {
+		t.Fatalf("export RunE: %v", err)
+	}
+
+	lines := decodeExportLineMaps(t, buf.String())
+	capturedLine := findExportLineMap(t, lines, captured.ID)
+	capturedRepo, ok := capturedLine["repo"].(map[string]any)
+	if !ok {
+		t.Fatalf("captured repo JSON = %#v, want object", capturedLine["repo"])
+	}
+	if capturedRepo["creation_commit"] != creationCommit {
+		t.Fatalf("captured creation_commit = %v, want %q", capturedRepo["creation_commit"], creationCommit)
+	}
+	if capturedRepo["slug"] != repo.Slug || capturedRepo["requested_ref"] != "feature" ||
+		capturedRepo["worktree_subdir"] != "services/api" {
+		t.Fatalf("captured repo JSON = %#v, want nested route payload", capturedRepo)
+	}
+	metadata, ok := capturedRepo["metadata"].(map[string]any)
+	if !ok || metadata["lane"] != "blue" {
+		t.Fatalf("captured repo metadata = %#v, want lane=blue", capturedRepo["metadata"])
+	}
+
+	legacyLine := findExportLineMap(t, lines, legacy.ID)
+	legacyRepo, ok := legacyLine["repo"].(map[string]any)
+	if !ok {
+		t.Fatalf("legacy repo JSON = %#v, want object", legacyLine["repo"])
+	}
+	if _, ok := legacyRepo["creation_commit"]; ok {
+		t.Fatalf("legacy repo JSON = %#v, want creation_commit omitted", legacyRepo)
+	}
+}
+
 // TestExportCmdScopesToCurrentRepo verifies that the export command with no
 // flags returns only issues belonging to the current project prefix.
 func TestExportCmdScopesToCurrentRepo(t *testing.T) {
@@ -269,4 +343,32 @@ func TestToBDExportLineUsesEmptySlices(t *testing.T) {
 	if got.Dependencies == nil {
 		t.Fatal("dependencies = nil, want empty slice")
 	}
+}
+
+func decodeExportLineMaps(t *testing.T, raw string) []map[string]any {
+	t.Helper()
+	lines := strings.Split(strings.TrimSpace(raw), "\n")
+	got := make([]map[string]any, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		var decoded map[string]any
+		if err := json.Unmarshal([]byte(line), &decoded); err != nil {
+			t.Fatalf("unmarshal export line %q: %v", line, err)
+		}
+		got = append(got, decoded)
+	}
+	return got
+}
+
+func findExportLineMap(t *testing.T, lines []map[string]any, id string) map[string]any {
+	t.Helper()
+	for _, line := range lines {
+		if line["id"] == id {
+			return line
+		}
+	}
+	t.Fatalf("export line %s not found in %#v", id, lines)
+	return nil
 }
