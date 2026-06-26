@@ -1,0 +1,46 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 2,
+  "branch": "bead-swarm/iteration-2-add-0011-creation-commit-migration",
+  "slug": "add-0011-creation-commit-migration",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "orchestrator-subagent",
+  "degraded_reason": null,
+  "selected_beads": [
+    "beans-ceh.4"
+  ],
+  "beads_done": [
+    "beans-ceh.4"
+  ],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./schema: pass",
+    "make test: pass (go test ./...)",
+    "go test -tags=integration ./schema: pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": true,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [],
+  "reviews": [
+    {
+      "reviewer": "schema-migration-correctness",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-2-add-0011-creation-commit-migration/schema-migration-correctness/04-action-items.md",
+      "action_item_count": 0,
+      "blocking_action_item_count": 0
+    },
+    {
+      "reviewer": "dialect-portability",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-2-add-0011-creation-commit-migration/dialect-portability/04-action-items.md",
+      "action_item_count": 2,
+      "blocking_action_item_count": 0
+    }
+  ],
+  "status": "complete"
+}
