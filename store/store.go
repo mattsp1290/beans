@@ -1053,6 +1053,7 @@ type ImportRepoInput struct {
 	RemoteURL      string
 	RepoSlug       string
 	DefaultBranch  string
+	CloneStrategy  string
 	AuthRef        string
 	RequestedRef   string
 	BaseRef        string
@@ -1133,11 +1134,6 @@ func (s *Store) ImportIssuesFull(ctx context.Context, items []ImportInput, opts 
 		return ImportResult{}, nil
 	}
 	items = dedupeImportInputs(items)
-	prepared, err := s.prepareImportRepoInputs(ctx, items)
-	if err != nil {
-		return ImportResult{}, err
-	}
-	items = prepared
 
 	var lastErr error
 	for attempt := 0; attempt < 3; attempt++ {
@@ -1169,10 +1165,6 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 			if err != nil {
 				return err
 			}
-			if alreadyExists && existing.Prefix != item.Prefix {
-				result.CrossPrefixConflicts++
-				continue
-			}
 
 			// Write-strict: never persist a status outside the configured
 			// vocabulary. The CLI pre-filters import rows, but guard here too so
@@ -1185,8 +1177,17 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 
 			if opts.Mode == ImportModeCreateOnly {
 				if alreadyExists {
-					result.Skipped++
+					if existing.Prefix != item.Prefix {
+						result.CrossPrefixConflicts++
+					} else {
+						result.Skipped++
+					}
 					continue
+				}
+				var prepareErr error
+				item, prepareErr = s.prepareImportRepoInput(ctx, tx, item)
+				if prepareErr != nil {
+					return prepareErr
 				}
 				issue := gormIssueFromImport(item, clockNowUTC())
 				res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&issue)
@@ -1205,6 +1206,15 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 				continue
 			}
 
+			var prepareErr error
+			item, prepareErr = s.prepareImportRepoInput(ctx, tx, item)
+			if prepareErr != nil {
+				return prepareErr
+			}
+			if alreadyExists && existing.Prefix != item.Prefix {
+				result.CrossPrefixConflicts++
+				continue
+			}
 			if !alreadyExists {
 				issue := gormIssueFromImport(item, clockNowUTC())
 				if err := tx.Create(&issue).Error; err != nil {
@@ -1322,52 +1332,136 @@ func (s *Store) importIssuesFullOnce(ctx context.Context, items []ImportInput, o
 	return result, nil
 }
 
-func (s *Store) prepareImportRepoInputs(ctx context.Context, items []ImportInput) ([]ImportInput, error) {
-	out := make([]ImportInput, len(items))
-	copy(out, items)
-	for i := range out {
-		repoIn := out[i].Repo
-		if repoIn == nil {
-			continue
-		}
-		repoCopy := *repoIn
-		out[i].Repo = &repoCopy
-		repoIn = out[i].Repo
-		creationCommit, err := validateCreationCommit(repoIn.CreationCommit)
-		if err != nil {
-			return nil, fmt.Errorf("store: ImportIssuesFull repo %s creation_commit: %w", out[i].ID, err)
-		}
-		repoIn.CreationCommit = creationCommit
-
-		remoteURL := strings.TrimSpace(repoIn.RemoteURL)
-		repoSlug := strings.TrimSpace(repoIn.RepoSlug)
-		if remoteURL == "" {
-			if repoSlug == "" {
-				return nil, fmt.Errorf("store: ImportIssuesFull repo %s: repo.remote_url or repo.slug is required", out[i].ID)
-			}
-			repoIn.RepoSlug = repoSlug
-			if creationCommit != "" {
-				if _, err := s.GetRepoBySlug(ctx, out[i].Prefix, repoSlug); err != nil {
-					return nil, fmt.Errorf("store: ImportIssuesFull repo %s creation_commit requires resolvable repo.slug %q in prefix %q: %w", out[i].ID, repoSlug, out[i].Prefix, err)
-				}
-			}
-			continue
-		}
-
-		resolved, err := s.AutoRegisterRepo(ctx, AutoRegisterInput{
-			RemoteURL:     remoteURL,
-			DefaultBranch: repoIn.DefaultBranch,
-			AuthRef:       repoIn.AuthRef,
-			Actor:         "import",
-		})
-		if err != nil {
-			return nil, fmt.Errorf("store: ImportIssuesFull repo %s resolve remote_url: %w", out[i].ID, err)
-		}
-		out[i].Prefix = resolved.Prefix
-		repoIn.RepoSlug = resolved.Slug
-		repoIn.RemoteURL = ""
+func (s *Store) prepareImportRepoInput(ctx context.Context, tx *gorm.DB, item ImportInput) (ImportInput, error) {
+	repoIn := item.Repo
+	if repoIn == nil {
+		return item, nil
 	}
-	return out, nil
+	repoCopy := *repoIn
+	item.Repo = &repoCopy
+	repoIn = item.Repo
+	if err := validateImportRepoInput(*repoIn); err != nil {
+		return ImportInput{}, fmt.Errorf("store: ImportIssuesFull repo %s: %w", item.ID, err)
+	}
+	creationCommit, err := validateCreationCommit(repoIn.CreationCommit)
+	if err != nil {
+		return ImportInput{}, fmt.Errorf("store: ImportIssuesFull repo %s creation_commit: %w", item.ID, err)
+	}
+	repoIn.CreationCommit = creationCommit
+
+	remoteURL := strings.TrimSpace(repoIn.RemoteURL)
+	repoSlug := strings.TrimSpace(repoIn.RepoSlug)
+	if remoteURL == "" {
+		if repoSlug == "" {
+			return ImportInput{}, fmt.Errorf("store: ImportIssuesFull repo %s: repo.remote_url or repo.slug is required", item.ID)
+		}
+		repoIn.RepoSlug = repoSlug
+		if creationCommit != "" {
+			if _, err := getRepoBySlugGORM(ctx, tx, item.Prefix, repoSlug); err != nil {
+				return ImportInput{}, fmt.Errorf("store: ImportIssuesFull repo %s creation_commit requires resolvable repo.slug %q in prefix %q: %w", item.ID, repoSlug, item.Prefix, err)
+			}
+		}
+		return item, nil
+	}
+
+	resolved, err := s.autoRegisterRepoGORM(ctx, tx, AutoRegisterInput{
+		RemoteURL:     remoteURL,
+		DefaultBranch: repoIn.DefaultBranch,
+		CloneStrategy: repoIn.CloneStrategy,
+		AuthRef:       repoIn.AuthRef,
+		Actor:         "import",
+	})
+	if err != nil {
+		return ImportInput{}, fmt.Errorf("store: ImportIssuesFull repo %s resolve remote_url: %w", item.ID, err)
+	}
+	item.Prefix = resolved.Prefix
+	repoIn.RepoSlug = resolved.Slug
+	repoIn.RemoteURL = ""
+	return item, nil
+}
+
+func (s *Store) autoRegisterRepoGORM(ctx context.Context, tx *gorm.DB, in AutoRegisterInput) (Repo, error) {
+	normalized, err := repovalidation.NormalizeRemoteURL(in.RemoteURL)
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
+	}
+
+	existing, err := getRepoByRemoteURLGORM(ctx, tx, normalized)
+	if err == nil {
+		return existing, nil
+	}
+	if !errors.Is(err, ErrNotFound) {
+		return Repo{}, err
+	}
+
+	authRef := strings.TrimSpace(in.AuthRef)
+	if authRef == "" {
+		authRef = repovalidation.AuthRefTestNone
+	}
+	defaultBranch := repovalidation.NormalizeDefaultBranch(in.DefaultBranch)
+	cloneStrategy := repovalidation.NormalizeCloneStrategy(in.CloneStrategy)
+	actor := strings.TrimSpace(in.Actor)
+
+	if err := repovalidation.ValidateTarget(repovalidation.Target{
+		RemoteURL:     normalized,
+		DefaultBranch: defaultBranch,
+		CloneStrategy: cloneStrategy,
+		AuthRef:       authRef,
+	}); err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo validation: %w", err)
+	}
+
+	host, owner, repoName, err := parseRepoURLParts(normalized)
+	if err != nil {
+		return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", err)
+	}
+	for _, raw := range slugCandidateList(host, owner, repoName) {
+		slug := normalizeSlugCandidate(raw)
+		if slug == "" {
+			continue
+		}
+		var count int64
+		if err := tx.WithContext(ctx).Model(&gormProject{}).Where("prefix = ?", slug).Count(&count).Error; err != nil {
+			return Repo{}, fmt.Errorf("store: ProjectExists: %w", err)
+		}
+		if count > 0 {
+			continue
+		}
+		result, err := s.autoRegisterTx(ctx, tx, slug, normalized, defaultBranch, cloneStrategy, authRef, actor)
+		if err == nil {
+			return result, nil
+		}
+		if errors.Is(err, ErrConflict) {
+			if got, lookupErr := getRepoByRemoteURLGORM(ctx, tx, normalized); lookupErr == nil {
+				return got, nil
+			}
+			continue
+		}
+		return Repo{}, err
+	}
+	return Repo{}, fmt.Errorf("store: AutoRegisterRepo: %w", ErrSlugExhausted)
+}
+
+func validateImportRepoInput(in ImportRepoInput) error {
+	if err := repovalidation.ValidateDefaultBranch(in.RequestedRef); err != nil {
+		return fmt.Errorf("requested_ref: %w", err)
+	}
+	if err := repovalidation.ValidateDefaultBranch(in.BaseRef); err != nil {
+		return fmt.Errorf("base_ref: %w", err)
+	}
+	if err := repovalidation.ValidateDefaultBranch(in.WorkBranch); err != nil {
+		return fmt.Errorf("work_branch: %w", err)
+	}
+	if err := repovalidation.ValidateWorktreeSubdir(in.WorktreeSubdir); err != nil {
+		return fmt.Errorf("worktree_subdir: %w", err)
+	}
+	if _, err := validateCreationCommit(in.CreationCommit); err != nil {
+		return fmt.Errorf("creation_commit: %w", err)
+	}
+	if _, err := encodeJSONObject(in.Metadata); err != nil {
+		return fmt.Errorf("metadata: %w", err)
+	}
+	return nil
 }
 
 func insertImportIssueRepo(ctx context.Context, tx *gorm.DB, item ImportInput) error {
@@ -1377,7 +1471,7 @@ func insertImportIssueRepo(ctx context.Context, tx *gorm.DB, item ImportInput) e
 	var existing gormIssueRepo
 	err := tx.WithContext(ctx).Select("issue_id").Where("issue_id = ?", item.ID).First(&existing).Error
 	if err == nil {
-		return nil
+		return replaceImportIssueRepo(ctx, tx, item)
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return fmt.Errorf("store: ImportIssuesFull repo %s: %w", item.ID, err)
@@ -1390,6 +1484,33 @@ func insertImportIssueRepo(ctx context.Context, tx *gorm.DB, item ImportInput) e
 		WorktreeSubdir: item.Repo.WorktreeSubdir,
 		CreationCommit: item.Repo.CreationCommit,
 		Metadata:       item.Repo.Metadata,
+	})
+	if err != nil {
+		return fmt.Errorf("store: ImportIssuesFull repo %s: %w", item.ID, err)
+	}
+	return nil
+}
+
+func replaceImportIssueRepo(ctx context.Context, tx *gorm.DB, item ImportInput) error {
+	var existing gormIssueRepo
+	if err := tx.WithContext(ctx).Select("creation_commit").Where("issue_id = ?", item.ID).First(&existing).Error; err != nil {
+		return fmt.Errorf("store: ImportIssuesFull repo %s existing repo: %w", item.ID, err)
+	}
+	repoIn := *item.Repo
+	if strings.TrimSpace(repoIn.CreationCommit) == "" {
+		repoIn.CreationCommit = existing.CreationCommit
+	}
+	if err := tx.WithContext(ctx).Where("issue_id = ?", item.ID).Delete(&gormIssueRepo{}).Error; err != nil {
+		return fmt.Errorf("store: ImportIssuesFull repo %s replace: %w", item.ID, err)
+	}
+	_, err := insertIssueRepoGORM(ctx, tx, item.ID, item.Prefix, IssueRepoInput{
+		RepoSlug:       repoIn.RepoSlug,
+		RequestedRef:   repoIn.RequestedRef,
+		BaseRef:        repoIn.BaseRef,
+		WorkBranch:     repoIn.WorkBranch,
+		WorktreeSubdir: repoIn.WorktreeSubdir,
+		CreationCommit: repoIn.CreationCommit,
+		Metadata:       repoIn.Metadata,
 	})
 	if err != nil {
 		return fmt.Errorf("store: ImportIssuesFull repo %s: %w", item.ID, err)

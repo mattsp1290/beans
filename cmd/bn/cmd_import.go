@@ -360,6 +360,7 @@ func importRepoInput(raw *bdExportRepo) (*store.ImportRepoInput, error) {
 		RemoteURL:      raw.RemoteURL,
 		RepoSlug:       raw.Slug,
 		DefaultBranch:  raw.DefaultBranch,
+		CloneStrategy:  raw.CloneStrategy,
 		AuthRef:        raw.AuthRef,
 		RequestedRef:   raw.RequestedRef,
 		BaseRef:        raw.BaseRef,
