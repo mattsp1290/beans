@@ -394,6 +394,15 @@ func TestIssueJSONCommandsExposeRepoCreationCommitWithOmitEmpty(t *testing.T) {
 	showIssue := decodeJSONIssueMap(t, showOut.Bytes())
 	assertRepoCreationCommitField(t, showIssue, creationCommit, true)
 
+	showLegacyCmd := newShowCmd(rs)
+	var showLegacyOut bytes.Buffer
+	showLegacyCmd.SetOut(&showLegacyOut)
+	if err := showLegacyCmd.RunE(showLegacyCmd, []string{legacy.ID}); err != nil {
+		t.Fatalf("show legacy --json RunE: %v", err)
+	}
+	showLegacyIssue := decodeJSONIssueMap(t, showLegacyOut.Bytes())
+	assertRepoCreationCommitField(t, showLegacyIssue, "", false)
+
 	listCmd := newListCmd(rs)
 	var listOut bytes.Buffer
 	listCmd.SetOut(&listOut)

@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-7-test-creation-commit-in-cli-json-output",
+  "base_ref": "main",
+  "head_sha": "5b46b725d285e4691d2eda5a24b3252775f81539",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "contract-edge-auditor",
+      "display_name": "Contract Edge Auditor",
+      "role": "Focuses on JSON contract completeness, serialization boundaries, and backward compatibility."
+    },
+    {
+      "slug": "regression-path-auditor",
+      "display_name": "Regression Path Auditor",
+      "role": "Focuses on whether the new tests would catch realistic regressions in CLI import/export workflows."
+    }
+  ]
+}
