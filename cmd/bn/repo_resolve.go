@@ -128,6 +128,37 @@ func warnIfCrossRepo(w io.Writer, rs *appState, iss store.Issue) {
 		iss.ID, iss.Repo.Slug, rs.resolvedRepo.Slug)
 }
 
+// cwdCreationCommitForRepo returns the current cwd HEAD only when the cwd git
+// identity resolves to the same repo row selected for the issue link.
+func (rs *appState) cwdCreationCommitForRepo(ctx context.Context, selected *store.Repo) string {
+	if rs.git == nil || rs.store == nil || selected == nil {
+		return ""
+	}
+	root, ok, err := rs.git.Toplevel("")
+	if err != nil || !ok {
+		return ""
+	}
+
+	rawURL, remoteOK, remoteErr := rs.git.RemoteURL(root)
+	if remoteErr != nil {
+		return ""
+	}
+	if !remoteOK || strings.TrimSpace(rawURL) == "" {
+		rawURL = fileURLForGitRoot(root)
+	}
+
+	cwdRepo, err := rs.store.GetRepoByRemoteURL(ctx, rawURL)
+	if err != nil || cwdRepo.ID != selected.ID {
+		return ""
+	}
+
+	sha, ok, err := rs.git.HeadCommit(root)
+	if err != nil || !ok {
+		return ""
+	}
+	return sha
+}
+
 // resolveListFilter builds a ListFilter for listing commands (list, ready, dep
 // tree/cycles) using the three-way tri-state:
 //
@@ -189,16 +220,7 @@ func (rs *appState) tryGitAutoDetect(ctx context.Context) error {
 	if rawURL != "" {
 		regURL = rawURL
 	} else {
-		// Local-only repo (no remote.origin): synthesize a file:// URL from
-		// the git toplevel so AutoRegisterRepo has a non-empty canonical key.
-		// filepath.ToSlash converts Windows backslashes, and the leading slash
-		// ensures the URL has an empty host ("file:///") rather than treating
-		// a Windows drive letter as a host ("file://C:/...").
-		slashRoot := filepath.ToSlash(root)
-		if !strings.HasPrefix(slashRoot, "/") {
-			slashRoot = "/" + slashRoot
-		}
-		regURL = "file://" + slashRoot
+		regURL = fileURLForGitRoot(root)
 	}
 
 	repo, err := rs.store.AutoRegisterRepo(ctx, store.AutoRegisterInput{
@@ -225,4 +247,15 @@ func (rs *appState) tryGitAutoDetect(ctx context.Context) error {
 		rs.prefix = repo.Prefix
 	}
 	return nil
+}
+
+func fileURLForGitRoot(root string) string {
+	// filepath.ToSlash converts Windows backslashes, and the leading slash
+	// ensures the URL has an empty host ("file:///") rather than treating
+	// a Windows drive letter as a host ("file://C:/...").
+	slashRoot := filepath.ToSlash(root)
+	if !strings.HasPrefix(slashRoot, "/") {
+		slashRoot = "/" + slashRoot
+	}
+	return "file://" + slashRoot
 }

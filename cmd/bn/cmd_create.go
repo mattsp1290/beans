@@ -56,6 +56,14 @@ func newCreateCmd(rs *appState) *cobra.Command {
 					return err
 				}
 			}
+			var selectedRepo *store.Repo
+			if repoSlug != "" {
+				repo, err := rs.store.GetRepoBySlug(cmd.Context(), rs.prefix, repoSlug)
+				if err != nil {
+					return fmt.Errorf("create: repo %q: %w", repoSlug, err)
+				}
+				selectedRepo = &repo
+			}
 			// Git auto-detect: if inside a git repo with no explicit --repo, auto-register
 			// and record the issue against the detected repo. The global --repo flag (if set
 			// as a URL or slug before the subcommand) is also resolved here.
@@ -70,6 +78,7 @@ func newCreateCmd(rs *appState) *cobra.Command {
 				// silently linking to it would produce a misleading "repo not found" error.
 				if repo != nil && repo.Prefix == rs.prefix {
 					repoSlug = repo.Slug
+					selectedRepo = repo
 				}
 			}
 			if repoSlug == "" && (strings.TrimSpace(requestedRef) != "" || strings.TrimSpace(worktreeSubdir) != "") {
@@ -87,6 +96,7 @@ func newCreateCmd(rs *appState) *cobra.Command {
 					RepoSlug:       repoSlug,
 					RequestedRef:   strings.TrimSpace(requestedRef),
 					WorktreeSubdir: strings.TrimSpace(worktreeSubdir),
+					CreationCommit: rs.cwdCreationCommitForRepo(cmd.Context(), selectedRepo),
 				}
 			}
 
