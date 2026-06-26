@@ -45,7 +45,7 @@ func newListCmd(rs *appState) *cobra.Command {
 					for i, iss := range members {
 						out[i] = toIssueJSON(iss)
 					}
-					return writeJSON(out)
+					return writeJSONTo(cmd.OutOrStdout(), out)
 				}
 				printIssueTable(cmd, members)
 				return nil
@@ -76,7 +76,7 @@ func newListCmd(rs *appState) *cobra.Command {
 				for i, iss := range issues {
 					out[i] = toIssueJSON(iss)
 				}
-				return writeJSON(out)
+				return writeJSONTo(cmd.OutOrStdout(), out)
 			}
 
 			printIssueTable(cmd, issues)

@@ -31,7 +31,7 @@ func newShowCmd(rs *appState) *cobra.Command {
 			warnIfCrossRepo(cmd.ErrOrStderr(), rs, iss)
 
 			if rs.jsonOut {
-				return writeJSON(toIssueJSON(iss))
+				return writeJSONTo(cmd.OutOrStdout(), toIssueJSON(iss))
 			}
 
 			printIssueDetail(cmd, iss)
