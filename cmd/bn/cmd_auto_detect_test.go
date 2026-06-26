@@ -52,13 +52,15 @@ func TestTryGitAutoDetectRegistersNewRepo(t *testing.T) {
 	ctx := context.Background()
 	s, _ := newTestStore(t, "", "")
 
+	fakeGit := &fakeGitResolver{
+		toplevel:   "/home/alice/myapp",
+		remoteURL:  "https://github.com/alice/myapp",
+		headCommit: "1111111111111111111111111111111111111111",
+	}
 	rs := &appState{
 		store: s,
 		actor: "test",
-		git: &fakeGitResolver{
-			toplevel:  "/home/alice/myapp",
-			remoteURL: "https://github.com/alice/myapp",
-		},
+		git:   fakeGit,
 	}
 
 	if err := rs.tryGitAutoDetect(ctx); err != nil {
@@ -83,6 +85,9 @@ func TestTryGitAutoDetectRegistersNewRepo(t *testing.T) {
 	if got.Slug != rs.resolvedRepo.Slug {
 		t.Fatalf("store slug %q != resolvedRepo slug %q", got.Slug, rs.resolvedRepo.Slug)
 	}
+	if fakeGit.lastHeadCommitRoot != "" {
+		t.Fatalf("tryGitAutoDetect read HEAD at %q; creation_commit capture belongs to create after repo selection", fakeGit.lastHeadCommitRoot)
+	}
 }
 
 // TestTryGitAutoDetectLocalOnlyRepo verifies that a git repo with no remote
@@ -93,13 +98,15 @@ func TestTryGitAutoDetectLocalOnlyRepo(t *testing.T) {
 	ctx := context.Background()
 	s, _ := newTestStore(t, "", "")
 
+	fakeGit := &fakeGitResolver{
+		toplevel:   "/home/alice/local-only",
+		remoteURL:  "", // no remote
+		headCommit: "2222222222222222222222222222222222222222",
+	}
 	rs := &appState{
 		store: s,
 		actor: "test",
-		git: &fakeGitResolver{
-			toplevel:  "/home/alice/local-only",
-			remoteURL: "", // no remote
-		},
+		git:   fakeGit,
 	}
 
 	if err := rs.tryGitAutoDetect(ctx); err != nil {
@@ -121,6 +128,9 @@ func TestTryGitAutoDetectLocalOnlyRepo(t *testing.T) {
 	}
 	if rs.prefix != got.Prefix {
 		t.Fatalf("prefix = %q, want synthesized repo prefix %q", rs.prefix, got.Prefix)
+	}
+	if fakeGit.lastHeadCommitRoot != "" {
+		t.Fatalf("tryGitAutoDetect read HEAD at %q; creation_commit capture belongs to create after repo selection", fakeGit.lastHeadCommitRoot)
 	}
 }
 

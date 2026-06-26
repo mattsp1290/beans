@@ -79,6 +79,19 @@ func TestFakeGitResolverHeadCommitRecordsCallArgs(t *testing.T) {
 	}
 }
 
+func TestFakeGitResolverHeadCommitReturnsConfiguredInvalidOutput(t *testing.T) {
+	t.Parallel()
+
+	fake := &fakeGitResolver{
+		headCommit: "HEAD",
+	}
+
+	sha, ok, err := fake.HeadCommit("/repo/root")
+	if err != nil || !ok || sha != "HEAD" {
+		t.Fatalf("HeadCommit invalid fixture: got (%q, %v, %v), want (HEAD, true, nil)", sha, ok, err)
+	}
+}
+
 func TestRealGitResolverHeadCommitReturnsExactHeadInCommonRepoStates(t *testing.T) {
 	root := initGitRepo(t)
 	first := commitFile(t, root, "tracked.txt", "base\n", "base")

@@ -160,6 +160,80 @@ func TestTryGitAutoDetectNoGitRepo(t *testing.T) {
 	}
 }
 
+func TestCwdCreationCommitForRepoRequiresMatchingIdentityAndValidHead(t *testing.T) {
+	ctx := context.Background()
+	const head = "4567890abcdef1234567890abcdef12345678901"
+
+	for _, tc := range []struct {
+		name        string
+		selectedURL string
+		gitRoot     string
+		gitRemote   string
+		gitHead     string
+		want        string
+	}{
+		{
+			name:        "matching remote origin captures head",
+			selectedURL: "https://github.com/acme/remote-match",
+			gitRoot:     "/home/alice/remote-match",
+			gitRemote:   "git@github.com:acme/remote-match.git",
+			gitHead:     head,
+			want:        head,
+		},
+		{
+			name:        "local-only synthesized file identity captures head",
+			selectedURL: "file:///home/alice/local-match",
+			gitRoot:     "/home/alice/local-match",
+			gitHead:     head,
+			want:        head,
+		},
+		{
+			name:        "remote mismatch leaves empty",
+			selectedURL: "https://github.com/acme/selected",
+			gitRoot:     "/home/alice/other",
+			gitRemote:   "https://github.com/acme/other",
+			gitHead:     head,
+			want:        "",
+		},
+		{
+			name:        "invalid git output ignored",
+			selectedURL: "https://github.com/acme/invalid-head",
+			gitRoot:     "/home/alice/invalid-head",
+			gitRemote:   "https://github.com/acme/invalid-head",
+			gitHead:     "HEAD",
+			want:        "",
+		},
+		{
+			name:        "uppercase object ID ignored",
+			selectedURL: "https://github.com/acme/uppercase-head",
+			gitRoot:     "/home/alice/uppercase-head",
+			gitRemote:   "https://github.com/acme/uppercase-head",
+			gitHead:     "ABCDEF1234567890ABCDEF1234567890ABCDEF12",
+			want:        "",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s, selected := newTestStore(t, "", tc.selectedURL)
+			if selected == nil {
+				t.Fatal("newTestStore did not register selected repo")
+			}
+			rs := &appState{
+				store: s,
+				actor: "test",
+				git: &fakeGitResolver{
+					toplevel:   tc.gitRoot,
+					remoteURL:  tc.gitRemote,
+					headCommit: tc.gitHead,
+				},
+			}
+
+			if got := rs.cwdCreationCommitForRepo(ctx, selected); got != tc.want {
+				t.Fatalf("cwdCreationCommitForRepo() = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
 // TestFakeGitResolverRecordsCallArgs verifies that fakeGitResolver records the
 // dir/root arguments so callers can assert correct wiring (e.g. RemoteURL is
 // called with the root that Toplevel returned, not cwd).
