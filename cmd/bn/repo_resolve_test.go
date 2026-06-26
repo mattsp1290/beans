@@ -2,7 +2,11 @@ package main
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
+
+	store "github.com/mattsp1290/beans/store"
 )
 
 func TestClassifyRepoArg(t *testing.T) {
@@ -51,6 +55,89 @@ func TestResolveRepoArgRejectsPathForm(t *testing.T) {
 	}
 	if got := err.Error(); got == "" {
 		t.Fatal("resolveRepoArg path: error message is empty")
+	}
+}
+
+func TestResolveRepoContextExplicitRepoBeatsMarkerAndGit(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	t.Chdir(dir)
+
+	s, explicitRepo := newTestStore(t, "", "https://github.com/acme/explicit")
+	if explicitRepo == nil {
+		t.Fatal("newTestStore did not register explicit repo")
+	}
+	if explicitRepo.Prefix != explicitRepo.Slug {
+		t.Fatalf("test requires topology-a prefix==slug, got prefix=%q slug=%q", explicitRepo.Prefix, explicitRepo.Slug)
+	}
+	markerRepo, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/acme/marker",
+		Actor:     "test",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo marker: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, activeProjectMarker), []byte("project="+markerRepo.Prefix+"\nrepo="+markerRepo.Slug+"\n"), 0o644); err != nil {
+		t.Fatalf("write marker: %v", err)
+	}
+
+	callCount := 0
+	rs := &appState{
+		store:   s,
+		actor:   "test",
+		prefix:  markerRepo.Prefix,
+		repoArg: explicitRepo.Slug,
+		git: &countingFakeGitResolver{fakeGitResolver: &fakeGitResolver{
+			toplevel:  "/home/alice/gitrepo",
+			remoteURL: "https://github.com/acme/gitrepo",
+		}, calls: &callCount},
+	}
+
+	got, err := rs.resolveRepoContext(ctx)
+	if err != nil {
+		t.Fatalf("resolveRepoContext: %v", err)
+	}
+	if got == nil || got.Slug != explicitRepo.Slug {
+		t.Fatalf("resolveRepoContext = %+v, want explicit repo %q", got, explicitRepo.Slug)
+	}
+	if callCount != 0 {
+		t.Fatalf("git auto-detect ran %d times; explicit --repo should short-circuit marker and git", callCount)
+	}
+}
+
+func TestResolveRepoContextMarkerBeatsGitAutoDetect(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	t.Chdir(dir)
+
+	s, markerRepo := newTestStore(t, "", "https://github.com/acme/marker")
+	if markerRepo == nil {
+		t.Fatal("newTestStore did not register marker repo")
+	}
+	if err := os.WriteFile(filepath.Join(dir, activeProjectMarker), []byte("project="+markerRepo.Prefix+"\nrepo="+markerRepo.Slug+"\n"), 0o644); err != nil {
+		t.Fatalf("write marker: %v", err)
+	}
+
+	callCount := 0
+	rs := &appState{
+		store:  s,
+		actor:  "test",
+		prefix: markerRepo.Prefix,
+		git: &countingFakeGitResolver{fakeGitResolver: &fakeGitResolver{
+			toplevel:  "/home/alice/gitrepo",
+			remoteURL: "https://github.com/acme/gitrepo",
+		}, calls: &callCount},
+	}
+
+	got, err := rs.resolveRepoContext(ctx)
+	if err != nil {
+		t.Fatalf("resolveRepoContext: %v", err)
+	}
+	if got == nil || got.Slug != markerRepo.Slug {
+		t.Fatalf("resolveRepoContext = %+v, want marker repo %q", got, markerRepo.Slug)
+	}
+	if callCount != 0 {
+		t.Fatalf("git auto-detect ran %d times; .bn marker repo should short-circuit git", callCount)
 	}
 }
 

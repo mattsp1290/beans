@@ -2,8 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	store "github.com/mattsp1290/beans/store"
 )
 
 // TestCreateSilentOutputContract is the load-bearing test for --silent.
@@ -88,4 +93,65 @@ func TestExitCodeContractDocumented(t *testing.T) {
 	//   bn show <id> || echo "not found"
 	//   bn close <id> -r "done"  # idempotent — always 0 if exists
 	t.Log("exit code contract: 0=success, non-zero=error (see cmd_*_test.go for integration)")
+}
+
+func TestCreateExplicitRepoFlagBeatsMarkerAndGit(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	t.Chdir(dir)
+
+	s, explicitRepo := newTestStore(t, "", "https://github.com/acme/explicit-create")
+	if explicitRepo == nil {
+		t.Fatal("newTestStore did not register explicit repo")
+	}
+	markerRepo, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/acme/marker-create",
+		Actor:     "test",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo marker: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, activeProjectMarker), []byte("project="+markerRepo.Prefix+"\nrepo="+markerRepo.Slug+"\n"), 0o644); err != nil {
+		t.Fatalf("write marker: %v", err)
+	}
+	if err := s.EnsureProject(ctx, explicitRepo.Prefix); err != nil {
+		t.Fatalf("EnsureProject explicit: %v", err)
+	}
+
+	callCount := 0
+	rs := &appState{
+		store:  s,
+		prefix: explicitRepo.Prefix,
+		actor:  "test",
+		git: &countingFakeGitResolver{fakeGitResolver: &fakeGitResolver{
+			toplevel:  "/home/alice/git-create",
+			remoteURL: "https://github.com/acme/git-create",
+		}, calls: &callCount},
+	}
+
+	cmd := newCreateCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.Flags().Set("repo", explicitRepo.Slug); err != nil {
+		t.Fatalf("set --repo: %v", err)
+	}
+	if err := cmd.Flags().Set("silent", "true"); err != nil {
+		t.Fatalf("set --silent: %v", err)
+	}
+
+	if err := cmd.RunE(cmd, []string{"explicit-repo-issue"}); err != nil {
+		t.Fatalf("RunE: %v", err)
+	}
+
+	issueID := strings.TrimSpace(buf.String())
+	got, err := s.GetIssue(ctx, issueID)
+	if err != nil {
+		t.Fatalf("GetIssue(%q): %v", issueID, err)
+	}
+	if got.Repo == nil || got.Repo.Slug != explicitRepo.Slug {
+		t.Fatalf("issue repo = %+v, want explicit repo %q", got.Repo, explicitRepo.Slug)
+	}
+	if callCount != 0 {
+		t.Fatalf("git auto-detect ran %d times; explicit create --repo should short-circuit marker and git", callCount)
+	}
 }
