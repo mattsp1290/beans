@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-5-expose-creation-commit-in-stable-cli-re",
+  "base_ref": "main",
+  "head_sha": "49d8573ff58d2819d205a90b484d947b99daccd5",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "json-contract-sentinel",
+      "display_name": "JSON Contract Sentinel",
+      "role": "Reviews stable CLI JSON shape, omitempty behavior, and command coverage."
+    },
+    {
+      "slug": "cli-regression-analyst",
+      "display_name": "CLI Regression Analyst",
+      "role": "Reviews command behavior, regression risk, and test isolation for CLI output paths."
+    }
+  ]
+}

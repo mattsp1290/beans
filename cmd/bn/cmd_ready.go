@@ -38,7 +38,7 @@ func newReadyCmd(rs *appState) *cobra.Command {
 				for i, iss := range issues {
 					out[i] = toIssueJSON(iss)
 				}
-				return writeJSON(out)
+				return writeJSONTo(cmd.OutOrStdout(), out)
 			}
 
 			printIssueTable(cmd, issues)

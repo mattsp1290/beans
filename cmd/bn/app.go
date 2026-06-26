@@ -452,6 +452,7 @@ type repoTargetJSON struct {
 	Slug           string         `json:"slug"`
 	RemoteURL      string         `json:"remote_url"`
 	DefaultBranch  string         `json:"default_branch"`
+	CreationCommit string         `json:"creation_commit,omitempty"`
 	RequestedRef   string         `json:"requested_ref,omitempty"`
 	BaseRef        string         `json:"base_ref,omitempty"`
 	WorkBranch     string         `json:"work_branch,omitempty"`
@@ -498,6 +499,7 @@ func toIssueJSON(iss store.Issue) issueJSON {
 			Slug:           iss.Repo.Slug,
 			RemoteURL:      iss.Repo.RemoteURL,
 			DefaultBranch:  iss.Repo.DefaultBranch,
+			CreationCommit: iss.Repo.CreationCommit,
 			RequestedRef:   iss.Repo.RequestedRef,
 			BaseRef:        iss.Repo.BaseRef,
 			WorkBranch:     iss.Repo.WorkBranch,
@@ -511,7 +513,11 @@ func toIssueJSON(iss store.Issue) issueJSON {
 }
 
 func writeJSON(v any) error {
-	enc := json.NewEncoder(os.Stdout)
+	return writeJSONTo(os.Stdout, v)
+}
+
+func writeJSONTo(w io.Writer, v any) error {
+	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)
 }

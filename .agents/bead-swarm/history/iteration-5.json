@@ -1,0 +1,43 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 5,
+  "branch": "bead-swarm/iteration-5-expose-creation-commit-in-stable-cli-re",
+  "slug": "expose-creation-commit-in-stable-cli-re",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "parent-degraded",
+  "degraded_reason": "No spawn_agent-style Codex subagent tool was exposed in this session; implementation was serialized for the single selected bead. Review used two independent non-interactive Codex subprocess agents.",
+  "selected_beads": ["beans-ceh.11"],
+  "beads_done": ["beans-ceh.11"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./cmd/bn: pass",
+    "make test: pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": true,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [],
+  "reviews": [
+    {
+      "reviewer": "json-contract-sentinel",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-5-expose-creation-commit-in-stable-cli-re/json-contract-sentinel/04-action-items.md",
+      "critical_action_items": 0,
+      "important_action_items": 0,
+      "suggestion_action_items": 0
+    },
+    {
+      "reviewer": "cli-regression-analyst",
+      "verdict": "APPROVE",
+      "artifact": ".agents/reviews/bead-swarm-iteration-5-expose-creation-commit-in-stable-cli-re/cli-regression-analyst/04-action-items.md",
+      "critical_action_items": 0,
+      "important_action_items": 0,
+      "suggestion_action_items": 1
+    }
+  ],
+  "status": "complete"
+}

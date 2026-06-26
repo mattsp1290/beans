@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
@@ -311,6 +314,7 @@ func TestIssueJSONIncludesRepoTarget(t *testing.T) {
 				Slug:           "boxy",
 				RemoteURL:      "git@example.com:boxy.git",
 				DefaultBranch:  "main",
+				CreationCommit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 				RequestedRef:   "feature/ref",
 				BaseRef:        "main",
 				WorktreeSubdir: "services/boxy",
@@ -329,7 +333,128 @@ func TestIssueJSONIncludesRepoTarget(t *testing.T) {
 	if got.Repo.Slug != "boxy" || got.Repo.RequestedRef != "feature/ref" || got.Repo.WorktreeSubdir != "services/boxy" {
 		t.Fatalf("repo JSON = %+v, want slug/ref/subdir", got.Repo)
 	}
+	if got.Repo.CreationCommit != "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" {
+		t.Fatalf("repo creation_commit = %q, want captured commit", got.Repo.CreationCommit)
+	}
 	if got.Repo.Metadata["source"] != "test" {
 		t.Fatalf("repo metadata[source] = %v, want test", got.Repo.Metadata["source"])
+	}
+}
+
+func TestIssueJSONCommandsExposeRepoCreationCommitWithOmitEmpty(t *testing.T) {
+	ctx := context.Background()
+	s, repo := newTestStore(t, "", "https://github.com/alice/cli-json")
+	if repo == nil {
+		t.Fatal("newTestStore did not register repo")
+	}
+	if err := s.EnsureProject(ctx, repo.Prefix); err != nil {
+		t.Fatalf("EnsureProject(%q): %v", repo.Prefix, err)
+	}
+
+	const creationCommit = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+	captured, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repo.Prefix,
+		Title:  "captured commit",
+		Actor:  "test",
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       repo.Slug,
+			CreationCommit: creationCommit,
+			WorktreeSubdir: "service/api",
+			RequestedRef:   "main",
+			WorkBranch:     "work/captured",
+		},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue captured: %v", err)
+	}
+	legacy, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repo.Prefix,
+		Title:  "legacy empty commit",
+		Actor:  "test",
+		Repo:   &store.IssueRepoInput{RepoSlug: repo.Slug},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue legacy: %v", err)
+	}
+
+	rs := &appState{
+		store:   s,
+		prefix:  repo.Prefix,
+		actor:   "test",
+		jsonOut: true,
+		git:     &fakeGitResolver{},
+	}
+
+	showCmd := newShowCmd(rs)
+	var showOut bytes.Buffer
+	showCmd.SetOut(&showOut)
+	if err := showCmd.RunE(showCmd, []string{captured.ID}); err != nil {
+		t.Fatalf("show --json RunE: %v", err)
+	}
+	showIssue := decodeJSONIssueMap(t, showOut.Bytes())
+	assertRepoCreationCommitField(t, showIssue, creationCommit, true)
+
+	listCmd := newListCmd(rs)
+	var listOut bytes.Buffer
+	listCmd.SetOut(&listOut)
+	if err := listCmd.RunE(listCmd, nil); err != nil {
+		t.Fatalf("list --json RunE: %v", err)
+	}
+	listIssues := decodeJSONIssueMapList(t, listOut.Bytes())
+	assertRepoCreationCommitField(t, findJSONIssueMap(t, listIssues, captured.ID), creationCommit, true)
+	assertRepoCreationCommitField(t, findJSONIssueMap(t, listIssues, legacy.ID), "", false)
+
+	readyCmd := newReadyCmd(rs)
+	var readyOut bytes.Buffer
+	readyCmd.SetOut(&readyOut)
+	if err := readyCmd.RunE(readyCmd, nil); err != nil {
+		t.Fatalf("ready --json RunE: %v", err)
+	}
+	readyIssues := decodeJSONIssueMapList(t, readyOut.Bytes())
+	assertRepoCreationCommitField(t, findJSONIssueMap(t, readyIssues, captured.ID), creationCommit, true)
+	assertRepoCreationCommitField(t, findJSONIssueMap(t, readyIssues, legacy.ID), "", false)
+}
+
+func decodeJSONIssueMap(t *testing.T, raw []byte) map[string]any {
+	t.Helper()
+	var got map[string]any
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal issue JSON %q: %v", string(raw), err)
+	}
+	return got
+}
+
+func decodeJSONIssueMapList(t *testing.T, raw []byte) []map[string]any {
+	t.Helper()
+	var got []map[string]any
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal issue JSON list %q: %v", string(raw), err)
+	}
+	return got
+}
+
+func findJSONIssueMap(t *testing.T, issues []map[string]any, id string) map[string]any {
+	t.Helper()
+	for _, issue := range issues {
+		if issue["id"] == id {
+			return issue
+		}
+	}
+	t.Fatalf("issue %s not found in JSON output: %#v", id, issues)
+	return nil
+}
+
+func assertRepoCreationCommitField(t *testing.T, issue map[string]any, want string, wantPresent bool) {
+	t.Helper()
+	repo, ok := issue["repo"].(map[string]any)
+	if !ok {
+		t.Fatalf("repo JSON = %#v, want object", issue["repo"])
+	}
+	got, present := repo["creation_commit"]
+	if present != wantPresent {
+		t.Fatalf("repo creation_commit presence = %v, want %v in %#v", present, wantPresent, repo)
+	}
+	if wantPresent && got != want {
+		t.Fatalf("repo creation_commit = %v, want %q", got, want)
 	}
 }
