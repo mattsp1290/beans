@@ -1,0 +1,18 @@
+{
+  "change": "bead-swarm-iteration-9-add-characterization-tests-for-current-re",
+  "review_mode": "codex-subagents",
+  "reviewers": [
+    {
+      "slug": "route-precedence-auditor",
+      "verdict": "APPROVE",
+      "action_items": 0,
+      "artifact": ".agents/reviews/bead-swarm-iteration-9-add-characterization-tests-for-current-re/route-precedence-auditor/04-action-items.md"
+    },
+    {
+      "slug": "retarget-contract-auditor",
+      "verdict": "APPROVE",
+      "action_items": 0,
+      "artifact": ".agents/reviews/bead-swarm-iteration-9-add-characterization-tests-for-current-re/retarget-contract-auditor/04-action-items.md"
+    }
+  ]
+}
