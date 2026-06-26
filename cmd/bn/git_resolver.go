@@ -20,6 +20,12 @@ type gitResolver interface {
 	// git error occurs (git not found, permission denied, etc.) — all failures
 	// collapse to ok == false, err == nil, matching the Toplevel convention.
 	RemoteURL(root string) (url string, ok bool, err error)
+
+	// HeadCommit returns the full lowercase 40-character HEAD commit for the
+	// repo rooted at root.  Returns ("", false, nil) when HEAD cannot be
+	// resolved or git returns any failure; create behavior must remain
+	// best-effort when commit capture is unavailable.
+	HeadCommit(root string) (sha string, ok bool, err error)
 }
 
 // compile-time interface satisfaction check
@@ -46,4 +52,32 @@ func (realGitResolver) RemoteURL(root string) (string, bool, error) {
 		return "", false, nil
 	}
 	return url, true, nil
+}
+
+func (realGitResolver) HeadCommit(root string) (string, bool, error) {
+	cmd := exec.Command("git", "rev-parse", "HEAD")
+	if root != "" {
+		cmd.Dir = root
+	}
+	out, err := cmd.Output()
+	if err != nil {
+		return "", false, nil
+	}
+	sha := strings.TrimSpace(string(out))
+	if !isFullLowercaseHexCommit(sha) {
+		return "", false, nil
+	}
+	return sha, true, nil
+}
+
+func isFullLowercaseHexCommit(sha string) bool {
+	if len(sha) != 40 {
+		return false
+	}
+	for _, ch := range sha {
+		if (ch < '0' || ch > '9') && (ch < 'a' || ch > 'f') {
+			return false
+		}
+	}
+	return true
 }
