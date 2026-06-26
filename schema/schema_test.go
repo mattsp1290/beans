@@ -30,6 +30,7 @@ var expectedMigrations = []struct {
 	{8, "bn_dep_type"},
 	{9, "bn_remote_url_unique"},
 	{10, "bn_issue_state_drop_check"},
+	{11, "bn_issue_repos_creation_commit"},
 }
 
 // TestListMigrationsParsesEmbedded verifies every dialect's embedded migration
@@ -112,6 +113,10 @@ func TestMigrationRequiredObjects(t *testing.T) {
 				"bn_repos_remote_url_idx",
 				"bn_repos",
 				"remote_url",
+			})
+			assertContainsDDL(t, driver, byVersion[11].SQL, []string{
+				"ALTER TABLE bn_issue_repos ADD COLUMN creation_commit",
+				"TEXT NOT NULL DEFAULT",
 			})
 
 			stateSQL := byVersion[3].SQL
@@ -246,6 +251,7 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"CREATE TABLE bn_dep_graph_guard",
 		"CREATE TABLE bn_project_admin_bootstraps",
 		"ADD COLUMN dep_type VARCHAR(64) NOT NULL DEFAULT 'blocks'",
+		"ADD COLUMN creation_commit TEXT NOT NULL DEFAULT ('')",
 	})
 	assertContainsDDL(t, DriverSQLite, sqliteSQL, []string{
 		"TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP",
@@ -256,10 +262,12 @@ func TestDialectSpecificDDL(t *testing.T) {
 		"CREATE TABLE bn_dep_graph_guard",
 		"CREATE TABLE bn_project_admin_bootstraps",
 		"ADD COLUMN dep_type TEXT NOT NULL DEFAULT 'blocks'",
+		"ADD COLUMN creation_commit TEXT NOT NULL DEFAULT ''",
 	})
 
 	assertContainsDDL(t, DriverPostgres, postgresSQL, []string{
 		"ADD COLUMN dep_type TEXT NOT NULL DEFAULT 'blocks'",
+		"ADD COLUMN creation_commit TEXT NOT NULL DEFAULT ''",
 		"CREATE UNIQUE INDEX bn_repos_remote_url_idx ON bn_repos (remote_url)",
 	})
 	assertContainsDDL(t, DriverSQLite, sqliteSQL, []string{
@@ -440,6 +448,64 @@ func TestMigrateSQLiteAppliesDialectDDL(t *testing.T) {
 	if tagCount != 0 {
 		t.Fatalf("sqlite memory tag count after delete = %d, want 0", tagCount)
 	}
+
+	assertSQLiteTextColumn(t, sqlDB, "bn_issue_repos", "creation_commit", true, "''")
+}
+
+func TestMigrateSQLiteBackfillsIssueRepoCreationCommit(t *testing.T) {
+	t.Parallel()
+
+	db, err := gorm.Open(sqlite.Open(sqliteMemoryDSN(t)), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("gorm sqlite open: %v", err)
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("sqlite DB: %v", err)
+	}
+	defer sqlDB.Close()
+
+	ctx := context.Background()
+	if err := migrateToVersion(ctx, sqlDB, DriverSQLite, 10); err != nil {
+		t.Fatalf("migrate sqlite to v10: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `PRAGMA foreign_keys = ON`); err != nil {
+		t.Fatalf("enable sqlite foreign keys: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `INSERT INTO bn_projects (prefix) VALUES ('p')`); err != nil {
+		t.Fatalf("insert project: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issues (id, prefix, title, description)
+		VALUES ('p-1', 'p', 'issue', '')`); err != nil {
+		t.Fatalf("insert issue: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_repos (id, prefix, slug, display_name, remote_url, auth_ref)
+		VALUES ('repo-1', 'p', 'repo', 'Repo', 'file:///tmp/repo', 'none')`); err != nil {
+		t.Fatalf("insert repo: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issue_repos (issue_id, repo_id, metadata)
+		VALUES ('p-1', 'repo-1', '{}')`); err != nil {
+		t.Fatalf("insert legacy issue repo link: %v", err)
+	}
+
+	if err := Migrate(ctx, sqlDB, DriverSQLite); err != nil {
+		t.Fatalf("finish sqlite migrate: %v", err)
+	}
+
+	assertSQLiteTextColumn(t, sqlDB, "bn_issue_repos", "creation_commit", true, "''")
+
+	var creationCommit string
+	if err := sqlDB.QueryRowContext(ctx,
+		`SELECT creation_commit FROM bn_issue_repos WHERE issue_id = 'p-1'`,
+	).Scan(&creationCommit); err != nil {
+		t.Fatalf("select creation_commit: %v", err)
+	}
+	if creationCommit != "" {
+		t.Fatalf("creation_commit = %q, want empty string", creationCommit)
+	}
 }
 
 func TestMigrateSQLiteBackfillsMemoryTags(t *testing.T) {
@@ -548,6 +614,47 @@ func migrateToVersion(ctx context.Context, db *sql.DB, driver Driver, version in
 		return fmt.Errorf("schema: migrate up to %d for %s: %w", version, driver, err)
 	}
 	return nil
+}
+
+func assertSQLiteTextColumn(t *testing.T, db *sql.DB, table, column string, notNull bool, defaultValue string) {
+	t.Helper()
+
+	rows, err := db.QueryContext(context.Background(), fmt.Sprintf(`PRAGMA table_info(%s)`, table))
+	if err != nil {
+		t.Fatalf("pragma table_info(%s): %v", table, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			cid       int
+			name      string
+			columnTyp string
+			notnull   int
+			dfltValue sql.NullString
+			pk        int
+		)
+		if err := rows.Scan(&cid, &name, &columnTyp, &notnull, &dfltValue, &pk); err != nil {
+			t.Fatalf("scan table_info(%s): %v", table, err)
+		}
+		if name != column {
+			continue
+		}
+		if columnTyp != "TEXT" {
+			t.Fatalf("%s.%s type = %q, want TEXT", table, column, columnTyp)
+		}
+		if (notnull == 1) != notNull {
+			t.Fatalf("%s.%s notnull = %d, want %t", table, column, notnull, notNull)
+		}
+		if !dfltValue.Valid || dfltValue.String != defaultValue {
+			t.Fatalf("%s.%s default = %q (valid %t), want %q", table, column, dfltValue.String, dfltValue.Valid, defaultValue)
+		}
+		return
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("table_info(%s) rows: %v", table, err)
+	}
+	t.Fatalf("%s.%s column not found", table, column)
 }
 
 func sqliteMemoryDSN(t *testing.T) string {
