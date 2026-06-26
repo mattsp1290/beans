@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -71,6 +72,66 @@ func TestParseImportJSONLMapsFullBDRowAndFiltersDeps(t *testing.T) {
 	}
 	if len(got.Deps) != 1 || got.Deps[0] != "src-parent" {
 		t.Fatalf("deps = %#v, want only src-parent", got.Deps)
+	}
+	if got.Repo != nil {
+		t.Fatalf("repo = %+v, want nil for older JSONL without repo", got.Repo)
+	}
+}
+
+func TestParseImportJSONLMapsRepoMetadata(t *testing.T) {
+	t.Parallel()
+
+	creationCommit := strings.Repeat("b", 40)
+	input := strings.NewReader(`{"id":"src-linked","title":"Linked","status":"open","priority":2,"issue_type":"task","repo":{"slug":"api","remote_url":"https://github.com/acme/api","default_branch":"main","clone_strategy":"fresh-clone","requested_ref":"feature","base_ref":"main","work_branch":"work/src-linked","worktree_subdir":"services/api","auth_ref":"ssh-key:default","metadata":{"lane":"blue"},"creation_commit":"` + creationCommit + `"}}`)
+
+	items, warnings, err := parseImportJSONL(input, "dest")
+	if err != nil {
+		t.Fatalf("parseImportJSONL: %v", err)
+	}
+	if warnings != 0 || len(items) != 1 {
+		t.Fatalf("parseImportJSONL = items:%d warnings:%d, want 1/0", len(items), warnings)
+	}
+	got := items[0].Repo
+	if got == nil {
+		t.Fatal("Repo = nil, want parsed repo metadata")
+	}
+	if got.RepoSlug != "api" || got.RemoteURL != "https://github.com/acme/api" || got.DefaultBranch != "main" ||
+		got.CloneStrategy != "fresh-clone" {
+		t.Fatalf("repo identity = %+v, want slug/remote/default branch", got)
+	}
+	if got.CreationCommit != creationCommit {
+		t.Fatalf("creation_commit = %q, want %q", got.CreationCommit, creationCommit)
+	}
+	if got.RequestedRef != "feature" || got.BaseRef != "main" ||
+		got.WorkBranch != "work/src-linked" || got.WorktreeSubdir != "services/api" {
+		t.Fatalf("repo routing fields = %+v, want refs/subdir", got)
+	}
+	if got.Metadata["lane"] != "blue" {
+		t.Fatalf("repo metadata = %#v, want lane=blue", got.Metadata)
+	}
+}
+
+func TestParseImportJSONLRejectsRepoCreationCommitWithoutIdentity(t *testing.T) {
+	t.Parallel()
+
+	creationCommit := strings.Repeat("c", 40)
+	input := strings.NewReader(`{"id":"src-linked","title":"Linked","status":"open","priority":2,"issue_type":"task","repo":{"creation_commit":"` + creationCommit + `"}}`)
+
+	_, _, err := parseImportJSONL(input, "dest")
+	if err == nil || !strings.Contains(err.Error(), "creation_commit requires repo.remote_url or repo.slug") {
+		t.Fatalf("parseImportJSONL error = %v, want clear repo identity error", err)
+	}
+}
+
+func TestParseImportJSONLRejectsInvalidRepoCreationCommit(t *testing.T) {
+	t.Parallel()
+
+	input := strings.NewReader(`{"id":"src-linked","title":"Linked","status":"open","priority":2,"issue_type":"task","repo":{"slug":"api","creation_commit":"HEAD"}}`)
+
+	_, _, err := parseImportJSONL(input, "dest")
+	if err == nil || !strings.Contains(err.Error(), "repo.creation_commit") ||
+		!strings.Contains(err.Error(), "full lowercase 40-character hex object ID") {
+		t.Fatalf("parseImportJSONL error = %v, want clear creation_commit validation error", err)
 	}
 }
 
@@ -343,6 +404,169 @@ func TestImportCrossRepoNoCrossPrefixConflict(t *testing.T) {
 	}
 	if result2.Skipped != 2 {
 		t.Errorf("re-import Skipped = %d, want 2 (idempotent)", result2.Skipped)
+	}
+}
+
+func TestImportJSONLRepoRemoteURLCreatesRepoLinkWithCreationCommit(t *testing.T) {
+	ctx := context.Background()
+	creationCommit := strings.Repeat("d", 40)
+	jsonl := `{"id":"src-linked","title":"Linked","status":"open","priority":2,"issue_type":"task","repo":{"remote_url":"https://github.com/acme/widgets","clone_strategy":"fresh-clone","requested_ref":"feature","base_ref":"main","work_branch":"work/src-linked","worktree_subdir":"services/api","metadata":{"lane":"blue"},"creation_commit":"` + creationCommit + `"}}`
+
+	items, warnings, err := parseImportJSONL(strings.NewReader(jsonl), "dest")
+	if err != nil || warnings != 0 || len(items) != 1 {
+		t.Fatalf("parseImportJSONL = items:%d warnings:%d err:%v, want 1/0/nil", len(items), warnings, err)
+	}
+
+	st, _ := newTestStore(t, "dest", "")
+	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: activeWorkflow.Terminal,
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull: %v", err)
+	}
+	if result.Created != 1 {
+		t.Fatalf("Created = %d, want 1", result.Created)
+	}
+	got, err := st.GetIssue(ctx, "src-linked")
+	if err != nil {
+		t.Fatalf("GetIssue: %v", err)
+	}
+	if got.Repo == nil {
+		t.Fatal("Repo = nil, want imported repo link")
+	}
+	if got.Repo.CreationCommit != creationCommit {
+		t.Fatalf("creation_commit = %q, want %q", got.Repo.CreationCommit, creationCommit)
+	}
+	if !strings.Contains(got.Repo.RemoteURL, "github.com/acme/widgets") {
+		t.Fatalf("remote_url = %q, want acme/widgets repo", got.Repo.RemoteURL)
+	}
+	if got.Repo.RequestedRef != "feature" || got.Repo.BaseRef != "main" ||
+		got.Repo.WorkBranch != "work/src-linked" || got.Repo.WorktreeSubdir != "services/api" {
+		t.Fatalf("repo routing fields = %+v, want imported refs/subdir", got.Repo)
+	}
+	if got.Repo.Metadata["lane"] != "blue" {
+		t.Fatalf("repo metadata = %#v, want lane=blue", got.Repo.Metadata)
+	}
+	if got.Repo.CloneStrategy != "fresh-clone" {
+		t.Fatalf("clone_strategy = %q, want fresh-clone", got.Repo.CloneStrategy)
+	}
+}
+
+func TestImportJSONLMergeReplacesRepoRoutingAndPreservesCreationCommit(t *testing.T) {
+	ctx := context.Background()
+	creationCommit := strings.Repeat("f", 40)
+	st, repoA := newTestStore(t, "", "https://github.com/acme/api")
+	if err := st.AddRepoAdmin(ctx, repoA.Prefix, "test", "test", true); err != nil {
+		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
+	}
+	repoB, err := st.CreateRepo(ctx, store.CreateRepoInput{
+		Prefix:        repoA.Prefix,
+		Slug:          "worker",
+		RemoteURL:     "https://github.com/acme/worker",
+		CloneStrategy: "fresh-clone",
+		AuthRef:       "test:none",
+		Actor:         "test",
+	})
+	if err != nil {
+		t.Fatalf("CreateRepo(worker): %v", err)
+	}
+
+	created, err := st.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repoA.Prefix,
+		Title:  "Linked",
+		Actor:  "test",
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       repoA.Slug,
+			RequestedRef:   "old-ref",
+			CreationCommit: creationCommit,
+			Metadata:       map[string]any{"lane": "old"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+
+	jsonl := `{"id":"` + created.ID + `","title":"Linked merged","status":"open","priority":2,"issue_type":"task","repo":{"slug":"` + repoB.Slug + `","requested_ref":"new-ref","base_ref":"main","work_branch":"work/merged","worktree_subdir":"services/worker","metadata":{"lane":"new"}}}`
+	items, warnings, err := parseImportJSONL(strings.NewReader(jsonl), repoA.Prefix)
+	if err != nil || warnings != 0 || len(items) != 1 {
+		t.Fatalf("parseImportJSONL = items:%d warnings:%d err:%v, want 1/0/nil", len(items), warnings, err)
+	}
+
+	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: activeWorkflow.Terminal,
+		Mode:           store.ImportModeMerge,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull merge: %v", err)
+	}
+	if result.Updated != 1 {
+		t.Fatalf("Updated = %d, want 1", result.Updated)
+	}
+	got, err := st.GetIssue(ctx, created.ID)
+	if err != nil {
+		t.Fatalf("GetIssue: %v", err)
+	}
+	if got.Repo == nil || got.Repo.Slug != repoB.Slug || got.Repo.RequestedRef != "new-ref" ||
+		got.Repo.WorkBranch != "work/merged" || got.Repo.WorktreeSubdir != "services/worker" {
+		t.Fatalf("repo after merge = %+v, want replacement worker routing", got.Repo)
+	}
+	if got.Repo.CreationCommit != creationCommit {
+		t.Fatalf("creation_commit = %q, want preserved %q", got.Repo.CreationCommit, creationCommit)
+	}
+	if got.Repo.Metadata["lane"] != "new" {
+		t.Fatalf("repo metadata = %#v, want lane=new", got.Repo.Metadata)
+	}
+}
+
+func TestImportJSONLRepoSlugCreationCommitRequiresRegisteredRepo(t *testing.T) {
+	ctx := context.Background()
+	creationCommit := strings.Repeat("e", 40)
+	jsonl := `{"id":"src-linked","title":"Linked","status":"open","priority":2,"issue_type":"task","repo":{"slug":"missing","creation_commit":"` + creationCommit + `"}}`
+
+	items, warnings, err := parseImportJSONL(strings.NewReader(jsonl), "dest")
+	if err != nil || warnings != 0 || len(items) != 1 {
+		t.Fatalf("parseImportJSONL = items:%d warnings:%d err:%v, want 1/0/nil", len(items), warnings, err)
+	}
+
+	st, _ := newTestStore(t, "dest", "")
+	_, err = st.ImportIssuesFull(ctx, items, store.ImportOptions{
+		TerminalStates: activeWorkflow.Terminal,
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err == nil || !strings.Contains(err.Error(), "creation_commit requires resolvable repo.slug") ||
+		!strings.Contains(err.Error(), "missing") {
+		t.Fatalf("ImportIssuesFull error = %v, want clear unresolved repo slug creation_commit error", err)
+	}
+}
+
+func TestImportJSONLInvalidStateDoesNotAutoRegisterRepo(t *testing.T) {
+	ctx := context.Background()
+	st, _ := newTestStore(t, "dest", "")
+
+	result, err := st.ImportIssuesFull(ctx, []store.ImportInput{{
+		ID:        "src-invalid",
+		Prefix:    "dest",
+		Title:     "Invalid",
+		State:     "archived",
+		Priority:  2,
+		IssueType: "task",
+		Repo: &store.ImportRepoInput{
+			RemoteURL: "https://github.com/acme/side-effect",
+		},
+	}}, store.ImportOptions{
+		TerminalStates: activeWorkflow.Terminal,
+		Mode:           store.ImportModeCreateOnly,
+	})
+	if err != nil {
+		t.Fatalf("ImportIssuesFull: %v", err)
+	}
+	if result.Skipped != 1 {
+		t.Fatalf("Skipped = %d, want 1", result.Skipped)
+	}
+	_, err = st.GetRepoByRemoteURL(ctx, "https://github.com/acme/side-effect")
+	if !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("GetRepoByRemoteURL after skipped invalid import = %v, want ErrNotFound", err)
 	}
 }
 

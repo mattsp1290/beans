@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-6-round-trip-repo-routing-metadata-and-cre",
+  "base_ref": "main",
+  "head_sha": "7734e9e2bb3cc98d6ced69814f0d787e8ca32f44",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "import-export-contract-guardian",
+      "display_name": "Import Export Contract Guardian",
+      "role": "Checks JSONL compatibility, round-trip semantics, validation behavior, and user-facing import/export contracts."
+    },
+    {
+      "slug": "store-transaction-skeptic",
+      "display_name": "Store Transaction Skeptic",
+      "role": "Checks store transaction behavior, repo resolution side effects, idempotency, and persistence edge cases."
+    }
+  ]
+}

@@ -104,7 +104,7 @@ func toBDExportLine(iss store.Issue, edges []store.DepEdge) bdExportLine {
 		})
 	}
 
-	return bdExportLine{
+	line := bdExportLine{
 		ID:           iss.ID,
 		Title:        iss.Title,
 		Description:  iss.Description,
@@ -116,6 +116,23 @@ func toBDExportLine(iss store.Issue, edges []store.DepEdge) bdExportLine {
 		URL:          iss.URL,
 		Dependencies: deps,
 	}
+	if iss.Repo != nil {
+		line.Repo = &bdExportRepo{
+			ID:             iss.Repo.ID,
+			Slug:           iss.Repo.Slug,
+			RemoteURL:      iss.Repo.RemoteURL,
+			DefaultBranch:  iss.Repo.DefaultBranch,
+			CreationCommit: iss.Repo.CreationCommit,
+			RequestedRef:   iss.Repo.RequestedRef,
+			BaseRef:        iss.Repo.BaseRef,
+			WorkBranch:     iss.Repo.WorkBranch,
+			WorktreeSubdir: iss.Repo.WorktreeSubdir,
+			CloneStrategy:  iss.Repo.CloneStrategy,
+			AuthRef:        iss.Repo.AuthRef,
+			Metadata:       iss.Repo.Metadata,
+		}
+	}
+	return line
 }
 
 func exportPriority(p model.Priority) int {

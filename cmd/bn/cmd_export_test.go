@@ -118,6 +118,52 @@ func TestExportImportRoundTripsMixedEdges(t *testing.T) {
 	}
 }
 
+func TestToBDExportLineEmitsRepoMetadata(t *testing.T) {
+	t.Parallel()
+
+	creationCommit := strings.Repeat("a", 40)
+	line := toBDExportLine(store.Issue{
+		Issue: model.Issue{
+			ID:       "proj-linked",
+			Title:    "Linked",
+			Priority: model.PriorityMedium,
+			State:    "open",
+			Repo: &model.RepoTarget{
+				ID:             "repo-1",
+				Slug:           "api",
+				RemoteURL:      "https://github.com/acme/api",
+				DefaultBranch:  "main",
+				CreationCommit: creationCommit,
+				RequestedRef:   "feature",
+				BaseRef:        "main",
+				WorkBranch:     "work/proj-linked",
+				WorktreeSubdir: "services/api",
+				CloneStrategy:  "worktree",
+				AuthRef:        "ssh-key:default",
+				Metadata:       map[string]any{"lane": "blue"},
+			},
+		},
+		IssueType: "task",
+	}, nil)
+
+	if line.Repo == nil {
+		t.Fatal("Repo = nil, want exported repo metadata")
+	}
+	if line.Repo.Slug != "api" || line.Repo.RemoteURL != "https://github.com/acme/api" {
+		t.Fatalf("repo identity = %+v, want slug api and remote URL", line.Repo)
+	}
+	if line.Repo.CreationCommit != creationCommit {
+		t.Fatalf("creation_commit = %q, want %q", line.Repo.CreationCommit, creationCommit)
+	}
+	if line.Repo.RequestedRef != "feature" || line.Repo.BaseRef != "main" ||
+		line.Repo.WorkBranch != "work/proj-linked" || line.Repo.WorktreeSubdir != "services/api" {
+		t.Fatalf("repo routing fields = %+v, want exported refs/subdir", line.Repo)
+	}
+	if line.Repo.Metadata["lane"] != "blue" {
+		t.Fatalf("repo metadata = %#v, want lane=blue", line.Repo.Metadata)
+	}
+}
+
 // TestExportCmdScopesToCurrentRepo verifies that the export command with no
 // flags returns only issues belonging to the current project prefix.
 func TestExportCmdScopesToCurrentRepo(t *testing.T) {

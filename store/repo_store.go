@@ -810,6 +810,9 @@ type AutoRegisterInput struct {
 	RemoteURL string
 	// DefaultBranch is the default branch name; empty string → "main".
 	DefaultBranch string
+	// CloneStrategy controls how workers materialize the repo. Empty string
+	// defaults to repo.NormalizeCloneStrategy's default.
+	CloneStrategy string
 	// AuthRef is the auth credential reference (e.g. "ssh-key:default").
 	// Empty string → repo.AuthRefTestNone ("test:none"), which is valid for
 	// local-only repos and CI environments.
@@ -856,7 +859,7 @@ func (s *Store) AutoRegisterRepo(ctx context.Context, in AutoRegisterInput) (Rep
 		authRef = repo.AuthRefTestNone
 	}
 	defaultBranch := repo.NormalizeDefaultBranch(in.DefaultBranch)
-	cloneStrategy := repo.NormalizeCloneStrategy("")
+	cloneStrategy := repo.NormalizeCloneStrategy(in.CloneStrategy)
 	actor := strings.TrimSpace(in.Actor)
 
 	// Validate inputs with the same rules as CreateRepo so both write paths

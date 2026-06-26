@@ -1,0 +1,48 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 6,
+  "branch": "bead-swarm/iteration-6-round-trip-repo-routing-metadata-and-cre",
+  "slug": "round-trip-repo-routing-metadata-and-cre",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "parent-degraded",
+  "degraded_reason": "Codex spawn_agent tools were unavailable; implementation was serialized in the orchestrator. Two independent Codex CLI reviewer subagents were used for the review gate.",
+  "selected_beads": ["beans-ceh.12"],
+  "beads_done": ["beans-ceh.12"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./cmd/bn -run 'Test(ToBDExportLineEmitsRepoMetadata|ExportImportRoundTripsMixedEdges|ParseImportJSONL(MapsFullBDRowAndFiltersDeps|MapsRepoMetadata|RejectsRepoCreationCommitWithoutIdentity|RejectsInvalidRepoCreationCommit)|ImportJSONLRepo(RemoteURLCreatesRepoLinkWithCreationCommit|SlugCreationCommitRequiresRegisteredRepo))' - pass",
+    "go test ./cmd/bn - pass",
+    "make test - pass",
+    "go test ./cmd/bn -run 'Test(ParseImportJSONLMapsRepoMetadata|ImportJSONLRepoRemoteURLCreatesRepoLinkWithCreationCommit|ImportJSONLMergeReplacesRepoRoutingAndPreservesCreationCommit|ImportJSONLRepoSlugCreationCommitRequiresRegisteredRepo|ImportJSONLInvalidStateDoesNotAutoRegisterRepo)' - pass",
+    "go test ./cmd/bn ./store - pass",
+    "make test - pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": false,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [],
+  "reviews": [
+    {
+      "reviewer": "import-export-contract-guardian",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-6-round-trip-repo-routing-metadata-and-cre-2026-06-26/import-export-contract-guardian/04-action-items.md",
+      "critical_action_items": 0,
+      "important_action_items": 2,
+      "suggestion_action_items": 0
+    },
+    {
+      "reviewer": "store-transaction-skeptic",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-6-round-trip-repo-routing-metadata-and-cre-2026-06-26/store-transaction-skeptic/04-action-items.md",
+      "critical_action_items": 0,
+      "important_action_items": 2,
+      "suggestion_action_items": 0
+    }
+  ],
+  "fixes_artifact": ".agents/reviews/bead-swarm-iteration-6-round-trip-repo-routing-metadata-and-cre-2026-06-26/fixes.md",
+  "status": "complete"
+}
