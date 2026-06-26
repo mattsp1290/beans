@@ -237,6 +237,9 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 	// repoSlug is a local copy so we don't mutate the caller's IssueRepoInput.
 	var repoSlug string
 	if in.Repo != nil {
+		if _, err := validateCreationCommit(in.Repo.CreationCommit); err != nil {
+			return Issue{}, fmt.Errorf("store: CreateIssue repo creation_commit: %w", err)
+		}
 		repoSlug = in.Repo.RepoSlug
 	}
 	if in.Repo != nil && strings.TrimSpace(in.Repo.RemoteURL) != "" {

@@ -724,6 +724,27 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	if len(afterInvalid) != 2 {
 		t.Fatalf("issue count after invalid creation_commit attempts = %d, want 2", len(afterInvalid))
 	}
+
+	_, err = s.CreateIssue(ctx, CreateIssueInput{
+		Title: "Invalid remote commit",
+		Repo: &IssueRepoInput{
+			RemoteURL:      "https://github.com/acme/invalid-remote-commit.git",
+			CreationCommit: "main",
+		},
+	})
+	if err == nil || !strings.Contains(err.Error(), "creation_commit") {
+		t.Fatalf("CreateIssue invalid remote creation_commit error = %v, want validation error", err)
+	}
+	if _, err := s.GetRepoBySlug(ctx, "invalid-remote-commit", "invalid-remote-commit"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("GetRepoBySlug after invalid remote creation_commit = %v, want ErrNotFound", err)
+	}
+	remoteIssues, err := s.ListIssues(ctx, ListFilter{Prefix: "invalid-remote-commit"})
+	if err != nil {
+		t.Fatalf("ListIssues after invalid remote creation_commit: %v", err)
+	}
+	if len(remoteIssues) != 0 {
+		t.Fatalf("issues after invalid remote creation_commit = %d, want 0", len(remoteIssues))
+	}
 }
 
 // TestSQLiteStoreContractCreateIssueDerivesPrefix verifies the topology-a
