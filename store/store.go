@@ -203,6 +203,7 @@ type IssueRepoInput struct {
 	BaseRef        string
 	WorkBranch     string
 	WorktreeSubdir string
+	CreationCommit string
 	Metadata       map[string]any
 }
 
@@ -236,6 +237,9 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 	// repoSlug is a local copy so we don't mutate the caller's IssueRepoInput.
 	var repoSlug string
 	if in.Repo != nil {
+		if _, err := validateCreationCommit(in.Repo.CreationCommit); err != nil {
+			return Issue{}, fmt.Errorf("store: CreateIssue repo creation_commit: %w", err)
+		}
 		repoSlug = in.Repo.RepoSlug
 	}
 	if in.Repo != nil && strings.TrimSpace(in.Repo.RemoteURL) != "" {
@@ -1541,6 +1545,10 @@ func insertIssueRepoGORM(ctx context.Context, tx *gorm.DB, issueID, prefix strin
 	if err := repovalidation.ValidateWorktreeSubdir(worktreeSubdir); err != nil {
 		return nil, fmt.Errorf("store: CreateIssue repo worktree_subdir: %w", err)
 	}
+	creationCommit, err := validateCreationCommit(in.CreationCommit)
+	if err != nil {
+		return nil, fmt.Errorf("store: CreateIssue repo creation_commit: %w", err)
+	}
 	metadata, err := encodeJSONObject(in.Metadata)
 	if err != nil {
 		return nil, fmt.Errorf("store: CreateIssue repo metadata: %w", err)
@@ -1554,6 +1562,7 @@ func insertIssueRepoGORM(ctx context.Context, tx *gorm.DB, issueID, prefix strin
 		BaseRef:        baseRef,
 		WorkBranch:     workBranch,
 		WorktreeSubdir: worktreeSubdir,
+		CreationCommit: creationCommit,
 		Metadata:       datatypes.JSON(metadata),
 		CreatedAt:      newGORMTime(now),
 		UpdatedAt:      newGORMTime(now),
@@ -1562,7 +1571,23 @@ func insertIssueRepoGORM(ctx context.Context, tx *gorm.DB, issueID, prefix strin
 		return nil, fmt.Errorf("store: CreateIssue repo: %w", err)
 	}
 
-	return repoTargetFromIssueRepo(repo, requestedRef, baseRef, workBranch, worktreeSubdir, in.Metadata), nil
+	return repoTargetFromIssueRepo(repo, requestedRef, baseRef, workBranch, worktreeSubdir, creationCommit, in.Metadata), nil
+}
+
+func validateCreationCommit(value string) (string, error) {
+	commit := strings.TrimSpace(value)
+	if commit == "" {
+		return "", nil
+	}
+	if len(commit) != 40 {
+		return "", fmt.Errorf("must be a full lowercase 40-character hex object ID")
+	}
+	for _, ch := range commit {
+		if !((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f')) {
+			return "", fmt.Errorf("must be a full lowercase 40-character hex object ID")
+		}
+	}
+	return commit, nil
 }
 
 func (s *Store) populateIssueRepos(ctx context.Context, db *gorm.DB, issues []Issue) error {
@@ -1587,6 +1612,7 @@ func (s *Store) populateIssueRepos(ctx context.Context, db *gorm.DB, issues []Is
 		BaseRef        string
 		WorkBranch     string
 		WorktreeSubdir string
+		CreationCommit string
 		CloneStrategy  string
 		AuthRef        string
 		Metadata       datatypes.JSON
@@ -1597,7 +1623,7 @@ func (s *Store) populateIssueRepos(ctx context.Context, db *gorm.DB, issues []Is
 			r.id, r.slug, r.remote_url, r.default_branch,
 			ir.requested_ref, ir.base_ref, ir.work_branch,
 			CASE WHEN ir.worktree_subdir = '' THEN r.worktree_subdir ELSE ir.worktree_subdir END AS worktree_subdir,
-			r.clone_strategy, r.auth_ref, ir.metadata`).
+			ir.creation_commit, r.clone_strategy, r.auth_ref, ir.metadata`).
 		Joins("JOIN bn_repos r ON r.id = ir.repo_id").
 		Where("ir.issue_id IN ?", ids).
 		Scan(&rows).
@@ -1616,6 +1642,7 @@ func (s *Store) populateIssueRepos(ctx context.Context, db *gorm.DB, issues []Is
 			BaseRef:        row.BaseRef,
 			WorkBranch:     row.WorkBranch,
 			WorktreeSubdir: row.WorktreeSubdir,
+			CreationCommit: row.CreationCommit,
 			CloneStrategy:  row.CloneStrategy,
 			AuthRef:        row.AuthRef,
 			Metadata:       decodeJSONObject(row.Metadata),
@@ -1627,7 +1654,7 @@ func (s *Store) populateIssueRepos(ctx context.Context, db *gorm.DB, issues []Is
 	return nil
 }
 
-func repoTargetFromIssueRepo(repo Repo, requestedRef, baseRef, workBranch, worktreeSubdir string, metadata map[string]any) *model.RepoTarget {
+func repoTargetFromIssueRepo(repo Repo, requestedRef, baseRef, workBranch, worktreeSubdir, creationCommit string, metadata map[string]any) *model.RepoTarget {
 	if metadata == nil {
 		metadata = map[string]any{}
 	}
@@ -1640,6 +1667,7 @@ func repoTargetFromIssueRepo(repo Repo, requestedRef, baseRef, workBranch, workt
 		BaseRef:        baseRef,
 		WorkBranch:     workBranch,
 		WorktreeSubdir: worktreeSubdir,
+		CreationCommit: creationCommit,
 		CloneStrategy:  repo.CloneStrategy,
 		AuthRef:        repo.AuthRef,
 		Metadata:       metadata,

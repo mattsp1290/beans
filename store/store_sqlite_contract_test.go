@@ -621,6 +621,7 @@ func TestSQLiteStoreContractUpdateRepoNormalizesRemoteURL(t *testing.T) {
 func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 	s, ctx := newSQLiteContractStore(t)
 	const prefix = "sqlite-target"
+	const creationCommit = "0123456789abcdef0123456789abcdef01234567"
 	ensureContractProject(t, s, ctx, prefix)
 	if err := s.AddRepoAdmin(ctx, prefix, "alice", "alice", true); err != nil {
 		t.Fatalf("AddRepoAdmin bootstrap: %v", err)
@@ -644,11 +645,15 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 			BaseRef:        "main",
 			WorkBranch:     "work/sqlite-target",
 			WorktreeSubdir: "services/core",
+			CreationCommit: creationCommit,
 			Metadata:       map[string]any{"source": "contract"},
 		},
 	})
 	if err != nil {
 		t.Fatalf("CreateIssue with repo target: %v", err)
+	}
+	if issue.Repo == nil || issue.Repo.CreationCommit != creationCommit {
+		t.Fatalf("CreateIssue repo creation_commit = %+v, want %q", issue.Repo, creationCommit)
 	}
 	got, err := s.GetIssue(ctx, issue.ID)
 	if err != nil {
@@ -662,9 +667,83 @@ func TestSQLiteStoreContractIssueRepoTarget(t *testing.T) {
 		got.Repo.BaseRef != "main" ||
 		got.Repo.WorkBranch != "work/sqlite-target" ||
 		got.Repo.WorktreeSubdir != "services/core" ||
+		got.Repo.CreationCommit != creationCommit ||
 		got.Repo.AuthRef != "ssh-key:github-default" ||
 		got.Repo.Metadata["source"] != "contract" {
 		t.Fatalf("repo target = %+v, want populated target", got.Repo)
+	}
+
+	listed, err := s.ListIssues(ctx, ListFilter{Prefix: prefix})
+	if err != nil {
+		t.Fatalf("ListIssues targeted: %v", err)
+	}
+	if len(listed) != 1 || listed[0].Repo == nil || listed[0].Repo.CreationCommit != creationCommit {
+		t.Fatalf("ListIssues repo creation_commit = %+v, want %q", listed, creationCommit)
+	}
+
+	ready, err := s.ReadyIssues(ctx, ListFilter{Prefix: prefix}, []model.IssueState{"closed"}, []model.IssueState{"open"})
+	if err != nil {
+		t.Fatalf("ReadyIssues targeted: %v", err)
+	}
+	if len(ready) != 1 || ready[0].Repo == nil || ready[0].Repo.CreationCommit != creationCommit {
+		t.Fatalf("ReadyIssues repo creation_commit = %+v, want %q", ready, creationCommit)
+	}
+
+	emptyCommitIssue, err := s.CreateIssue(ctx, CreateIssueInput{
+		Prefix: prefix,
+		Title:  "Targeted empty commit",
+		Repo:   &IssueRepoInput{RepoSlug: "core", CreationCommit: ""},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue with empty creation_commit: %v", err)
+	}
+	if emptyCommitIssue.Repo == nil || emptyCommitIssue.Repo.CreationCommit != "" {
+		t.Fatalf("empty creation_commit repo target = %+v, want empty string", emptyCommitIssue.Repo)
+	}
+
+	invalidCommits := []string{
+		"HEAD",
+		"0123456",
+		"0123456789ABCDEF0123456789ABCDEF01234567",
+		"not-a-commit-object-id",
+	}
+	for _, invalid := range invalidCommits {
+		_, err := s.CreateIssue(ctx, CreateIssueInput{
+			Prefix: prefix,
+			Title:  "Invalid commit",
+			Repo:   &IssueRepoInput{RepoSlug: "core", CreationCommit: invalid},
+		})
+		if err == nil || !strings.Contains(err.Error(), "creation_commit") || !strings.Contains(err.Error(), "full lowercase 40-character hex object ID") {
+			t.Fatalf("CreateIssue creation_commit %q error = %v, want clear validation error", invalid, err)
+		}
+	}
+	afterInvalid, err := s.ListIssues(ctx, ListFilter{Prefix: prefix})
+	if err != nil {
+		t.Fatalf("ListIssues after invalid creation_commit: %v", err)
+	}
+	if len(afterInvalid) != 2 {
+		t.Fatalf("issue count after invalid creation_commit attempts = %d, want 2", len(afterInvalid))
+	}
+
+	_, err = s.CreateIssue(ctx, CreateIssueInput{
+		Title: "Invalid remote commit",
+		Repo: &IssueRepoInput{
+			RemoteURL:      "https://github.com/acme/invalid-remote-commit.git",
+			CreationCommit: "main",
+		},
+	})
+	if err == nil || !strings.Contains(err.Error(), "creation_commit") {
+		t.Fatalf("CreateIssue invalid remote creation_commit error = %v, want validation error", err)
+	}
+	if _, err := s.GetRepoBySlug(ctx, "invalid-remote-commit", "invalid-remote-commit"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("GetRepoBySlug after invalid remote creation_commit = %v, want ErrNotFound", err)
+	}
+	remoteIssues, err := s.ListIssues(ctx, ListFilter{Prefix: "invalid-remote-commit"})
+	if err != nil {
+		t.Fatalf("ListIssues after invalid remote creation_commit: %v", err)
+	}
+	if len(remoteIssues) != 0 {
+		t.Fatalf("issues after invalid remote creation_commit = %d, want 0", len(remoteIssues))
 	}
 }
 
