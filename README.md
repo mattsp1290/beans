@@ -51,6 +51,45 @@ SQLite uses a pure-Go driver and is the default no-Docker development and test
 path. MySQL DSNs should use `parseTime=true` and `loc=UTC` so timestamps scan
 and compare consistently.
 
+### Status Workflow Configuration
+
+The set of issue statuses is configurable per deployment. With no config file,
+`bn` uses the built-in vocabulary:
+
+```
+open  in_progress  ready_for_review  ready_for_validation  ready_for_merge  blocked  closed  done
+```
+
+`open` is the only **active** (dispatchable) status surfaced by `bn ready`;
+`closed` and `done` are **terminal** (they satisfy blockers and signal cleanup).
+The three `ready_for_*` states are **hold** states — in flight, so they are
+neither dispatched by `ready` nor counted as done.
+
+To customize, drop a `bn.toml` or `bn.yaml` next to your project (it is
+discovered by walking up from the working directory) or point `BN_CONFIG` at an
+explicit path. Discovery precedence:
+
+1. `BN_CONFIG=/path/to/bn.toml` (explicit; missing file is an error)
+2. `bn.toml` / `bn.yaml` / `bn.yml` found walking up from the working directory
+3. `$XDG_CONFIG_HOME/bn/config.{toml,yaml,yml}` (or `~/.config/bn/...`)
+
+Example `bn.toml` (see [`docs/bn.toml.example`](docs/bn.toml.example)):
+
+```toml
+[workflow]
+statuses = ["open", "in_progress", "ready_for_review", "ready_for_validation", "ready_for_merge", "blocked", "closed", "done"]
+default  = "open"          # status assigned to new issues
+active   = ["open"]         # dispatchable (bn ready)
+terminal = ["closed", "done"] # satisfy blockers, trigger cleanup
+```
+
+Any omitted key inherits the built-in default. Validation runs at startup: an
+invalid config (empty vocabulary, a `default`/`active`/`terminal` value not in
+`statuses`, or active/terminal overlap) fails fast with an error. Statuses are
+validated in the application layer — `create`, `update --status`, and `import`
+reject values outside the configured vocabulary (write-strict), while existing
+rows carrying an unknown status still display (read-tolerant).
+
 ## Multi-Repository Workflow
 
 `bn` supports work spanning multiple git repositories within a single shared

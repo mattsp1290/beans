@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -51,8 +52,8 @@ func newListCmd(rs *appState) *cobra.Command {
 			}
 
 			if status != "" {
-				if !allowedStates[status] {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: unknown status %q (known: open, in_progress, blocked, closed)\n", status)
+				if !activeWorkflow.IsValid(model.IssueState(status)) {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: unknown status %q (known: %s)\n", status, strings.Join(activeWorkflow.StatusNames(), ", "))
 				}
 				f.States = []model.IssueState{model.IssueState(status)}
 			}

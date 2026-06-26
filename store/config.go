@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mattsp1290/beans/model"
 	"github.com/mattsp1290/beans/schema"
 )
 
@@ -69,6 +70,11 @@ type Config struct {
 
 	// ConnectTimeout is the upper bound on NewPool's dial + ping. 0 ⇒ 5s.
 	ConnectTimeout time.Duration
+
+	// Workflow is the status vocabulary and bucket classification the store
+	// enforces on writes and uses for default-state-on-insert. A zero value
+	// (nil Statuses) falls back to model.DefaultWorkflowConfig() in store.New.
+	Workflow model.WorkflowConfig
 }
 
 // ConnectTimeoutDefault is used when Config.ConnectTimeout is zero.

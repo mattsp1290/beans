@@ -29,6 +29,7 @@ var expectedMigrations = []struct {
 	{7, "bn_semantic_guards"},
 	{8, "bn_dep_type"},
 	{9, "bn_remote_url_unique"},
+	{10, "bn_issue_state_drop_check"},
 }
 
 // TestListMigrationsParsesEmbedded verifies every dialect's embedded migration

@@ -317,7 +317,7 @@ func TestImportCrossRepoNoCrossPrefixConflict(t *testing.T) {
 	}
 
 	result, err := destStore.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: defaultTerminalStates,
+		TerminalStates: activeWorkflow.Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {
@@ -332,7 +332,7 @@ func TestImportCrossRepoNoCrossPrefixConflict(t *testing.T) {
 
 	// Re-import the same items: must be idempotent (skipped, no new conflicts).
 	result2, err := destStore.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: defaultTerminalStates,
+		TerminalStates: activeWorkflow.Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {

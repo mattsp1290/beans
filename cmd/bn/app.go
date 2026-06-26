@@ -28,6 +28,10 @@ type appState struct {
 	// lazily set by initConn
 	store *store.Store
 
+	// workflow status config, loaded once via ensureWorkflow (defaults + file).
+	workflow       model.WorkflowConfig
+	workflowLoaded bool
+
 	// injectable seam for git workspace queries; defaults to realGitResolver
 	git gitResolver
 
@@ -94,6 +98,13 @@ func (rs *appState) initConnWithOptions(ctx context.Context, skipMarker bool) er
 	if err != nil {
 		return err
 	}
+
+	// Resolve the status workflow before opening the store so the store enforces
+	// the same vocabulary the CLI layer does (fails fast on a bad config file).
+	if err := rs.ensureWorkflow(); err != nil {
+		return err
+	}
+	cfg.Workflow = rs.workflow
 
 	// Open the store first so auto-detect can call AutoRegisterRepo.
 	st, err := store.New(ctx, cfg)

@@ -5,16 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mattsp1290/beans/model"
 	store "github.com/mattsp1290/beans/store"
 )
-
-// defaultTerminalStates are the states treated as "done" for ready semantics.
-// Operators who need custom terminal sets can extend via a future config flag.
-var defaultTerminalStates = []model.IssueState{"closed", "done"}
-
-// defaultActiveStates are the states eligible for work dispatch.
-var defaultActiveStates = []model.IssueState{"open"}
 
 func newReadyCmd(rs *appState) *cobra.Command {
 	var (
@@ -32,7 +24,7 @@ func newReadyCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			issues, err := rs.store.ReadyIssues(cmd.Context(), f, defaultTerminalStates, defaultActiveStates)
+			issues, err := rs.store.ReadyIssues(cmd.Context(), f, activeWorkflow.Terminal, activeWorkflow.Active)
 			if err != nil {
 				return fmt.Errorf("ready: %w", err)
 			}
@@ -65,11 +57,13 @@ func printIssueTable(cmd *cobra.Command, issues []store.Issue) {
 		return
 	}
 	w := cmd.OutOrStdout()
-	fmt.Fprintf(w, "%-26s  %-12s  %-3s  %s\n", "ID", "STATUS", "PRI", "TITLE")
-	fmt.Fprintf(w, "%-26s  %-12s  %-3s  %s\n",
-		"──────────────────────────", "────────────", "───", "─────────────────────────────")
+	// STATUS is sized for the longest default status ("ready_for_validation",
+	// 20 chars) plus padding so configured hold states stay column-aligned.
+	fmt.Fprintf(w, "%-26s  %-22s  %-3s  %s\n", "ID", "STATUS", "PRI", "TITLE")
+	fmt.Fprintf(w, "%-26s  %-22s  %-3s  %s\n",
+		"──────────────────────────", "──────────────────────", "───", "─────────────────────────────")
 	for _, iss := range issues {
-		fmt.Fprintf(w, "%-26s  %-12s  %-3s  %s\n",
+		fmt.Fprintf(w, "%-26s  %-22s  %-3s  %s\n",
 			iss.ID, string(iss.State), priorityLabel(iss.Priority), iss.Title)
 	}
 }
