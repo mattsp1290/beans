@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -71,17 +72,27 @@ func loadWorkflowConfig() (model.WorkflowConfig, error) {
 			if explicit {
 				return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
 			}
-			// A discovered (non-explicit) file that vanished between stat and read:
-			// fall back to defaults rather than failing.
+			// A discovered (non-explicit) file that vanished between stat and read
+			// falls back to defaults; other read failures indicate a real bad
+			// deployment config and must fail fast.
+			if !os.IsNotExist(err) {
+				return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+			}
 		} else {
 			var file workflowFile
 			switch ext := strings.ToLower(filepath.Ext(path)); ext {
 			case ".toml":
-				if err := toml.Unmarshal(raw, &file); err != nil {
+				meta, err := toml.Decode(string(raw), &file)
+				if err != nil {
 					return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
 				}
+				if undecoded := meta.Undecoded(); len(undecoded) > 0 {
+					return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: unknown key(s): %s", path, joinTOMLKeys(undecoded))
+				}
 			case ".yaml", ".yml":
-				if err := yaml.Unmarshal(raw, &file); err != nil {
+				dec := yaml.NewDecoder(bytes.NewReader(raw))
+				dec.KnownFields(true)
+				if err := dec.Decode(&file); err != nil {
 					return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
 				}
 			default:
@@ -142,6 +153,14 @@ func toStates(in []string) []model.IssueState {
 		out = append(out, model.IssueState(s))
 	}
 	return out
+}
+
+func joinTOMLKeys(keys []toml.Key) string {
+	out := make([]string, len(keys))
+	for i, key := range keys {
+		out[i] = key.String()
+	}
+	return strings.Join(out, ", ")
 }
 
 // resolveWorkflowConfigPath finds the config file to load. It returns the path,

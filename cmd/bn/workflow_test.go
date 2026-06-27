@@ -169,6 +169,40 @@ terminal = ["closed"]
 	}
 }
 
+func TestLoadWorkflowConfigUnknownKeysFailFast(t *testing.T) {
+	tests := []struct {
+		name string
+		file string
+		body string
+	}{
+		{
+			name: "toml",
+			file: "bad.toml",
+			body: "[workflow]\ndefualt = \"open\"\n",
+		},
+		{
+			name: "yaml",
+			file: "bad.yaml",
+			body: "workflow:\n  defualt: open\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			isolateWorkflowEnv(t)
+			p := filepath.Join(t.TempDir(), tt.file)
+			if err := os.WriteFile(p, []byte(tt.body), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv(workflowEnv, p)
+
+			if _, err := loadWorkflowConfig(); err == nil {
+				t.Fatal("expected error for unknown workflow config key")
+			}
+		})
+	}
+}
+
 func TestLoadWorkflowConfigUnsupportedExtension(t *testing.T) {
 	isolateWorkflowEnv(t)
 	dir := t.TempDir()
@@ -188,6 +222,31 @@ func TestLoadWorkflowConfigMissingExplicitPathErrors(t *testing.T) {
 	t.Setenv(workflowEnv, filepath.Join(t.TempDir(), "does-not-exist.toml"))
 	if _, err := loadWorkflowConfig(); err == nil {
 		t.Fatal("expected error for missing BN_CONFIG path")
+	}
+}
+
+func TestLoadWorkflowConfigDiscoveredReadErrorFailsFast(t *testing.T) {
+	isolateWorkflowEnv(t)
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := filepath.Join(cwd, "bn.toml")
+	if err := os.WriteFile(p, []byte("[workflow]\n"), 0o000); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chmod(p, 0o644)
+	})
+	if err := os.Chmod(p, 0o000); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.ReadFile(p); err == nil {
+		t.Skip("test environment can read chmod 000 files")
+	}
+
+	if _, err := loadWorkflowConfig(); err == nil {
+		t.Fatal("expected read error for discovered unreadable config")
 	}
 }
 

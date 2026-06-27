@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-16-loadworkflowconfig-toml-yaml-loader-prece",
+  "base_ref": "main",
+  "head_sha": "ed205cca3a2d282aeec4ccd4bc2d615087deb2bc",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "status-precedence-auditor",
+      "display_name": "Status Precedence Auditor",
+      "role": "Checks config resolution ordering, env override precedence, and edge cases against the plan."
+    },
+    {
+      "slug": "config-validation-auditor",
+      "display_name": "Config Validation Auditor",
+      "role": "Checks fail-fast validation, decoding behavior, and test coverage for invalid configurations."
+    }
+  ]
+}
