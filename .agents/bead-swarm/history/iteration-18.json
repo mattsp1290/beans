@@ -1,0 +1,47 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 18,
+  "branch": "bead-swarm/iteration-18-reroute-all-status-validators-to-workf",
+  "slug": "reroute-all-status-validators-to-workf",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "parent-degraded",
+  "degraded_reason": "In-process spawn_agent tooling was unavailable; implementation was serialized for the single selected bead and review used two independent Codex CLI subagents.",
+  "selected_beads": ["beans-h5v.4"],
+  "beads_done": ["beans-h5v.4"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./cmd/bn ./store ./model: pass",
+    "make test: pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": false,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [
+    "workflow-contract-auditor Important: store CloseIssue hardcoded closed; fixed by closing to the configured terminal state and treating all configured terminal states as idempotent.",
+    "cli-regression-sentinel Important: direct command paths fell back to default workflow when appState.workflow was empty; fixed by falling back to the injected store workflow."
+  ],
+  "reviews": [
+    {
+      "reviewer": "workflow-contract-auditor",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-18-reroute-all-status-validators-to-workf-2026-06-26/workflow-contract-auditor/04-action-items.md",
+      "critical": 0,
+      "important": 1,
+      "suggestions": 2
+    },
+    {
+      "reviewer": "cli-regression-sentinel",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-18-reroute-all-status-validators-to-workf-2026-06-26/cli-regression-sentinel/04-action-items.md",
+      "critical": 0,
+      "important": 1,
+      "suggestions": 3
+    }
+  ],
+  "fixes_artifact": ".agents/reviews/bead-swarm-iteration-18-reroute-all-status-validators-to-workf-2026-06-26/fixes.md",
+  "status": "complete"
+}

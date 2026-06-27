@@ -24,7 +24,8 @@ func newReadyCmd(rs *appState) *cobra.Command {
 				return err
 			}
 
-			issues, err := rs.store.ReadyIssues(cmd.Context(), f, activeWorkflow.Terminal, activeWorkflow.Active)
+			workflow := rs.workflowConfig()
+			issues, err := rs.store.ReadyIssues(cmd.Context(), f, workflow.Terminal, workflow.Active)
 			if err != nil {
 				return fmt.Errorf("ready: %w", err)
 			}

@@ -78,6 +78,13 @@ func New(ctx context.Context, cfg Config) (*Store, error) {
 	return &Store{p: p, workflow: workflow}, nil
 }
 
+func (s *Store) WorkflowConfig() model.WorkflowConfig {
+	if s == nil || len(s.workflow.Statuses) == 0 {
+		return model.DefaultWorkflowConfig()
+	}
+	return s.workflow
+}
+
 // Close releases all pool connections. Idempotent.
 func (s *Store) Close() {
 	if s == nil {
@@ -723,8 +730,9 @@ func storeIssueNote(row gormIssueNote) IssueNote {
 	return note
 }
 
-// CloseIssue sets an issue's state to "closed". Idempotent: closing an already-
-// closed issue returns nil without inserting a duplicate note or bumping updated_at.
+// CloseIssue sets an issue's state to the workflow's first terminal state.
+// Idempotent: closing an already-terminal issue returns nil without inserting a
+// duplicate note or bumping updated_at.
 // If reason is non-empty it is appended as a note only when the state actually changes.
 func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error {
 	db, err := s.p.gorm()
@@ -732,17 +740,30 @@ func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error 
 		return err
 	}
 
-	// Only update when the issue is not already closed so that repeated calls don't
+	terminalStates := s.workflow.Terminal
+	if len(terminalStates) == 0 {
+		return fmt.Errorf("%w: no terminal status configured", ErrInvalidIssueState)
+	}
+	closeState := terminalStates[0]
+	terminal := make([]string, len(terminalStates))
+	for i, st := range terminalStates {
+		if !s.workflow.IsValid(st) {
+			return fmt.Errorf("%w: %s", ErrInvalidIssueState, st)
+		}
+		terminal[i] = string(st)
+	}
+
+	// Only update when the issue is not already terminal so repeated calls don't
 	// accumulate noise notes or churn updated_at.
 	res := db.WithContext(ctx).
 		Model(&gormIssue{}).
-		Where("id = ? AND state <> ?", id, "closed").
-		Updates(map[string]any{"state": "closed", "updated_at": newGORMTime(clockNowUTC())})
+		Where("id = ? AND state NOT IN ?", id, terminal).
+		Updates(map[string]any{"state": string(closeState), "updated_at": newGORMTime(clockNowUTC())})
 	if res.Error != nil {
 		return fmt.Errorf("store: CloseIssue: %w", res.Error)
 	}
 	if res.RowsAffected == 0 {
-		// Either the issue does not exist, or it was already closed.
+		// Either the issue does not exist, or it was already terminal.
 		exists, checkErr := s.issueExists(ctx, db, id)
 		if checkErr != nil {
 			return checkErr
@@ -750,7 +771,7 @@ func (s *Store) CloseIssue(ctx context.Context, id, actor, reason string) error 
 		if !exists {
 			return fmt.Errorf("store: %w: %s", ErrNotFound, id)
 		}
-		// Already closed — idempotent, skip note insertion.
+		// Already terminal — idempotent, skip note insertion.
 		return nil
 	}
 

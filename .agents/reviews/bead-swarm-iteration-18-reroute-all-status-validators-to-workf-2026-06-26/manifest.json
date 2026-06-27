@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-18-reroute-all-status-validators-to-workf",
+  "base_ref": "main",
+  "head_sha": "a0b03b240fe4a1ce05a827a1efa9f88c708420f4",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "workflow-contract-auditor",
+      "display_name": "Workflow Contract Auditor",
+      "role": "Checks that every status write and read path uses WorkflowConfig without weakening read-tolerant/write-strict behavior."
+    },
+    {
+      "slug": "cli-regression-sentinel",
+      "display_name": "CLI Regression Sentinel",
+      "role": "Looks for command behavior, tests, and compatibility regressions in the status vocabulary migration."
+    }
+  ]
+}

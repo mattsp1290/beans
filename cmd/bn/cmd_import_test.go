@@ -45,6 +45,32 @@ func TestParseImportJSONLSkipsInvalidStatus(t *testing.T) {
 	}
 }
 
+func TestParseImportJSONLWithWorkflowUsesConfiguredStatuses(t *testing.T) {
+	t.Parallel()
+
+	input := strings.NewReader(strings.Join([]string{
+		`{"id":"src-custom","title":"custom","status":"qa","priority":2,"issue_type":"task"}`,
+		`{"id":"src-legacy","title":"legacy","status":"done","priority":2,"issue_type":"task"}`,
+	}, "\n"))
+	workflow := model.WorkflowConfig{
+		Statuses: []model.IssueState{"open", "qa", "closed"},
+		Default:  "open",
+		Active:   []model.IssueState{"open"},
+		Terminal: []model.IssueState{"closed"},
+	}
+
+	items, warnings, err := parseImportJSONLWithWorkflow(input, "dest", workflow)
+	if err != nil {
+		t.Fatalf("parseImportJSONLWithWorkflow: %v", err)
+	}
+	if warnings != 1 {
+		t.Fatalf("warnings = %d, want 1", warnings)
+	}
+	if len(items) != 1 || items[0].ID != "src-custom" || items[0].State != "qa" {
+		t.Fatalf("items = %+v, want only configured qa row", items)
+	}
+}
+
 func TestParseImportJSONLMapsFullBDRowAndFiltersDeps(t *testing.T) {
 	t.Parallel()
 
@@ -378,7 +404,7 @@ func TestImportCrossRepoNoCrossPrefixConflict(t *testing.T) {
 	}
 
 	result, err := destStore.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {
@@ -393,7 +419,7 @@ func TestImportCrossRepoNoCrossPrefixConflict(t *testing.T) {
 
 	// Re-import the same items: must be idempotent (skipped, no new conflicts).
 	result2, err := destStore.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {
@@ -421,7 +447,7 @@ func TestImportJSONLOlderExportWithoutRepoStaysCompatible(t *testing.T) {
 
 	st, _ := newTestStore(t, "dest", "")
 	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {
@@ -451,7 +477,7 @@ func TestImportJSONLRepoRemoteURLCreatesRepoLinkWithCreationCommit(t *testing.T)
 
 	st, _ := newTestStore(t, "dest", "")
 	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {
@@ -497,7 +523,7 @@ func TestImportJSONLExistingRepoSlugCreatesRepoLinkWithCreationCommit(t *testing
 	}
 
 	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {
@@ -569,7 +595,7 @@ func TestImportJSONLMergeReplacesRepoRoutingAndPreservesCreationCommit(t *testin
 	}
 
 	result, err := st.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeMerge,
 	})
 	if err != nil {
@@ -606,7 +632,7 @@ func TestImportJSONLRepoSlugCreationCommitRequiresRegisteredRepo(t *testing.T) {
 
 	st, _ := newTestStore(t, "dest", "")
 	_, err = st.ImportIssuesFull(ctx, items, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err == nil || !strings.Contains(err.Error(), "creation_commit requires resolvable repo.slug") ||
@@ -630,7 +656,7 @@ func TestImportJSONLInvalidStateDoesNotAutoRegisterRepo(t *testing.T) {
 			RemoteURL: "https://github.com/acme/side-effect",
 		},
 	}}, store.ImportOptions{
-		TerminalStates: activeWorkflow.Terminal,
+		TerminalStates: model.DefaultWorkflowConfig().Terminal,
 		Mode:           store.ImportModeCreateOnly,
 	})
 	if err != nil {

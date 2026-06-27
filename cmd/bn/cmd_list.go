@@ -52,8 +52,9 @@ func newListCmd(rs *appState) *cobra.Command {
 			}
 
 			if status != "" {
-				if !activeWorkflow.IsValid(model.IssueState(status)) {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: unknown status %q (known: %s)\n", status, strings.Join(activeWorkflow.StatusNames(), ", "))
+				workflow := rs.workflowConfig()
+				if !workflow.IsValid(model.IssueState(status)) {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: unknown status %q (known: %s)\n", status, strings.Join(workflow.StatusNames(), ", "))
 				}
 				f.States = []model.IssueState{model.IssueState(status)}
 			}
@@ -85,7 +86,7 @@ func newListCmd(rs *appState) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&epic, "epic", "", "list parent-child members (children) of the given epic/parent id (all states)")
-	cmd.Flags().StringVar(&status, "status", "", "filter by state (open, in_progress, closed, …)")
+	cmd.Flags().StringVar(&status, "status", "", "filter by configured workflow state")
 	cmd.Flags().BoolVar(&all, "all", false, "return all results (overrides default page cap)")
 	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "list issues across all repositories (distinct from --all which controls page cap)")
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, fmt.Sprintf("max results (default %d; 0 = default cap)", defaultListLimit))
