@@ -49,6 +49,15 @@ func newRootCmd(rs *appState) *cobra.Command {
 	if rs.stderr == nil {
 		rs.stderr = os.Stderr
 	}
+	// Help text is rendered before PersistentPreRunE, so preload a valid
+	// workflow config when possible. Startup still reports invalid configs via
+	// ensureWorkflow during command execution.
+	if !rs.workflowLoaded {
+		if wf, err := loadWorkflowConfig(); err == nil {
+			rs.workflow = wf
+			rs.workflowLoaded = true
+		}
+	}
 	root := &cobra.Command{
 		Use:           "bn",
 		Short:         "Database-backed issue tracker (bn = beans)",
