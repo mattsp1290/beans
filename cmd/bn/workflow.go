@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -21,6 +22,10 @@ var activeWorkflow = model.DefaultWorkflowConfig()
 
 // workflowEnv is the env var pointing at an explicit config file path.
 const workflowEnv = "BN_CONFIG"
+
+// workflowDefaultEnv overrides just the default new-issue status after any file
+// config has been merged.
+const workflowDefaultEnv = "BN_STATUS_DEFAULT"
 
 // workflowFile is the on-disk schema for the [workflow] section, decoded from
 // TOML or YAML. All fields are optional; omitted fields inherit the built-in
@@ -55,41 +60,57 @@ func (rs *appState) ensureWorkflow() error {
 // loadWorkflowConfig resolves, decodes, merges, and validates the workflow
 // config. With no config file found it returns the built-in default.
 func loadWorkflowConfig() (model.WorkflowConfig, error) {
+	wf := model.DefaultWorkflowConfig()
 	path, explicit, err := resolveWorkflowConfigPath()
 	if err != nil {
 		return model.WorkflowConfig{}, err
 	}
-	if path == "" {
-		return model.DefaultWorkflowConfig(), nil
+
+	if path != "" {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			if explicit {
+				return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+			}
+			// A discovered (non-explicit) file that vanished between stat and read
+			// falls back to defaults; other read failures indicate a real bad
+			// deployment config and must fail fast.
+			if !os.IsNotExist(err) {
+				return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+			}
+		} else {
+			var file workflowFile
+			switch ext := strings.ToLower(filepath.Ext(path)); ext {
+			case ".toml":
+				meta, err := toml.Decode(string(raw), &file)
+				if err != nil {
+					return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+				}
+				if undecoded := meta.Undecoded(); len(undecoded) > 0 {
+					return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: unknown key(s): %s", path, joinTOMLKeys(undecoded))
+				}
+			case ".yaml", ".yml":
+				dec := yaml.NewDecoder(bytes.NewReader(raw))
+				dec.KnownFields(true)
+				if err := dec.Decode(&file); err != nil {
+					return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+				}
+			default:
+				return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: unsupported extension %q (use .toml, .yaml, or .yml)", path, ext)
+			}
+			wf = mergeWorkflowFile(wf, file)
+		}
 	}
 
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		if explicit {
-			return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
-		}
-		// A discovered (non-explicit) file that vanished between stat and read:
-		// fall back to defaults rather than failing.
-		return model.DefaultWorkflowConfig(), nil
+	if v := strings.TrimSpace(os.Getenv(workflowDefaultEnv)); v != "" {
+		wf.Default = model.IssueState(v)
 	}
 
-	var file workflowFile
-	switch ext := strings.ToLower(filepath.Ext(path)); ext {
-	case ".toml":
-		if err := toml.Unmarshal(raw, &file); err != nil {
-			return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
-		}
-	case ".yaml", ".yml":
-		if err := yaml.Unmarshal(raw, &file); err != nil {
-			return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
-		}
-	default:
-		return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: unsupported extension %q (use .toml, .yaml, or .yml)", path, ext)
-	}
-
-	wf := mergeWorkflowFile(model.DefaultWorkflowConfig(), file)
 	if err := wf.Validate(); err != nil {
-		return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+		if path != "" {
+			return model.WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", path, err)
+		}
+		return model.WorkflowConfig{}, err
 	}
 	return wf, nil
 }
@@ -134,14 +155,23 @@ func toStates(in []string) []model.IssueState {
 	return out
 }
 
+func joinTOMLKeys(keys []toml.Key) string {
+	out := make([]string, len(keys))
+	for i, key := range keys {
+		out[i] = key.String()
+	}
+	return strings.Join(out, ", ")
+}
+
 // resolveWorkflowConfigPath finds the config file to load. It returns the path,
 // whether it was set explicitly (via BN_CONFIG, in which case an unreadable file
 // is a hard error), and any discovery error. An empty path means "use defaults".
 //
 // Precedence:
 //  1. BN_CONFIG env var (explicit; error if set but missing/unreadable).
-//  2. Walk up from the working directory for bn.toml / bn.yaml / bn.yml.
-//  3. $XDG_CONFIG_HOME/bn/config.{toml,yaml,yml} (or ~/.config/bn/...).
+//  2. bn.toml / bn.yaml / bn.yml in the working directory.
+//  3. bn.toml / bn.yaml / bn.yml next to the discovered .bn marker.
+//  4. $XDG_CONFIG_HOME/bn/config.{toml,yaml,yml} (or ~/.config/bn/...).
 func resolveWorkflowConfigPath() (path string, explicit bool, err error) {
 	if env := strings.TrimSpace(os.Getenv(workflowEnv)); env != "" {
 		info, statErr := os.Stat(env)
@@ -154,10 +184,22 @@ func resolveWorkflowConfigPath() (path string, explicit bool, err error) {
 		return env, true, nil
 	}
 
-	if p, found, walkErr := walkUpForWorkflowConfig(); walkErr != nil {
-		return "", false, walkErr
+	if p, found, cwdErr := workflowConfigInDir(""); cwdErr != nil {
+		return "", false, cwdErr
 	} else if found {
 		return p, false, nil
+	}
+
+	markerPath, markerFound, err := activeProjectMarkerPath("")
+	if err != nil {
+		return "", false, fmt.Errorf("workflow config: %w", err)
+	}
+	if markerFound {
+		if p, found, markerErr := workflowConfigInDir(filepath.Dir(markerPath)); markerErr != nil {
+			return "", false, markerErr
+		} else if found {
+			return p, false, nil
+		}
 	}
 
 	if p, found := xdgWorkflowConfig(); found {
@@ -171,28 +213,31 @@ func resolveWorkflowConfigPath() (path string, explicit bool, err error) {
 // single directory (TOML preferred, then YAML).
 var workflowConfigNames = []string{"bn.toml", "bn.yaml", "bn.yml"}
 
-func walkUpForWorkflowConfig() (string, bool, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", false, fmt.Errorf("workflow config: get working directory: %w", err)
-	}
-	dir, err := filepath.Abs(wd)
-	if err != nil {
-		return "", false, fmt.Errorf("workflow config: resolve %s: %w", wd, err)
-	}
-	for {
-		for _, name := range workflowConfigNames {
-			p := filepath.Join(dir, name)
-			if info, statErr := os.Stat(p); statErr == nil && !info.IsDir() {
-				return p, true, nil
-			}
+func workflowConfigInDir(dir string) (string, bool, error) {
+	if dir == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return "", false, fmt.Errorf("workflow config: get working directory: %w", err)
 		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", false, nil
-		}
-		dir = parent
+		dir = wd
 	}
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		return "", false, fmt.Errorf("workflow config: resolve %s: %w", dir, err)
+	}
+	for _, name := range workflowConfigNames {
+		p := filepath.Join(dir, name)
+		info, statErr := os.Stat(p)
+		switch {
+		case statErr == nil && !info.IsDir():
+			return p, true, nil
+		case statErr == nil:
+			return "", false, fmt.Errorf("%s is a directory; expected workflow config file", p)
+		case !os.IsNotExist(statErr):
+			return "", false, fmt.Errorf("stat %s: %w", p, statErr)
+		}
+	}
+	return "", false, nil
 }
 
 func xdgWorkflowConfig() (string, bool) {
