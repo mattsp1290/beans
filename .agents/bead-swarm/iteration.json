@@ -1,0 +1,11 @@
+{
+  "iteration": 19,
+  "branch": "bead-swarm/iteration-19-migration-0010-drop-bn-issues-state-check",
+  "slug": "migration-0010-drop-bn-issues-state-check",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "selected_beads": ["beans-h5v.5"],
+  "beads_done_pending_close": [],
+  "beads_blocked": [],
+  "beads_partial": []
+}
