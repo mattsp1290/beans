@@ -1,0 +1,11 @@
+{
+  "iteration": 17,
+  "branch": "bead-swarm/iteration-17-thread-workflow-config-into-appstate-and-store",
+  "slug": "thread-workflow-config-into-appstate-and-store",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "selected_beads": ["beans-h5v.3"],
+  "beads_done_pending_close": [],
+  "beads_blocked": [],
+  "beads_partial": []
+}
