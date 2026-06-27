@@ -303,6 +303,62 @@ terminal = ["closed"]
 	}
 }
 
+func TestDirectCommandsUseInjectedStoreWorkflow(t *testing.T) {
+	ctx := context.Background()
+	workflow := model.WorkflowConfig{
+		Statuses: []model.IssueState{"backlog", "qa", "shipped"},
+		Default:  "backlog",
+		Active:   []model.IssueState{"qa"},
+		Terminal: []model.IssueState{"shipped"},
+	}
+	st, err := store.New(ctx, store.Config{
+		Driver:   store.DriverSQLite,
+		DSN:      store.SecretDSN("file:" + strings.NewReplacer("/", "_", " ", "_").Replace(t.Name()) + "?mode=memory&cache=shared"),
+		Workflow: workflow,
+	})
+	if err != nil {
+		t.Fatalf("store.New: %v", err)
+	}
+	defer st.Close()
+	if err := st.EnsureProject(ctx, "wfproj"); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	iss, err := st.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix:    "wfproj",
+		Title:     "custom direct command",
+		Priority:  2,
+		IssueType: "task",
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue: %v", err)
+	}
+
+	rs := &appState{
+		store:  st,
+		prefix: "wfproj",
+		actor:  "test",
+		git:    &fakeGitResolver{},
+	}
+	updateCmd := newUpdateCmd(rs)
+	updateCmd.SetOut(&bytes.Buffer{})
+	updateCmd.SetErr(&bytes.Buffer{})
+	updateCmd.SetArgs([]string{iss.ID, "--status", "qa"})
+	if err := updateCmd.Execute(); err != nil {
+		t.Fatalf("direct update Execute: %v", err)
+	}
+
+	readyCmd := newReadyCmd(rs)
+	var readyOut bytes.Buffer
+	readyCmd.SetOut(&readyOut)
+	readyCmd.SetErr(&bytes.Buffer{})
+	if err := readyCmd.Execute(); err != nil {
+		t.Fatalf("direct ready Execute: %v", err)
+	}
+	if !strings.Contains(readyOut.String(), iss.ID) {
+		t.Fatalf("ready output %q missing issue %q active under injected store workflow", readyOut.String(), iss.ID)
+	}
+}
+
 func TestStoreConfigFromEnvInfersPostgresOnlyWhenClear(t *testing.T) {
 	t.Setenv("BN_DRIVER", "")
 	t.Setenv("BN_DSN", "postgres://user:pass@localhost:5432/beans")

@@ -50,10 +50,13 @@ func (rs *appState) ensureWorkflow() error {
 }
 
 func (rs *appState) workflowConfig() model.WorkflowConfig {
-	if len(rs.workflow.Statuses) == 0 {
-		return model.DefaultWorkflowConfig()
+	if len(rs.workflow.Statuses) != 0 {
+		return rs.workflow
 	}
-	return rs.workflow
+	if rs.store != nil {
+		return rs.store.WorkflowConfig()
+	}
+	return model.DefaultWorkflowConfig()
 }
 
 // loadWorkflowConfig resolves, decodes, merges, and validates the workflow

@@ -85,6 +85,63 @@ func TestStoreCustomWorkflowDefaultAndVocab(t *testing.T) {
 	}
 }
 
+func TestCloseIssueUsesConfiguredTerminalState(t *testing.T) {
+	ctx := context.Background()
+	custom := model.WorkflowConfig{
+		Statuses: []model.IssueState{"backlog", "active", "qa", "shipped"},
+		Default:  "backlog",
+		Active:   []model.IssueState{"active"},
+		Terminal: []model.IssueState{"shipped"},
+	}
+	s, err := New(ctx, Config{
+		Driver:   DriverSQLite,
+		DSN:      SecretDSN(sqliteMemoryDSN(t)),
+		Workflow: custom,
+	})
+	if err != nil {
+		t.Fatalf("New sqlite: %v", err)
+	}
+	t.Cleanup(s.Close)
+	ensureContractProject(t, s, ctx, "wf")
+
+	iss := mustCreateContractIssue(t, s, ctx, "wf", "Ship me", 2)
+	if err := s.CloseIssue(ctx, iss.ID, "tester", "shipped"); err != nil {
+		t.Fatalf("CloseIssue: %v", err)
+	}
+	closed, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue closed: %v", err)
+	}
+	if closed.State != "shipped" {
+		t.Fatalf("closed state = %q, want configured terminal shipped", closed.State)
+	}
+	notes, err := s.ListIssueNotes(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("ListIssueNotes: %v", err)
+	}
+	if len(notes) != 1 {
+		t.Fatalf("notes after first close = %d, want 1", len(notes))
+	}
+
+	if err := s.CloseIssue(ctx, iss.ID, "tester", "duplicate"); err != nil {
+		t.Fatalf("CloseIssue duplicate: %v", err)
+	}
+	again, err := s.GetIssue(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("GetIssue duplicate close: %v", err)
+	}
+	if again.State != "shipped" || !again.UpdatedAt.Equal(closed.UpdatedAt) {
+		t.Fatalf("duplicate close = state %q updated %s, want unchanged shipped/%s", again.State, again.UpdatedAt, closed.UpdatedAt)
+	}
+	notes, err = s.ListIssueNotes(ctx, iss.ID)
+	if err != nil {
+		t.Fatalf("ListIssueNotes duplicate: %v", err)
+	}
+	if len(notes) != 1 {
+		t.Fatalf("notes after duplicate close = %d, want still 1", len(notes))
+	}
+}
+
 // TestReadyExcludesHoldAndBlocks proves a ready_for_* (hold) blocker neither
 // surfaces in ready nor satisfies a dependent, while a terminal blocker does.
 func TestReadyExcludesHoldAndBlocks(t *testing.T) {
