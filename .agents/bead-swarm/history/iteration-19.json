@@ -1,0 +1,53 @@
+{
+  "schema_version": "bead-swarm-history-v1",
+  "iteration": 19,
+  "branch": "bead-swarm/iteration-19-migration-0010-drop-bn-issues-state-check",
+  "slug": "migration-0010-drop-bn-issues-state-check",
+  "main_branch": "main",
+  "main_branch_source": "default",
+  "execution_mode": "parent-degraded",
+  "degraded_reason": "Codex spawn_agent tools were unavailable, so implementation ran in the orchestrator; two independent Codex subprocess reviewer subagents were used for the review gate.",
+  "selected_beads": ["beans-h5v.5"],
+  "beads_done": ["beans-h5v.5"],
+  "beads_blocked": [],
+  "beads_partial": [],
+  "merge_target": "main",
+  "validation": [
+    "go test ./schema: pass",
+    "go test ./store -run 'TestStoreAcceptsNewHoldStates|TestStoreRejectsUnknownStatus|TestStoreCustomWorkflowDefaultAndVocab|TestReadyExcludesHoldAndBlocks': pass",
+    "go test -tags=integration ./schema: pass",
+    "go test -tags=integration ./store -run 'TestStoreContractAcrossDialects/(postgres|mysql|sqlite)/workflow_hold_states_after_migration': pass",
+    "make test: pass"
+  ],
+  "review_mode": "reviewer-subagents",
+  "review_assurance": "normal",
+  "findings_fixed_re_reviewed": false,
+  "review_artifacts_local_only": false,
+  "review_blocker_summary": [
+    {
+      "reviewer": "sqlite-rebuild-guardian",
+      "severity": "Important",
+      "status": "fixed",
+      "summary": "SQLite rebuild test did not prove live FK behavior, retained non-state constraints/defaults, or cascade behavior."
+    },
+    {
+      "reviewer": "dialect-migration-skeptic",
+      "severity": "Important",
+      "status": "fixed",
+      "summary": "Cross-dialect ready_for_* writes were not proven after migration 0010."
+    }
+  ],
+  "reviews": [
+    {
+      "reviewer": "sqlite-rebuild-guardian",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-19-migration-0010-drop-bn-issues-state-check-2026-06-26/sqlite-rebuild-guardian/04-action-items.md"
+    },
+    {
+      "reviewer": "dialect-migration-skeptic",
+      "verdict": "REQUEST_CHANGES",
+      "artifact": ".agents/reviews/bead-swarm-iteration-19-migration-0010-drop-bn-issues-state-check-2026-06-26/dialect-migration-skeptic/04-action-items.md"
+    }
+  ],
+  "status": "complete"
+}

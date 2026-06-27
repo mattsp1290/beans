@@ -154,6 +154,33 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 
 	// Each scenario opens a fresh store so failures cannot leak state across
 	// dialect assertions or hide cleanup differences between backends.
+	t.Run("workflow_hold_states_after_migration", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "workflow")
+		ensureProject(t, s, ctx, prefix)
+
+		iss, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "hold state",
+			Priority:  2,
+			IssueType: "task",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue hold state: %v", err)
+		}
+		for _, state := range []model.IssueState{"ready_for_review", "ready_for_validation", "ready_for_merge"} {
+			state := state
+			updated, err := s.UpdateIssue(ctx, iss.ID, store.UpdateIssueInput{State: &state})
+			if err != nil {
+				t.Fatalf("UpdateIssue to %s: %v", state, err)
+			}
+			if updated.State != state {
+				t.Fatalf("updated state = %q, want %q", updated.State, state)
+			}
+		}
+	})
+
 	t.Run("issue_dependencies_and_imports", func(t *testing.T) {
 		s := dialect.open(t)
 		ctx := context.Background()

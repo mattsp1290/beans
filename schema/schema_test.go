@@ -452,6 +452,164 @@ func TestMigrateSQLiteAppliesDialectDDL(t *testing.T) {
 	assertSQLiteTextColumn(t, sqlDB, "bn_issue_repos", "creation_commit", true, "''")
 }
 
+func TestMigrateSQLite0010DropsStateCheckAndPreservesIssueShape(t *testing.T) {
+	t.Parallel()
+
+	db, err := gorm.Open(sqlite.Open(sqliteMemoryDSN(t)), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("gorm sqlite open: %v", err)
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("sqlite DB: %v", err)
+	}
+	defer sqlDB.Close()
+
+	ctx := context.Background()
+	if err := migrateToVersion(ctx, sqlDB, DriverSQLite, 9); err != nil {
+		t.Fatalf("migrate sqlite to v9: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `PRAGMA foreign_keys = ON`); err != nil {
+		t.Fatalf("enable sqlite foreign keys: %v", err)
+	}
+
+	if _, err := sqlDB.ExecContext(ctx, `INSERT INTO bn_projects (prefix) VALUES ('p')`); err != nil {
+		t.Fatalf("insert project: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_repos (id, prefix, slug, display_name, remote_url, auth_ref)
+		VALUES ('repo-1', 'p', 'repo', 'Repo', 'file:///tmp/repo', 'none')`); err != nil {
+		t.Fatalf("insert repo: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issues (id, prefix, identifier, title, description, priority, issue_type, state, labels, branch_name, url)
+		VALUES
+			('p-1', 'p', '1', 'one', 'first', 1, 'task', 'open', '["a"]', 'branch', 'https://example.invalid/1'),
+			('p-2', 'p', '2', 'two', 'second', 2, 'bug', 'blocked', '[]', '', '')`); err != nil {
+		t.Fatalf("insert legacy issues: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issue_deps (issue_id, blocked_by_id)
+		VALUES ('p-2', 'p-1')`); err != nil {
+		t.Fatalf("insert dependency: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issue_notes (issue_id, actor, body)
+		VALUES ('p-1', 'tester', 'note')`); err != nil {
+		t.Fatalf("insert note: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issue_repos (issue_id, repo_id, requested_ref, base_ref, work_branch, worktree_subdir, metadata)
+		VALUES ('p-1', 'repo-1', 'main', 'main', 'work', 'subdir', '{"ok":true}')`); err != nil {
+		t.Fatalf("insert issue repo link: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `UPDATE bn_issues SET state = 'ready_for_review' WHERE id = 'p-1'`); err == nil {
+		t.Fatal("legacy SQLite state CHECK accepted ready_for_review before v10")
+	}
+
+	if err := migrateToVersion(ctx, sqlDB, DriverSQLite, 10); err != nil {
+		t.Fatalf("migrate sqlite to v10: %v", err)
+	}
+
+	assertSQLiteColumns(t, sqlDB, "bn_issues", []string{
+		"id",
+		"prefix",
+		"identifier",
+		"title",
+		"description",
+		"priority",
+		"issue_type",
+		"state",
+		"labels",
+		"branch_name",
+		"url",
+		"created_at",
+		"updated_at",
+	})
+	assertSQLiteIndexExists(t, sqlDB, "bn_issues_prefix_state_idx")
+	assertSQLiteTableSQLMissing(t, sqlDB, "bn_issues", "CHECK (state IN")
+	assertSQLiteColumnProperties(t, sqlDB, "bn_issues", map[string]sqliteColumnProperties{
+		"id":          {typ: "TEXT", pk: true},
+		"prefix":      {typ: "TEXT", notNull: true},
+		"title":       {typ: "TEXT", notNull: true},
+		"description": {typ: "TEXT", notNull: true, defaultValue: "''"},
+		"priority":    {typ: "INTEGER", notNull: true, defaultValue: "2"},
+		"issue_type":  {typ: "TEXT", notNull: true, defaultValue: "'task'"},
+		"state":       {typ: "TEXT", notNull: true, defaultValue: "'open'"},
+		"labels":      {typ: "TEXT", notNull: true, defaultValue: "'[]'"},
+		"created_at":  {typ: "TEXT", notNull: true, defaultValue: "CURRENT_TIMESTAMP"},
+		"updated_at":  {typ: "TEXT", notNull: true, defaultValue: "CURRENT_TIMESTAMP"},
+	})
+	assertSQLiteForeignKeyCheckClean(t, sqlDB)
+
+	if _, err := sqlDB.ExecContext(ctx, `UPDATE bn_issues SET state = 'ready_for_review' WHERE id = 'p-1'`); err != nil {
+		t.Fatalf("state update after v10: %v", err)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issues (id, prefix, title, description, state)
+		VALUES ('p-3', 'p', 'three', '', 'ready_for_validation')`); err != nil {
+		t.Fatalf("insert ready_for_validation after v10: %v", err)
+	}
+
+	var (
+		state    string
+		labels   string
+		repoRows int
+		depRows  int
+		noteRows int
+	)
+	if err := sqlDB.QueryRowContext(ctx, `
+		SELECT state, labels FROM bn_issues WHERE id = 'p-1'`,
+	).Scan(&state, &labels); err != nil {
+		t.Fatalf("select migrated issue: %v", err)
+	}
+	if state != "ready_for_review" || labels != `["a"]` {
+		t.Fatalf("migrated issue state/labels = %q/%q, want ready_for_review/[\"a\"]", state, labels)
+	}
+	if err := sqlDB.QueryRowContext(ctx, `SELECT count(*) FROM bn_issue_repos WHERE issue_id = 'p-1'`).Scan(&repoRows); err != nil {
+		t.Fatalf("count issue repo rows: %v", err)
+	}
+	if err := sqlDB.QueryRowContext(ctx, `SELECT count(*) FROM bn_issue_deps WHERE issue_id = 'p-2' AND blocked_by_id = 'p-1'`).Scan(&depRows); err != nil {
+		t.Fatalf("count dep rows: %v", err)
+	}
+	if err := sqlDB.QueryRowContext(ctx, `SELECT count(*) FROM bn_issue_notes WHERE issue_id = 'p-1'`).Scan(&noteRows); err != nil {
+		t.Fatalf("count note rows: %v", err)
+	}
+	if repoRows != 1 || depRows != 1 || noteRows != 1 {
+		t.Fatalf("preserved child rows repo/deps/notes = %d/%d/%d, want 1/1/1", repoRows, depRows, noteRows)
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issues (id, prefix, title, description)
+		VALUES ('missing-1', 'missing', 'bad prefix', '')`); err == nil {
+		t.Fatal("insert with missing project prefix after v10 succeeded, want FK error")
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issues (id, prefix, title, description, priority)
+		VALUES ('p-4', 'p', 'bad priority', '', 99)`); err == nil {
+		t.Fatal("insert with invalid priority after v10 succeeded, want CHECK error")
+	}
+	if _, err := sqlDB.ExecContext(ctx, `
+		INSERT INTO bn_issues (id, prefix, title, description, labels)
+		VALUES ('p-4', 'p', 'bad labels', '', 'not json')`); err == nil {
+		t.Fatal("insert with invalid labels after v10 succeeded, want CHECK error")
+	}
+	if _, err := sqlDB.ExecContext(ctx, `DELETE FROM bn_issues WHERE id = 'p-1'`); err != nil {
+		t.Fatalf("delete migrated issue after v10: %v", err)
+	}
+	if err := sqlDB.QueryRowContext(ctx, `SELECT count(*) FROM bn_issue_repos WHERE issue_id = 'p-1'`).Scan(&repoRows); err != nil {
+		t.Fatalf("count cascaded issue repo rows: %v", err)
+	}
+	if err := sqlDB.QueryRowContext(ctx, `SELECT count(*) FROM bn_issue_deps WHERE issue_id = 'p-2' AND blocked_by_id = 'p-1'`).Scan(&depRows); err != nil {
+		t.Fatalf("count cascaded dep rows: %v", err)
+	}
+	if err := sqlDB.QueryRowContext(ctx, `SELECT count(*) FROM bn_issue_notes WHERE issue_id = 'p-1'`).Scan(&noteRows); err != nil {
+		t.Fatalf("count cascaded note rows: %v", err)
+	}
+	if repoRows != 0 || depRows != 0 || noteRows != 0 {
+		t.Fatalf("cascaded child rows repo/deps/notes = %d/%d/%d, want 0/0/0", repoRows, depRows, noteRows)
+	}
+}
+
 func TestMigrateSQLiteBackfillsIssueRepoCreationCommit(t *testing.T) {
 	t.Parallel()
 
@@ -655,6 +813,147 @@ func assertSQLiteTextColumn(t *testing.T, db *sql.DB, table, column string, notN
 		t.Fatalf("table_info(%s) rows: %v", table, err)
 	}
 	t.Fatalf("%s.%s column not found", table, column)
+}
+
+func assertSQLiteColumns(t *testing.T, db *sql.DB, table string, want []string) {
+	t.Helper()
+
+	rows, err := db.QueryContext(context.Background(), fmt.Sprintf(`PRAGMA table_info(%s)`, table))
+	if err != nil {
+		t.Fatalf("pragma table_info(%s): %v", table, err)
+	}
+	defer rows.Close()
+
+	var got []string
+	for rows.Next() {
+		var (
+			cid       int
+			name      string
+			columnTyp string
+			notnull   int
+			dfltValue sql.NullString
+			pk        int
+		)
+		if err := rows.Scan(&cid, &name, &columnTyp, &notnull, &dfltValue, &pk); err != nil {
+			t.Fatalf("scan table_info(%s): %v", table, err)
+		}
+		got = append(got, name)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("table_info(%s) rows: %v", table, err)
+	}
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("%s columns = %v, want %v", table, got, want)
+	}
+}
+
+type sqliteColumnProperties struct {
+	typ          string
+	notNull      bool
+	defaultValue string
+	pk           bool
+}
+
+func assertSQLiteColumnProperties(t *testing.T, db *sql.DB, table string, want map[string]sqliteColumnProperties) {
+	t.Helper()
+
+	rows, err := db.QueryContext(context.Background(), fmt.Sprintf(`PRAGMA table_info(%s)`, table))
+	if err != nil {
+		t.Fatalf("pragma table_info(%s): %v", table, err)
+	}
+	defer rows.Close()
+
+	seen := make(map[string]bool, len(want))
+	for rows.Next() {
+		var (
+			cid       int
+			name      string
+			columnTyp string
+			notnull   int
+			dfltValue sql.NullString
+			pk        int
+		)
+		if err := rows.Scan(&cid, &name, &columnTyp, &notnull, &dfltValue, &pk); err != nil {
+			t.Fatalf("scan table_info(%s): %v", table, err)
+		}
+		expected, ok := want[name]
+		if !ok {
+			continue
+		}
+		seen[name] = true
+		if columnTyp != expected.typ {
+			t.Fatalf("%s.%s type = %q, want %q", table, name, columnTyp, expected.typ)
+		}
+		if (notnull == 1) != expected.notNull {
+			t.Fatalf("%s.%s notnull = %d, want %t", table, name, notnull, expected.notNull)
+		}
+		if (pk == 1) != expected.pk {
+			t.Fatalf("%s.%s pk = %d, want %t", table, name, pk, expected.pk)
+		}
+		if expected.defaultValue == "" {
+			if dfltValue.Valid {
+				t.Fatalf("%s.%s default = %q, want NULL", table, name, dfltValue.String)
+			}
+			continue
+		}
+		if !dfltValue.Valid || dfltValue.String != expected.defaultValue {
+			t.Fatalf("%s.%s default = %q (valid %t), want %q", table, name, dfltValue.String, dfltValue.Valid, expected.defaultValue)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("table_info(%s) rows: %v", table, err)
+	}
+	for column := range want {
+		if !seen[column] {
+			t.Fatalf("%s.%s column not found", table, column)
+		}
+	}
+}
+
+func assertSQLiteIndexExists(t *testing.T, db *sql.DB, index string) {
+	t.Helper()
+
+	var count int
+	if err := db.QueryRowContext(context.Background(),
+		`SELECT count(*) FROM sqlite_master WHERE type = 'index' AND name = ?`,
+		index,
+	).Scan(&count); err != nil {
+		t.Fatalf("query sqlite index %s: %v", index, err)
+	}
+	if count != 1 {
+		t.Fatalf("sqlite index %s count = %d, want 1", index, count)
+	}
+}
+
+func assertSQLiteForeignKeyCheckClean(t *testing.T, db *sql.DB) {
+	t.Helper()
+
+	rows, err := db.QueryContext(context.Background(), `PRAGMA foreign_key_check`)
+	if err != nil {
+		t.Fatalf("pragma foreign_key_check: %v", err)
+	}
+	defer rows.Close()
+	if rows.Next() {
+		t.Fatal("sqlite foreign_key_check returned violations after v10 rebuild")
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("foreign_key_check rows: %v", err)
+	}
+}
+
+func assertSQLiteTableSQLMissing(t *testing.T, db *sql.DB, table, forbidden string) {
+	t.Helper()
+
+	var tableSQL string
+	if err := db.QueryRowContext(context.Background(),
+		`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`,
+		table,
+	).Scan(&tableSQL); err != nil {
+		t.Fatalf("query sqlite table %s SQL: %v", table, err)
+	}
+	if strings.Contains(tableSQL, forbidden) {
+		t.Fatalf("sqlite table %s SQL contains forbidden token %q: %s", table, forbidden, tableSQL)
+	}
 }
 
 func sqliteMemoryDSN(t *testing.T) string {
