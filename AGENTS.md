@@ -13,6 +13,16 @@ go test -tags=integration ./...
 
 Integration tests use testcontainers and require Docker.
 
+## Workflow Configuration
+
+Issue statuses are driven by `model.WorkflowConfig` and can be configured with
+`BN_CONFIG`, `bn.toml`, `bn.yaml`, or `$XDG_CONFIG_HOME/bn/config.*`. Defaults
+include `ready_for_review`, `ready_for_validation`, and `ready_for_merge` as
+hold states: they are valid statuses but are not returned by `bn ready` and do
+not satisfy blockers. Keep CLI help, table output, import/update validation,
+and docs aligned with the configured workflow vocabulary. See
+`docs/bn.toml.example` for the operator-facing config template.
+
 ## Non-Interactive Shell Commands
 
 Use non-interactive flags for file operations to avoid hanging on confirmation

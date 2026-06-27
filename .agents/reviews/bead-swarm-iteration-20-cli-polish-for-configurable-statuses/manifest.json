@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-20-cli-polish-for-configurable-statuses",
+  "base_ref": "main",
+  "head_sha": "b366871864717c578686b16f9482a0ccae5f2005",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "status-workflow-cli-auditor",
+      "display_name": "Status Workflow CLI Auditor",
+      "role": "Checks that configurable status help, validation, and table rendering stay consistent with the runtime workflow contract."
+    },
+    {
+      "slug": "operator-docs-ux-reviewer",
+      "display_name": "Operator Docs UX Reviewer",
+      "role": "Checks operator-facing docs and CLI usability for clear rollout behavior and no regressions."
+    }
+  ]
+}

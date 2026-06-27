@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -58,13 +59,22 @@ func printIssueTable(cmd *cobra.Command, issues []store.Issue) {
 		return
 	}
 	w := cmd.OutOrStdout()
-	// STATUS is sized for the longest default status ("ready_for_validation",
-	// 20 chars) plus padding so configured hold states stay column-aligned.
-	fmt.Fprintf(w, "%-26s  %-22s  %-3s  %s\n", "ID", "STATUS", "PRI", "TITLE")
-	fmt.Fprintf(w, "%-26s  %-22s  %-3s  %s\n",
-		"──────────────────────────", "──────────────────────", "───", "─────────────────────────────")
+	statusWidth := issueStatusColumnWidth(issues)
+	fmt.Fprintf(w, "%-26s  %-*s  %-3s  %s\n", "ID", statusWidth, "STATUS", "PRI", "TITLE")
+	fmt.Fprintf(w, "%-26s  %-*s  %-3s  %s\n",
+		"──────────────────────────", statusWidth, strings.Repeat("─", statusWidth), "───", "─────────────────────────────")
 	for _, iss := range issues {
-		fmt.Fprintf(w, "%-26s  %-22s  %-3s  %s\n",
-			iss.ID, string(iss.State), priorityLabel(iss.Priority), iss.Title)
+		fmt.Fprintf(w, "%-26s  %-*s  %-3s  %s\n",
+			iss.ID, statusWidth, string(iss.State), priorityLabel(iss.Priority), iss.Title)
 	}
+}
+
+func issueStatusColumnWidth(issues []store.Issue) int {
+	width := len("ready_for_validation") + 2
+	for _, iss := range issues {
+		if n := len(string(iss.State)) + 2; n > width {
+			width = n
+		}
+	}
+	return width
 }

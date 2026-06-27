@@ -138,7 +138,7 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 	}
 
 	cmd.Flags().BoolVar(&claim, "claim", false, "transition to in_progress and note 'claimed by <actor>'")
-	cmd.Flags().StringVar(&status, "status", "", "set state (must be in configured workflow statuses)")
+	cmd.Flags().StringVar(&status, "status", "", fmt.Sprintf("set state (allowed: %s)", strings.Join(rs.workflowConfig().StatusNames(), ", ")))
 	cmd.Flags().StringVar(&title, "title", "", "set title")
 	cmd.Flags().StringVar(&description, "description", "", "set description")
 	cmd.Flags().StringVar(&notes, "notes", "", "append a note")

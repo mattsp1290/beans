@@ -303,6 +303,40 @@ terminal = ["closed"]
 	}
 }
 
+func TestRootHelpUsesConfiguredWorkflowStatusVocabulary(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+
+	cfgPath := filepath.Join(dir, "bn.toml")
+	if err := os.WriteFile(cfgPath, []byte(`[workflow]
+statuses = ["open", "qa", "shipped"]
+default = "open"
+active = ["open", "qa"]
+terminal = ["shipped"]
+`), 0o644); err != nil {
+		t.Fatalf("write workflow config: %v", err)
+	}
+	t.Setenv(workflowEnv, cfgPath)
+	t.Setenv(workflowDefaultEnv, "")
+
+	root := newRootCmd(&appState{git: &fakeGitResolver{}})
+	updateCmd, _, err := root.Find([]string{"update"})
+	if err != nil {
+		t.Fatalf("find update command: %v", err)
+	}
+	if got := updateCmd.Flags().Lookup("status").Usage; !strings.Contains(got, "open, qa, shipped") || strings.Contains(got, "ready_for_review") {
+		t.Fatalf("update --status usage = %q, want configured vocabulary only", got)
+	}
+
+	listCmd, _, err := root.Find([]string{"list"})
+	if err != nil {
+		t.Fatalf("find list command: %v", err)
+	}
+	if got := listCmd.Flags().Lookup("status").Usage; !strings.Contains(got, "open, qa, shipped") || strings.Contains(got, "ready_for_review") {
+		t.Fatalf("list --status usage = %q, want configured vocabulary only", got)
+	}
+}
+
 func TestDirectCommandsUseInjectedStoreWorkflow(t *testing.T) {
 	ctx := context.Background()
 	workflow := model.WorkflowConfig{
@@ -356,6 +390,34 @@ func TestDirectCommandsUseInjectedStoreWorkflow(t *testing.T) {
 	}
 	if !strings.Contains(readyOut.String(), iss.ID) {
 		t.Fatalf("ready output %q missing issue %q active under injected store workflow", readyOut.String(), iss.ID)
+	}
+}
+
+func TestIssueTableStatusColumnExpandsForLongConfiguredStatuses(t *testing.T) {
+	cmd := newReadyCmd(&appState{})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+
+	printIssueTable(cmd, []store.Issue{
+		{Issue: model.Issue{ID: "wf-1", State: "waiting_for_external_validation", Priority: model.PriorityMedium, Title: "long status"}},
+		{Issue: model.Issue{ID: "wf-2", State: "qa", Priority: model.PriorityHigh, Title: "short status"}},
+	})
+
+	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
+	if len(lines) < 4 {
+		t.Fatalf("table output has %d lines, want header/rule/two rows: %q", len(lines), out.String())
+	}
+	headerPRI := strings.Index(lines[0], "PRI")
+	longPRI := strings.Index(lines[2], "P2")
+	shortPRI := strings.Index(lines[3], "P1")
+	if headerPRI < 0 || longPRI < 0 || shortPRI < 0 {
+		t.Fatalf("table output missing PRI/priority columns: %q", out.String())
+	}
+	if headerPRI != longPRI || headerPRI != shortPRI {
+		t.Fatalf("priority column indexes header=%d long=%d short=%d output:\n%s", headerPRI, longPRI, shortPRI, out.String())
+	}
+	if !strings.Contains(lines[2], "waiting_for_external_validation") {
+		t.Fatalf("long status missing from table output:\n%s", out.String())
 	}
 }
 
