@@ -1,0 +1,19 @@
+{
+  "schema_version": "review-v1",
+  "branch": "bead-swarm/iteration-19-migration-0010-drop-bn-issues-state-check",
+  "base_ref": "main",
+  "head_sha": "c1319b409a50616404feeb0590b1d93874f25f15",
+  "pass": null,
+  "reviewers": [
+    {
+      "slug": "sqlite-rebuild-guardian",
+      "display_name": "SQLite Rebuild Guardian",
+      "role": "Audits the SQLite table rebuild for data preservation, schema fidelity, and migration edge cases."
+    },
+    {
+      "slug": "dialect-migration-skeptic",
+      "display_name": "Dialect Migration Skeptic",
+      "role": "Checks cross-dialect migration behavior, rollback assumptions, and whether tests prove the requested contract."
+    }
+  ]
+}
