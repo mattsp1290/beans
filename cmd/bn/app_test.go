@@ -178,7 +178,8 @@ terminal = ["closed"]
 	}
 
 	t.Setenv("BN_DRIVER", "sqlite")
-	t.Setenv("BN_DSN", "file:root_create_workflow_default?mode=memory&cache=shared")
+	dbName := strings.NewReplacer("/", "_", " ", "_").Replace(t.Name())
+	t.Setenv("BN_DSN", "file:"+dbName+"?mode=memory&cache=shared")
 	t.Setenv(workflowEnv, cfgPath)
 	t.Setenv(workflowDefaultEnv, "")
 
@@ -190,6 +191,11 @@ terminal = ["closed"]
 		actor: "test",
 		git:   &fakeGitResolver{},
 	}
+	t.Cleanup(func() {
+		if rs.store != nil {
+			rs.store.Close()
+		}
+	})
 	cmd := newRootCmd(rs)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
@@ -199,7 +205,6 @@ terminal = ["closed"]
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("Execute create: %v", err)
 	}
-	t.Cleanup(rs.store.Close)
 
 	issueID := strings.TrimSpace(out.String())
 	got, err := rs.store.GetIssue(context.Background(), issueID)
