@@ -163,6 +163,57 @@ func TestStoreConfigFromEnvUsesDriverAndDSN(t *testing.T) {
 	}
 }
 
+func TestRootCreateUsesConfiguredWorkflowDefaultStatus(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+
+	cfgPath := filepath.Join(dir, "bn.toml")
+	if err := os.WriteFile(cfgPath, []byte(`[workflow]
+statuses = ["triage", "open", "closed"]
+default = "triage"
+active = ["triage", "open"]
+terminal = ["closed"]
+`), 0o644); err != nil {
+		t.Fatalf("write workflow config: %v", err)
+	}
+
+	t.Setenv("BN_DRIVER", "sqlite")
+	t.Setenv("BN_DSN", "file:root_create_workflow_default?mode=memory&cache=shared")
+	t.Setenv(workflowEnv, cfgPath)
+	t.Setenv(workflowDefaultEnv, "")
+
+	t.Cleanup(func() {
+		activeWorkflow = model.DefaultWorkflowConfig()
+	})
+
+	rs := &appState{
+		actor: "test",
+		git:   &fakeGitResolver{},
+	}
+	cmd := newRootCmd(rs)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"--project", "wfproj", "create", "custom workflow default", "--silent"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute create: %v", err)
+	}
+	t.Cleanup(rs.store.Close)
+
+	issueID := strings.TrimSpace(out.String())
+	got, err := rs.store.GetIssue(context.Background(), issueID)
+	if err != nil {
+		t.Fatalf("GetIssue(%q): %v", issueID, err)
+	}
+	if got.State != "triage" {
+		t.Fatalf("created issue state = %q, want configured default triage", got.State)
+	}
+	if rs.workflow.DefaultState() != "triage" {
+		t.Fatalf("app workflow default = %q, want triage", rs.workflow.DefaultState())
+	}
+}
+
 func TestStoreConfigFromEnvInfersPostgresOnlyWhenClear(t *testing.T) {
 	t.Setenv("BN_DRIVER", "")
 	t.Setenv("BN_DSN", "postgres://user:pass@localhost:5432/beans")
