@@ -144,7 +144,8 @@ close_reason and owner are not imported.`,
 			}
 
 			// Parse JSONL line by line.
-			items, parseWarnings, err := parseImportJSONL(r, rs.prefix)
+			workflow := rs.workflowConfig()
+			items, parseWarnings, err := parseImportJSONLWithWorkflow(r, rs.prefix, workflow)
 			if err != nil {
 				return fmt.Errorf("import: parse: %w", err)
 			}
@@ -164,7 +165,7 @@ close_reason and owner are not imported.`,
 			}
 
 			result, err := rs.store.ImportIssuesFull(cmd.Context(), items, store.ImportOptions{
-				TerminalStates: activeWorkflow.Terminal,
+				TerminalStates: workflow.Terminal,
 				Mode:           importMode,
 			})
 			if err != nil {
@@ -249,6 +250,10 @@ func writeImportSummary(cmd *cobra.Command, jsonOut bool, summary importSummary)
 // Returns the items, the count of lines skipped due to parse errors, and any
 // fatal IO error.
 func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int, error) {
+	return parseImportJSONLWithWorkflow(r, destPrefix, model.DefaultWorkflowConfig())
+}
+
+func parseImportJSONLWithWorkflow(r io.Reader, destPrefix string, workflow model.WorkflowConfig) ([]store.ImportInput, int, error) {
 	var items []store.ImportInput
 	var warnings int
 
@@ -279,7 +284,7 @@ func parseImportJSONL(r io.Reader, destPrefix string) ([]store.ImportInput, int,
 			warnings++
 			continue
 		}
-		if !activeWorkflow.IsValid(model.IssueState(raw.Status)) {
+		if !workflow.IsValid(model.IssueState(raw.Status)) {
 			warnings++
 			continue
 		}

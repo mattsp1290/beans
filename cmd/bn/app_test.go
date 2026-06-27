@@ -183,10 +183,6 @@ terminal = ["closed"]
 	t.Setenv(workflowEnv, cfgPath)
 	t.Setenv(workflowDefaultEnv, "")
 
-	t.Cleanup(func() {
-		activeWorkflow = model.DefaultWorkflowConfig()
-	})
-
 	rs := &appState{
 		actor: "test",
 		git:   &fakeGitResolver{},
@@ -216,6 +212,94 @@ terminal = ["closed"]
 	}
 	if rs.workflow.DefaultState() != "triage" {
 		t.Fatalf("app workflow default = %q, want triage", rs.workflow.DefaultState())
+	}
+}
+
+func TestRootCommandsUseConfiguredWorkflowStatusVocabulary(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+
+	cfgPath := filepath.Join(dir, "bn.toml")
+	if err := os.WriteFile(cfgPath, []byte(`[workflow]
+statuses = ["open", "qa", "closed"]
+default = "open"
+active = ["open"]
+terminal = ["closed"]
+`), 0o644); err != nil {
+		t.Fatalf("write workflow config: %v", err)
+	}
+
+	dbPath := filepath.Join(dir, "beans.db")
+	t.Setenv("BN_DRIVER", "sqlite")
+	t.Setenv("BN_DSN", "file:"+dbPath)
+	t.Setenv(workflowEnv, cfgPath)
+	t.Setenv(workflowDefaultEnv, "")
+
+	createState := &appState{actor: "test", git: &fakeGitResolver{}}
+	createCmd := newRootCmd(createState)
+	var createOut bytes.Buffer
+	createCmd.SetOut(&createOut)
+	createCmd.SetErr(&bytes.Buffer{})
+	createCmd.SetArgs([]string{"--project", "wfproj", "create", "custom workflow update", "--silent"})
+	if err := createCmd.Execute(); err != nil {
+		t.Fatalf("create Execute: %v", err)
+	}
+	if createState.store != nil {
+		defer createState.store.Close()
+	}
+	issueID := strings.TrimSpace(createOut.String())
+
+	updateState := &appState{actor: "test", git: &fakeGitResolver{}}
+	updateCmd := newRootCmd(updateState)
+	updateCmd.SetOut(&bytes.Buffer{})
+	updateCmd.SetErr(&bytes.Buffer{})
+	updateCmd.SetArgs([]string{"--project", "wfproj", "update", issueID, "--status", "qa"})
+	if err := updateCmd.Execute(); err != nil {
+		t.Fatalf("update Execute: %v", err)
+	}
+	if updateState.store != nil {
+		defer updateState.store.Close()
+	}
+
+	st, err := store.New(context.Background(), store.Config{
+		Driver: store.DriverSQLite,
+		DSN:    store.SecretDSN("file:" + dbPath),
+		Workflow: model.WorkflowConfig{
+			Statuses: []model.IssueState{"open", "qa", "closed"},
+			Default:  "open",
+			Active:   []model.IssueState{"open"},
+			Terminal: []model.IssueState{"closed"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("store.New: %v", err)
+	}
+	defer st.Close()
+	got, err := st.GetIssue(context.Background(), issueID)
+	if err != nil {
+		t.Fatalf("GetIssue(%q): %v", issueID, err)
+	}
+	if got.State != "qa" {
+		t.Fatalf("updated state = %q, want qa", got.State)
+	}
+
+	listState := &appState{actor: "test", git: &fakeGitResolver{}}
+	listCmd := newRootCmd(listState)
+	var listErr bytes.Buffer
+	listCmd.SetOut(&bytes.Buffer{})
+	listCmd.SetErr(&listErr)
+	listCmd.SetArgs([]string{"--project", "wfproj", "list", "--status", "ghost"})
+	if err := listCmd.Execute(); err != nil {
+		t.Fatalf("list Execute: %v", err)
+	}
+	if listState.store != nil {
+		defer listState.store.Close()
+	}
+	warning := listErr.String()
+	if !strings.Contains(warning, `unknown status "ghost"`) ||
+		!strings.Contains(warning, "open, qa, closed") ||
+		strings.Contains(warning, "done") {
+		t.Fatalf("warning = %q, want configured status vocabulary only", warning)
 	}
 }
 

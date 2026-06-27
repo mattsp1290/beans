@@ -13,13 +13,6 @@ import (
 	"github.com/mattsp1290/beans/model"
 )
 
-// activeWorkflow is the process-wide status vocabulary and bucket
-// classification. It defaults to the built-in config and is replaced once a
-// deployment config file is loaded (see appState.ensureWorkflow). Free CLI
-// helpers (status validation, import filtering, ready/terminal sets) consult it,
-// mirroring the package-global style of the status sets it replaced.
-var activeWorkflow = model.DefaultWorkflowConfig()
-
 // workflowEnv is the env var pointing at an explicit config file path.
 const workflowEnv = "BN_CONFIG"
 
@@ -40,8 +33,8 @@ type workflowFile struct {
 	} `toml:"workflow" yaml:"workflow"`
 }
 
-// ensureWorkflow loads the workflow config once and caches it on the appState
-// and in the activeWorkflow global. It fails fast on an invalid config so a
+// ensureWorkflow loads the workflow config once and caches it on the appState.
+// It fails fast on an invalid config so a
 // deployment mistake stops bn at startup rather than silently falling back.
 func (rs *appState) ensureWorkflow() error {
 	if rs.workflowLoaded {
@@ -53,8 +46,14 @@ func (rs *appState) ensureWorkflow() error {
 	}
 	rs.workflow = wf
 	rs.workflowLoaded = true
-	activeWorkflow = wf
 	return nil
+}
+
+func (rs *appState) workflowConfig() model.WorkflowConfig {
+	if len(rs.workflow.Statuses) == 0 {
+		return model.DefaultWorkflowConfig()
+	}
+	return rs.workflow
 }
 
 // loadWorkflowConfig resolves, decodes, merges, and validates the workflow

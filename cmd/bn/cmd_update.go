@@ -37,10 +37,11 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 			id := args[0]
 			in := store.UpdateIssueInput{}
 			repoChanged := cmd.Flags().Changed("repo") || cmd.Flags().Changed("ref") || cmd.Flags().Changed("subdir")
+			workflow := rs.workflowConfig()
 
 			// D6: check if the target state change would re-open a terminal issue.
 			// Both --claim (→ in_progress) and --status=<non-terminal> re-open.
-			wantsReopen := claim || repoChanged || (status != "" && !activeWorkflow.IsTerminal(model.IssueState(status)))
+			wantsReopen := claim || repoChanged || (status != "" && !workflow.IsTerminal(model.IssueState(status)))
 			if wantsReopen {
 				cur, err := rs.store.GetIssue(cmd.Context(), id)
 				if err != nil {
@@ -49,7 +50,7 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 					}
 					return fmt.Errorf("update: %w", err)
 				}
-				if activeWorkflow.IsTerminal(cur.State) && !force {
+				if workflow.IsTerminal(cur.State) && !force {
 					return fmt.Errorf(
 						"issue %s is %s (terminal); use --force to re-open",
 						id, cur.State,
@@ -72,8 +73,8 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 			}
 
 			if status != "" {
-				if !activeWorkflow.IsValid(model.IssueState(status)) {
-					return fmt.Errorf("invalid status %q (allowed: %s)", status, strings.Join(activeWorkflow.StatusNames(), ", "))
+				if !workflow.IsValid(model.IssueState(status)) {
+					return fmt.Errorf("invalid status %q (allowed: %s)", status, strings.Join(workflow.StatusNames(), ", "))
 				}
 				st := model.IssueState(status)
 				in.State = &st
@@ -137,7 +138,7 @@ func newUpdateCmd(rs *appState) *cobra.Command {
 	}
 
 	cmd.Flags().BoolVar(&claim, "claim", false, "transition to in_progress and note 'claimed by <actor>'")
-	cmd.Flags().StringVar(&status, "status", "", "set state (see configured workflow statuses; default: "+strings.Join(activeWorkflow.StatusNames(), ", ")+")")
+	cmd.Flags().StringVar(&status, "status", "", "set state (must be in configured workflow statuses)")
 	cmd.Flags().StringVar(&title, "title", "", "set title")
 	cmd.Flags().StringVar(&description, "description", "", "set description")
 	cmd.Flags().StringVar(&notes, "notes", "", "append a note")
