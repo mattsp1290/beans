@@ -1115,6 +1115,117 @@ func TestSQLiteStoreContractEpicMembership(t *testing.T) {
 	}
 }
 
+func TestSQLiteStoreContractCreateIssueWithParent(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-create-parent"
+	ensureContractProject(t, s, ctx, prefix)
+
+	epic, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Epic", Priority: 0, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	first, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "First", Priority: 0, IssueType: "task", ParentID: epic.ID})
+	if err != nil {
+		t.Fatalf("CreateIssue first with parent: %v", err)
+	}
+	second, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Second", Priority: 1, IssueType: "task", ParentID: epic.ID})
+	if err != nil {
+		t.Fatalf("CreateIssue second with parent: %v", err)
+	}
+	if err := s.AddDep(ctx, second.ID, first.ID); err != nil {
+		t.Fatalf("AddDep second blocked by first: %v", err)
+	}
+
+	members, err := s.ListMembers(ctx, ListFilter{Prefix: prefix}, epic.ID)
+	if err != nil {
+		t.Fatalf("ListMembers: %v", err)
+	}
+	if len(members) != 2 || members[0].ID != first.ID || members[1].ID != second.ID {
+		t.Fatalf("ListMembers = %+v, want first then second", members)
+	}
+
+	gotFirst, err := s.GetIssue(ctx, first.ID)
+	if err != nil {
+		t.Fatalf("GetIssue first: %v", err)
+	}
+	if len(gotFirst.BlockedBy) != 0 {
+		t.Fatalf("first BlockedBy = %v, want empty", gotFirst.BlockedBy)
+	}
+	gotSecond, err := s.GetIssue(ctx, second.ID)
+	if err != nil {
+		t.Fatalf("GetIssue second: %v", err)
+	}
+	if len(gotSecond.BlockedBy) != 1 || gotSecond.BlockedBy[0] != first.ID {
+		t.Fatalf("second BlockedBy = %v, want only %s", gotSecond.BlockedBy, first.ID)
+	}
+
+	ready, err := s.ReadyIssues(ctx, ListFilter{Prefix: prefix}, []model.IssueState{"closed", "done"}, []model.IssueState{"open"})
+	if err != nil {
+		t.Fatalf("ReadyIssues: %v", err)
+	}
+	readyIDs := map[string]bool{}
+	for _, iss := range ready {
+		readyIDs[iss.ID] = true
+	}
+	if !readyIDs[first.ID] {
+		t.Fatalf("ReadyIssues missing first child; membership should not block it")
+	}
+	if readyIDs[second.ID] {
+		t.Fatalf("ReadyIssues returned second child; explicit blocks edge should block it")
+	}
+	if readyIDs[epic.ID] {
+		t.Fatalf("ReadyIssues returned epic; epics are not dispatchable")
+	}
+
+	blocking, err := s.ListBlockingDeps(ctx, ListFilter{Prefix: prefix})
+	if err != nil {
+		t.Fatalf("ListBlockingDeps: %v", err)
+	}
+	if len(blocking) != 1 || blocking[0].IssueID != second.ID || blocking[0].BlockedByID != first.ID {
+		t.Fatalf("ListBlockingDeps = %+v, want only second blocked by first", blocking)
+	}
+}
+
+func TestSQLiteStoreContractCreateIssueWithParentRollsBackOnInvalidParent(t *testing.T) {
+	s, ctx := newSQLiteContractStore(t)
+	const prefix = "sqlite-create-parent-rb"
+	const other = "sqlite-create-parent-other"
+	ensureContractProject(t, s, ctx, prefix)
+	ensureContractProject(t, s, ctx, other)
+
+	_, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Missing parent child", Priority: 1, IssueType: "task", ParentID: prefix + "-missing"})
+	if !errors.Is(err, ErrNotFound) {
+		t.Fatalf("CreateIssue missing parent = %v, want ErrNotFound", err)
+	}
+	issues, err := s.ListIssues(ctx, ListFilter{Prefix: prefix})
+	if err != nil {
+		t.Fatalf("ListIssues after missing parent: %v", err)
+	}
+	for _, iss := range issues {
+		if iss.Title == "Missing parent child" {
+			t.Fatalf("child was created despite missing parent: %+v", iss)
+		}
+	}
+
+	foreignParent, err := s.CreateIssue(ctx, CreateIssueInput{Prefix: other, Title: "Foreign parent", Priority: 1, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue foreign parent: %v", err)
+	}
+	_, err = s.CreateIssue(ctx, CreateIssueInput{Prefix: prefix, Title: "Foreign parent child", Priority: 1, IssueType: "task", ParentID: foreignParent.ID})
+	if !errors.Is(err, ErrNotFound) {
+		t.Fatalf("CreateIssue foreign parent = %v, want ErrNotFound", err)
+	}
+	issues, err = s.ListIssues(ctx, ListFilter{Prefix: prefix})
+	if err != nil {
+		t.Fatalf("ListIssues after foreign parent: %v", err)
+	}
+	for _, iss := range issues {
+		if iss.Title == "Foreign parent child" {
+			t.Fatalf("child was created despite cross-prefix parent: %+v", iss)
+		}
+	}
+}
+
 // TestSQLiteStoreContractOneEdgePerPair pins the intentional one-edge-per-pair
 // behavior: the PK is (issue_id, blocked_by_id) without dep_type, so a second
 // edge of a different kind for the same ordered pair is rejected as a duplicate

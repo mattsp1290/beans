@@ -11,6 +11,7 @@ import (
 	gmysql "gorm.io/driver/mysql"
 	gpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // ErrPoolClosed is returned by Store methods called after the pool is closed.
@@ -34,7 +35,9 @@ func newPool(ctx context.Context, cfg Config) (*pool, error) {
 	if err != nil {
 		return nil, err
 	}
-	gormDB, err := gorm.Open(dialector, &gorm.Config{})
+	gormDB, err := gorm.Open(dialector, &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("store: open %s: %w", cfg.driverOrDefault(), err)
 	}

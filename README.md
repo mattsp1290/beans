@@ -21,6 +21,9 @@ export BN_DRIVER=sqlite
 export BN_DSN='file:beans.db?_pragma=foreign_keys(1)'
 bn init --prefix demo
 bn create "wire the tracker" -p 2
+EPIC=$(bn create "Epic: milestone" -t epic -p 0 --silent)
+TASK=$(bn create "Write first prompt" -p 0 --parent "$EPIC" --silent)
+bn children "$EPIC"
 bn ready
 bn list
 bn show demo-abc123
@@ -31,6 +34,26 @@ bn close demo-abc123
 Migrations run automatically the first time the store is opened
 (`store.New` calls `schema.Migrate`). `bn init --prefix <project>` registers the
 project and writes the active project marker.
+
+For generated scripts that need a beans-safe replacement for `.beads` / `bd
+init` checks, use a command probe instead of testing storage layout. In
+auto-detect mode this may register the current git repo context:
+
+```bash
+if ! bn list --json --limit 1 >/dev/null 2>&1; then
+  echo "beans issue filing unavailable; set BN_DRIVER and BN_DSN" >&2
+  exit 0
+fi
+```
+
+For explicit-prefix repositories that should carry a `.bn` marker, initialize
+non-interactively:
+
+```bash
+if [ ! -f .bn ]; then
+  bn init --prefix <slug> --non-interactive --quiet
+fi
+```
 
 ### Database Configuration
 

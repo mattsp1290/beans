@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mattsp1290/beans/model"
+	store "github.com/mattsp1290/beans/store"
 )
 
 const defaultListLimit = 50
@@ -36,19 +37,7 @@ func newListCmd(rs *appState) *cobra.Command {
 			// closed) so the count is stable as children are completed; --status
 			// is not applied here.
 			if epic != "" {
-				members, err := rs.store.ListMembers(cmd.Context(), f, epic)
-				if err != nil {
-					return fmt.Errorf("list: %w", err)
-				}
-				if rs.jsonOut {
-					out := make([]issueJSON, len(members))
-					for i, iss := range members {
-						out[i] = toIssueJSON(iss)
-					}
-					return writeJSONTo(cmd.OutOrStdout(), out)
-				}
-				printIssueTable(cmd, members)
-				return nil
+				return rs.printChildren(cmd, f, epic, "list")
 			}
 
 			if status != "" {
@@ -91,4 +80,44 @@ func newListCmd(rs *appState) *cobra.Command {
 	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "list issues across all repositories (distinct from --all which controls page cap)")
 	cmd.Flags().IntVarP(&limit, "limit", "n", 0, fmt.Sprintf("max results (default %d; 0 = default cap)", defaultListLimit))
 	return cmd
+}
+
+func newChildrenCmd(rs *appState) *cobra.Command {
+	var allRepos bool
+
+	cmd := &cobra.Command{
+		Use:   "children <parent>",
+		Short: "List non-blocking parent-child members of an issue",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
+				return err
+			}
+			parentID := strings.TrimSpace(args[0])
+			if parentID == "" {
+				return fmt.Errorf("parent id must not be empty")
+			}
+			return rs.printChildren(cmd, f, parentID, "children")
+		},
+	}
+
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "list children across all repositories")
+	return cmd
+}
+
+func (rs *appState) printChildren(cmd *cobra.Command, f store.ListFilter, parentID, commandName string) error {
+	members, err := rs.store.ListMembers(cmd.Context(), f, parentID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", commandName, err)
+	}
+	if rs.jsonOut {
+		out := make([]issueJSON, len(members))
+		for i, iss := range members {
+			out[i] = toIssueJSON(iss)
+		}
+		return writeJSONTo(cmd.OutOrStdout(), out)
+	}
+	printIssueTable(cmd, members)
+	return nil
 }

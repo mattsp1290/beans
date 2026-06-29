@@ -178,12 +178,12 @@ func TestLoadWorkflowConfigUnknownKeysFailFast(t *testing.T) {
 		{
 			name: "toml",
 			file: "bad.toml",
-			body: "[workflow]\ndefualt = \"open\"\n",
+			body: "[workflow]\ndefaultx = \"open\"\n",
 		},
 		{
 			name: "yaml",
 			file: "bad.yaml",
-			body: "workflow:\n  defualt: open\n",
+			body: "workflow:\n  defaultx: open\n",
 		},
 	}
 

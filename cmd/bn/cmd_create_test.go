@@ -161,6 +161,102 @@ func TestCreateExplicitRepoFlagBeatsMarkerAndGit(t *testing.T) {
 	}
 }
 
+func TestCreateParentSilentCreatesMembership(t *testing.T) {
+	ctx := context.Background()
+	s, _ := newTestStore(t, "parent-cli", "")
+	epic, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: "parent-cli", Title: "Epic", Priority: 0, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	rs := &appState{
+		store:  s,
+		prefix: "parent-cli",
+		actor:  "test",
+		git:    &fakeGitResolver{},
+	}
+
+	cmd := newCreateCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.Flags().Set("silent", "true"); err != nil {
+		t.Fatalf("set --silent: %v", err)
+	}
+	if err := cmd.Flags().Set("parent", epic.ID); err != nil {
+		t.Fatalf("set --parent: %v", err)
+	}
+	if err := cmd.RunE(cmd, []string{"Child"}); err != nil {
+		t.Fatalf("RunE: %v", err)
+	}
+
+	childID := strings.TrimSpace(buf.String())
+	if buf.String() != childID+"\n" {
+		t.Fatalf("silent output = %q, want bare id newline", buf.String())
+	}
+	members, err := s.ListMembers(ctx, store.ListFilter{Prefix: "parent-cli"}, epic.ID)
+	if err != nil {
+		t.Fatalf("ListMembers: %v", err)
+	}
+	if len(members) != 1 || members[0].ID != childID {
+		t.Fatalf("ListMembers = %+v, want child %s", members, childID)
+	}
+	got, err := s.GetIssue(ctx, childID)
+	if err != nil {
+		t.Fatalf("GetIssue child: %v", err)
+	}
+	if len(got.BlockedBy) != 0 {
+		t.Fatalf("child BlockedBy = %v, want empty", got.BlockedBy)
+	}
+}
+
+func TestCreateParentValidationDoesNotPrintSilentID(t *testing.T) {
+	s, _ := newTestStore(t, "parent-cli-invalid", "")
+	rs := &appState{
+		store:  s,
+		prefix: "parent-cli-invalid",
+		actor:  "test",
+		git:    &fakeGitResolver{},
+	}
+
+	cmd := newCreateCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.Flags().Set("silent", "true"); err != nil {
+		t.Fatalf("set --silent: %v", err)
+	}
+	if err := cmd.Flags().Set("parent", " "); err != nil {
+		t.Fatalf("set --parent: %v", err)
+	}
+	if err := cmd.RunE(cmd, []string{"Child"}); err == nil {
+		t.Fatal("RunE succeeded with empty --parent, want error")
+	}
+	if buf.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty on failed silent create", buf.String())
+	}
+
+	cmd = newCreateCmd(rs)
+	buf.Reset()
+	cmd.SetOut(&buf)
+	if err := cmd.Flags().Set("silent", "true"); err != nil {
+		t.Fatalf("set --silent: %v", err)
+	}
+	if err := cmd.Flags().Set("parent", "parent-cli-invalid-missing"); err != nil {
+		t.Fatalf("set --parent missing: %v", err)
+	}
+	if err := cmd.RunE(cmd, []string{"Missing parent child"}); err == nil {
+		t.Fatal("RunE succeeded with missing --parent, want error")
+	}
+	if buf.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty on failed silent create", buf.String())
+	}
+	issues, err := s.ListIssues(context.Background(), store.ListFilter{Prefix: "parent-cli-invalid"})
+	if err != nil {
+		t.Fatalf("ListIssues: %v", err)
+	}
+	if len(issues) != 0 {
+		t.Fatalf("issues = %+v, want none after rollback", issues)
+	}
+}
+
 func TestCreateMarkerRepoCreationCommitRequiresCwdRepoIdentityMatch(t *testing.T) {
 	ctx := context.Background()
 	const head = "cccccccccccccccccccccccccccccccccccccccc"

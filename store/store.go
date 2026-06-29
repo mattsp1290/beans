@@ -184,6 +184,7 @@ type CreateIssueInput struct {
 	Labels      []string
 	BranchName  string
 	URL         string
+	ParentID    string
 	Actor       string
 	Repo        *IssueRepoInput
 }
@@ -317,6 +318,33 @@ func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, er
 				}
 				if err := tx.Create(&note).Error; err != nil {
 					return fmt.Errorf("store: CreateIssue note: %w", err)
+				}
+			}
+			parentID := strings.TrimSpace(in.ParentID)
+			if parentID != "" {
+				if parentID == id {
+					return fmt.Errorf("store: %w: %s → %s", ErrCycle, id, parentID)
+				}
+				if err := lockDepGraphGuard(tx); err != nil {
+					return err
+				}
+				exists, err := s.issueExistsInPrefix(ctx, tx, parentID, effectivePrefix)
+				if err != nil {
+					return err
+				}
+				if !exists {
+					return fmt.Errorf("store: %w: %s", ErrNotFound, parentID)
+				}
+				res := tx.Clauses(clause.OnConflict{DoNothing: true}).
+					Create(&gormIssueDep{IssueID: id, BlockedByID: parentID, DepType: DepTypeParentChild})
+				if res.Error != nil {
+					if isDupKeyConflict(res.Error) {
+						return ErrDuplicateDep
+					}
+					return fmt.Errorf("store: CreateIssue parent: %w", res.Error)
+				}
+				if res.RowsAffected == 0 {
+					return ErrDuplicateDep
 				}
 			}
 			return nil

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -296,6 +297,158 @@ func TestListAllReposReturnsAllIssues(t *testing.T) {
 	}
 	if !strings.Contains(out, issB.ID) {
 		t.Errorf("--all-repos list missing issue from repoB: %q not in output", issB.ID)
+	}
+}
+
+func TestChildrenListsParentChildMembers(t *testing.T) {
+	ctx := context.Background()
+	s, repo := newTestStore(t, "", "https://github.com/alice/children-a")
+	if repo == nil {
+		t.Fatal("newTestStore did not register repo")
+	}
+	if err := s.EnsureProject(ctx, repo.Prefix); err != nil {
+		t.Fatalf("EnsureProject: %v", err)
+	}
+	epic, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: repo.Prefix, Title: "Epic", Priority: 0, IssueType: "epic", Repo: &store.IssueRepoInput{RepoSlug: repo.Slug}})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	child := mustCreateIssue(t, s, repo.Prefix, "child-A", repo)
+	if err := s.AddTypedDep(ctx, child.ID, epic.ID, store.DepTypeParentChild); err != nil {
+		t.Fatalf("AddTypedDep: %v", err)
+	}
+
+	rs := &appState{
+		store:  s,
+		prefix: repo.Prefix,
+		actor:  "test",
+		git:    &fakeGitResolver{},
+	}
+	cmd := newChildrenCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{epic.ID}); err != nil {
+		t.Fatalf("children RunE: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, child.ID) {
+		t.Fatalf("children output missing child %q: %s", child.ID, out)
+	}
+	if strings.Contains(out, epic.ID) {
+		t.Fatalf("children output included parent %q: %s", epic.ID, out)
+	}
+}
+
+func TestChildrenJSONOutput(t *testing.T) {
+	ctx := context.Background()
+	s, _ := newTestStore(t, "children-json", "")
+	epic, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: "children-json", Title: "Epic", Priority: 0, IssueType: "epic"})
+	if err != nil {
+		t.Fatalf("CreateIssue epic: %v", err)
+	}
+	child, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: "children-json", Title: "Child", Priority: 1, IssueType: "task", ParentID: epic.ID})
+	if err != nil {
+		t.Fatalf("CreateIssue child: %v", err)
+	}
+
+	rs := &appState{
+		store:   s,
+		prefix:  "children-json",
+		actor:   "test",
+		jsonOut: true,
+		git:     &fakeGitResolver{},
+	}
+	cmd := newChildrenCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{epic.ID}); err != nil {
+		t.Fatalf("children --json RunE: %v", err)
+	}
+	var got []issueJSON
+	if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+		t.Fatalf("decode children JSON: %v\n%s", err, buf.String())
+	}
+	if len(got) != 1 || got[0].ID != child.ID {
+		t.Fatalf("children JSON = %+v, want child %s", got, child.ID)
+	}
+}
+
+func TestChildrenRepoScoping(t *testing.T) {
+	ctx := context.Background()
+	s, repoA := newTestStore(t, "", "https://github.com/alice/children-scope-a")
+	if repoA == nil {
+		t.Fatal("newTestStore did not register repoA")
+	}
+	repoB, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{
+		RemoteURL: "https://github.com/alice/children-scope-b",
+		Actor:     "test",
+	})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo repoB: %v", err)
+	}
+	if err := s.EnsureProject(ctx, repoA.Prefix); err != nil {
+		t.Fatalf("EnsureProject A: %v", err)
+	}
+	if err := s.EnsureProject(ctx, repoB.Prefix); err != nil {
+		t.Fatalf("EnsureProject B: %v", err)
+	}
+
+	epicA, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: repoA.Prefix, Title: "Epic A", Priority: 0, IssueType: "epic", Repo: &store.IssueRepoInput{RepoSlug: repoA.Slug}})
+	if err != nil {
+		t.Fatalf("CreateIssue epicA: %v", err)
+	}
+	childA, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: repoA.Prefix, Title: "Child A", Priority: 1, IssueType: "task", ParentID: epicA.ID, Repo: &store.IssueRepoInput{RepoSlug: repoA.Slug}})
+	if err != nil {
+		t.Fatalf("CreateIssue childA: %v", err)
+	}
+	epicB, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: repoB.Prefix, Title: "Epic B", Priority: 0, IssueType: "epic", Repo: &store.IssueRepoInput{RepoSlug: repoB.Slug}})
+	if err != nil {
+		t.Fatalf("CreateIssue epicB: %v", err)
+	}
+	childB, err := s.CreateIssue(ctx, store.CreateIssueInput{Prefix: repoB.Prefix, Title: "Child B", Priority: 1, IssueType: "task", ParentID: epicB.ID, Repo: &store.IssueRepoInput{RepoSlug: repoB.Slug}})
+	if err != nil {
+		t.Fatalf("CreateIssue childB: %v", err)
+	}
+
+	rs := &appState{
+		store:   s,
+		prefix:  repoB.Prefix,
+		repoArg: repoA.Slug,
+		actor:   "test",
+		git:     &fakeGitResolver{},
+	}
+	cmd := newChildrenCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{epicA.ID}); err != nil {
+		t.Fatalf("children --repo slug RunE: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, childA.ID) {
+		t.Fatalf("children --repo missing childA %q: %s", childA.ID, out)
+	}
+	if strings.Contains(out, childB.ID) {
+		t.Fatalf("children --repo unexpectedly included childB %q: %s", childB.ID, out)
+	}
+
+	rs = &appState{
+		store:  s,
+		prefix: repoA.Prefix,
+		actor:  "test",
+		git:    &fakeGitResolver{},
+	}
+	cmd = newChildrenCmd(rs)
+	buf.Reset()
+	cmd.SetOut(&buf)
+	if err := cmd.Flags().Set("all-repos", "true"); err != nil {
+		t.Fatalf("set --all-repos: %v", err)
+	}
+	if err := cmd.RunE(cmd, []string{epicB.ID}); err != nil {
+		t.Fatalf("children --all-repos RunE: %v", err)
+	}
+	out = buf.String()
+	if !strings.Contains(out, childB.ID) {
+		t.Fatalf("children --all-repos missing childB %q: %s", childB.ID, out)
 	}
 }
 

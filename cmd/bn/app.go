@@ -78,6 +78,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newCreateCmd(rs),
 		newReadyCmd(rs),
 		newListCmd(rs),
+		newChildrenCmd(rs),
 		newShowCmd(rs),
 		newUpdateCmd(rs),
 		newCloseCmd(rs),

@@ -174,6 +174,7 @@ WORKFLOW
   Single-repo (custom prefix):
   1. bn init --prefix=<proj>     Register project + write .bn marker
   2. bn create "Task title"       Create issues
+     bn create "Slice" --parent <epic>  Add non-blocking epic membership
      bn dep add <child> <parent>  Wire dependencies
   3. bn ready                     List unblocked, open issues
   4. bn show <id>                  Inspect an issue
@@ -185,6 +186,20 @@ WORKFLOW
      → auto-registers repo, prefix == slug derived from remote URL
   3. bn list / bn ready           Scoped to current repo by default
      bn list --all-repos          All repos in the shared database
+
+SCRIPT-SAFE INIT / PROBE
+  Git repo with auto-detect (may register the current repo context):
+    if ! bn list --json --limit 1 >/dev/null 2>&1; then
+      echo "beans issue filing unavailable; set BN_DRIVER and BN_DSN" >&2
+      exit 0
+    fi
+
+  Explicit-prefix repo:
+    if [ ! -f .bn ]; then
+      bn init --prefix <slug> --non-interactive --quiet
+    fi
+
+  Use bn children <epic> or bn list --epic <epic> to inspect child tasks.
 
 SKILL INTEGRATION
   A .bn file at the repo root tells skills to use bn instead of bd.

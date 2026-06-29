@@ -16,6 +16,17 @@ import (
 	store "github.com/mattsp1290/beans/store"
 )
 
+func TestRootRegistersChildrenCommand(t *testing.T) {
+	root := newRootCmd(&appState{git: &fakeGitResolver{}})
+	cmd, _, err := root.Find([]string{"children", "proj-abc123"})
+	if err != nil {
+		t.Fatalf("Find children: %v", err)
+	}
+	if cmd == nil || cmd.Name() != "children" {
+		t.Fatalf("children command lookup = %v, want children", cmd)
+	}
+}
+
 func TestParseActiveProjectMarker(t *testing.T) {
 	t.Parallel()
 

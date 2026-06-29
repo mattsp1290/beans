@@ -15,6 +15,7 @@ func newCreateCmd(rs *appState) *cobra.Command {
 		priority       int
 		labels         []string
 		issueType      string
+		parentID       string
 		repoSlug       string
 		requestedRef   string
 		worktreeSubdir string
@@ -39,6 +40,10 @@ func newCreateCmd(rs *appState) *cobra.Command {
 			}
 			if priority < 0 || priority > 4 {
 				return fmt.Errorf("priority must be 0–4 (0=critical, 4=backlog)")
+			}
+			parentID = strings.TrimSpace(parentID)
+			if cmd.Flags().Changed("parent") && parentID == "" {
+				return fmt.Errorf("--parent must not be empty")
 			}
 			repoSlug = strings.TrimSpace(repoSlug)
 			if repoSlug == "" {
@@ -107,6 +112,7 @@ func newCreateCmd(rs *appState) *cobra.Command {
 				Priority:    priority,
 				IssueType:   issueType,
 				Labels:      labels,
+				ParentID:    parentID,
 				Actor:       rs.actor,
 				Repo:        repoInput,
 			})
@@ -134,6 +140,7 @@ func newCreateCmd(rs *appState) *cobra.Command {
 	cmd.Flags().IntVarP(&priority, "priority", "p", 2, "priority 0=critical, 1=high, 2=medium, 3=low, 4=backlog")
 	cmd.Flags().StringArrayVarP(&labels, "label", "l", nil, "labels (repeatable: -l impl -l prep)")
 	cmd.Flags().StringVarP(&issueType, "type", "t", "task", "issue type: bug|feature|task|epic|chore")
+	cmd.Flags().StringVar(&parentID, "parent", "", "parent/epic issue id; records a non-blocking parent-child membership")
 	cmd.Flags().StringVar(&repoSlug, "repo", "", "repo slug for workspace routing (defaults to active .bn repo)")
 	cmd.Flags().StringVar(&requestedRef, "ref", "", "requested git ref for this issue")
 	cmd.Flags().StringVar(&worktreeSubdir, "subdir", "", "worktree subdirectory override for this issue")
