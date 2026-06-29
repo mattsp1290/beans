@@ -36,7 +36,8 @@ func newDepAddCmd(rs *appState) *cobra.Command {
 
 Default (--type blocks): <child> is blocked until <parent> reaches a terminal state.
 --type parent-child: record <child> as a member of <parent> (e.g. an epic) WITHOUT
-blocking either side. Membership is queryable via 'bn dep tree' and 'bn list --epic'.
+blocking either side. Membership is queryable via 'bn children <parent>' and
+'bn list --epic <parent>'.
 
 Any non-empty type up to 50 characters is accepted (bd-compatible); only 'blocks'
 edges gate readiness and cycle detection.`,

@@ -280,6 +280,109 @@ func storeContractTest(t *testing.T, dialect storeContractDialect) {
 		}
 	})
 
+	t.Run("create_issue_with_parent_membership", func(t *testing.T) {
+		s := dialect.open(t)
+		ctx := context.Background()
+		prefix := contractPrefix(dialect, "parent")
+		otherPrefix := contractPrefix(dialect, "parent-other")
+		ensureProject(t, s, ctx, prefix)
+		ensureProject(t, s, ctx, otherPrefix)
+
+		epic, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "Parent epic",
+			Priority:  0,
+			IssueType: "epic",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue epic: %v", err)
+		}
+		first, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "First child",
+			Priority:  0,
+			IssueType: "task",
+			ParentID:  epic.ID,
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue first child with parent: %v", err)
+		}
+		second, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "Second child",
+			Priority:  1,
+			IssueType: "task",
+			ParentID:  epic.ID,
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue second child with parent: %v", err)
+		}
+		if err := s.AddDep(ctx, second.ID, first.ID); err != nil {
+			t.Fatalf("AddDep second blocked by first: %v", err)
+		}
+
+		members, err := s.ListMembers(ctx, store.ListFilter{Prefix: prefix}, epic.ID)
+		if err != nil {
+			t.Fatalf("ListMembers: %v", err)
+		}
+		if got, want := issueIDs(members), []string{first.ID, second.ID}; !slices.Equal(got, want) {
+			t.Fatalf("ListMembers = %v, want %v", got, want)
+		}
+		gotFirst, err := s.GetIssue(ctx, first.ID)
+		if err != nil {
+			t.Fatalf("GetIssue first: %v", err)
+		}
+		if len(gotFirst.BlockedBy) != 0 {
+			t.Fatalf("first BlockedBy = %v, want empty", gotFirst.BlockedBy)
+		}
+		ready, err := s.ReadyIssues(ctx, store.ListFilter{Prefix: prefix}, []model.IssueState{"closed"}, []model.IssueState{"open"})
+		if err != nil {
+			t.Fatalf("ReadyIssues: %v", err)
+		}
+		if got, want := issueIDs(ready), []string{first.ID}; !slices.Equal(got, want) {
+			t.Fatalf("ReadyIssues = %v, want %v", got, want)
+		}
+
+		_, err = s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "Missing parent child",
+			Priority:  1,
+			IssueType: "task",
+			ParentID:  prefix + "-missing",
+		})
+		if !errors.Is(err, store.ErrNotFound) {
+			t.Fatalf("CreateIssue missing parent = %v, want ErrNotFound", err)
+		}
+		foreignParent, err := s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    otherPrefix,
+			Title:     "Foreign parent",
+			Priority:  0,
+			IssueType: "epic",
+		})
+		if err != nil {
+			t.Fatalf("CreateIssue foreign parent: %v", err)
+		}
+		_, err = s.CreateIssue(ctx, store.CreateIssueInput{
+			Prefix:    prefix,
+			Title:     "Foreign parent child",
+			Priority:  1,
+			IssueType: "task",
+			ParentID:  foreignParent.ID,
+		})
+		if !errors.Is(err, store.ErrNotFound) {
+			t.Fatalf("CreateIssue foreign parent = %v, want ErrNotFound", err)
+		}
+		issues, err := s.ListIssues(ctx, store.ListFilter{Prefix: prefix})
+		if err != nil {
+			t.Fatalf("ListIssues after failed parent creates: %v", err)
+		}
+		for _, iss := range issues {
+			if iss.Title == "Missing parent child" || iss.Title == "Foreign parent child" {
+				t.Fatalf("failed parent create left child row behind: %+v", iss)
+			}
+		}
+	})
+
 	t.Run("repos_audit_and_issue_targets", func(t *testing.T) {
 		s := dialect.open(t)
 		ctx := context.Background()

@@ -170,9 +170,14 @@ bn ready
 # Cross-repo view
 bn list --all-repos
 bn ready --all-repos
+bn children my-api-epic123 --all-repos
 
 # Explicit repo override (slug form)
 bn list --repo my-frontend
+
+# Parent/epic membership
+bn children my-api-epic123
+bn list --epic my-api-epic123
 
 # ID-addressed commands are always cross-repo
 bn show my-frontend-xyz789
@@ -183,10 +188,11 @@ bn dep add my-frontend-xyz789 my-api-abc123   # frontend waits on API
 
 | Flag | Commands | Effect |
 |------|----------|--------|
-| _(none)_ | list, ready, dep tree/cycles | Scope to current repo (from cwd git remote) |
-| `--all-repos` | list, ready, dep tree/cycles | Return issues from every registered repo |
-| `--repo <slug>` | list, ready, dep tree/cycles | Scope to the named repo (read-only, no auto-register) |
+| _(none)_ | list, children, ready, dep tree/cycles | Scope to current repo (from cwd git remote) |
+| `--all-repos` | list, children, ready, dep tree/cycles | Return issues from every registered repo |
+| `--repo <slug>` | list, children, ready, dep tree/cycles | Scope to the named repo (read-only, no auto-register) |
 | `--repo <slug>` | create | Link the issue to an already-registered repo slug |
+| `--epic <parent>` | list | List non-blocking parent-child members; equivalent read surface to `bn children <parent>` |
 
 Auto-registration on `bn create` is automatic: no `--repo` flag is needed. `bn`
 detects the git remote and registers the repo if it has not been seen before.

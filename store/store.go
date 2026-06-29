@@ -224,7 +224,9 @@ type IssueRepoInput struct {
 //
 // If in.Repo.RemoteURL is set, AutoRegisterRepo runs BEFORE the issue
 // transaction to ensure the bn_projects row exists (required by the FK on
-// bn_issues.prefix).
+// bn_issues.prefix). Later create failures, including ParentID validation
+// failures, roll back the issue row and attached metadata but do not undo that
+// prior repo registration side effect.
 //
 // Retries on the rare hash collision (PK violation).
 func (s *Store) CreateIssue(ctx context.Context, in CreateIssueInput) (Issue, error) {
