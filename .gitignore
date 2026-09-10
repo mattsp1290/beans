@@ -3,6 +3,10 @@
 #
 # Binaries for programs and plugins
 bin/
+# Anchored to the repository root so it cannot shadow a `bn` file or directory
+# inside a module. A stray root-level `go build -o bn` used to leave a 27 MB
+# untracked binary here that no pattern matched.
+/bn
 *.exe
 *.exe~
 *.dll
@@ -20,6 +24,7 @@ profile.cov
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+node_modules/
 
 # env file
 .env
