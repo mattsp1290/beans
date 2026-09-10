@@ -464,8 +464,9 @@ resolve_embedded_migration_max() {
   # inside this repository. Resolve both sides physically and require
   # containment; a path escaping the tree is a hard stop, not a warning.
   local root_phys beans_phys
-  root_phys="$(cd "$(git rev-parse --show-toplevel)" && pwd -P)" \
-    || fatal "could not resolve the repository root"
+  [ -n "$REPO_ROOT_PHYS" ] \
+    || fatal "internal: REPO_ROOT_PHYS unset; require_repo_root must run first"
+  root_phys="$REPO_ROOT_PHYS"
   beans_phys="$(cd "$beans_dir" && pwd -P)" \
     || fatal "could not resolve $beans_dir"
   case "$beans_phys" in
@@ -514,13 +515,20 @@ require_repo_root() {
   # points at. Every component matters, not just the last one: libs, libs/beans,
   # libs/beans/schema and libs/beans/schema/migrations can each be a committed
   # symlink out of the tree, and the migrations directory feeds EMBEDDED_MAX.
+  # Every path below is read from the worktree and decides either what ships or
+  # what a safety gate concludes, so each must be genuinely in-tree. A committed
+  # symlink is invisible to `git status` — the symlink IS the committed object —
+  # so nothing else catches this.
   local rel
   for rel in libs/beans \
              libs/beans/schema \
              libs/beans/schema/migrations \
              libs/beans/schema/migrations/postgres \
              apps/bean-counter \
-             apps/bean-counter/go.mod; do
+             apps/bean-counter/go.mod \
+             apps/bean-counter/Dockerfile \
+             apps/bean-counter/frontend \
+             "$COMPOSE_PROD"; do
     require_in_repo "$rel" || fatal "$rel failed the in-repo containment check"
   done
 }

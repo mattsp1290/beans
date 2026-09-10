@@ -173,7 +173,6 @@ assert_rc "apps/bean-counter/go.mod satisfies the gate" 0 $?
 # the check left the suite green - so these cases exist to make that impossible.
 repo_tmp="$(mktemp -d)"
 outside_tmp="$(mktemp -d)"
-trap 'rm -rf "$tmp" "$gomod_tmp" "$repo_tmp" "$outside_tmp"' EXIT
 
 # Physical paths: mktemp -d hands back /var/... on macOS, which is a symlink to
 # /private/var, and the helper compares physical paths.
@@ -224,11 +223,17 @@ ln -s "$repo_tmp/libs/beans-fork" "$repo_tmp/libs/beans-intree-link"
 assert_eq "in-tree symlink rejected" "1" "$(in_repo_rc libs/beans-intree-link)"
 
 # A sibling whose name merely starts with the repo root must not satisfy the
-# containment prefix match.
+# containment prefix match. The path under test must NOT itself be a symlink,
+# or -L fires first and the containment branch is never reached - which is what
+# made the previous version of this case pass for the wrong reason. Here the
+# symlink is an intermediate component, so `rel` is a real directory reached
+# through it.
 sibling="${repo_tmp}-evil"
 mkdir -p "$sibling/libs/beans"
-ln -s "$sibling/libs/beans" "$repo_tmp/libs/beans-link"
-assert_eq "sibling path sharing the root prefix rejected" "1" "$(in_repo_rc libs/beans-link)"
+ln -s "$sibling/libs" "$repo_tmp/libs/evil-parent"
+assert_eq "sibling path sharing the root prefix rejected" "1" \
+  "$(in_repo_rc libs/evil-parent/beans)"
+rm -f "$repo_tmp/libs/evil-parent"
 rm -rf "$sibling"
 
 # Refuses to run at all without a root, rather than defaulting to permissive.
@@ -236,6 +241,65 @@ saved_root="$REPO_ROOT_PHYS"
 REPO_ROOT_PHYS=""
 assert_eq "unset REPO_ROOT_PHYS rejected" "1" "$(in_repo_rc libs/beans)"
 REPO_ROOT_PHYS="$saved_root"
+
+# ----- require_repo_root wiring -------------------------------------------- #
+# The cases above pin require_in_repo's internals, but nothing called
+# require_repo_root - so deleting its containment loop entirely, or dropping the
+# migrations path that feeds EMBEDDED_MAX, left the suite green. These cases
+# exercise the wiring. They use a local `git init` only; no network, no daemon.
+repo_root_tmp="$(mktemp -d)"
+repo_root_tmp="$(cd "$repo_root_tmp" && pwd -P)"
+outside2_tmp="$(mktemp -d)"
+outside2_tmp="$(cd "$outside2_tmp" && pwd -P)"
+trap 'rm -rf "$tmp" "$gomod_tmp" "$repo_tmp" "$outside_tmp" "$repo_root_tmp" "$outside2_tmp"' EXIT
+
+build_fixture_repo() {
+  rm -rf "${repo_root_tmp:?}/repo"
+  mkdir -p "$repo_root_tmp/repo"
+  ( cd "$repo_root_tmp/repo" || exit 1
+    git init -q .
+    mkdir -p libs/beans/schema/migrations/postgres apps/bean-counter/frontend
+    : > libs/beans/schema/migrations/postgres/0001_init.sql
+    : > apps/bean-counter/go.mod
+    : > apps/bean-counter/Dockerfile
+    mkdir -p apps/bean-counter/deploy
+    : > apps/bean-counter/deploy/docker-compose.prod.yml
+  )
+}
+
+# require_repo_root calls fatal, which exits. Take the SUBSHELL's status - an
+# `echo $?` inside it would never run.
+repo_root_rc() { ( cd "$repo_root_tmp/repo" && require_repo_root ) >/dev/null 2>&1; echo $?; }
+
+build_fixture_repo
+assert_eq "require_repo_root accepts a well-formed tree" "0" "$(repo_root_rc)"
+
+build_fixture_repo
+( cd "$repo_root_tmp/repo/apps/bean-counter" && require_repo_root ) >/dev/null 2>&1
+assert_rc "require_repo_root refuses a cwd below the root" 1 $?
+
+# Each trusted path, replaced by an out-of-tree symlink in turn. Any one of
+# these passing means the containment loop no longer covers that path.
+mkdir -p "$outside2_tmp/dir"; : > "$outside2_tmp/file"
+for victim in libs/beans \
+              libs/beans/schema/migrations/postgres \
+              apps/bean-counter/frontend; do
+  build_fixture_repo
+  rm -rf "${repo_root_tmp:?}/repo/$victim"
+  ln -s "$outside2_tmp/dir" "$repo_root_tmp/repo/$victim"
+  assert_eq "require_repo_root rejects a symlinked $victim" "1" "$(repo_root_rc)"
+done
+
+for victim in apps/bean-counter/go.mod \
+              apps/bean-counter/Dockerfile \
+              apps/bean-counter/deploy/docker-compose.prod.yml; do
+  build_fixture_repo
+  rm -f "${repo_root_tmp:?}/repo/$victim"
+  ln -s "$outside2_tmp/file" "$repo_root_tmp/repo/$victim"
+  assert_eq "require_repo_root rejects a symlinked $victim" "1" "$(repo_root_rc)"
+done
+
+build_fixture_repo
 
 # ----- argument parsing ---------------------------------------------------- #
 # parse_args mutates globals and may call fatal (exit); run in subshells.

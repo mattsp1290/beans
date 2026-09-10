@@ -126,6 +126,22 @@ deliberately before deploying — see the tracked issue for the decision:
 
 Do not weaken the gate to get past it.
 
+## Before the first post-monorepo deploy: the remote checkout
+
+The script's `--repo-dir` default moved from `$HOME/git/bean-counter` to
+`$HOME/git/beans`, and every path it uses on the remote is now
+monorepo-relative (`apps/bean-counter/deploy/docker-compose.prod.yml`, a
+`docker build -f apps/bean-counter/Dockerfile .` from the repository root).
+
+The infra host currently has a checkout at `$HOME/git/bean-counter` and a live
+`bean-counter` compose project running from it. Replacing that checkout is a
+production change on a host this repository does not own, with its own rollback
+path, and it has not been done. Until it is, a deploy will fail at the remote
+preflight because `$REPO_DIR` does not exist.
+
+Tracked as a blocker on the first live deploy alongside the schema-parity item
+above; both must close before `bean-counter-m0p` can proceed.
+
 ## Rollback
 
 Each run generates `rollback.md` from the captured previous state. Preferred path

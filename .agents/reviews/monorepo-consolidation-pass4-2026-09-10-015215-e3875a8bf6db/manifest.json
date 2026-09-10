@@ -1,0 +1,11 @@
+{
+  "schema_version": "review-v1",
+  "branch": "monorepo-consolidation",
+  "base_ref": "5bd9e07513ec",
+  "head_sha": "e3875a8bf6db5001c286421852bcc219e52f61e5",
+  "pass": 4,
+  "reviewers": [
+    {"slug": "containment-adversary", "display_name": "Containment Adversary", "role": "Attacks require_in_repo and its call sites, the control introduced by the previous pass's own fix."},
+    {"slug": "merge-gate", "display_name": "Merge Gate", "role": "Decides whether this branch is ready to merge, running every gate end to end and judging whether four rounds of fixes left it coherent."}
+  ]
+}
