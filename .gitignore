@@ -39,6 +39,9 @@ node_modules/
 # .idea/
 # .vscode/
 
+# Planning documents: kept on disk, not tracked.
+.agents/plans/
+
 # Beads / Dolt files (added by bd init)
 .dolt/
 *.db
