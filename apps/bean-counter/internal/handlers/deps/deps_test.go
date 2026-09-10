@@ -49,6 +49,11 @@ func TestListDependencies(t *testing.T) {
 	if store.listFilter.Prefix != "bc" {
 		t.Fatalf("listFilter.Prefix = %q, want bc", store.listFilter.Prefix)
 	}
+	// AllRepos is the field that would silently drop the prefix WHERE clause
+	// and return every project's rows.
+	if store.listFilter.AllRepos {
+		t.Fatal("listFilter.AllRepos = true, want false: the query must stay prefix-scoped")
+	}
 	if !bytes.Contains(body, []byte(`"dependencies"`)) || !bytes.Contains(body, []byte(`"blocked_by_id":"bc-1"`)) {
 		t.Fatalf("unexpected body: %s", body)
 	}

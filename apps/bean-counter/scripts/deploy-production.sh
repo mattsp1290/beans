@@ -211,37 +211,73 @@ extract_issue_count() {
   printf '%s' "$body" | grep -o '"identifier"' | grep -c . || true
 }
 
-# The one replace directive apps/bean-counter is allowed to carry.
-SANCTIONED_BEANS_REPLACE='replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
+# The one replace directive apps/bean-counter is allowed to carry, as the
+# normalized "<old> => <new>" pair the parser below emits.
+SANCTIONED_BEANS_REPLACE='github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
 
-# check_sanctioned_replace <go.mod path> -> 0 if that file contains exactly the
-# sanctioned beans replace and no other replace directive; non-zero otherwise,
+# replace_directives <go.mod path> -> prints one normalized "<old> => <new>"
+# line per replace directive, handling both the single-line form and the
+# `replace ( ... )` block form, with `//` comments stripped and internal
+# whitespace collapsed. Prints nothing when there are none.
+replace_directives() {
+  sed -e 's://.*::' "$1" | awk '
+    /^[[:space:]]*replace[[:space:]]*\(/ { inblock = 1; next }
+    inblock && /^[[:space:]]*\)/         { inblock = 0; next }
+    inblock                              { line = $0 }
+    !inblock && /^[[:space:]]*replace[[:space:]]/ {
+      line = $0
+      sub(/^[[:space:]]*replace[[:space:]]+/, "", line)
+    }
+    line != "" {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+      if (line != "") { gsub(/[[:space:]]+/, " ", line); print line }
+      line = ""
+    }
+  '
+}
+
+# check_sanctioned_replace <go.mod path> -> 0 if that file declares exactly one
+# replace directive and it is the sanctioned in-repo one; non-zero otherwise,
 # with the reason on stderr.
 #
 # In the monorepo the replace is mandatory, so the old "reject any beans
 # replace" gate would abort every deploy. Its purpose — never ship an image
 # built against library code that is not the deployed code — is now served by
 # the single target SHA that pins both modules. What this gate preserves is the
-# other half: a replace aimed anywhere else (a developer's local experiment)
-# must still stop the deploy.
+# other half: a replace aimed anywhere else must still stop the deploy.
+#
+# The comparison is exact equality on the parsed directive, never a substring
+# test. A substring test accepts `=> ../../libs/beans-attacker-fork` (the
+# sanctioned text is a prefix of it) and accepts a commented-out replace as
+# proof that a replace is present — both strictly weaker than the gate this
+# replaced.
 check_sanctioned_replace() {
   local gomod="$1"
   [ -f "$gomod" ] || { printf '%s: no such file\n' "$gomod" >&2; return 1; }
 
-  if ! grep -qF "$SANCTIONED_BEANS_REPLACE" "$gomod"; then
-    printf '%s must contain: %s\n' "$gomod" "$SANCTIONED_BEANS_REPLACE" >&2
+  # No arrays: macOS still ships bash 3.2, where `${#arr[@]}` on an empty array
+  # under `set -u` is an unbound-variable error, and this script runs from a Mac.
+  local directives count first
+  directives="$(replace_directives "$gomod" | sed '/^[[:space:]]*$/d')"
+
+  if [ -z "$directives" ]; then
+    printf '%s declares no replace directive; it must contain exactly: replace %s\n' \
+      "$gomod" "$SANCTIONED_BEANS_REPLACE" >&2
     return 1
   fi
 
-  # Block form (`replace (` ... `)`) would hide extra entries from the
-  # single-line scan below, so it is rejected outright.
-  if grep -qE '^[[:space:]]*replace[[:space:]]*\(' "$gomod"; then
-    printf '%s uses a replace block; only the single sanctioned replace line is allowed\n' "$gomod" >&2
+  count="$(printf '%s\n' "$directives" | wc -l | tr -d '[:space:]')"
+  if [ "$count" -gt 1 ]; then
+    printf '%s declares %s replace directives; only "replace %s" is allowed:\n' \
+      "$gomod" "$count" "$SANCTIONED_BEANS_REPLACE" >&2
+    printf '%s\n' "$directives" | sed 's/^/  /' >&2
     return 1
   fi
 
-  if grep -E '^[[:space:]]*replace[[:space:]]' "$gomod" | grep -qvF "$SANCTIONED_BEANS_REPLACE"; then
-    printf '%s contains an unexpected replace directive\n' "$gomod" >&2
+  first="$(printf '%s\n' "$directives" | head -n 1)"
+  if [ "$first" != "$SANCTIONED_BEANS_REPLACE" ]; then
+    printf '%s declares "replace %s"; the only allowed replace is "replace %s"\n' \
+      "$gomod" "$first" "$SANCTIONED_BEANS_REPLACE" >&2
     return 1
   fi
   return 0
@@ -358,7 +394,7 @@ resolve_embedded_migration_max() {
   # With a filesystem replace this returns the worktree path of libs/beans
   # rather than a module-cache path, which is a semantic improvement: the parity
   # gate now reads the migrations actually compiled into the image.
-  beans_dir="$( cd apps/bean-counter && go list -m -f '{{.Dir}}' "$BEANS_MODULE" 2>/dev/null )" \
+  beans_dir="$( cd apps/bean-counter && GOWORK=off go list -m -f '{{.Dir}}' "$BEANS_MODULE" 2>/dev/null )" \
     || fatal "go list -m $BEANS_MODULE failed; module graph is not deployable"
   [ -n "$beans_dir" ] || fatal "could not locate $BEANS_MODULE via the in-repo replace"
   EMBEDDED_MAX="$(migration_max_from_dir "$beans_dir/schema/migrations/postgres")"
@@ -367,6 +403,18 @@ resolve_embedded_migration_max() {
   esac
   [ "$EMBEDDED_MAX" -gt 0 ] || fatal "embedded beans migration max is 0; module layout unexpected"
   log "embedded beans postgres migration max = $EMBEDDED_MAX"
+}
+
+# Every local path in this script is repository-root-relative, so running it
+# from apps/bean-counter would silently resolve them against the wrong tree.
+require_repo_root() {
+  local toplevel
+  toplevel="$(git rev-parse --show-toplevel 2>/dev/null)" \
+    || fatal "not inside a git worktree; run this from the repository root"
+  [ "$toplevel" = "$PWD" ] \
+    || fatal "run this from the repository root ($toplevel), not $PWD"
+  [ -f apps/bean-counter/go.mod ] && [ -d libs/beans ] \
+    || fatal "$PWD does not look like the beans monorepo (expected apps/bean-counter/go.mod and libs/beans/)"
 }
 
 require_clean_local_ref() {
@@ -392,9 +440,11 @@ require_clean_local_ref() {
   check_sanctioned_replace apps/bean-counter/go.mod \
     || fatal "apps/bean-counter/go.mod failed the beans replace gate"
 
-  # Run from the module directory: the replace is what resolves the library, and
-  # go list must read apps/bean-counter's own module graph.
-  if ! ( cd apps/bean-counter && go list -m -json "$BEANS_MODULE" ) >/dev/null 2>&1; then
+  # Run from the module directory with GOWORK=off: the replace is what resolves
+  # the library, and that is how the container resolves it. With the workspace
+  # active go.work would satisfy this even if the replace were missing or wrong,
+  # masking exactly what the gate above just checked.
+  if ! ( cd apps/bean-counter && GOWORK=off go list -m -json "$BEANS_MODULE" ) >/dev/null 2>&1; then
     fatal "go list -m -json $BEANS_MODULE failed; module graph is not deployable"
   fi
 }
@@ -952,6 +1002,7 @@ do_live() {
 
 main() {
   parse_args "$@"
+  require_repo_root
   resolve_target_sha
   resolve_embedded_migration_max
 

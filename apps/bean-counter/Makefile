@@ -28,8 +28,11 @@ lint:
 fmt:
 	$(GO) fmt ./...
 
+# Scoped to the Go trees: a bare `find .` descends into frontend/node_modules
+# once the frontend has been installed, and the './.git/*' exclusion is inert
+# now that this module is not a repository root.
 fmt-check:
-	@test -z "$$(gofmt -l $$(find . -name '*.go' -not -path './.git/*'))" || (echo "gofmt changes needed; run make fmt" >&2; exit 1)
+	@test -z "$$(gofmt -l ./cmd ./internal ./test)" || (echo "gofmt changes needed; run make fmt" >&2; exit 1)
 
 test:
 	$(GO) test ./...

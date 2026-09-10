@@ -10,6 +10,7 @@ on:
       - 'libs/beans/**'
       - 'go.work'
       - 'go.work.sum'
+      - '.dockerignore'
       - '.github/workflows/ci-apps-bean-counter.yml'
   push:
     branches:
@@ -19,6 +20,7 @@ on:
       - 'libs/beans/**'
       - 'go.work'
       - 'go.work.sum'
+      - '.dockerignore'
       - '.github/workflows/ci-apps-bean-counter.yml'
 
 permissions:
@@ -64,6 +66,11 @@ jobs:
 
       - name: Build
         run: make build
+
+      # The GOWORK=off tidy hazard this repository documents was gated nowhere
+      # before; without this it would first surface during a deploy.
+      - name: Tidy check
+        run: make tidy-check
 
   frontend:
     name: Frontend
@@ -111,6 +118,36 @@ jobs:
 
       - name: Unit tests (pure helpers + arg parsing)
         run: bash apps/bean-counter/test/scripts/deploy-production_test.sh
+
+  images:
+    name: Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Context is the repository root and go.work is never copied: this job is
+      # what proves the image resolves libs/beans through the go.mod replace
+      # alone.
+      - name: Build API image
+        run: docker build -f apps/bean-counter/Dockerfile -t bean-counter-api:ci .
+
+      - name: API image carries no go.work
+        run: |
+          if docker run --rm --entrypoint sh bean-counter-api:ci -c 'ls /src/go.work' 2>/dev/null; then
+            echo "go.work leaked into the runtime image" >&2
+            exit 1
+          fi
+
+      - name: Build UI image
+        run: docker build -t bean-counter-ui:ci ./apps/bean-counter/frontend
+
+      - name: Compose files render with monorepo contexts
+        run: |
+          docker compose -f apps/bean-counter/docker-compose.stack.yml config >/dev/null
+          docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml config >/dev/null
 
   integration:
     name: Integration (${{ matrix.database }})

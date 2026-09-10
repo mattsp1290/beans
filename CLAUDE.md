@@ -103,6 +103,11 @@ with `GOWORK=off` so they prove each module stands on its own.
 `ci-apps-bean-counter`'s path filter includes `libs/beans/**`, because a
 library change reaches the application through the `replace`.
 
+If a required status check is ever configured, require **`ci-workspace`** and
+only `ci-workspace`. The other two are path-filtered, so a pull request
+touching neither path never starts them, and a required check that never runs
+leaves the pull request pending forever.
+
 The full design, including why each decision was made, is in
 `.agents/plans/monorepo-consolidation/`.
 

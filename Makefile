@@ -2,7 +2,7 @@
 # owns its rules, its lint policy, and its golangci-lint version.
 MODULES := libs/beans apps/bean-counter
 
-.PHONY: build test vet lint fmt-check ci ci-integration clean beans bean-counter
+.PHONY: build test vet lint fmt-check tidy-check ci ci-integration clean beans bean-counter
 
 build:
 	@for m in $(MODULES); do $(MAKE) -C $$m build || exit 1; done
@@ -30,8 +30,7 @@ tidy-check:
 ci: vet lint test build tidy-check
 
 ci-integration:
-	cd libs/beans && go test -tags=integration ./...
-	$(MAKE) -C apps/bean-counter test-integration
+	@for m in $(MODULES); do $(MAKE) -C $$m test-integration || exit 1; done
 
 clean:
 	@for m in $(MODULES); do $(MAKE) -C $$m clean || exit 1; done

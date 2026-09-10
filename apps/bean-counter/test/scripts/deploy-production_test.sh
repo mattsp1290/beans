@@ -71,63 +71,72 @@ extract_issue_count 'not-json' >/dev/null 2>&1; assert_rc "extract_issue_count r
 # must still abort when apps/bean-counter's go.mod points the library anywhere
 # other than the in-repo copy. Without these cases that swap is asserted only
 # in prose.
+#
+# The prefix and comment cases are the ones a substring test gets wrong, and a
+# substring test is strictly weaker than the gate this replaced. Keep them.
 gomod_tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp" "$gomod_tmp"' EXIT
 
-SANCTIONED='replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
-
-write_gomod() { printf '%s\n' "$2" > "$gomod_tmp/$1"; }
-
-write_gomod ok.mod "module github.com/mattsp1290/beans/apps/bean-counter
+SANCTIONED_LINE='replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
+HEADER='module github.com/mattsp1290/beans/apps/bean-counter
 
 go 1.25.7
 
 require github.com/gofiber/fiber/v3 v3.3.0
+'
 
-$SANCTIONED"
-check_sanctioned_replace "$gomod_tmp/ok.mod" >/dev/null 2>&1
-assert_rc "sanctioned replace accepted" 0 $?
+write_gomod() { printf '%s\n%s\n' "$HEADER" "$2" > "$gomod_tmp/$1"; }
 
-write_gomod missing.mod "module github.com/mattsp1290/beans/apps/bean-counter
+# accepts <label> <fixture-body>
+accepts() {
+  write_gomod "case.mod" "$2"
+  check_sanctioned_replace "$gomod_tmp/case.mod" >/dev/null 2>&1
+  assert_rc "$1" 0 $?
+}
+# rejects <label> <fixture-body>
+rejects() {
+  write_gomod "case.mod" "$2"
+  check_sanctioned_replace "$gomod_tmp/case.mod" >/dev/null 2>&1
+  assert_rc "$1" 1 $?
+}
 
-go 1.25.7
+accepts "sanctioned replace accepted" "$SANCTIONED_LINE"
+accepts "sanctioned replace with odd spacing accepted" \
+  "replace   github.com/mattsp1290/beans/libs/beans   =>   ../../libs/beans"
+accepts "sanctioned replace with a trailing comment accepted" \
+  "$SANCTIONED_LINE // in-repo library"
+accepts "block form holding only the sanctioned entry accepted" \
+  "replace (
+	github.com/mattsp1290/beans/libs/beans => ../../libs/beans
+)"
 
-require github.com/gofiber/fiber/v3 v3.3.0"
-check_sanctioned_replace "$gomod_tmp/missing.mod" >/dev/null 2>&1
-assert_rc "missing beans replace rejected" 1 $?
-
-write_gomod elsewhere.mod "module github.com/mattsp1290/beans/apps/bean-counter
-
-go 1.25.7
-
-replace github.com/mattsp1290/beans/libs/beans => /Users/dev/experiment/beans"
-check_sanctioned_replace "$gomod_tmp/elsewhere.mod" >/dev/null 2>&1
-assert_rc "beans replace pointing elsewhere rejected" 1 $?
-
-write_gomod extra.mod "module github.com/mattsp1290/beans/apps/bean-counter
-
-go 1.25.7
-
-$SANCTIONED
+rejects "no replace at all rejected" ""
+rejects "commented-out replace rejected (declares nothing)" \
+  "// $SANCTIONED_LINE"
+rejects "replace pointing at a local experiment rejected" \
+  "replace github.com/mattsp1290/beans/libs/beans => /Users/dev/experiment/beans"
+# The sanctioned text is a PREFIX of these two. A substring test accepts both.
+rejects "sibling path with the sanctioned text as a prefix rejected" \
+  "replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans-attacker-fork"
+rejects "deeper path with the sanctioned text as a prefix rejected" \
+  "replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans/vendored-fork"
+rejects "unexpected second replace rejected" \
+  "$SANCTIONED_LINE
 replace github.com/gofiber/fiber/v3 => ../../../fiber-fork"
-check_sanctioned_replace "$gomod_tmp/extra.mod" >/dev/null 2>&1
-assert_rc "unexpected second replace rejected" 1 $?
-
-write_gomod block.mod "module github.com/mattsp1290/beans/apps/bean-counter
-
-go 1.25.7
-
-replace (
+rejects "second replace hidden behind a repeated sanctioned comment rejected" \
+  "$SANCTIONED_LINE
+replace github.com/gofiber/fiber/v3 => ../../../fiber-fork // $SANCTIONED_LINE"
+rejects "block form holding an extra entry rejected" \
+  "replace (
 	github.com/mattsp1290/beans/libs/beans => ../../libs/beans
 	github.com/gofiber/fiber/v3 => ../../../fiber-fork
 )"
-check_sanctioned_replace "$gomod_tmp/block.mod" >/dev/null 2>&1
-assert_rc "replace block rejected (hides extra entries)" 1 $?
 
 check_sanctioned_replace "$gomod_tmp/does-not-exist.mod" >/dev/null 2>&1
 assert_rc "missing go.mod rejected" 1 $?
 
-# The real file must satisfy the gate, or a deploy from a clean checkout aborts.
+# The real file must satisfy the gate, or a deploy from a clean checkout aborts
+# on its own gate.
 check_sanctioned_replace "$SCRIPT_DIR/go.mod" >/dev/null 2>&1
 assert_rc "apps/bean-counter/go.mod satisfies the gate" 0 $?
 

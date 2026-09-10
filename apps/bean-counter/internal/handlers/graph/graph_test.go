@@ -23,6 +23,7 @@ type fakeStore struct {
 
 	listFilter appstore.ListFilter
 	depsFilter appstore.ListFilter
+	depsCalled bool
 }
 
 func (s *fakeStore) ListIssues(_ context.Context, filter appstore.ListFilter) ([]appstore.Issue, error) {
@@ -31,6 +32,7 @@ func (s *fakeStore) ListIssues(_ context.Context, filter appstore.ListFilter) ([
 }
 
 func (s *fakeStore) ListBlockingDeps(_ context.Context, filter appstore.ListFilter) ([]appstore.DepEdge, error) {
+	s.depsCalled = true
 	s.depsFilter = filter
 	return s.deps, s.depsErr
 }
@@ -53,6 +55,11 @@ func TestGraphReturnsNodesAndEdges(t *testing.T) {
 	if store.depsFilter.Prefix != "bc" {
 		t.Fatalf("deps filter prefix = %q, want bc", store.depsFilter.Prefix)
 	}
+	// AllRepos is the field that would silently drop the prefix WHERE clause
+	// and return every project's edges.
+	if store.listFilter.AllRepos || store.depsFilter.AllRepos {
+		t.Fatal("AllRepos = true, want false: both queries must stay prefix-scoped")
+	}
 	for _, want := range []string{
 		`"nodes"`,
 		`"edges"`,
@@ -73,8 +80,10 @@ func TestGraphStopsWhenListIssuesFails(t *testing.T) {
 	if resp.StatusCode != http.StatusInternalServerError {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
 	}
-	if store.depsFilter.Prefix != "" {
-		t.Fatalf("deps filter prefix = %q, want no deps call", store.depsFilter.Prefix)
+	// An explicit flag, not an empty-prefix proxy: a future ListFilter default
+	// could make the zero value indistinguishable from a real call.
+	if store.depsCalled {
+		t.Fatal("ListBlockingDeps was called after ListIssues failed")
 	}
 	if !bytes.Contains(body, []byte(`"error":"internal_error"`)) {
 		t.Fatalf("body missing internal_error: %s", body)

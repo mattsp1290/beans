@@ -63,9 +63,8 @@ policy is per module by design — see `CLAUDE.md`.
 
 ## Issue tracking
 
-One [beads](https://github.com/mattsp1290/beans) tracker at the repository
-root, holding both projects' issues under their original `beans-` and
-`bean-counter-` prefixes.
+One beads (`bd`) tracker at the repository root, holding both projects'
+issues under their original `beans-` and `bean-counter-` prefixes.
 
 ```bash
 bd ready              # available work

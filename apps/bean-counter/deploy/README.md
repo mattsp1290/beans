@@ -95,6 +95,37 @@ The DSN must use the container host form (`@postgres:5432` / `host=postgres`)
 since the api joins the symphony network. `--check` verifies readability from
 the container uid before any deploy.
 
+## Before the first post-monorepo deploy: schema parity
+
+The deploy script's parity gate aborts when the beans migrations embedded in
+the image are **newer** than the shared Postgres, because applying them would
+migrate a database bean-counter does not own.
+
+Before the monorepo, bean-counter pinned beans at
+`v0.1.2-0.20260615002029-e52dce57b52c`, embedding through `0008` against a
+production database at `0008` — the gate passed. Building against `libs/beans`
+at HEAD raises the embedded maximum to **0011**
+(`0009_bn_remote_url_unique`, `0010_bn_issue_state_drop_check`,
+`0011_bn_issue_repos_creation_commit`), so the gate will now **abort**:
+
+```
+embedded migrations (11) NEWER than prod (8)
+```
+
+That is the gate working, not a bug, and there is no `--force`. Resolve it
+deliberately before deploying — see the tracked issue for the decision:
+
+- Advance the shared database to `0011` out of band, with the owner of the
+  local-symphony stack, after reviewing `0010_bn_issue_state_drop_check.sql`
+  (it drops the `bn_issues_state_check` CHECK constraint) and
+  `0011_bn_issue_repos_creation_commit.sql` against the orchestrator's
+  expectations. Confirm with
+  `select max(version_id) from bn_schema_versions`.
+- Or deploy a commit whose `libs/beans` embeds no more than the database
+  already has.
+
+Do not weaken the gate to get past it.
+
 ## Rollback
 
 Each run generates `rollback.md` from the captured previous state. Preferred path

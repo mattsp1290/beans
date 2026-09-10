@@ -35,10 +35,14 @@ jobs:
       # go work sync rewrites go.work and can also rewrite each module's go.mod
       # to unify the build list across the workspace, so the whole tree is
       # checked rather than just go.work.
+      # git diff only sees tracked files, and `go work sync` can create a
+      # go.work.sum where none was tracked, so the porcelain check is what
+      # catches that case.
       - name: Workspace is in sync
         run: |
           go work sync
           git diff --exit-code
+          test -z "$(git status --porcelain)" || { git status --porcelain; exit 1; }
 
       - name: Build every module
         run: go build ./libs/beans/... ./apps/bean-counter/...

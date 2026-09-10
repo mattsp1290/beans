@@ -2,6 +2,8 @@ name: ci-libs-beans
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'libs/beans/**'
       - 'go.work'
@@ -47,8 +49,14 @@ jobs:
       # it there. apps/bean-counter pins its own version inside its Makefile
       # instead; unifying the two invocation styles is deferred follow-up work
       # (decision D7).
+      #
+      # The version must be built with a Go toolchain at least as new as
+      # libs/beans/.golangci.yml's `run.go`. `go install pkg@version` builds
+      # with that module's own go directive, and v2.1.6 declares go1.23, so it
+      # exits 3 with "the Go language version (go1.23) used to build
+      # golangci-lint is lower than the targeted Go version (1.25)".
       - name: Install golangci-lint
-        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.6
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
 
       - name: CI gates
         run: make ci

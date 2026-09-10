@@ -7,13 +7,17 @@ PKG     := ./cmd/bn
 VERSION ?= $(shell git describe --tags --match 'libs/beans/v*' --always --dirty 2>/dev/null || echo dev)
 LDFLAGS := -X github.com/mattsp1290/beans/libs/beans/version.Version=$(VERSION)
 
-.PHONY: build test vet lint tidy-check ci install clean
+.PHONY: build test vet lint tidy-check test-integration ci install clean
 
 build:
 	go build -ldflags '$(LDFLAGS)' -o $(BIN) $(PKG)
 
 test:
 	go test ./...
+
+# Requires Docker: the suite uses testcontainers.
+test-integration:
+	go test -tags=integration ./...
 
 vet:
 	go vet ./...
