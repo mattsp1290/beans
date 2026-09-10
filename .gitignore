@@ -3,6 +3,10 @@
 #
 # Binaries for programs and plugins
 bin/
+# Anchored to the repository root so it cannot shadow a `bn` file or directory
+# inside a module. A stray root-level `go build -o bn` used to leave a 27 MB
+# untracked binary here that no pattern matched.
+/bn
 *.exe
 *.exe~
 *.dll
@@ -20,10 +24,13 @@ profile.cov
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+node_modules/
 
-# Go workspace file
-go.work
-go.work.sum
+# go.work IS tracked; go.work.sum is not. `go work sync` generates none for this
+# workspace, but read commands such as `go list -m all` do — and an untracked
+# file there aborts the deploy script's clean-worktree gate. Anchored so it
+# cannot shadow a file of that name inside a module.
+/go.work.sum
 
 # env file
 .env
@@ -31,6 +38,11 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Agent working notes: kept on disk, not tracked.
+.agents/plans/
+.agents/reviews/
+.agents/bead-swarm/history/
 
 # Beads / Dolt files (added by bd init)
 .dolt/

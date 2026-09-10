@@ -1,0 +1,374 @@
+package main
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/mattsp1290/beans/libs/beans/model"
+	store "github.com/mattsp1290/beans/libs/beans/store"
+)
+
+func TestWriteExportJSONLEmitsBDCompatibleLines(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 6, 13, 12, 0, 0, 0, time.UTC)
+	var out strings.Builder
+	depsByChild := map[string][]store.DepEdge{
+		"proj-child": {{IssueID: "proj-child", BlockedByID: "proj-parent", DepType: store.DepTypeBlocks}},
+	}
+	err := writeExportJSONL(&out, []store.Issue{
+		{
+			Issue: model.Issue{
+				ID:          "proj-child",
+				Title:       "child",
+				Description: "blocked work",
+				Priority:    model.PriorityHigh,
+				State:       "open",
+				Labels:      []string{"backend"},
+				BlockedBy:   []string{"proj-parent"},
+				BranchName:  "fix/child",
+				URL:         "https://example.test/proj-child",
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			},
+			IssueType: "task",
+		},
+	}, depsByChild)
+	if err != nil {
+		t.Fatalf("writeExportJSONL: %v", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
+	if len(lines) != 1 {
+		t.Fatalf("line count = %d, want 1: %q", len(lines), out.String())
+	}
+
+	var got bdExportLine
+	if err := json.Unmarshal([]byte(lines[0]), &got); err != nil {
+		t.Fatalf("unmarshal export line: %v", err)
+	}
+	if got.ID != "proj-child" || got.Status != "open" || got.Priority != 1 || got.IssueType != "task" {
+		t.Fatalf("export line core fields = %+v, want id/status/priority/issue_type", got)
+	}
+	if len(got.Labels) != 1 || got.Labels[0] != "backend" {
+		t.Fatalf("labels = %#v, want [backend]", got.Labels)
+	}
+	if len(got.Dependencies) != 1 {
+		t.Fatalf("dependencies = %#v, want 1 edge", got.Dependencies)
+	}
+	dep := got.Dependencies[0]
+	if dep.IssueID != "proj-child" || dep.DependsOn != "proj-parent" || dep.Type != "blocks" {
+		t.Fatalf("dependency = %+v, want child -> parent blocks edge", dep)
+	}
+}
+
+// TestExportImportRoundTripsMixedEdges locks the serialization boundary: a child
+// carrying BOTH a blocks and a parent-child edge is exported with each edge's
+// type in deterministic order, and re-parsing the line routes them back to the
+// blocking (Deps) and membership (ParentEdges) buckets respectively.
+func TestExportImportRoundTripsMixedEdges(t *testing.T) {
+	t.Parallel()
+
+	iss := store.Issue{
+		Issue: model.Issue{
+			ID:       "proj-leaf",
+			Title:    "Leaf",
+			Priority: model.PriorityMedium,
+			State:    "open",
+		},
+		IssueType: "task",
+	}
+	// As ListDeps returns them: ordered by (blocked_by_id, dep_type).
+	edges := []store.DepEdge{
+		{IssueID: "proj-leaf", BlockedByID: "proj-blocker", DepType: store.DepTypeBlocks},
+		{IssueID: "proj-leaf", BlockedByID: "proj-epic", DepType: store.DepTypeParentChild},
+	}
+
+	line := toBDExportLine(iss, edges)
+	if len(line.Dependencies) != 2 {
+		t.Fatalf("dependencies = %#v, want 2 edges", line.Dependencies)
+	}
+	// Deterministic order preserved from the input edge slice.
+	if line.Dependencies[0].Type != store.DepTypeBlocks || line.Dependencies[0].DependsOn != "proj-blocker" {
+		t.Fatalf("dep[0] = %+v, want blocks->proj-blocker", line.Dependencies[0])
+	}
+	if line.Dependencies[1].Type != store.DepTypeParentChild || line.Dependencies[1].DependsOn != "proj-epic" {
+		t.Fatalf("dep[1] = %+v, want parent-child->proj-epic", line.Dependencies[1])
+	}
+
+	// Round-trip: marshal the line and feed it back through the import parser.
+	var buf strings.Builder
+	if err := writeExportJSONL(&buf, []store.Issue{iss}, map[string][]store.DepEdge{iss.ID: edges}); err != nil {
+		t.Fatalf("writeExportJSONL: %v", err)
+	}
+	items, warnings, err := parseImportJSONL(strings.NewReader(buf.String()), "dest")
+	if err != nil || warnings != 0 || len(items) != 1 {
+		t.Fatalf("parseImportJSONL = items:%d warnings:%d err:%v, want 1/0/nil", len(items), warnings, err)
+	}
+	got := items[0]
+	if len(got.Deps) != 1 || got.Deps[0] != "proj-blocker" {
+		t.Fatalf("Deps = %#v, want [proj-blocker]", got.Deps)
+	}
+	if len(got.ParentEdges) != 1 || got.ParentEdges[0] != "proj-epic" {
+		t.Fatalf("ParentEdges = %#v, want [proj-epic]", got.ParentEdges)
+	}
+}
+
+func TestToBDExportLineEmitsRepoMetadata(t *testing.T) {
+	t.Parallel()
+
+	creationCommit := strings.Repeat("a", 40)
+	line := toBDExportLine(store.Issue{
+		Issue: model.Issue{
+			ID:       "proj-linked",
+			Title:    "Linked",
+			Priority: model.PriorityMedium,
+			State:    "open",
+			Repo: &model.RepoTarget{
+				ID:             "repo-1",
+				Slug:           "api",
+				RemoteURL:      "https://github.com/acme/api",
+				DefaultBranch:  "main",
+				CreationCommit: creationCommit,
+				RequestedRef:   "feature",
+				BaseRef:        "main",
+				WorkBranch:     "work/proj-linked",
+				WorktreeSubdir: "services/api",
+				CloneStrategy:  "worktree",
+				AuthRef:        "ssh-key:default",
+				Metadata:       map[string]any{"lane": "blue"},
+			},
+		},
+		IssueType: "task",
+	}, nil)
+
+	if line.Repo == nil {
+		t.Fatal("Repo = nil, want exported repo metadata")
+	}
+	if line.Repo.Slug != "api" || line.Repo.RemoteURL != "https://github.com/acme/api" {
+		t.Fatalf("repo identity = %+v, want slug api and remote URL", line.Repo)
+	}
+	if line.Repo.CreationCommit != creationCommit {
+		t.Fatalf("creation_commit = %q, want %q", line.Repo.CreationCommit, creationCommit)
+	}
+	if line.Repo.RequestedRef != "feature" || line.Repo.BaseRef != "main" ||
+		line.Repo.WorkBranch != "work/proj-linked" || line.Repo.WorktreeSubdir != "services/api" {
+		t.Fatalf("repo routing fields = %+v, want exported refs/subdir", line.Repo)
+	}
+	if line.Repo.Metadata["lane"] != "blue" {
+		t.Fatalf("repo metadata = %#v, want lane=blue", line.Repo.Metadata)
+	}
+}
+
+func TestExportCmdEmitsNestedRepoCreationCommitWithOmitEmpty(t *testing.T) {
+	ctx := context.Background()
+	creationCommit := strings.Repeat("b", 40)
+	s, repo := newTestStore(t, "", "https://github.com/acme/api")
+	if repo == nil {
+		t.Fatal("newTestStore did not register repo")
+	}
+	if err := s.EnsureProject(ctx, repo.Prefix); err != nil {
+		t.Fatalf("EnsureProject(%q): %v", repo.Prefix, err)
+	}
+
+	captured, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repo.Prefix,
+		Title:  "captured export",
+		Actor:  "test",
+		Repo: &store.IssueRepoInput{
+			RepoSlug:       repo.Slug,
+			CreationCommit: creationCommit,
+			RequestedRef:   "feature",
+			BaseRef:        "main",
+			WorkBranch:     "work/captured",
+			WorktreeSubdir: "services/api",
+			Metadata:       map[string]any{"lane": "blue"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue captured: %v", err)
+	}
+	legacy, err := s.CreateIssue(ctx, store.CreateIssueInput{
+		Prefix: repo.Prefix,
+		Title:  "legacy export",
+		Actor:  "test",
+		Repo:   &store.IssueRepoInput{RepoSlug: repo.Slug},
+	})
+	if err != nil {
+		t.Fatalf("CreateIssue legacy: %v", err)
+	}
+
+	rs := &appState{store: s, actor: "test", prefix: repo.Prefix, git: &fakeGitResolver{}}
+	cmd := newExportCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{}); err != nil {
+		t.Fatalf("export RunE: %v", err)
+	}
+
+	lines := decodeExportLineMaps(t, buf.String())
+	capturedLine := findExportLineMap(t, lines, captured.ID)
+	capturedRepo, ok := capturedLine["repo"].(map[string]any)
+	if !ok {
+		t.Fatalf("captured repo JSON = %#v, want object", capturedLine["repo"])
+	}
+	if capturedRepo["creation_commit"] != creationCommit {
+		t.Fatalf("captured creation_commit = %v, want %q", capturedRepo["creation_commit"], creationCommit)
+	}
+	if capturedRepo["slug"] != repo.Slug || capturedRepo["requested_ref"] != "feature" ||
+		capturedRepo["worktree_subdir"] != "services/api" {
+		t.Fatalf("captured repo JSON = %#v, want nested route payload", capturedRepo)
+	}
+	metadata, ok := capturedRepo["metadata"].(map[string]any)
+	if !ok || metadata["lane"] != "blue" {
+		t.Fatalf("captured repo metadata = %#v, want lane=blue", capturedRepo["metadata"])
+	}
+
+	legacyLine := findExportLineMap(t, lines, legacy.ID)
+	legacyRepo, ok := legacyLine["repo"].(map[string]any)
+	if !ok {
+		t.Fatalf("legacy repo JSON = %#v, want object", legacyLine["repo"])
+	}
+	if _, ok := legacyRepo["creation_commit"]; ok {
+		t.Fatalf("legacy repo JSON = %#v, want creation_commit omitted", legacyRepo)
+	}
+}
+
+// TestExportCmdScopesToCurrentRepo verifies that the export command with no
+// flags returns only issues belonging to the current project prefix.
+func TestExportCmdScopesToCurrentRepo(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, repoA := newTestStore(t, "", "https://github.com/alice/api")
+	if repoA == nil {
+		t.Fatal("newTestStore did not register repoA")
+	}
+	if err := s.EnsureProject(ctx, repoA.Prefix); err != nil {
+		t.Fatalf("EnsureProject(api): %v", err)
+	}
+	repoB, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{RemoteURL: "https://github.com/alice/frontend", Actor: "test"})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo(frontend): %v", err)
+	}
+	if err := s.EnsureProject(ctx, repoB.Prefix); err != nil {
+		t.Fatalf("EnsureProject(frontend): %v", err)
+	}
+
+	issA := mustCreateIssue(t, s, repoA.Prefix, "api task", nil)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "frontend task", nil)
+
+	rs := &appState{store: s, actor: "test", prefix: repoA.Prefix, git: &fakeGitResolver{}}
+	cmd := newExportCmd(rs)
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{}); err != nil {
+		t.Fatalf("export RunE: %v", err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, issA.ID) {
+		t.Errorf("export output missing repoA issue %s", issA.ID)
+	}
+	if strings.Contains(out, issB.ID) {
+		t.Errorf("export output unexpectedly contains repoB issue %s", issB.ID)
+	}
+}
+
+// TestExportCmdAllReposReturnsAllIssues verifies that --all-repos includes
+// issues from every registered project in the shared database.
+func TestExportCmdAllReposReturnsAllIssues(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, repoA := newTestStore(t, "", "https://github.com/alice/api")
+	if repoA == nil {
+		t.Fatal("newTestStore did not register repoA")
+	}
+	if err := s.EnsureProject(ctx, repoA.Prefix); err != nil {
+		t.Fatalf("EnsureProject(api): %v", err)
+	}
+	repoB, err := s.AutoRegisterRepo(ctx, store.AutoRegisterInput{RemoteURL: "https://github.com/alice/frontend", Actor: "test"})
+	if err != nil {
+		t.Fatalf("AutoRegisterRepo(frontend): %v", err)
+	}
+	if err := s.EnsureProject(ctx, repoB.Prefix); err != nil {
+		t.Fatalf("EnsureProject(frontend): %v", err)
+	}
+
+	issA := mustCreateIssue(t, s, repoA.Prefix, "api task", nil)
+	issB := mustCreateIssue(t, s, repoB.Prefix, "frontend task", nil)
+
+	rs := &appState{store: s, actor: "test", prefix: repoA.Prefix, git: &fakeGitResolver{}}
+	cmd := newExportCmd(rs)
+	// Set --all-repos by adding the flag and parsing args.
+	if err := cmd.Flags().Set("all-repos", "true"); err != nil {
+		t.Fatalf("set --all-repos: %v", err)
+	}
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	if err := cmd.RunE(cmd, []string{}); err != nil {
+		t.Fatalf("export --all-repos RunE: %v", err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, issA.ID) {
+		t.Errorf("export --all-repos missing repoA issue %s", issA.ID)
+	}
+	if !strings.Contains(out, issB.ID) {
+		t.Errorf("export --all-repos missing repoB issue %s", issB.ID)
+	}
+}
+
+func TestToBDExportLineUsesEmptySlices(t *testing.T) {
+	t.Parallel()
+
+	got := toBDExportLine(store.Issue{
+		Issue: model.Issue{
+			ID:       "proj-empty",
+			Title:    "empty",
+			Priority: model.PriorityMedium,
+			State:    "open",
+		},
+		IssueType: "task",
+	}, nil)
+
+	if got.Labels == nil {
+		t.Fatal("labels = nil, want empty slice")
+	}
+	if got.Dependencies == nil {
+		t.Fatal("dependencies = nil, want empty slice")
+	}
+}
+
+func decodeExportLineMaps(t *testing.T, raw string) []map[string]any {
+	t.Helper()
+	lines := strings.Split(strings.TrimSpace(raw), "\n")
+	got := make([]map[string]any, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		var decoded map[string]any
+		if err := json.Unmarshal([]byte(line), &decoded); err != nil {
+			t.Fatalf("unmarshal export line %q: %v", line, err)
+		}
+		got = append(got, decoded)
+	}
+	return got
+}
+
+func findExportLineMap(t *testing.T, lines []map[string]any, id string) map[string]any {
+	t.Helper()
+	for _, line := range lines {
+		if line["id"] == id {
+			return line
+		}
+	}
+	t.Fatalf("export line %s not found in %#v", id, lines)
+	return nil
+}

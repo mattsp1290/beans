@@ -1,0 +1,105 @@
+# Traefik ingress for bean-counter on the infra k8s node, mirroring the Forgejo
+# pattern (~/gitea/k8s-forgejo-ingress.yaml): no-selector Services with manual
+# Endpoints pointing at the host-published docker ports, fronted by a Traefik
+# Ingress with cert-manager TLS.
+#
+# Why this shape: the host runs kube-router with FORWARD policy DROP, which kills
+# container-to-container traffic on the bean-counter docker bridge. Routing
+# through Traefik -> host node IP -> the published ports bypasses that, so the
+# UI never has to proxy /api over the bridge. Traefik path-routes:
+#   counter.birb.homes/      -> ui  (static Svelte, host :8088)
+#   counter.birb.homes/api   -> api (Fiber, host :8081)
+# Same-origin, so no CORS hop.
+#
+# Apply on the host:  kubectl apply -f deploy/k8s/bean-counter-ingress.yaml
+# Requires: counter.birb.homes DNS, and the bean-counter compose stack up with
+# api published on :8081 and ui on :8088.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bean-counter
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bean-counter-ui
+  namespace: bean-counter
+spec:
+  ports:
+    - name: http
+      port: 8088
+      targetPort: 8088
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: bean-counter-ui
+  namespace: bean-counter
+subsets:
+  - addresses:
+      - ip: 10.0.0.106
+    ports:
+      - name: http
+        port: 8088
+        protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bean-counter-api
+  namespace: bean-counter
+spec:
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: bean-counter-api
+  namespace: bean-counter
+subsets:
+  - addresses:
+      - ip: 10.0.0.106
+    ports:
+      - name: http
+        port: 8081
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bean-counter
+  namespace: bean-counter
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - counter.birb.homes
+      secretName: bean-counter-tls
+  rules:
+    - host: counter.birb.homes
+      http:
+        paths:
+          # More specific path first; Traefik matches the longest prefix.
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: bean-counter-api
+                port:
+                  number: 8081
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bean-counter-ui
+                port:
+                  number: 8088

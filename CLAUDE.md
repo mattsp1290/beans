@@ -1,6 +1,9 @@
 # Project Instructions for AI Agents
 
-This file provides instructions and context for AI coding agents working on this project.
+This file provides instructions and context for AI coding agents working on
+this repository. `AGENTS.md` is the fuller reference; this file records the
+build commands, the architecture, and the conventions that differ from a
+single-module Go repository.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
@@ -49,21 +52,86 @@ bd close <id>         # Complete work
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
 
-
 ## Build & Test
 
-_Add your build and test commands here_
+Run from the repository root:
 
 ```bash
-# Example:
-# npm install
-# npm test
+make ci               # vet, lint, test, build, tidy-check across every module
+make ci-integration   # testcontainers suites; requires a running Docker daemon
+make build            # every module
+make test             # every module
+
+make beans TARGET=build          # one target in libs/beans
+make bean-counter TARGET=test    # one target in apps/bean-counter
+```
+
+Per module, when you need the standalone view CI and the container use:
+
+```bash
+( cd libs/beans        && GOWORK=off go build ./... && GOWORK=off go test ./... )
+( cd apps/bean-counter && GOWORK=off go build ./... && GOWORK=off go test ./... )
+```
+
+Deploy-surface gates for bean-counter:
+
+```bash
+shellcheck apps/bean-counter/scripts/deploy-production.sh \
+           apps/bean-counter/test/scripts/deploy-production_test.sh
+bash apps/bean-counter/test/scripts/deploy-production_test.sh
 ```
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+A monorepo of Go modules, with no module at the repository root:
+
+| Path | Module path | What it is |
+| --- | --- | --- |
+| `libs/beans` | `github.com/mattsp1290/beans/libs/beans` | The beans library and the `bn` CLI. No intra-repo dependencies. |
+| `apps/bean-counter` | `github.com/mattsp1290/beans/apps/bean-counter` | Go + Fiber v3 API and Svelte UI over the beans store. |
+| `apps/<name>` | `github.com/mattsp1290/beans/apps/<name>` | Reserved slot for a Postgres-backed application. Not yet created. |
+
+Applications depend on the library through a filesystem `replace`
+(`=> ../../libs/beans`) plus a `v0.0.0` placeholder `require`. The root
+`go.work` is a tracked convenience; the `replace` is the mechanism. There is
+deliberately no root `go.mod`: one would claim the
+`github.com/mattsp1290/beans` path and make the nested module paths ambiguous.
+
+CI is three workflows: `ci-workspace` always runs and proves the workspace is
+coherent; `ci-libs-beans` and `ci-apps-bean-counter` are path-scoped and run
+with `GOWORK=off` so they prove each module stands on its own.
+`ci-apps-bean-counter`'s path filter includes `libs/beans/**`, because a
+library change reaches the application through the `replace`.
+
+If a required status check is ever configured, require **`ci-workspace`** and
+only `ci-workspace`. The other two are path-filtered, so a pull request
+touching neither path never starts them, and a required check that never runs
+leaves the pull request pending forever.
+
+The full design, including why each decision was made, is in
+`.agents/plans/monorepo-consolidation/`.
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- **The `replace` is not optional.** The container build and every `GOWORK=off`
+  invocation resolve the library through it. `apps/bean-counter`'s deploy
+  script aborts if it is missing or points anywhere but `../../libs/beans`.
+- **Tidy with `GOWORK=off`.** A workspace-active `go mod tidy` can resolve
+  through a sibling module and write a `go.sum` that is incomplete for a
+  standalone build - which is exactly how the container builds. Follow it with
+  `go work sync` at the root.
+- **Lint policy is per module.** `libs/beans` uses an explicit allow-list;
+  `apps/bean-counter` uses `default: standard` plus extras, and pins its own
+  golangci-lint version in its Makefile. Unifying them is deliberate deferred
+  work, not an oversight.
+- **Images build from the repository root.** `docker build -f
+  apps/bean-counter/Dockerfile .` - the build needs `libs/beans`, and the whole
+  library tree is copied because `libs/beans/schema` `go:embed`s its migration
+  SQL.
+- **One tracker, at the root.** Do not run `bd init` inside a module. A new
+  application picks an issue prefix distinct from `beans-` and
+  `bean-counter-`.
+- **One `AGENTS.md` and one `CLAUDE.md`, both at the root.** A new application
+  adds a `## apps/<name>` section to `AGENTS.md` rather than its own file.
+- **`.agents/` is a historical record.** Plans and reviews under it are dated
+  and are not rewritten when paths change.

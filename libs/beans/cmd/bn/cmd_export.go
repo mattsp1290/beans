@@ -1,0 +1,145 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/spf13/cobra"
+
+	"github.com/mattsp1290/beans/libs/beans/model"
+	store "github.com/mattsp1290/beans/libs/beans/store"
+)
+
+func newExportCmd(rs *appState) *cobra.Command {
+	var (
+		outputPath string
+		allRepos   bool
+	)
+
+	cmd := &cobra.Command{
+		Use:   "export",
+		Short: "Export issues as bd-compatible JSONL",
+		Long: `Export issues as bd-compatible JSONL (one issue per line).
+
+By default exports the current repository only. Use --all-repos to export every
+repository in the shared database, or --repo <slug> to export a named repository.`,
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			f, err := rs.resolveListFilter(cmd.Context(), allRepos)
+			if err != nil {
+				return fmt.Errorf("export: %w", err)
+			}
+
+			issues, err := rs.store.ListIssues(cmd.Context(), f)
+			if err != nil {
+				return fmt.Errorf("export: %w", err)
+			}
+
+			// Fetch every edge kind (blocks + parent-child + any custom) so the
+			// export round-trips hierarchy, not just blocking edges. ListDeps is
+			// ordered (issue_id, blocked_by_id, dep_type) for stable output.
+			edges, err := rs.store.ListDeps(cmd.Context(), f)
+			if err != nil {
+				return fmt.Errorf("export: %w", err)
+			}
+			depsByChild := make(map[string][]store.DepEdge, len(edges))
+			for _, e := range edges {
+				depsByChild[e.IssueID] = append(depsByChild[e.IssueID], e)
+			}
+
+			w := cmd.OutOrStdout()
+			if outputPath != "" {
+				out, err := os.Create(outputPath)
+				if err != nil {
+					return fmt.Errorf("export: create %s: %w", outputPath, err)
+				}
+				defer out.Close()
+				w = out
+			}
+
+			if err := writeExportJSONL(w, issues, depsByChild); err != nil {
+				return fmt.Errorf("export: write: %w", err)
+			}
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&outputPath, "output", "o", "", "write JSONL export to file (default: stdout)")
+	cmd.Flags().BoolVar(&allRepos, "all-repos", false, "export all repos in the shared database")
+	return cmd
+}
+
+func writeExportJSONL(w io.Writer, issues []store.Issue, depsByChild map[string][]store.DepEdge) error {
+	enc := json.NewEncoder(w)
+	for _, iss := range issues {
+		if err := enc.Encode(toBDExportLine(iss, depsByChild[iss.ID])); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func toBDExportLine(iss store.Issue, edges []store.DepEdge) bdExportLine {
+	labels := iss.Labels
+	if labels == nil {
+		labels = []string{}
+	}
+
+	// Emit every edge kind (blocks + parent-child + custom). edges are already
+	// ordered by (blocked_by_id, dep_type) from ListDeps for stable output.
+	deps := make([]bdExportDep, 0, len(edges))
+	for _, e := range edges {
+		depType := e.DepType
+		if depType == "" {
+			// Persisted rows are NOT NULL, so this only guards hand-built DepEdges
+			// (e.g. in tests) that omit DepType; default them to blocks.
+			depType = store.DepTypeBlocks
+		}
+		deps = append(deps, bdExportDep{
+			IssueID:   e.IssueID,
+			DependsOn: e.BlockedByID,
+			Type:      depType,
+		})
+	}
+
+	line := bdExportLine{
+		ID:           iss.ID,
+		Title:        iss.Title,
+		Description:  iss.Description,
+		Status:       string(iss.State),
+		Priority:     exportPriority(iss.Priority),
+		IssueType:    iss.IssueType,
+		Labels:       labels,
+		BranchName:   iss.BranchName,
+		URL:          iss.URL,
+		Dependencies: deps,
+	}
+	if iss.Repo != nil {
+		line.Repo = &bdExportRepo{
+			ID:             iss.Repo.ID,
+			Slug:           iss.Repo.Slug,
+			RemoteURL:      iss.Repo.RemoteURL,
+			DefaultBranch:  iss.Repo.DefaultBranch,
+			CreationCommit: iss.Repo.CreationCommit,
+			RequestedRef:   iss.Repo.RequestedRef,
+			BaseRef:        iss.Repo.BaseRef,
+			WorkBranch:     iss.Repo.WorkBranch,
+			WorktreeSubdir: iss.Repo.WorktreeSubdir,
+			CloneStrategy:  iss.Repo.CloneStrategy,
+			AuthRef:        iss.Repo.AuthRef,
+			Metadata:       iss.Repo.Metadata,
+		}
+	}
+	return line
+}
+
+func exportPriority(p model.Priority) int {
+	// model.Priority is 1-indexed; bd export uses 0-indexed priorities.
+	prio := int(p) - 1
+	if prio < 0 {
+		return 0
+	}
+	return prio
+}

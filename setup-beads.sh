@@ -3,6 +3,12 @@
 # Change: Migrate store persistence from pgx/Postgres-only SQL to GORM with PostgreSQL, MySQL, and SQLite support
 # Generated: 2026-06-13
 
+# HISTORICAL: this is a one-shot, already-executed script that seeded this
+# project's initial bead graph. Its bd descriptions name pre-monorepo paths
+# (cmd/bn, store/, schema/); those live under libs/beans/ now. The paths are
+# only text inside `bd create` arguments, so nothing here breaks - but do not
+# treat this file as current documentation.
+
 set -euo pipefail
 
 if [ ! -d ".beads" ]; then

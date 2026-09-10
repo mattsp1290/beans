@@ -1,0 +1,21 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: standard
+  enable:
+    - errorlint
+    - gocritic
+    - misspell
+    - nilerr
+    - nolintlint
+    - unconvert
+    - wastedassign
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

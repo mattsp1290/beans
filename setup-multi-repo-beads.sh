@@ -20,6 +20,12 @@
 # cmd/bn/app.go and store/store.go are file-contention hotspots: edits to each
 # are chained, not parallel siblings.
 
+# HISTORICAL: this is a one-shot, already-executed script that seeded this
+# project's initial bead graph. Its bd descriptions name pre-monorepo paths
+# (cmd/bn, store/, schema/); those live under libs/beans/ now. The paths are
+# only text inside `bd create` arguments, so nothing here breaks - but do not
+# treat this file as current documentation.
+
 set -e
 
 # Initialize beads if needed (this repo already has .beads/, so this is a no-op).

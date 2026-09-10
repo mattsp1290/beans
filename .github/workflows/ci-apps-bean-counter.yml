@@ -1,0 +1,198 @@
+name: ci-apps-bean-counter
+
+# libs/beans/** is in the filter because a library change reaches this
+# application through the filesystem replace directive. Omitting it would let a
+# breaking library change merge green.
+on:
+  pull_request:
+    paths:
+      - 'apps/bean-counter/**'
+      - 'libs/beans/**'
+      - 'go.work'
+      - 'Makefile'
+      - '.dockerignore'
+      - '.github/workflows/ci-apps-bean-counter.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/bean-counter/**'
+      - 'libs/beans/**'
+      - 'go.work'
+      - 'Makefile'
+      - '.dockerignore'
+      - '.github/workflows/ci-apps-bean-counter.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: apps/bean-counter
+
+    # GOWORK=off proves the go.mod replace directive is sufficient on its own,
+    # which is exactly how the container build resolves the library.
+    env:
+      GOWORK: 'off'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/bean-counter/go.mod
+          cache: true
+          cache-dependency-path: apps/bean-counter/go.sum
+
+      - name: Check formatting
+        run: make fmt-check
+
+      - name: Vet
+        run: make vet
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
+
+      - name: Build
+        run: make build
+
+      # The GOWORK=off tidy hazard this repository documents was gated nowhere
+      # before; without this it would first surface during a deploy.
+      - name: Tidy check
+        run: make tidy-check
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: apps/bean-counter/frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/bean-counter/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm run test
+
+      - name: Check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+  deploy-scripts:
+    name: Deploy scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Shellcheck
+        run: shellcheck apps/bean-counter/scripts/deploy-production.sh apps/bean-counter/test/scripts/deploy-production_test.sh
+
+      - name: Unit tests (pure helpers + arg parsing)
+        run: bash apps/bean-counter/test/scripts/deploy-production_test.sh
+
+  images:
+    name: Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Context is the repository root and go.work is never copied: this job is
+      # what proves the image resolves libs/beans through the go.mod replace
+      # alone.
+      - name: Build API image
+        run: docker build -f apps/bean-counter/Dockerfile -t bean-counter-api:ci .
+
+      # The property is about the BUILD stage: the runtime stage restarts from
+      # alpine and receives one file, so /src does not exist there and probing
+      # the runtime image would pass no matter what was copied. Probe the named
+      # build stage instead, and assert something known-present first so a
+      # broken `docker run` cannot read as a pass.
+      - name: Build stage resolves the library without go.work
+        run: |
+          docker build -f apps/bean-counter/Dockerfile --target build -t bean-counter-build:ci .
+          docker run --rm --entrypoint sh bean-counter-build:ci -c '
+            set -e
+            test -f /src/libs/beans/go.mod || { echo "probe is broken: libs/beans/go.mod missing" >&2; exit 1; }
+            if [ -e /src/go.work ]; then
+              echo "go.work reached the build stage; the image must resolve the library through the go.mod replace alone" >&2
+              exit 1
+            fi
+          '
+
+      - name: Build UI image
+        run: docker build -t bean-counter-ui:ci ./apps/bean-counter/frontend
+
+      - name: Compose files render with monorepo contexts
+        run: |
+          docker compose -f apps/bean-counter/docker-compose.stack.yml config >/dev/null
+          docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml config >/dev/null
+
+  integration:
+    name: Integration (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: apps/bean-counter
+
+    env:
+      GOWORK: 'off'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - database: mysql
+            test: TestMySQLCRUDDepsAndReadyOverHTTP
+          - database: postgres
+            test: TestPostgresCRUDDepsAndReadyOverHTTP
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/bean-counter/go.mod
+          cache: true
+          cache-dependency-path: apps/bean-counter/go.sum
+
+      - name: Check Docker
+        run: docker version
+
+      - name: Run integration test
+        run: go test -tags=integration ./test/integration -run "^${{ matrix.test }}$" -count=1 -v
