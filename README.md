@@ -1,51 +1,80 @@
 # beans
 
 `bn` (beans) is a git-backed issue tracker and wiki for humans and coding
-agents. Issues and docs are markdown files in one git repository, the hub;
-`bn serve` puts an issues board and a wiki over it. The redesign is in
-progress; this README is rewritten when it lands (`v0.2.0`).
+agents. Issues, docs, and memories are markdown files with YAML frontmatter
+in one git repository, the hub, cloned at `~/.beans/hub`. Every `bn` command
+that changes something makes one commit and pushes it, so git is the source
+of truth across machines and every change has an author, a time, and a
+reason.
+
+The hub is a valid Obsidian vault: issues are notes, `blocked_by` and
+`parent` are wikilinks that show up in the graph view, and docs are plain
+markdown pages. It also reads well on GitHub without `bn`.
+
+`bn serve` runs a local web app over the hub: an issues board grouped by
+workflow status, an issue page with rendered markdown, blockers, children,
+backlinks, and log, a dependency graph, a wiki with a page tree and
+backlinks, and search. Edits made in the UI go through the same commit
+pipeline as the CLI, and edits made in an editor show up in the UI within a
+second.
+
+## Install
+
+```bash
+go install github.com/mattsp1290/beans/cmd/bn@latest   # after a tagged release
+# or, from a checkout:
+make release-build && cp bin/bn ~/bin/
+```
+
+`bn` needs `git` on PATH. Only `go install` builds without the UI; use
+`make release-build` for a binary that serves the board.
+
+## Quick start
+
+```bash
+bn init git@github.com:you/beans-hub.git    # clone (or initialize) the hub
+cd ~/git/myapp                               # the project is the repository you are in
+bn create "Fix the login redirect" -p 1 -l bug
+bn ready                                     # issues with no open blockers
+bn update myapp-a3f2 --claim
+bn close myapp-a3f2 -r "shipped in 4c1d2e"
+bn serve --open                              # the board and wiki in a browser
+bn prime                                     # the rules, for agents
+```
+
+## Hub layout
 
 ```text
-beans/
-├── go.mod                        module github.com/mattsp1290/beans
-├── Makefile                      build, test, vet, lint, ui-*, ci, release-build
-├── .github/workflows/ci.yml      one workflow, jobs `go` and `ui`
-├── cmd/bn/                       the bn binary
-├── issue/  vault/  gitops/            public packages (markdown/ arrives in WP4)
-├── internal/server/              HTTP API and embedded UI serving
-├── ui/                           Svelte 5 app, embedded via ui/embed.go
-├── version/                      build-time version string
-└── docs/                         format spec, prime text, config example
+~/.beans/
+├── config.toml                  actor, hub.remote, hub.branch, fetch.throttle
+├── cache/                       lock, fetch timestamps, operation journal
+└── hub/                         git clone; one Obsidian vault
+    ├── beans.toml               [workflow] [types] [ids]
+    ├── docs/                    hub-wide wiki
+    ├── memories/                hub-wide memories
+    └── projects/<name>/
+        ├── beans.toml           name, prefix, remotes
+        ├── issues/<id>-<slug>.md
+        ├── archive/<YYYY>/<id>-<slug>.md
+        ├── docs/
+        ├── memories/<key>.md
+        └── templates/<type>.md
 ```
 
-## Build
+The file format is specified in [`docs/format.md`](docs/format.md); `bn`
+preserves every key, comment, and line it does not own, so hand edits in
+Obsidian or any editor are first class. The next `bn` command commits them
+as `bn: hand edits`.
+
+## Development
 
 ```bash
-make ci               # ui-install ui-test ui-check ui-build vet lint test build tidy-check
-make build            # bin/bn (embeds whatever ui/dist holds; no Node needed)
-make release-build    # build the UI, then the binary that embeds it
+make ci               # everything CI runs: UI tests and build, vet, lint, Go tests, build, tidy check
+make build            # bin/bn embedding whatever ui/dist holds
 ```
 
-## History
-
-Until 2026-09-10 this repository was a two-module workspace (`libs/beans`, a
-GORM store and the `bn` CLI, and `apps/bean-counter`, a Fiber API and Svelte
-UI). The pre-monorepo `v0.1.0` and `v0.1.1` tags predate both layouts.
-
-## Issue tracking
-
-This repository's own issues are tracked with beads (`bd`) until the redesign
-migrates them into the hub.
-
-```bash
-bd ready              # available work
-bd show <id>          # issue detail
-```
-
-## Agents
-
-`AGENTS.md` and `CLAUDE.md` at the root are the instructions for AI coding
-agents. There is exactly one of each.
+Decisions and their reasons are in [`docs/decisions.md`](docs/decisions.md).
+`AGENTS.md` and `CLAUDE.md` are the instructions for AI coding agents.
 
 ## License
 
