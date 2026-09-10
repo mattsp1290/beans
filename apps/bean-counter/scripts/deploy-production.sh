@@ -218,9 +218,21 @@ SANCTIONED_BEANS_REPLACE='github.com/mattsp1290/beans/libs/beans => ../../libs/b
 # replace_directives <go.mod path> -> prints one normalized "<old> => <new>"
 # line per replace directive, handling both the single-line form and the
 # `replace ( ... )` block form, with `//` comments stripped and internal
-# whitespace collapsed. Prints nothing when there are none.
+# whitespace collapsed. Prints nothing when there are none. Returns non-zero if
+# the file could not be read or parsed, so callers can fail closed.
+#
+# LC_ALL=C is load-bearing, not hygiene. Under a UTF-8 locale BSD sed aborts the
+# entire stream with "RE error: illegal byte sequence" at the first byte that is
+# not valid UTF-8 — *after* emitting what it already processed. A hostile
+# `replace` placed after one Latin-1 byte would therefore never reach the awk
+# stage, and the gate would see only the sanctioned directive above it. Byte-wise
+# matching cannot fail that way. The command substitution below also keeps sed's
+# exit status (a pipeline would report awk's instead), which is what lets a
+# parser failure reject rather than silently shorten the directive list.
 replace_directives() {
-  sed -e 's://.*::' "$1" | awk '
+  local stripped
+  stripped="$(LC_ALL=C sed -e 's://.*::' "$1")" || return 1
+  printf '%s\n' "$stripped" | LC_ALL=C awk '
     /^[[:space:]]*replace[[:space:]]*\(/ { inblock = 1; next }
     inblock && /^[[:space:]]*\)/         { inblock = 0; next }
     inblock                              { line = $0 }
@@ -257,8 +269,12 @@ check_sanctioned_replace() {
 
   # No arrays: macOS still ships bash 3.2, where `${#arr[@]}` on an empty array
   # under `set -u` is an unbound-variable error, and this script runs from a Mac.
-  local directives count first
-  directives="$(replace_directives "$gomod" | sed '/^[[:space:]]*$/d')"
+  local directives count first raw
+  raw="$(replace_directives "$gomod")" || {
+    printf '%s: could not parse its replace directives; refusing to guess\n' "$gomod" >&2
+    return 1
+  }
+  directives="$(printf '%s\n' "$raw" | LC_ALL=C sed '/^[[:space:]]*$/d')"
 
   if [ -z "$directives" ]; then
     printf '%s declares no replace directive; it must contain exactly: replace %s\n' \
@@ -397,7 +413,22 @@ resolve_embedded_migration_max() {
   beans_dir="$( cd apps/bean-counter && GOWORK=off go list -m -f '{{.Dir}}' "$BEANS_MODULE" 2>/dev/null )" \
     || fatal "go list -m $BEANS_MODULE failed; module graph is not deployable"
   [ -n "$beans_dir" ] || fatal "could not locate $BEANS_MODULE via the in-repo replace"
-  EMBEDDED_MAX="$(migration_max_from_dir "$beans_dir/schema/migrations/postgres")"
+
+  # EMBEDDED_MAX gates whether this deploy is allowed to touch a shared Postgres
+  # bean-counter does not own, so the directory it is computed from must be
+  # inside this repository. Resolve both sides physically and require
+  # containment; a path escaping the tree is a hard stop, not a warning.
+  local root_phys beans_phys
+  root_phys="$(cd "$(git rev-parse --show-toplevel)" && pwd -P)" \
+    || fatal "could not resolve the repository root"
+  beans_phys="$(cd "$beans_dir" && pwd -P)" \
+    || fatal "could not resolve $beans_dir"
+  case "$beans_phys" in
+    "$root_phys"/*) : ;;
+    *) fatal "$BEANS_MODULE resolves to $beans_phys, outside the repository at $root_phys" ;;
+  esac
+
+  EMBEDDED_MAX="$(migration_max_from_dir "$beans_phys/schema/migrations/postgres")"
   case "$EMBEDDED_MAX" in
     ''|*[!0-9]*) fatal "could not determine embedded beans migration max (got '$EMBEDDED_MAX')" ;;
   esac
@@ -408,13 +439,24 @@ resolve_embedded_migration_max() {
 # Every local path in this script is repository-root-relative, so running it
 # from apps/bean-counter would silently resolve them against the wrong tree.
 require_repo_root() {
-  local toplevel
+  local toplevel here
   toplevel="$(git rev-parse --show-toplevel 2>/dev/null)" \
     || fatal "not inside a git worktree; run this from the repository root"
-  [ "$toplevel" = "$PWD" ] \
-    || fatal "run this from the repository root ($toplevel), not $PWD"
+  # git reports a physical path; $PWD is logical, so a repository reached through
+  # a symlink would compare unequal and abort a legitimate deploy. Compare
+  # physical to physical.
+  here="$(pwd -P)"
+  toplevel="$(cd "$toplevel" && pwd -P)"
+  [ "$toplevel" = "$here" ] \
+    || fatal "run this from the repository root ($toplevel), not $here"
   [ -f apps/bean-counter/go.mod ] && [ -d libs/beans ] \
-    || fatal "$PWD does not look like the beans monorepo (expected apps/bean-counter/go.mod and libs/beans/)"
+    || fatal "$here does not look like the beans monorepo (expected apps/bean-counter/go.mod and libs/beans/)"
+  # The replace gate checks the TEXT of the directive; this checks what the text
+  # points at. A symlinked libs/beans would satisfy every textual check while
+  # sourcing the library — and the embedded-migration count that decides whether
+  # the deploy may touch the shared production database — from outside the repo.
+  [ ! -L libs/beans ] \
+    || fatal "libs/beans is a symlink; the library must be the in-repo directory"
 }
 
 require_clean_local_ref() {

@@ -5,6 +5,8 @@ name: ci-workspace
 # workflows are path-filtered; this one is the backstop.
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -46,3 +48,11 @@ jobs:
 
       - name: Build every module
         run: go build ./libs/beans/... ./apps/bean-counter/...
+
+      # The root Makefile only fans out, so nothing else exercises it. This is
+      # the cheap check that every target it delegates exists in every module.
+      - name: Root Makefile fans out to every module
+        run: |
+          for t in build test vet lint tidy-check ci ci-integration clean; do
+            make -n "$t" >/dev/null || { echo "root target '$t' does not resolve" >&2; exit 1; }
+          done

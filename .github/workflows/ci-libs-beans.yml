@@ -8,12 +8,14 @@ on:
       - 'libs/beans/**'
       - 'go.work'
       - 'go.work.sum'
+      - 'Makefile'
       - '.github/workflows/ci-libs-beans.yml'
   pull_request:
     paths:
       - 'libs/beans/**'
       - 'go.work'
       - 'go.work.sum'
+      - 'Makefile'
       - '.github/workflows/ci-libs-beans.yml'
 
 permissions:
@@ -50,11 +52,14 @@ jobs:
       # instead; unifying the two invocation styles is deferred follow-up work
       # (decision D7).
       #
-      # The version must be built with a Go toolchain at least as new as
-      # libs/beans/.golangci.yml's `run.go`. `go install pkg@version` builds
-      # with that module's own go directive, and v2.1.6 declares go1.23, so it
-      # exits 3 with "the Go language version (go1.23) used to build
-      # golangci-lint is lower than the targeted Go version (1.25)".
+      # The installed binary must be built with a Go toolchain at least as new
+      # as libs/beans/.golangci.yml's `run.go` (1.25), or golangci-lint exits 3
+      # with "the Go language version ... is lower than the targeted Go
+      # version". `go install pkg@version` uses max(installed toolchain, the
+      # module's go directive) and never downgrades, so the runner's 1.25.x
+      # satisfies that on its own. v2.12.2 is pinned for parity with the
+      # version apps/bean-counter/Makefile pins, not to work around a version
+      # cap.
       - name: Install golangci-lint
         run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
 

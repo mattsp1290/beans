@@ -10,6 +10,7 @@ on:
       - 'libs/beans/**'
       - 'go.work'
       - 'go.work.sum'
+      - 'Makefile'
       - '.dockerignore'
       - '.github/workflows/ci-apps-bean-counter.yml'
   push:
@@ -20,6 +21,7 @@ on:
       - 'libs/beans/**'
       - 'go.work'
       - 'go.work.sum'
+      - 'Makefile'
       - '.dockerignore'
       - '.github/workflows/ci-apps-bean-counter.yml'
 
@@ -134,12 +136,22 @@ jobs:
       - name: Build API image
         run: docker build -f apps/bean-counter/Dockerfile -t bean-counter-api:ci .
 
-      - name: API image carries no go.work
+      # The property is about the BUILD stage: the runtime stage restarts from
+      # alpine and receives one file, so /src does not exist there and probing
+      # the runtime image would pass no matter what was copied. Probe the named
+      # build stage instead, and assert something known-present first so a
+      # broken `docker run` cannot read as a pass.
+      - name: Build stage resolves the library without go.work
         run: |
-          if docker run --rm --entrypoint sh bean-counter-api:ci -c 'ls /src/go.work' 2>/dev/null; then
-            echo "go.work leaked into the runtime image" >&2
-            exit 1
-          fi
+          docker build -f apps/bean-counter/Dockerfile --target build -t bean-counter-build:ci .
+          docker run --rm --entrypoint sh bean-counter-build:ci -c '
+            set -e
+            test -f /src/libs/beans/go.mod || { echo "probe is broken: libs/beans/go.mod missing" >&2; exit 1; }
+            if [ -e /src/go.work ]; then
+              echo "go.work reached the build stage; the image must resolve the library through the go.mod replace alone" >&2
+              exit 1
+            fi
+          '
 
       - name: Build UI image
         run: docker build -t bean-counter-ui:ci ./apps/bean-counter/frontend

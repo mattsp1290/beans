@@ -1,4 +1,5 @@
-BIN     := bin/bn
+BIN_DIR := bin
+BIN     := $(BIN_DIR)/bn
 PKG     := ./cmd/bn
 # Go's convention for a module in a subdirectory is subdirectory-prefixed
 # tags, so this matches libs/beans/v* and ignores tags belonging to any
@@ -37,6 +38,8 @@ ci: tidy-check vet lint test build
 install:
 	go install -ldflags '$(LDFLAGS)' $(PKG)
 
-# Present so the root Makefile's clean fan-out reaches every module.
+# Present so the root Makefile's clean fan-out reaches every module. Removes
+# BIN_DIR directly rather than $(dir $(BIN)): if BIN were ever set to a bare
+# filename, $(dir ...) would expand to ./ and this would be rm -rf ./.
 clean:
-	rm -rf $(dir $(BIN))
+	rm -rf $(BIN_DIR)

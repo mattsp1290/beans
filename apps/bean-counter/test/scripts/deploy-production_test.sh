@@ -135,6 +135,31 @@ rejects "block form holding an extra entry rejected" \
 check_sanctioned_replace "$gomod_tmp/does-not-exist.mod" >/dev/null 2>&1
 assert_rc "missing go.mod rejected" 1 $?
 
+# The parser must see EVERY directive, not merely reject the file. Asserting the
+# count is what catches a parser that stops early: on BSD sed under a UTF-8
+# locale, one invalid byte aborts the stream after emitting what it had already
+# processed, hiding every replace below it. This suite runs on GNU sed in CI,
+# where that abort does not occur, so a rejection-only assertion would pass on
+# both platforms while the gate was broken on the one the deploy runs from.
+directive_count() { replace_directives "$1" | sed '/^[[:space:]]*$/d' | grep -c . ; }
+
+write_gomod "two.mod" "$SANCTIONED_LINE
+replace github.com/mattsp1290/beans/libs/other => ../../libs/evil"
+out="$(directive_count "$gomod_tmp/two.mod")"
+assert_eq "parser sees both directives" "2" "$out"
+
+# Same file with one Latin-1 byte between the two directives.
+printf 'module m\n\ngo 1.25.7\n\n%s\n// caf\xe9 latin-1 comment\nreplace github.com/mattsp1290/beans/libs/other => ../../libs/evil\n' \
+  "$SANCTIONED_LINE" > "$gomod_tmp/latin1.mod"
+out="$(directive_count "$gomod_tmp/latin1.mod")"
+assert_eq "parser sees both directives past an invalid UTF-8 byte" "2" "$out"
+check_sanctioned_replace "$gomod_tmp/latin1.mod" >/dev/null 2>&1
+assert_rc "replace hidden after an invalid UTF-8 byte rejected" 1 $?
+
+write_gomod "one.mod" "$SANCTIONED_LINE"
+out="$(directive_count "$gomod_tmp/one.mod")"
+assert_eq "parser sees exactly one directive in the sanctioned file" "1" "$out"
+
 # The real file must satisfy the gate, or a deploy from a clean checkout aborts
 # on its own gate.
 check_sanctioned_replace "$SCRIPT_DIR/go.mod" >/dev/null 2>&1
