@@ -82,8 +82,11 @@ code block never counts as a heading; when a fence is never closed, fences
 are ignored so a real `## Log` is still found.
 
 Events: `created`, `status <from> → <to>`, `note — <text>`, `closed — <reason>`,
-`reopened`, `archived`, `field <name>: <old> → <new>`, `blocked_by + <id>`,
-`blocked_by - <id>`. Continuation lines of a multi-line event are indented by
+`reopened (was <status>)`, `archived`, `field <name>: <old> → <new>` (title,
+priority, type, assignee, parent), `field labels: + <label>` and
+`field labels: - <label>`, `field description: updated` (the old and new text
+are not repeated in the log), `blocked_by + <id>`, `blocked_by - <id>`.
+Continuation lines of a multi-line event are indented by
 two spaces. A list item that does not parse as a log line is kept verbatim.
 
 ### Ids and slugs

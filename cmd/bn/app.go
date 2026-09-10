@@ -8,11 +8,15 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
+	"text/tabwriter"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/mattsp1290/beans/gitops"
+	"github.com/mattsp1290/beans/internal/ops"
 	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/vault"
 )
@@ -42,9 +46,12 @@ type appState struct {
 	cwd    string
 
 	// set by setup
-	paths   vault.Paths
-	userCfg issue.UserConfig
-	hub     *gitops.Hub
+	paths    vault.Paths
+	userCfg  issue.UserConfig
+	hub      *gitops.Hub
+	resolved vault.Resolved
+	idx      *vault.Index
+	clock    func() time.Time
 }
 
 func newRootCmd(rs *appState) *cobra.Command {
@@ -81,8 +88,111 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newSyncCmd(rs),
 		newCacheCmd(rs),
 		newProjectCmd(rs),
+		newCreateCmd(rs),
+		newShowCmd(rs),
+		newListCmd(rs),
+		newReadyCmd(rs),
+		newBlockedCmd(rs),
+		newUpdateCmd(rs),
+		newNoteCmd(rs),
+		newCloseCmd(rs),
+		newReopenCmd(rs),
+		newDeleteCmd(rs),
+		newDepCmd(rs),
+		newChildrenCmd(rs),
+		newArchiveCmd(rs),
+		newSearchCmd(rs),
+		newRememberCmd(rs),
+		newMemoriesCmd(rs),
+		newForgetCmd(rs),
+		newDocCmd(rs),
+		newDoctorCmd(rs),
+		newPrimeCmd(),
+		newImportCmd(rs),
 	)
 	return root
+}
+
+// setupProject resolves the project for a command. write auto-creates a
+// missing project; allProjects lets a read proceed hub-wide outside a git
+// repository. Notices go to stderr so --json and --silent stay clean.
+func (rs *appState) setupProject(write, allProjects bool) error {
+	if err := rs.setupHub(); err != nil {
+		return err
+	}
+	res, err := vault.Resolve(rs.paths.Hub, vault.ResolveOptions{
+		Cwd: rs.cwd, FlagProject: rs.project, Write: write, AllProjects: allProjects, Git: rs.git, Env: rs.env,
+	})
+	if err != nil {
+		return err
+	}
+	rs.resolved = res
+	if res.Notice != "" && !write {
+		fmt.Fprintln(rs.stderr, res.Notice)
+	}
+	return nil
+}
+
+// readIndex runs the throttled fetch and loads the hub index once.
+func (rs *appState) readIndex(ctx context.Context) (*vault.Index, error) {
+	if rs.idx != nil {
+		return rs.idx, nil
+	}
+	rs.fetch(ctx)
+	ix, err := vault.LoadWithOptions(rs.paths.Hub, vault.LoadOptions{ExplicitWorkflow: strings.TrimSpace(rs.env("BN_CONFIG"))})
+	if err != nil {
+		return nil, err
+	}
+	rs.idx = ix
+	return ix, nil
+}
+
+// opsEnv builds the environment shared by every operation.
+func (rs *appState) opsEnv() ops.Env {
+	hubDir := rs.paths.Hub
+	explicit := strings.TrimSpace(rs.env("BN_CONFIG"))
+	hubTOML, _ := os.ReadFile(filepath.Join(hubDir, "beans.toml"))
+	hubCfg, _ := issue.LoadHubConfig(filepath.Join(hubDir, "beans.toml"))
+	return ops.Env{
+		HubDir:  hubDir,
+		Project: rs.resolved.Project,
+		Actor:   rs.resolveActor(),
+		Repo:    baseName(rs.resolved.RepoRoot),
+		SHA:     rs.resolved.RepoHead,
+		Branch:  rs.resolved.RepoBranch,
+		Now:     rs.clock,
+		WorkflowFor: func(project string) issue.WorkflowConfig {
+			projectTOML, _ := os.ReadFile(filepath.Join(hubDir, "projects", project, "beans.toml"))
+			wf, err := issue.LoadWorkflow(explicit, projectTOML, hubTOML)
+			if err != nil {
+				return issue.DefaultWorkflowConfig()
+			}
+			return wf
+		},
+		Types:    hubCfg.Types,
+		IDLength: hubCfg.IDs.Length,
+	}
+}
+
+// prefixFor returns the id prefix of the resolved project.
+func (rs *appState) prefixFor(project string) string {
+	cfg, err := issue.LoadProjectConfig(filepath.Join(rs.paths.Hub, "projects", project, "beans.toml"))
+	if err == nil && strings.TrimSpace(cfg.Prefix) != "" {
+		return cfg.Prefix
+	}
+	return project
+}
+
+func baseName(p string) string {
+	if p == "" {
+		return ""
+	}
+	return filepath.Base(p)
+}
+
+// tableWriter returns an aligned-column writer on the command's stdout.
+func tableWriter(cmd *cobra.Command) *tabwriter.Writer {
+	return tabwriter.NewWriter(cmd.OutOrStdout(), 0, 4, 2, ' ', 0)
 }
 
 // exitCode maps an error to the process exit code.
@@ -97,6 +207,9 @@ func exitCode(err error) int {
 	var ce *codedError
 	if errors.As(err, &ce) {
 		return ce.code
+	}
+	if errors.Is(err, ops.ErrNotFound) {
+		return exitNotFound
 	}
 	return exitUsage
 }

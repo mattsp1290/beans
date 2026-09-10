@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // cliEnv is a fresh BEANS_HOME, a bare remote, and a code repository to run
@@ -19,6 +20,7 @@ type cliEnv struct {
 	remote string
 	repo   string
 	stderr bytes.Buffer
+	ticks  int // fake clock: every command runs one second after the previous
 }
 
 func newCLIEnv(t *testing.T) *cliEnv {
@@ -59,7 +61,9 @@ func (e *cliEnv) git(dir string, args ...string) string {
 // stdout, the error, and the exit code.
 func (e *cliEnv) run(args ...string) (string, int, error) {
 	e.t.Helper()
-	rs := &appState{stderr: &e.stderr, cwd: e.repo}
+	e.ticks++
+	base := time.Date(2026, 9, 10, 12, 0, 0, 0, time.UTC).Add(time.Duration(e.ticks) * time.Second)
+	rs := &appState{stderr: &e.stderr, cwd: e.repo, clock: func() time.Time { return base }}
 	root := newRootCmd(rs)
 	var out bytes.Buffer
 	root.SetOut(&out)
