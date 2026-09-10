@@ -15,9 +15,13 @@ services:
       retries: 20
 
   api:
+    # Context is the repository root: the API build needs libs/beans, which the
+    # go.mod replace points at. Relative build contexts resolve against this
+    # file's directory, so ../.. is the repo root regardless of where
+    # `docker compose` is invoked from.
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: apps/bean-counter/Dockerfile
     environment:
       BN_DRIVER: postgres
       BN_DSN: postgres://${POSTGRES_USER:-bean_counter}:${POSTGRES_PASSWORD:-bean_counter}@db:5432/${POSTGRES_DB:-bean_counter}?sslmode=disable

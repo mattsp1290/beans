@@ -1,13 +1,36 @@
+# Build context is the REPOSITORY ROOT, not this directory:
+#
+#   docker build -f apps/bean-counter/Dockerfile -t bean-counter-api .
+#
+# apps/bean-counter depends on the beans library through a filesystem
+# `replace` (=> ../../libs/beans), which lives outside a bean-counter-scoped
+# context. go.work is deliberately NOT copied and GOWORK=off is set, so the
+# image is built through the replace directive alone and cannot come to depend
+# on a workspace file that .dockerignore or a partial COPY could omit.
 FROM golang:1.25.7-alpine AS build
 
 WORKDIR /src
 
-COPY go.mod go.sum ./
+# Dependency layer first, so a source-only change does not re-download modules.
+# apps/bean-counter's module graph reads the replace target's go.mod, so
+# libs/beans/go.mod must be present here even though its source is not needed
+# yet.
+COPY libs/beans/go.mod libs/beans/go.sum ./libs/beans/
+COPY apps/bean-counter/go.mod apps/bean-counter/go.sum ./apps/bean-counter/
+
+WORKDIR /src/apps/bean-counter
+ENV GOWORK=off
 RUN go mod download
 
-COPY cmd ./cmd
-COPY internal ./internal
+WORKDIR /src
+# The whole library is copied, not just model/repo/store: libs/beans/schema
+# embeds schema/migrations/*/*.sql via go:embed, and a partial copy breaks the
+# embed at build time rather than at runtime.
+COPY libs/beans ./libs/beans
+COPY apps/bean-counter/cmd ./apps/bean-counter/cmd
+COPY apps/bean-counter/internal ./apps/bean-counter/internal
 
+WORKDIR /src/apps/bean-counter
 ENV CGO_ENABLED=0
 RUN GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/bean-counter ./cmd/bean-counter
 

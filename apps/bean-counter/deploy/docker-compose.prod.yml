@@ -9,12 +9,12 @@
 # Always invoke with an explicit project name so commands can never resolve to
 # the local-symphony project:
 #
-#   docker compose -p bean-counter -f deploy/docker-compose.prod.yml up -d api ui
-#   docker compose -p bean-counter -f deploy/docker-compose.prod.yml config
-#   docker compose -p bean-counter -f deploy/docker-compose.prod.yml down   # never -v
+#   docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml up -d api ui
+#   docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml config
+#   docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml down   # never -v
 #
 # The DSN is never placed in this file or the environment: the api reads it from
-# a bind-mounted secret file via BN_DSN_FILE. See .agents/plans/deploy/.
+# a bind-mounted secret file via BN_DSN_FILE. See .agents/plans/bean-counter-deploy/.
 #
 # Required/!overridable variables (set by scripts/deploy-production.sh):
 #   UI_PORT                 host port for the UI            (default 8088)
@@ -28,9 +28,14 @@
 
 services:
   api:
+    # Context is the repository root: the API build needs libs/beans, which the
+    # go.mod replace points at. Relative build contexts resolve against THIS
+    # FILE's directory (apps/bean-counter/deploy), not the invocation
+    # directory, so the repo root is three levels up - one more than in
+    # ../../docker-compose.stack.yml.
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../..
+      dockerfile: apps/bean-counter/Dockerfile
     image: ${BEAN_COUNTER_API_IMAGE:-bean-counter-api:prod}
     environment:
       BN_DRIVER: postgres
@@ -65,8 +70,10 @@ services:
       start_period: 10s
 
   ui:
+    # Likewise relative to apps/bean-counter/deploy: the frontend is a sibling
+    # of this directory, not a child of it.
     build:
-      context: ./frontend
+      context: ../frontend
       dockerfile: Dockerfile
     image: ${BEAN_COUNTER_UI_IMAGE:-bean-counter-ui:prod}
     environment:
