@@ -326,6 +326,22 @@ build_fixture_repo
 ) || true
 assert_eq "require_repo_root rejects a TRACKED symlink not in the path list" "1" "$(repo_root_rc)"
 
+# The reported path must be the real one. Default awk splitting truncates at the
+# first space, and the wrong field number would name a git object id - both
+# leave the gate firing while the message sends an operator to a file that does
+# not exist, so assert the message, not just the status.
+build_fixture_repo
+( cd "$repo_root_tmp/repo" || exit 1
+  ln -s "$outside2_tmp/file" "apps/bean-counter/evil name.mk"
+  env -u GIT_DIR -u GIT_WORK_TREE git add -A >/dev/null 2>&1
+) || true
+out="$( cd "$repo_root_tmp/repo" && require_repo_root 2>&1 >/dev/null; : )"
+case "$out" in
+  *"apps/bean-counter/evil name.mk"*) ok "tracked-symlink abort names the full path" ;;
+  *) bad "tracked-symlink abort names the full path (got: $(printf '%s' "$out" | tr '\n' ' '))" ;;
+esac
+
+
 build_fixture_repo
 
 # ----- argument parsing ---------------------------------------------------- #

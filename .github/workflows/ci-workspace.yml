@@ -34,12 +34,12 @@ jobs:
             libs/beans/go.sum
             apps/bean-counter/go.sum
 
-      # go work sync rewrites go.work and can also rewrite each module's go.mod
-      # to unify the build list across the workspace, so the whole tree is
-      # checked rather than just go.work.
-      # git diff only sees tracked files, and `go work sync` can create a
-      # go.work.sum where none was tracked, so the porcelain check is what
-      # catches that case.
+      # go work sync rewrites go.work and can rewrite each module's go.mod to
+      # unify the build list, so both the diff and the porcelain check look at
+      # the whole tree. The porcelain check does NOT catch a generated
+      # go.work.sum - the root .gitignore deliberately ignores that file,
+      # because read commands such as `go list -m all` create one and an
+      # untracked file there aborts the deploy script's clean-worktree gate.
       - name: Workspace is in sync
         run: |
           go work sync

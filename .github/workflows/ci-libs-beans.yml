@@ -7,14 +7,12 @@ on:
     paths:
       - 'libs/beans/**'
       - 'go.work'
-      - 'go.work.sum'
       - 'Makefile'
       - '.github/workflows/ci-libs-beans.yml'
   pull_request:
     paths:
       - 'libs/beans/**'
       - 'go.work'
-      - 'go.work.sum'
       - 'Makefile'
       - '.github/workflows/ci-libs-beans.yml'
 

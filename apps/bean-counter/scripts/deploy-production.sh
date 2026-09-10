@@ -542,13 +542,21 @@ require_repo_root() {
   # under the deployed trees. A committed symlink is invisible to
   # `git status` — the symlink IS the committed object — which is exactly why
   # the clean-worktree gate does not catch one.
+  # Pathspecs are libs and apps, not libs/beans and apps/bean-counter: a
+  # pathspec anchored at the deeper path cannot see a symlink at the ancestor
+  # itself. That case is already rejected by the require_in_repo loop above
+  # (a symlinked libs means libs/beans does not exist), so this breadth is
+  # defence in depth rather than the only cover - which is why no test
+  # distinguishes the two pathspecs. -F'\t' because git ls-files -s emits "<mode> <object> <stage>\t<path>"
+  # and default awk splitting would truncate a path at its first space, naming a
+  # file that does not exist in the abort message.
   local tracked_links
-  tracked_links="$(git ls-files -s -- libs/beans apps/bean-counter \
-    | awk '$1 == "120000" { print $4 }')" \
+  tracked_links="$(git ls-files -s -- libs apps \
+    | awk -F'\t' 'substr($1, 1, 6) == "120000" { print $2 }')" \
     || fatal "could not enumerate tracked objects under the deployed trees"
   if [ -n "$tracked_links" ]; then
     printf '%s\n' "$tracked_links" | sed 's/^/  /' >&2
-    fatal "the deployed trees contain tracked symlinks (listed above); they must be real files"
+    fatal "libs/ or apps/ contains tracked symlinks (listed above); they must be real files"
   fi
 }
 
