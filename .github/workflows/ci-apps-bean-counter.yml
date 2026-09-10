@@ -1,0 +1,151 @@
+name: ci-apps-bean-counter
+
+# libs/beans/** is in the filter because a library change reaches this
+# application through the filesystem replace directive. Omitting it would let a
+# breaking library change merge green.
+on:
+  pull_request:
+    paths:
+      - 'apps/bean-counter/**'
+      - 'libs/beans/**'
+      - 'go.work'
+      - 'go.work.sum'
+      - '.github/workflows/ci-apps-bean-counter.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/bean-counter/**'
+      - 'libs/beans/**'
+      - 'go.work'
+      - 'go.work.sum'
+      - '.github/workflows/ci-apps-bean-counter.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: apps/bean-counter
+
+    # GOWORK=off proves the go.mod replace directive is sufficient on its own,
+    # which is exactly how the container build resolves the library.
+    env:
+      GOWORK: 'off'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/bean-counter/go.mod
+          cache: true
+          cache-dependency-path: apps/bean-counter/go.sum
+
+      - name: Check formatting
+        run: make fmt-check
+
+      - name: Vet
+        run: make vet
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
+
+      - name: Build
+        run: make build
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: apps/bean-counter/frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/bean-counter/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm run test
+
+      - name: Check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+  deploy-scripts:
+    name: Deploy scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Shellcheck
+        run: shellcheck apps/bean-counter/scripts/deploy-production.sh apps/bean-counter/test/scripts/deploy-production_test.sh
+
+      - name: Unit tests (pure helpers + arg parsing)
+        run: bash apps/bean-counter/test/scripts/deploy-production_test.sh
+
+  integration:
+    name: Integration (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: apps/bean-counter
+
+    env:
+      GOWORK: 'off'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - database: mysql
+            test: TestMySQLCRUDDepsAndReadyOverHTTP
+          - database: postgres
+            test: TestPostgresCRUDDepsAndReadyOverHTTP
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/bean-counter/go.mod
+          cache: true
+          cache-dependency-path: apps/bean-counter/go.sum
+
+      - name: Check Docker
+        run: docker version
+
+      - name: Run integration test
+        run: go test -tags=integration ./test/integration -run "^${{ matrix.test }}$" -count=1 -v

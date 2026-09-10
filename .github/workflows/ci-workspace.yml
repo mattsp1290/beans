@@ -1,0 +1,44 @@
+name: ci-workspace
+
+# Unfiltered on purpose: this is the one job that always runs, so a change
+# anywhere still proves the workspace itself is coherent. The two per-module
+# workflows are path-filtered; this one is the backstop.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  workspace:
+    name: Workspace
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # setup-go's go-version-file takes a single go.mod and there is no root
+      # module, so the version is pinned literally here. The per-module
+      # workflows point go-version-file at their own module.
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+          cache: true
+          cache-dependency-path: |
+            libs/beans/go.sum
+            apps/bean-counter/go.sum
+
+      # go work sync rewrites go.work and can also rewrite each module's go.mod
+      # to unify the build list across the workspace, so the whole tree is
+      # checked rather than just go.work.
+      - name: Workspace is in sync
+        run: |
+          go work sync
+          git diff --exit-code
+
+      - name: Build every module
+        run: go build ./libs/beans/... ./apps/bean-counter/...

@@ -12,7 +12,7 @@ RUN_PROJECT_PREFIX ?= bean-counter
 RUN_ACTOR ?= bean-counter
 RUN_CORS_ORIGIN ?= http://localhost:5173
 
-.PHONY: build vet lint fmt fmt-check test test-integration run clean
+.PHONY: build vet lint fmt fmt-check test test-integration tidy-check run clean
 
 build:
 	$(GO) build ./...
@@ -36,6 +36,12 @@ test:
 
 test-integration:
 	$(GO) test -tags=integration ./...
+
+# GOWORK=off matches how the container builds this module: through the
+# go.mod replace alone, with no workspace in play.
+tidy-check:
+	GOWORK=off $(GO) mod tidy
+	git diff --exit-code go.mod go.sum
 
 run:
 	BN_DRIVER=$(RUN_DRIVER) \
