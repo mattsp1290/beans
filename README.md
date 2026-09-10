@@ -1,70 +1,41 @@
 # beans
 
-A monorepo. The `beans` issue-tracking library and its `bn` CLI live here
-alongside the applications built on them.
+`bn` (beans) is a git-backed issue tracker and wiki for humans and coding
+agents. Issues and docs are markdown files in one git repository, the hub;
+`bn serve` puts an issues board and a wiki over it. The redesign is in
+progress; this README is rewritten when it lands (`v0.2.0`).
 
 ```text
 beans/
-├── go.work                       tracked workspace: ./libs/beans, ./apps/bean-counter
-├── Makefile                      fan-out only; each module owns its build rules
-├── .dockerignore                 for builds whose context is the repository root
-├── .beads/                       the single issue tracker for the whole repository
-├── .agents/plans/                plans and dated records, namespaced by project
-├── .github/workflows/            ci-workspace, ci-libs-beans, ci-apps-bean-counter
-├── libs/
-│   └── beans/                    module github.com/mattsp1290/beans/libs/beans
-└── apps/
-    └── bean-counter/             module github.com/mattsp1290/beans/apps/bean-counter
+├── go.mod                        module github.com/mattsp1290/beans
+├── Makefile                      build, test, vet, lint, ui-*, ci, release-build
+├── .github/workflows/ci.yml      one workflow, jobs `go` and `ui`
+├── cmd/bn/                       the bn binary
+├── issue/  vault/  gitops/            public packages (markdown/ arrives in WP4)
+├── internal/server/              HTTP API and embedded UI serving
+├── ui/                           Svelte 5 app, embedded via ui/embed.go
+├── version/                      build-time version string
+└── docs/                         format spec, prime text, config example
 ```
-
-## Components
-
-| Component | Path | What it is |
-| --- | --- | --- |
-| beans | [`libs/beans/`](libs/beans/README.md) | The issue-tracking library — a multi-database (PostgreSQL, MySQL, SQLite) GORM store with embedded goose migrations — and the `bn` command-line client. |
-| bean-counter | [`apps/bean-counter/`](apps/bean-counter/README.md) | A Go + Fiber v3 JSON API and Svelte UI over the beans store, for trusted local or private networks. |
-
-One more Postgres-backed application will join under `apps/`. The conventions
-it will follow are written down in
-[`.agents/plans/monorepo-consolidation/07-third-app-slot.md`](.agents/plans/monorepo-consolidation/07-third-app-slot.md).
-
-## Module layout
-
-There is no Go module at the repository root; each component is its own module
-under `libs/` or `apps/`. Applications depend on the library through a
-filesystem `replace`:
-
-```text
-require github.com/mattsp1290/beans/libs/beans v0.0.0
-replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans
-```
-
-The `replace` is the mechanism: the container build and every `GOWORK=off`
-invocation resolve through it. The tracked `go.work` is a convenience for
-editors and cross-module work, not a dependency of any build.
-
-Because the library moved to a nested module path, `go get
-github.com/mattsp1290/beans` no longer resolves, and the pre-monorepo `v0.1.0`
-and `v0.1.1` tags no longer describe a fetchable module. They remain as
-historical git tags.
 
 ## Build
 
 ```bash
-make ci               # vet, lint, test, build, tidy-check across every module
-make ci-integration   # testcontainers suites; requires a running Docker daemon
-
-make beans TARGET=build          # run one target in libs/beans
-make bean-counter TARGET=test    # run one target in apps/bean-counter
+make ci               # ui-install ui-test ui-check ui-build vet lint test build tidy-check
+make build            # bin/bn (embeds whatever ui/dist holds; no Node needed)
+make release-build    # build the UI, then the binary that embeds it
 ```
 
-Each module's own Makefile is authoritative; the root one only fans out. Lint
-policy is per module by design — see `CLAUDE.md`.
+## History
+
+Until 2026-09-10 this repository was a two-module workspace (`libs/beans`, a
+GORM store and the `bn` CLI, and `apps/bean-counter`, a Fiber API and Svelte
+UI). The pre-monorepo `v0.1.0` and `v0.1.1` tags predate both layouts.
 
 ## Issue tracking
 
-One beads (`bd`) tracker at the repository root, holding both projects'
-issues under their original `beans-` and `bean-counter-` prefixes.
+This repository's own issues are tracked with beads (`bd`) until the redesign
+migrates them into the hub.
 
 ```bash
 bd ready              # available work
@@ -74,8 +45,7 @@ bd show <id>          # issue detail
 ## Agents
 
 `AGENTS.md` and `CLAUDE.md` at the root are the instructions for AI coding
-agents. There is exactly one of each; applications add a section rather than a
-file.
+agents. There is exactly one of each.
 
 ## License
 

@@ -57,81 +57,44 @@ bd close <id>         # Complete work
 Run from the repository root:
 
 ```bash
-make ci               # vet, lint, test, build, tidy-check across every module
-make ci-integration   # testcontainers suites; requires a running Docker daemon
-make build            # every module
-make test             # every module
-
-make beans TARGET=build          # one target in libs/beans
-make bean-counter TARGET=test    # one target in apps/bean-counter
-```
-
-Per module, when you need the standalone view CI and the container use:
-
-```bash
-( cd libs/beans        && GOWORK=off go build ./... && GOWORK=off go test ./... )
-( cd apps/bean-counter && GOWORK=off go build ./... && GOWORK=off go test ./... )
-```
-
-Deploy-surface gates for bean-counter:
-
-```bash
-shellcheck apps/bean-counter/scripts/deploy-production.sh \
-           apps/bean-counter/test/scripts/deploy-production_test.sh
-bash apps/bean-counter/test/scripts/deploy-production_test.sh
+make ci               # ui-install ui-test ui-check ui-build vet lint test build tidy-check
+make build            # bin/bn; embeds whatever ui/dist holds, needs no Node
+make test             # go test ./...
+make ui-build         # vite build into ui/dist/
 ```
 
 ## Architecture Overview
 
-A monorepo of Go modules, with no module at the repository root:
+One Go module, `github.com/mattsp1290/beans`, building one binary `bn`.
 
-| Path | Module path | What it is |
-| --- | --- | --- |
-| `libs/beans` | `github.com/mattsp1290/beans/libs/beans` | The beans library and the `bn` CLI. No intra-repo dependencies. |
-| `apps/bean-counter` | `github.com/mattsp1290/beans/apps/bean-counter` | Go + Fiber v3 API and Svelte UI over the beans store. |
-| `apps/<name>` | `github.com/mattsp1290/beans/apps/<name>` | Reserved slot for a Postgres-backed application. Not yet created. |
+| Path | What it is |
+| --- | --- |
+| `cmd/bn/` | cobra + fang entry point and commands |
+| `issue/` | issue model, workflow config, frontmatter codec (WP2) |
+| `vault/` | hub and project resolution, remote-URL normalization, index and queries (WP4) |
+| `gitops/` | git resolver seam; hub lock, fetch, commit, push pipeline (WP3) |
+| `internal/server/` | Fiber v3 API and embedded UI serving (WP6) |
+| `ui/` | Svelte 5 app; `ui/embed.go` embeds `ui/dist` |
+| `version/` | build-time version string |
 
-Applications depend on the library through a filesystem `replace`
-(`=> ../../libs/beans`) plus a `v0.0.0` placeholder `require`. The root
-`go.work` is a tracked convenience; the `replace` is the mechanism. There is
-deliberately no root `go.mod`: one would claim the
-`github.com/mattsp1290/beans` path and make the nested module paths ambiguous.
+CI is one workflow, `.github/workflows/ci.yml`, with jobs `go` and `ui` and no
+path filters. If a required status check is configured, require the `go` and
+`ui` jobs of `ci.yml`.
 
-CI is three workflows: `ci-workspace` always runs and proves the workspace is
-coherent; `ci-libs-beans` and `ci-apps-bean-counter` are path-scoped and run
-with `GOWORK=off` so they prove each module stands on its own.
-`ci-apps-bean-counter`'s path filter includes `libs/beans/**`, because a
-library change reaches the application through the `replace`.
-
-If a required status check is ever configured, require **`ci-workspace`** and
-only `ci-workspace`. The other two are path-filtered, so a pull request
-touching neither path never starts them, and a required check that never runs
-leaves the pull request pending forever.
-
-The full design, including why each decision was made, is in
-`.agents/plans/monorepo-consolidation/`.
+The full design is in `.agents/plans/hub-vault-redesign/` (untracked). The
+earlier two-module layout (`libs/beans`, `apps/bean-counter`) is history only.
 
 ## Conventions & Patterns
 
-- **The `replace` is not optional.** The container build and every `GOWORK=off`
-  invocation resolve the library through it. `apps/bean-counter`'s deploy
-  script aborts if it is missing or points anywhere but `../../libs/beans`.
-- **Tidy with `GOWORK=off`.** A workspace-active `go mod tidy` can resolve
-  through a sibling module and write a `go.sum` that is incomplete for a
-  standalone build - which is exactly how the container builds. Follow it with
-  `go work sync` at the root.
-- **Lint policy is per module.** `libs/beans` uses an explicit allow-list;
-  `apps/bean-counter` uses `default: standard` plus extras, and pins its own
-  golangci-lint version in its Makefile. Unifying them is deliberate deferred
-  work, not an oversight.
-- **Images build from the repository root.** `docker build -f
-  apps/bean-counter/Dockerfile .` - the build needs `libs/beans`, and the whole
-  library tree is copied because `libs/beans/schema` `go:embed`s its migration
-  SQL.
-- **One tracker, at the root.** Do not run `bd init` inside a module. A new
-  application picks an issue prefix distinct from `beans-` and
-  `bean-counter-`.
-- **One `AGENTS.md` and one `CLAUDE.md`, both at the root.** A new application
-  adds a `## apps/<name>` section to `AGENTS.md` rather than its own file.
+- **Public packages** `vault`, `issue`, `gitops`, and (from WP4) `markdown` live at the module
+  root; `internal/server` and `cmd/bn` are private glue.
+- **Tidy at the root.** `go mod tidy` then `git diff --exit-code go.mod go.sum`
+  is the `tidy-check` target.
+- **One lint policy**, `.golangci.yml`, an explicit allow-list.
+- **`ui/dist/index.html` is a placeholder.** `make ui-build` overwrites it
+  locally; never commit the built one. The rest of `ui/dist/` is gitignored.
+- **One tracker, at the root.** `.beads/` is this repository's tracker until
+  WP7 migrates it into the hub.
+- **One `AGENTS.md` and one `CLAUDE.md`, both at the root.**
 - **`.agents/` is a historical record.** Plans and reviews under it are dated
   and are not rewritten when paths change.

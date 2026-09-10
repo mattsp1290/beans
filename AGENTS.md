@@ -1,70 +1,49 @@
 # Agent Instructions
 
-This repository is a monorepo. Two Go modules live here today, and a third
-application will join later.
+This repository is one Go module, `github.com/mattsp1290/beans`, that builds
+the `bn` binary: a git-backed issue tracker and wiki. It is mid-way through
+the hub vault redesign (plan: `.agents/plans/hub-vault-redesign/`, untracked);
+the module collapse (WP1) is done and later work packages add behaviour.
 
 ## Repository layout
 
 ```text
 beans/
-├── go.work                       tracked workspace: ./libs/beans, ./apps/bean-counter
-├── Makefile                      fan-out only; each module owns its build rules
-├── .dockerignore                 for builds whose context is the repository root
-├── .beads/                       the single issue tracker for the whole repo
-├── .agents/plans/                plans and dated records, namespaced by project
-├── libs/
-│   └── beans/                    module github.com/mattsp1290/beans/libs/beans
-│                                 the beans library and the `bn` CLI
-└── apps/
-    └── bean-counter/             module github.com/mattsp1290/beans/apps/bean-counter
-                                  Go + Fiber API and Svelte UI over the beans store
+├── go.mod                        module github.com/mattsp1290/beans
+├── Makefile                      build, test, vet, lint, ui-*, ci, release-build
+├── .golangci.yml                 one lint policy for the whole module
+├── .github/workflows/ci.yml      one workflow, jobs `go` and `ui`
+├── cmd/bn/                       cobra + fang entry point and commands
+├── issue/                        issue model, workflow config, codec (WP2)
+├── vault/                        hub and project resolution, remote-URL normalization, index (WP4)
+├── gitops/                       git resolver seam; hub write pipeline (WP3)
+├── internal/server/              Fiber v3 API and embedded UI serving (WP6)
+├── ui/                           Svelte 5 app; ui/embed.go embeds ui/dist
+├── version/                      build-time version string
+├── docs/                         format spec, prime text, beans.toml example
+├── .beads/                       this repository's issue tracker (bd) until WP7
+└── .agents/                      plans and dated records (untracked)
 ```
 
-Where work belongs:
-
-- Library or `bn` CLI change -> `libs/beans/`.
-- bean-counter API or UI change -> `apps/bean-counter/`.
-- Shared code a second application would also need -> a new `libs/<name>/`
-  module, never an application's `internal/` (Go forbids importing that across
-  module boundaries, and the compiler error arrives late).
-- A new application -> `apps/<name>/`. Follow
-  `.agents/plans/monorepo-consolidation/07-third-app-slot.md`, which is the
-  checklist for wiring one in.
-
-Each application depends on the library through a filesystem `replace`, not a
-published version:
-
-```text
-require github.com/mattsp1290/beans/libs/beans v0.0.0
-replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans
-```
-
-That `replace` is mandatory. The container build and every `GOWORK=off`
-invocation resolve through it; `go.work` is a convenience for editors and
-cross-module work, not the mechanism. `apps/bean-counter`'s deploy script
-refuses to deploy if the replace is missing or points anywhere else.
+Public packages `vault`, `issue`, `gitops`, and (from WP4) `markdown` sit at the module
+root so a future consumer can import them; only `internal/server` and
+`cmd/bn` are private glue.
 
 ## Commands
 
 From the repository root:
 
 ```bash
-make ci               # vet, lint, test, build, tidy-check across every module
-make ci-integration   # testcontainers suites; requires a running Docker daemon
-make build            # every module
-make test             # every module
-make fmt-check        # apps/bean-counter (libs/beans enforces gofmt via golangci-lint)
-
-make beans TARGET=build          # run one target in libs/beans
-make bean-counter TARGET=test    # run one target in apps/bean-counter
+make ci               # ui-install ui-test ui-check ui-build vet lint test build tidy-check
+make build            # go build -o bin/bn (embeds whatever ui/dist holds; no Node needed)
+make test             # go test ./...
+make ui-build         # vite build into ui/dist/, picked up by the next make build
+make release-build    # ui-install ui-build build
 ```
 
-Inside a module, its own Makefile is authoritative. Each module keeps its own
-`.golangci.yml` and its own golangci-lint version; do not unify them without
-deciding to.
-
-Integration tests use testcontainers and require Docker. `make ci` deliberately
-excludes them so the full non-integration gate runs without a daemon.
+`ui/dist/index.html` is a committed placeholder so `go build` works without
+Node; `make ui-build` overwrites it locally and the rest of `ui/dist/` is
+gitignored. Do not commit a built `index.html`.
 
 ## Non-Interactive Shell Commands
 
@@ -95,54 +74,21 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
-## libs/beans
+## Workflow configuration
 
-The beans library and the `bn` CLI. No intra-repo dependencies.
+Issue statuses are driven by `issue.WorkflowConfig`. Defaults include
+`ready_for_review`, `ready_for_validation`, and `ready_for_merge` as hold
+states: valid statuses that `bn ready` never returns and that do not satisfy
+blockers. WP2 defines where the config is read from (hub and project
+`beans.toml`, `BN_CONFIG`). See `docs/beans.toml.example`.
 
-### Workflow Configuration
+## Versioning
 
-Issue statuses are driven by `model.WorkflowConfig` and can be configured with
-`BN_CONFIG`, `bn.toml`, `bn.yaml`, or `$XDG_CONFIG_HOME/bn/config.*`. Defaults
-include `ready_for_review`, `ready_for_validation`, and `ready_for_merge` as
-hold states: they are valid statuses but are not returned by `bn ready` and do
-not satisfy blockers. Keep CLI help, table output, import/update validation,
-and docs aligned with the configured workflow vocabulary. See
-`libs/beans/docs/bn.toml.example` for the operator-facing config template.
-
-### Versioning
-
-`libs/beans/Makefile` derives `VERSION` from `git describe --tags --match
-'libs/beans/v*'`, Go's convention for a module in a subdirectory, so an
-application's tag can never be read as a library version. No such tag exists
-yet, so `--always` falls back to a commit hash. The pre-monorepo `v0.1.0` and
-`v0.1.1` tags remain as historical markers and no longer resolve to a module.
-
-`bn --version` prints the linked version. The `LDFLAGS` path in that Makefile
-must match the module path exactly: a wrong path produces an empty version
-string with no build error.
-
-## apps/bean-counter
-
-Go + Fiber v3 API and a Svelte UI over the beans store, for trusted local or
-private networks. No authentication by design; mutations are attributed to the
-configured `BN_ACTOR`.
-
-- `internal/store` is the only boundary around beans store types, re-exporting
-  them as package-level aliases. Keep beans types out of the HTTP layer.
-- The beans store owns schema migration. Never add bean-counter migrations for
-  beans-owned tables.
-- Its images build from the **repository root**, not from the application
-  directory, because the build needs `libs/beans`:
-
-  ```bash
-  docker build -f apps/bean-counter/Dockerfile -t bean-counter-api .
-  docker build -t bean-counter-ui ./apps/bean-counter/frontend
-  ```
-
-- `scripts/deploy-production.sh` runs from the repository root and its
-  clean-worktree gate covers the whole monorepo. See
-  `apps/bean-counter/deploy/README.md`.
-- Longer-form decisions live in `apps/bean-counter/prompts/docs/architecture-decisions.md`.
+`Makefile` derives `VERSION` from `git describe --tags --match 'v*'` and links
+it into `version.Version`. `bn --version` prints it. The `LDFLAGS` path must
+match the module path exactly: a wrong path produces an empty version string
+with no build error. The first tag of the collapsed module will be `v0.2.0`
+(WP7).
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker

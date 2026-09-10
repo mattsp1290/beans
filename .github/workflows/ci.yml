@@ -1,0 +1,79 @@
+name: ci
+
+# One workflow, no path filters: a required check named after either job is
+# always started, so a pull request can never sit pending on a skipped check.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ui:
+    name: ui
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm run test
+
+      - name: Check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+  go:
+    name: go
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Vet
+        run: make vet
+
+      # The action runs `golangci-lint run` itself with the pinned version and
+      # the repository's .golangci.yml; locally, `make lint` is the same command.
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.12.2
+
+      - name: Test
+        run: make test
+
+      - name: Build
+        run: make build
+
+      - name: Tidy check
+        run: make tidy-check
+
+      - name: Version is linked
+        run: ./bin/bn --version

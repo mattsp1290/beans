@@ -26,11 +26,11 @@ profile.cov
 # vendor/
 node_modules/
 
-# go.work IS tracked; go.work.sum is not. `go work sync` generates none for this
-# workspace, but read commands such as `go list -m all` do — and an untracked
-# file there aborts the deploy script's clean-worktree gate. Anchored so it
-# cannot shadow a file of that name inside a module.
-/go.work.sum
+# Built UI: ui/dist/ is a build output except the committed placeholder that
+# lets `go build` embed something without Node.
+ui/dist/*
+!ui/dist/index.html
+ui/node_modules/
 
 # env file
 .env

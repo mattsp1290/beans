@@ -1,43 +1,51 @@
-# Monorepo fan-out. This file contains no build logic of its own: each module
-# owns its rules, its lint policy, and its golangci-lint version.
-MODULES := libs/beans apps/bean-counter
+BIN_DIR := bin
+BIN     := $(BIN_DIR)/bn
+PKG     := ./cmd/bn
+VERSION ?= $(shell git describe --tags --match 'v*' --always --dirty 2>/dev/null || echo dev)
+LDFLAGS := -X github.com/mattsp1290/beans/version.Version=$(VERSION)
 
-.PHONY: build test vet lint fmt-check tidy-check ci ci-integration clean beans bean-counter
+.PHONY: build test vet lint tidy-check ui-install ui-test ui-check ui-build ci release-build install clean
 
+# build embeds whatever ui/dist/ holds and never needs Node; run ui-build
+# first (or `make ci` / `make release-build`) for a binary with the real UI.
 build:
-	@for m in $(MODULES); do $(MAKE) -C $$m build || exit 1; done
+	go build -ldflags '$(LDFLAGS)' -o $(BIN) $(PKG)
 
 test:
-	@for m in $(MODULES); do $(MAKE) -C $$m test || exit 1; done
+	go test ./...
 
 vet:
-	@for m in $(MODULES); do $(MAKE) -C $$m vet || exit 1; done
+	go vet ./...
 
 lint:
-	@for m in $(MODULES); do $(MAKE) -C $$m lint || exit 1; done
-
-# libs/beans has no fmt-check target; gofmt is enforced there by golangci-lint
-# formatters. Only apps/bean-counter exposes fmt-check.
-fmt-check:
-	$(MAKE) -C apps/bean-counter fmt-check
+	golangci-lint run
 
 tidy-check:
-	@for m in $(MODULES); do $(MAKE) -C $$m tidy-check || exit 1; done
+	go mod tidy
+	git diff --exit-code go.mod go.sum
 
-# Deliberately excludes ci-integration: both modules' integration tests use
-# testcontainers and need a running Docker daemon, so the full non-integration
-# gate stays runnable without one.
-ci: vet lint test build tidy-check
+ui-install:
+	cd ui && npm ci
 
-ci-integration:
-	@for m in $(MODULES); do $(MAKE) -C $$m test-integration || exit 1; done
+ui-test:
+	cd ui && npm run test
+
+ui-check:
+	cd ui && npm run check
+
+ui-build:
+	cd ui && npm run build
+
+# Order matters: the UI is built before `build` so the binary embeds the UI
+# produced in the same run.
+ci: ui-install ui-test ui-check ui-build vet lint test build tidy-check
+
+release-build: ui-install ui-build build
+
+install:
+	go install -ldflags '$(LDFLAGS)' $(PKG)
 
 clean:
-	@for m in $(MODULES); do $(MAKE) -C $$m clean || exit 1; done
-
-# Escape hatches: make beans TARGET=build, make bean-counter TARGET=test
-beans:
-	$(MAKE) -C libs/beans $(TARGET)
-
-bean-counter:
-	$(MAKE) -C apps/bean-counter $(TARGET)
+	rm -rf $(BIN_DIR)
+	cd ui && rm -rf node_modules
+	find ui/dist -mindepth 1 ! -name index.html -delete
