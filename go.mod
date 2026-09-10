@@ -5,9 +5,14 @@ go 1.25.7
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/charmbracelet/fang v1.0.0
+	github.com/fsnotify/fsnotify v1.10.1
 	github.com/gofiber/fiber/v3 v3.5.0
 	github.com/gofrs/flock v0.13.1
 	github.com/spf13/cobra v1.10.2
+	github.com/yuin/goldmark v1.8.6
+	go.abhg.dev/goldmark/frontmatter v0.3.0
+	go.abhg.dev/goldmark/hashtag v0.4.0
+	go.abhg.dev/goldmark/wikilink v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -24,6 +29,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.4.1 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
+	github.com/forPelevin/gomoji v1.3.0 // indirect
 	github.com/gofiber/schema v1.8.3 // indirect
 	github.com/gofiber/utils/v2 v2.4.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect

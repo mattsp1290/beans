@@ -1,0 +1,1 @@
+Embed image: ![[img.png]]
