@@ -95,3 +95,21 @@ func isFullLowercaseHexCommit(sha string) bool {
 	}
 	return true
 }
+
+// Branch returns the checked-out branch name (git rev-parse --abbrev-ref
+// HEAD). ok is false on a detached HEAD or any git failure.
+func (SystemGit) Branch(root string) (string, bool, error) {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	if root != "" {
+		cmd.Dir = root
+	}
+	out, err := cmd.Output()
+	if err != nil {
+		return "", false, nil
+	}
+	name := strings.TrimSpace(string(out))
+	if name == "" || name == "HEAD" {
+		return "", false, nil
+	}
+	return name, true, nil
+}

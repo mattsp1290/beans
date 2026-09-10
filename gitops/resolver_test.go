@@ -18,6 +18,7 @@ type FakeResolver struct {
 	toplevel   string
 	remoteURL  string
 	headCommit string
+	branch     string
 	// err values are returned for every call when non-nil
 	toplevelErr   error
 	remoteURLErr  error
@@ -50,6 +51,13 @@ func (f *FakeResolver) RemoteURL(root string) (string, bool, error) {
 		return "", false, nil
 	}
 	return f.remoteURL, true, nil
+}
+
+func (f *FakeResolver) Branch(root string) (string, bool, error) {
+	if f.branch == "" {
+		return "", false, nil
+	}
+	return f.branch, true, nil
 }
 
 func (f *FakeResolver) HeadCommit(root string) (string, bool, error) {

@@ -11,18 +11,17 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
-		os.Exit(1)
-	}
+	os.Exit(run())
 }
 
-// run executes the CLI and returns any error. Separating run from main keeps
-// deferred cleanup on every exit path; os.Exit does not run deferred functions.
-func run() error {
+// run executes the CLI and returns the process exit code. fang prints the
+// error; the code comes from the error type (see exitCode).
+func run() int {
 	rs := &appState{}
-	return fang.Execute(
+	err := fang.Execute(
 		context.Background(), newRootCmd(rs),
 		fang.WithVersion(version.Version),
 		fang.WithNotifySignal(os.Interrupt, syscall.SIGTERM),
 	)
+	return exitCode(err)
 }
