@@ -1,0 +1,11 @@
+{
+  "schema_version": "review-v1",
+  "branch": "monorepo-consolidation",
+  "base_ref": "40d8e6475e51",
+  "head_sha": "2ef178e44ea2b53d8747a7bc61020a38c465d71e",
+  "pass": 2,
+  "reviewers": [
+    {"slug": "gate-adversary", "display_name": "Gate Adversary", "role": "Tries to defeat the rewritten deploy replace gate and the repo-root guard, treating them as security controls rather than lint."},
+    {"slug": "ci-realism", "display_name": "CI Realism", "role": "Checks that every CI and Makefile change would actually succeed on a clean GitHub runner, not just locally."}
+  ]
+}

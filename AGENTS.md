@@ -9,7 +9,7 @@ application will join later.
 beans/
 ├── go.work                       tracked workspace: ./libs/beans, ./apps/bean-counter
 ├── Makefile                      fan-out only; each module owns its build rules
-├── .dockerignore                 shared by every image build in the repo
+├── .dockerignore                 for builds whose context is the repository root
 ├── .beads/                       the single issue tracker for the whole repo
 ├── .agents/plans/                plans and dated records, namespaced by project
 ├── libs/

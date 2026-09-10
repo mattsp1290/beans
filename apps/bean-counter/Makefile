@@ -28,11 +28,14 @@ lint:
 fmt:
 	$(GO) fmt ./...
 
-# Scoped to the Go trees: a bare `find .` descends into frontend/node_modules
-# once the frontend has been installed, and the './.git/*' exclusion is inert
-# now that this module is not a repository root.
+# Driven by git ls-files rather than `find .`: a bare find descends into
+# frontend/node_modules once the frontend has been installed, and hardcoding a
+# directory list fails open - gofmt reports a missing directory on stderr, so
+# `test -z "$$( )"` sees empty stdout and the target passes.
 fmt-check:
-	@test -z "$$(gofmt -l ./cmd ./internal ./test)" || (echo "gofmt changes needed; run make fmt" >&2; exit 1)
+	@files="$$(git ls-files '*.go')"; \
+	  test -n "$$files" || { echo "fmt-check found no Go files; refusing to pass" >&2; exit 1; }; \
+	  test -z "$$(gofmt -l $$files)" || { echo "gofmt changes needed; run make fmt" >&2; exit 1; }
 
 test:
 	$(GO) test ./...

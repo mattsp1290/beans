@@ -7,7 +7,7 @@ alongside the applications built on them.
 beans/
 ├── go.work                       tracked workspace: ./libs/beans, ./apps/bean-counter
 ├── Makefile                      fan-out only; each module owns its build rules
-├── .dockerignore                 shared by every image build in the repository
+├── .dockerignore                 for builds whose context is the repository root
 ├── .beads/                       the single issue tracker for the whole repository
 ├── .agents/plans/                plans and dated records, namespaced by project
 ├── .github/workflows/            ci-workspace, ci-libs-beans, ci-apps-bean-counter

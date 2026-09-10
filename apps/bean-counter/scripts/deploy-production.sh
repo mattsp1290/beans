@@ -211,6 +211,51 @@ extract_issue_count() {
   printf '%s' "$body" | grep -o '"identifier"' | grep -c . || true
 }
 
+# REPO_ROOT_PHYS is set by require_repo_root and is the physical path of the
+# repository root. require_in_repo compares against it.
+REPO_ROOT_PHYS=""
+
+# require_in_repo <relative path> -> 0 if the path exists, is not itself a
+# symlink, and resolves - with every intermediate component followed - to a
+# location physically inside REPO_ROOT_PHYS. Non-zero with a reason on stderr
+# otherwise. Returns rather than calling fatal so the unit test can drive it.
+#
+# Checking only the final component is not enough: the deploy's safety rests on
+# "the recorded SHA describes what was tested", and any component of a path can
+# be a committed symlink pointing out of the tree. The concrete hazard is
+# libs/beans/schema/migrations, which feeds EMBEDDED_MAX - the number that
+# decides whether this deploy may migrate a shared production database. An
+# understated EMBEDDED_MAX is exactly the direction that makes the parity gate
+# pass when it should abort.
+require_in_repo() {
+  local rel="$1" phys dir
+  if [ -z "$REPO_ROOT_PHYS" ]; then
+    printf 'require_in_repo: REPO_ROOT_PHYS is unset; call require_repo_root first\n' >&2
+    return 1
+  fi
+  if [ ! -e "$rel" ]; then
+    printf '%s does not exist\n' "$rel" >&2
+    return 1
+  fi
+  if [ -L "$rel" ]; then
+    printf '%s is a symlink; it must be the in-repo path\n' "$rel" >&2
+    return 1
+  fi
+  if [ -d "$rel" ]; then
+    phys="$(cd "$rel" && pwd -P)" || { printf 'could not resolve %s\n' "$rel" >&2; return 1; }
+  else
+    dir="$(cd "$(dirname "$rel")" && pwd -P)" \
+      || { printf 'could not resolve %s\n' "$(dirname "$rel")" >&2; return 1; }
+    phys="$dir/$(basename "$rel")"
+  fi
+  case "$phys" in
+    "$REPO_ROOT_PHYS"/*) return 0 ;;
+    *) printf '%s resolves to %s, outside the repository at %s\n' \
+         "$rel" "$phys" "$REPO_ROOT_PHYS" >&2
+       return 1 ;;
+  esac
+}
+
 # The one replace directive apps/bean-counter is allowed to carry, as the
 # normalized "<old> => <new>" pair the parser below emits.
 SANCTIONED_BEANS_REPLACE='github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
@@ -428,7 +473,18 @@ resolve_embedded_migration_max() {
     *) fatal "$BEANS_MODULE resolves to $beans_phys, outside the repository at $root_phys" ;;
   esac
 
-  EMBEDDED_MAX="$(migration_max_from_dir "$beans_phys/schema/migrations/postgres")"
+  # Resolve the migrations directory itself. Checking only beans_dir leaves
+  # schema, migrations and postgres unresolved, and a symlink at any of them
+  # sources the count from outside the repository.
+  local mig_phys
+  mig_phys="$(cd "$beans_phys/schema/migrations/postgres" && pwd -P)" \
+    || fatal "could not resolve $beans_phys/schema/migrations/postgres"
+  case "$mig_phys" in
+    "$root_phys"/*) : ;;
+    *) fatal "the embedded postgres migrations resolve to $mig_phys, outside the repository at $root_phys" ;;
+  esac
+
+  EMBEDDED_MAX="$(migration_max_from_dir "$mig_phys")"
   case "$EMBEDDED_MAX" in
     ''|*[!0-9]*) fatal "could not determine embedded beans migration max (got '$EMBEDDED_MAX')" ;;
   esac
@@ -451,12 +507,22 @@ require_repo_root() {
     || fatal "run this from the repository root ($toplevel), not $here"
   [ -f apps/bean-counter/go.mod ] && [ -d libs/beans ] \
     || fatal "$here does not look like the beans monorepo (expected apps/bean-counter/go.mod and libs/beans/)"
-  # The replace gate checks the TEXT of the directive; this checks what the text
-  # points at. A symlinked libs/beans would satisfy every textual check while
-  # sourcing the library — and the embedded-migration count that decides whether
-  # the deploy may touch the shared production database — from outside the repo.
-  [ ! -L libs/beans ] \
-    || fatal "libs/beans is a symlink; the library must be the in-repo directory"
+
+  REPO_ROOT_PHYS="$toplevel"
+
+  # The replace gate checks the TEXT of the directive; these check what the text
+  # points at. Every component matters, not just the last one: libs, libs/beans,
+  # libs/beans/schema and libs/beans/schema/migrations can each be a committed
+  # symlink out of the tree, and the migrations directory feeds EMBEDDED_MAX.
+  local rel
+  for rel in libs/beans \
+             libs/beans/schema \
+             libs/beans/schema/migrations \
+             libs/beans/schema/migrations/postgres \
+             apps/bean-counter \
+             apps/bean-counter/go.mod; do
+    require_in_repo "$rel" || fatal "$rel failed the in-repo containment check"
+  done
 }
 
 require_clean_local_ref() {

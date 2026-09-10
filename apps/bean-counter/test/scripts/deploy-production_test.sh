@@ -75,7 +75,6 @@ extract_issue_count 'not-json' >/dev/null 2>&1; assert_rc "extract_issue_count r
 # The prefix and comment cases are the ones a substring test gets wrong, and a
 # substring test is strictly weaker than the gate this replaced. Keep them.
 gomod_tmp="$(mktemp -d)"
-trap 'rm -rf "$tmp" "$gomod_tmp"' EXIT
 
 SANCTIONED_LINE='replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
 HEADER='module github.com/mattsp1290/beans/apps/bean-counter
@@ -164,6 +163,79 @@ assert_eq "parser sees exactly one directive in the sanctioned file" "1" "$out"
 # on its own gate.
 check_sanctioned_replace "$SCRIPT_DIR/go.mod" >/dev/null 2>&1
 assert_rc "apps/bean-counter/go.mod satisfies the gate" 0 $?
+
+# ----- require_in_repo ----------------------------------------------------- #
+# The deploy's safety rests on "the recorded SHA describes what was tested", and
+# any component of a path can be a committed symlink pointing out of the tree.
+# The concrete hazard is libs/beans/schema/migrations, which feeds EMBEDDED_MAX:
+# understating it is exactly the direction that makes the parity gate pass when
+# it should abort. A previous round fixed this with no test at all - deleting
+# the check left the suite green - so these cases exist to make that impossible.
+repo_tmp="$(mktemp -d)"
+outside_tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp" "$gomod_tmp" "$repo_tmp" "$outside_tmp"' EXIT
+
+# Physical paths: mktemp -d hands back /var/... on macOS, which is a symlink to
+# /private/var, and the helper compares physical paths.
+repo_tmp="$(cd "$repo_tmp" && pwd -P)"
+outside_tmp="$(cd "$outside_tmp" && pwd -P)"
+
+mkdir -p "$repo_tmp/libs/beans/schema/migrations/postgres" "$repo_tmp/apps/bean-counter"
+: > "$repo_tmp/apps/bean-counter/go.mod"
+mkdir -p "$outside_tmp/postgres"
+
+REPO_ROOT_PHYS="$repo_tmp"
+
+in_repo_rc() { ( cd "$repo_tmp" && require_in_repo "$1" >/dev/null 2>&1; echo $? ); }
+
+assert_eq "real directory inside the repo accepted"    "0" "$(in_repo_rc libs/beans)"
+assert_eq "real file inside the repo accepted"         "0" "$(in_repo_rc apps/bean-counter/go.mod)"
+assert_eq "migrations directory inside the repo accepted" "0" \
+  "$(in_repo_rc libs/beans/schema/migrations/postgres)"
+assert_eq "missing path rejected"                      "1" "$(in_repo_rc libs/nope)"
+
+# Final component is a symlink out of the tree.
+ln -s "$outside_tmp" "$repo_tmp/libs/beans/schema/migrations/evil"
+assert_eq "symlinked leaf rejected" "1" "$(in_repo_rc libs/beans/schema/migrations/evil)"
+
+# An INTERMEDIATE component is a symlink out of the tree: the leaf itself is a
+# real directory, so a check that only tested the last component would pass.
+mkdir -p "$outside_tmp/real/postgres"
+mv "$repo_tmp/libs/beans/schema/migrations" "$repo_tmp/libs/beans/schema/migrations.orig"
+ln -s "$outside_tmp/real" "$repo_tmp/libs/beans/schema/migrations"
+assert_eq "symlinked intermediate component rejected" "1" \
+  "$(in_repo_rc libs/beans/schema/migrations/postgres)"
+rm -f "$repo_tmp/libs/beans/schema/migrations"
+mv "$repo_tmp/libs/beans/schema/migrations.orig" "$repo_tmp/libs/beans/schema/migrations"
+
+# The go.mod the replace gate reads, behind a symlinked parent.
+mv "$repo_tmp/apps/bean-counter" "$repo_tmp/apps/bean-counter.orig"
+mkdir -p "$outside_tmp/bc"; : > "$outside_tmp/bc/go.mod"
+ln -s "$outside_tmp/bc" "$repo_tmp/apps/bean-counter"
+assert_eq "go.mod behind a symlinked parent rejected" "1" "$(in_repo_rc apps/bean-counter/go.mod)"
+rm -f "$repo_tmp/apps/bean-counter"
+mv "$repo_tmp/apps/bean-counter.orig" "$repo_tmp/apps/bean-counter"
+
+# An IN-TREE symlink. Containment alone accepts this (it resolves to a path
+# inside the repo), so this case is what gives the explicit -L refusal teeth:
+# without it, dropping that check leaves the suite green.
+mkdir -p "$repo_tmp/libs/beans-fork"
+ln -s "$repo_tmp/libs/beans-fork" "$repo_tmp/libs/beans-intree-link"
+assert_eq "in-tree symlink rejected" "1" "$(in_repo_rc libs/beans-intree-link)"
+
+# A sibling whose name merely starts with the repo root must not satisfy the
+# containment prefix match.
+sibling="${repo_tmp}-evil"
+mkdir -p "$sibling/libs/beans"
+ln -s "$sibling/libs/beans" "$repo_tmp/libs/beans-link"
+assert_eq "sibling path sharing the root prefix rejected" "1" "$(in_repo_rc libs/beans-link)"
+rm -rf "$sibling"
+
+# Refuses to run at all without a root, rather than defaulting to permissive.
+saved_root="$REPO_ROOT_PHYS"
+REPO_ROOT_PHYS=""
+assert_eq "unset REPO_ROOT_PHYS rejected" "1" "$(in_repo_rc libs/beans)"
+REPO_ROOT_PHYS="$saved_root"
 
 # ----- argument parsing ---------------------------------------------------- #
 # parse_args mutates globals and may call fatal (exit); run in subshells.

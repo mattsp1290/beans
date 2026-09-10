@@ -2,7 +2,7 @@
 
 Operator-facing deployment artifacts for running bean-counter in production on
 the infra host (`infra-admin@10.0.0.106`). Full design:
-[`../.agents/plans/deploy/`](../.agents/plans/deploy/).
+[`../../../.agents/plans/bean-counter-deploy/`](../../../.agents/plans/bean-counter-deploy/).
 
 ## What's in here
 
