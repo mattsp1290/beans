@@ -531,6 +531,25 @@ require_repo_root() {
              "$COMPOSE_PROD"; do
     require_in_repo "$rel" || fatal "$rel failed the in-repo containment check"
   done
+
+  # The list above cannot be completed by hand. apps/bean-counter/Makefile drives
+  # every local gate whose PASS lines become the recorded preflight;
+  # frontend/Dockerfile is the recipe for the UI image that ships;
+  # frontend/package.json pins what that image builds. Each meets the same
+  # criterion, and the next file to meet it will not be in the list either.
+  #
+  # So reject the whole class instead: no tracked symlink may exist anywhere
+  # under the deployed trees. A committed symlink is invisible to
+  # `git status` — the symlink IS the committed object — which is exactly why
+  # the clean-worktree gate does not catch one.
+  local tracked_links
+  tracked_links="$(git ls-files -s -- libs/beans apps/bean-counter \
+    | awk '$1 == "120000" { print $4 }')" \
+    || fatal "could not enumerate tracked objects under the deployed trees"
+  if [ -n "$tracked_links" ]; then
+    printf '%s\n' "$tracked_links" | sed 's/^/  /' >&2
+    fatal "the deployed trees contain tracked symlinks (listed above); they must be real files"
+  fi
 }
 
 require_clean_local_ref() {

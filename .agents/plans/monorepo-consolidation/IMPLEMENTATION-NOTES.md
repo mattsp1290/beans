@@ -59,6 +59,25 @@ argument used to select.
   path that has never existed. Rendering the file, rather than reading it,
   caught this.
 
+## `go.work.sum` is ignored, not tracked
+
+[03-go-module-restructure.md](03-go-module-restructure.md) step 5 says both
+`go.work` and `go.work.sum` are committed, and
+[00-overview.md](00-overview.md)'s target tree lists `go.work.sum` as "new,
+tracked". `go work sync` generates no `go.work.sum` for this workspace, so
+there was nothing to commit.
+
+It is not simply absent, though: read commands generate it. `go list -m all`
+writes a 3.2 KB `go.work.sum`, and because the file was neither tracked nor
+ignored it then appeared in `git status --porcelain` — which
+`apps/bean-counter/scripts/deploy-production.sh`'s clean-worktree gate treats
+as a reason to abort. A developer who ran `go list -m all` could not deploy
+until they deleted a file no build step maintains. `--dry-run` does not call
+that gate, which is why no check on this branch caught it.
+
+The root `.gitignore` now carries an anchored `/go.work.sum`. `go.work` itself
+stays tracked.
+
 ## Stale acceptance criteria
 
 - **[01-target-layout-and-module-graph.md](01-target-layout-and-module-graph.md)
@@ -77,6 +96,10 @@ argument used to select.
 - **[00-overview.md](00-overview.md) success criterion 7** expects at least 150
   total and at least 7 open issues. Both hold, but the numbers moved because
   implementation itself created issues.
+- **[01-target-layout-and-module-graph.md](01-target-layout-and-module-graph.md)
+  AC2 and [00-overview.md](00-overview.md)'s target tree** both list
+  `go.work.sum` among the tracked root files. See the section above: it is
+  ignored, not tracked.
 
 ## Not verified
 

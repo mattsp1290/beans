@@ -12,6 +12,11 @@
 
 # Intentionally NOT `set -e` in the harness: helpers return non-zero as part of
 # their contract and we assert on that.
+# A GIT_DIR or GIT_WORK_TREE inherited from the caller would redirect every git
+# command below at the caller's repository, silently making the require_repo_root
+# fixture cases vacuous. Unset them for the whole run.
+unset GIT_DIR GIT_WORK_TREE
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="$SCRIPT_DIR/scripts/deploy-production.sh"
 
@@ -257,7 +262,10 @@ build_fixture_repo() {
   rm -rf "${repo_root_tmp:?}/repo"
   mkdir -p "$repo_root_tmp/repo"
   ( cd "$repo_root_tmp/repo" || exit 1
-    git init -q .
+    # env -u: an inherited GIT_DIR/GIT_WORK_TREE would make `git init`
+    # re-initialize the CALLER's repository and leave this fixture without a
+    # .git at all, which silently makes every case below vacuous.
+    env -u GIT_DIR -u GIT_WORK_TREE git init -q .
     mkdir -p libs/beans/schema/migrations/postgres apps/bean-counter/frontend
     : > libs/beans/schema/migrations/postgres/0001_init.sql
     : > apps/bean-counter/go.mod
@@ -298,6 +306,25 @@ for victim in apps/bean-counter/go.mod \
   ln -s "$outside2_tmp/file" "$repo_root_tmp/repo/$victim"
   assert_eq "require_repo_root rejects a symlinked $victim" "1" "$(repo_root_rc)"
 done
+
+# Round 2 fixed require_repo_root comparing logical $PWD against git's physical
+# toplevel, which aborted a legitimate deploy from a symlinked path. Nothing
+# covered it: reverting the fix left the suite green.
+build_fixture_repo
+ln -s "$repo_root_tmp/repo" "$repo_root_tmp/repo-link"
+( cd "$repo_root_tmp/repo-link" && require_repo_root ) >/dev/null 2>&1
+assert_rc "require_repo_root accepts a repo reached through a symlinked path" 0 $?
+rm -f "$repo_root_tmp/repo-link"
+
+# A committed symlink is invisible to `git status` - the symlink IS the tracked
+# object - so the clean-worktree gate cannot catch one. The per-path list cannot
+# be completed by hand either, so the whole class is rejected structurally.
+build_fixture_repo
+( cd "$repo_root_tmp/repo" || exit 1
+  ln -s "$outside2_tmp/file" apps/bean-counter/Makefile
+  env -u GIT_DIR -u GIT_WORK_TREE git add -A >/dev/null 2>&1
+) || true
+assert_eq "require_repo_root rejects a TRACKED symlink not in the path list" "1" "$(repo_root_rc)"
 
 build_fixture_repo
 
