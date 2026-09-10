@@ -3,6 +3,7 @@ package issue
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,17 +11,66 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// workflowFile is the on-disk schema for the [workflow] section, decoded from
+// WorkflowFile is the on-disk schema of a [workflow] section, decoded from
 // TOML or YAML. All fields are optional; omitted fields inherit the base
 // config they are merged onto (key-level merge, not deep).
+type WorkflowFile struct {
+	Statuses    []string            `toml:"statuses" yaml:"statuses"`
+	Default     string              `toml:"default" yaml:"default"`
+	Active      []string            `toml:"active" yaml:"active"`
+	Terminal    []string            `toml:"terminal" yaml:"terminal"`
+	Transitions map[string][]string `toml:"transitions" yaml:"transitions"`
+}
+
+// IsEmpty reports whether no field is set.
+func (w WorkflowFile) IsEmpty() bool {
+	return len(w.Statuses) == 0 && strings.TrimSpace(w.Default) == "" && len(w.Active) == 0 && len(w.Terminal) == 0 && len(w.Transitions) == 0
+}
+
+// workflowFile is the wrapper that places WorkflowFile under [workflow].
 type workflowFile struct {
-	Workflow struct {
-		Statuses    []string            `toml:"statuses" yaml:"statuses"`
-		Default     string              `toml:"default" yaml:"default"`
-		Active      []string            `toml:"active" yaml:"active"`
-		Terminal    []string            `toml:"terminal" yaml:"terminal"`
-		Transitions map[string][]string `toml:"transitions" yaml:"transitions"`
-	} `toml:"workflow" yaml:"workflow"`
+	Workflow WorkflowFile `toml:"workflow" yaml:"workflow"`
+}
+
+// LoadWorkflow resolves the workflow config with the precedence
+// explicitPath (BN_CONFIG; error if missing) > project [workflow] > hub
+// [workflow] > built-in defaults. The merge is per key. projectTOML and
+// hubTOML are the raw bytes of the respective beans.toml files (nil when the
+// file is absent).
+func LoadWorkflow(explicitPath string, projectTOML, hubTOML []byte) (WorkflowConfig, error) {
+	wf := DefaultWorkflowConfig()
+	if explicitPath != "" {
+		raw, err := os.ReadFile(explicitPath)
+		if err != nil {
+			return WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", explicitPath, err)
+		}
+		file, err := decodeWorkflowFile(explicitPath, raw)
+		if err != nil {
+			return WorkflowConfig{}, err
+		}
+		wf = mergeWorkflowFile(wf, file)
+		if err := wf.Validate(); err != nil {
+			return WorkflowConfig{}, fmt.Errorf("workflow config %s: %w", explicitPath, err)
+		}
+		return wf, nil
+	}
+	for _, src := range []struct {
+		name string
+		raw  []byte
+	}{{"hub beans.toml", hubTOML}, {"project beans.toml", projectTOML}} {
+		if len(src.raw) == 0 {
+			continue
+		}
+		file, err := decodeWorkflowFile("beans.toml", src.raw)
+		if err != nil {
+			return WorkflowConfig{}, fmt.Errorf("%s: %w", src.name, err)
+		}
+		wf = mergeWorkflowFile(wf, file)
+	}
+	if err := wf.Validate(); err != nil {
+		return WorkflowConfig{}, err
+	}
+	return wf, nil
 }
 
 // decodeWorkflowFile decodes raw as TOML or YAML based on the extension of

@@ -1,51 +1,49 @@
-# Example bn workflow status configuration.
+# beans.toml — hub-wide configuration, committed at the root of the hub
+# (~/.beans/hub/beans.toml). Every key is optional; omitted keys use the
+# built-in defaults shown here.
 #
-# Copy to `bn.toml` (or convert to `bn.yaml`) in your project root, or point
-# BN_CONFIG at this file. With no config file present, bn uses these same
-# built-in defaults.
-#
-# Discovery precedence:
-#   1. BN_CONFIG=/path/to/bn.toml   (explicit; a missing file is an error)
-#   2. bn.toml / bn.yaml / bn.yml   (walking up from the working directory)
-#   3. $XDG_CONFIG_HOME/bn/config.{toml,yaml,yml}  (or ~/.config/bn/...)
-#
-# Any omitted key inherits the built-in default, so a file that sets only
-# `default` keeps the default vocabulary for everything else. Note the merge is
-# per-key: if you redefine `statuses` with a custom vocabulary, also redefine
-# `default`, `active`, and `terminal` — otherwise they keep their built-in
-# values (e.g. active=["open"]) which will no longer be in your `statuses` and
-# startup validation will reject the config.
+# A project may override [workflow] in projects/<name>/beans.toml with the
+# same keys; the merge is per key. BN_CONFIG=<file> replaces both.
 
 [workflow]
-# Ordered status vocabulary. Order drives display; the application layer rejects
-# any write (create / update --status / import) of a status not listed here.
-statuses = [
-  "open",
-  "in_progress",
-  "ready_for_review",
-  "ready_for_validation",
-  "ready_for_merge",
-  "blocked",
-  "closed",
-  "done",
-]
-
-# Status assigned to newly created issues. Must be one of `statuses`.
+# Ordered status vocabulary. Order drives display.
+statuses = ["open", "in_progress", "ready_for_review", "ready_for_validation", "ready_for_merge", "blocked", "closed", "done"]
+# Status assigned to newly created issues.
 default = "open"
-
-# Dispatchable statuses surfaced by `bn ready`. Must be a subset of `statuses`
-# and must not overlap `terminal`.
+# Dispatchable statuses: returned by `bn ready`.
 active = ["open"]
-
-# Terminal statuses: they satisfy blocking dependencies and signal workspace
-# cleanup. Must be a subset of `statuses`.
+# Done statuses: satisfy blockers and are eligible for `bn archive`.
 terminal = ["closed", "done"]
-
-# Optional, reserved for a future phase. When omitted, status transitions are
-# unrestricted (any valid status may move to any other). Enforcement is not yet
-# implemented; this section is accepted and validated but not applied.
+# Every other valid status is a hold state: not ready, not done.
+#
+# Optional: restrict legal moves. Accepted and validated, not yet enforced.
 # [workflow.transitions]
-# in_progress          = ["ready_for_review"]
-# ready_for_review     = ["ready_for_validation", "in_progress"]
-# ready_for_validation = ["ready_for_merge", "ready_for_review"]
-# ready_for_merge      = ["closed"]
+# open = ["in_progress", "blocked", "closed"]
+
+[types]
+# Issue type vocabulary for `bn create -t`.
+names = ["task", "bug", "feature", "epic", "chore"]
+
+[ids]
+# Length of the random hash in generated ids (<prefix>-<hash>).
+length = 4
+
+# --- projects/<name>/beans.toml -------------------------------------------
+#
+# name    = "exampleA"
+# prefix  = "exampleA"
+# remotes = ["https://github.com/owner/exampleA"]   # normalized remote URLs
+#
+# [workflow]
+# default = "in_progress"
+
+# --- ~/.beans/config.toml (per user, never in the hub) ---------------------
+#
+# actor = "matt"
+#
+# [hub]
+# remote = "git@github.com:owner/beans-hub.git"   # recorded by bn init
+# branch = "main"                                  # recorded by bn init
+#
+# [fetch]
+# throttle = "60s"
