@@ -76,9 +76,23 @@ hub is measured slow.
 bd exports carry display names (`Matt Spurlin`) and emails as actors; bn
 actors are short whitespace-free tokens, so `bn import bd` writes
 `issue.Slug` of the display name (`matt-spurlin`) and reports every mapping
-in its dry run. Log lines written by bn itself also replace whitespace in
-the actor, repo, and branch fields with `-` so the line grammar stays
-unambiguous.
+in its dry run.
+
+## 2026-09-10: Log-line fields are whitespace-free tokens
+
+Every log line bn writes replaces runs of whitespace in the actor, repo, and
+branch fields with `-` (a git `user.name` of `Matt Spurlin` is logged as
+`Matt-Spurlin`), so the line grammar stays unambiguous even when a branch
+name contains `)`. This applies to every command, not only the import.
+
+## 2026-09-10: Test doubles are not part of the public API
+
+`gitops.FakeResolver` and `gitops.RecordingRunner` live in `_test.go` files
+only and are never exported from `gitops`. `vault`, `issue`, `markdown`, and
+`gitops` are public at the module root so a future consumer (the
+eino-agent-extensions request) can import them, but no stability commitment
+exists until one appears, and test doubles are excluded from that surface
+regardless.
 
 ## 2026-09-10: Fetch throttle keyed on the last attempt
 

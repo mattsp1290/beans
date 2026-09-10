@@ -96,6 +96,6 @@ blockers. See `docs/beans.toml.example`.
 
 `Makefile` derives `VERSION` from `git describe --tags --match 'v*'` and links
 it into `version.Version`; `bn --version` prints it. The `LDFLAGS` path must
-match the module path exactly: a wrong path produces an empty version string
-with no build error. Releases are tagged `vX.Y.Z` on `main`; see
-`docs/release.md`.
+match the module path exactly: a wrong path is ignored by the linker with no
+build error and `bn --version` silently prints the `dev` default. Releases
+are tagged `vX.Y.Z` on `main`; see `docs/release.md`.
