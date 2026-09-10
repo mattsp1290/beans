@@ -8,14 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/mattsp1290/bean-counter/internal/config"
-	"github.com/mattsp1290/bean-counter/internal/handlers/deps"
-	"github.com/mattsp1290/bean-counter/internal/handlers/graph"
-	"github.com/mattsp1290/bean-counter/internal/handlers/health"
-	"github.com/mattsp1290/bean-counter/internal/handlers/issues"
-	"github.com/mattsp1290/bean-counter/internal/handlers/ready"
-	"github.com/mattsp1290/bean-counter/internal/server"
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/config"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/handlers/deps"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/handlers/graph"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/handlers/health"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/handlers/issues"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/handlers/ready"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/server"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 
 	"github.com/gofiber/fiber/v3"
 )

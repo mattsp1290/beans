@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/fang"
 
-	"github.com/mattsp1290/beans/version"
+	"github.com/mattsp1290/beans/libs/beans/version"
 )
 
 func main() {

@@ -5,15 +5,15 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	"github.com/mattsp1290/bean-counter/internal/api/dto"
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/api/dto"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 type Store interface {
 	ListIssues(context.Context, appstore.ListFilter) ([]appstore.Issue, error)
 	// ListBlockingDeps returns only blocking (dep_type="blocks") edges; the
 	// graph view ignores the parent-child membership edges beans 0008 added.
-	ListBlockingDeps(context.Context, string) ([]appstore.DepEdge, error)
+	ListBlockingDeps(context.Context, appstore.ListFilter) ([]appstore.DepEdge, error)
 }
 
 type Config struct {
@@ -35,7 +35,7 @@ func (h Handler) get(c fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	deps, err := h.cfg.Store.ListBlockingDeps(c.Context(), h.cfg.ProjectPrefix)
+	deps, err := h.cfg.Store.ListBlockingDeps(c.Context(), appstore.ListFilter{Prefix: h.cfg.ProjectPrefix})
 	if err != nil {
 		return err
 	}

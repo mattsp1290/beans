@@ -1,6 +1,6 @@
 package dto
 
-import appstore "github.com/mattsp1290/bean-counter/internal/store"
+import appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 
 type GraphResponse struct {
 	Nodes []GraphNode `json:"nodes"`

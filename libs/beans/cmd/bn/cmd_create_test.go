@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	store "github.com/mattsp1290/beans/store"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 // TestCreateSilentOutputContract is the load-bearing test for --silent.

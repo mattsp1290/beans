@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mattsp1290/beans/model"
-	store "github.com/mattsp1290/beans/store"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 // newTestStore opens a fresh in-memory SQLite store and ensures the given

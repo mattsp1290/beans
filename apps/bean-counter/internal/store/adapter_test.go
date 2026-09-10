@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	beansmodel "github.com/mattsp1290/beans/model"
-	beansstore "github.com/mattsp1290/beans/store"
+	beansmodel "github.com/mattsp1290/beans/libs/beans/model"
+	beansstore "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 func TestSentinelReExports(t *testing.T) {

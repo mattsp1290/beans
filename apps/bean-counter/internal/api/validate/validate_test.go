@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mattsp1290/bean-counter/internal/api/dto"
-	"github.com/mattsp1290/bean-counter/internal/server"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/api/dto"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/server"
 )
 
 func TestCreateIssueAcceptsValidRequest(t *testing.T) {

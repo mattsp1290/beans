@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mattsp1290/beans/model"
-	store "github.com/mattsp1290/beans/store"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 // bdExportLine mirrors the JSON shape emitted by bd export.

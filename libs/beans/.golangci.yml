@@ -37,7 +37,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/mattsp1290/beans
+        - github.com/mattsp1290/beans/libs/beans
 
 issues:
   max-issues-per-linter: 0

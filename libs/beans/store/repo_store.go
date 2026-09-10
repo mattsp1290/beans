@@ -17,7 +17,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/mattsp1290/beans/repo"
+	"github.com/mattsp1290/beans/libs/beans/repo"
 )
 
 // Repo is one onboarded repository in the bn registry.

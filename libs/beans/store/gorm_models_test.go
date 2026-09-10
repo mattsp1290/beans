@@ -12,7 +12,7 @@ import (
 
 	"gorm.io/datatypes"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 )
 
 func TestGORMModelTableNames(t *testing.T) {

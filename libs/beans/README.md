@@ -297,11 +297,11 @@ path remains container-free.
 
 Beans also exposes the packages used by downstream orchestration code:
 
-- `github.com/mattsp1290/beans/model` for issue-domain structs.
-- `github.com/mattsp1290/beans/repo` for repo target validation.
-- `github.com/mattsp1290/beans/schema` for embedded goose migrations.
-- `github.com/mattsp1290/beans/store` for the multi-database CRUD store.
-- `github.com/mattsp1290/beans/version` for the `bn` build version.
+- `github.com/mattsp1290/beans/libs/beans/model` for issue-domain structs.
+- `github.com/mattsp1290/beans/libs/beans/repo` for repo target validation.
+- `github.com/mattsp1290/beans/libs/beans/schema` for embedded goose migrations.
+- `github.com/mattsp1290/beans/libs/beans/store` for the multi-database CRUD store.
+- `github.com/mattsp1290/beans/libs/beans/version` for the `bn` build version.
 
 The `bn_*` table names and the `bn` binary name are stable compatibility
 contracts.

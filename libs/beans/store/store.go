@@ -16,9 +16,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/mattsp1290/beans/model"
-	repovalidation "github.com/mattsp1290/beans/repo"
-	"github.com/mattsp1290/beans/schema"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	repovalidation "github.com/mattsp1290/beans/libs/beans/repo"
+	"github.com/mattsp1290/beans/libs/beans/schema"
 )
 
 // Issue is the richer store-layer representation. It embeds model.Issue (the

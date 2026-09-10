@@ -12,8 +12,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	repovalidation "github.com/mattsp1290/beans/repo"
-	store "github.com/mattsp1290/beans/store"
+	repovalidation "github.com/mattsp1290/beans/libs/beans/repo"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 var repoSlugRE = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*$`)

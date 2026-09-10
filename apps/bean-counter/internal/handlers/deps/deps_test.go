@@ -9,8 +9,8 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	"github.com/mattsp1290/bean-counter/internal/server"
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/server"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 type fakeStore struct {
@@ -18,7 +18,7 @@ type fakeStore struct {
 	addedBlockedByID   string
 	removedIssueID     string
 	removedBlockedByID string
-	listPrefix         string
+	listFilter         appstore.ListFilter
 	deps               []appstore.DepEdge
 	err                error
 }
@@ -35,8 +35,8 @@ func (s *fakeStore) RemoveDep(_ context.Context, issueID, blockedByID string) er
 	return s.err
 }
 
-func (s *fakeStore) ListBlockingDeps(_ context.Context, prefix string) ([]appstore.DepEdge, error) {
-	s.listPrefix = prefix
+func (s *fakeStore) ListBlockingDeps(_ context.Context, filter appstore.ListFilter) ([]appstore.DepEdge, error) {
+	s.listFilter = filter
 	return s.deps, s.err
 }
 
@@ -46,8 +46,8 @@ func TestListDependencies(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
 	}
-	if store.listPrefix != "bc" {
-		t.Fatalf("listPrefix = %q, want bc", store.listPrefix)
+	if store.listFilter.Prefix != "bc" {
+		t.Fatalf("listFilter.Prefix = %q, want bc", store.listFilter.Prefix)
 	}
 	if !bytes.Contains(body, []byte(`"dependencies"`)) || !bytes.Contains(body, []byte(`"blocked_by_id":"bc-1"`)) {
 		t.Fatalf("unexpected body: %s", body)

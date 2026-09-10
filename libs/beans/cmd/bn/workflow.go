@@ -10,7 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v3"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 )
 
 // workflowEnv is the env var pointing at an explicit config file path.

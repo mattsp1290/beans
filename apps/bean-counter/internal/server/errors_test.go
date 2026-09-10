@@ -11,7 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 func TestErrorHandlerMapsSentinels(t *testing.T) {

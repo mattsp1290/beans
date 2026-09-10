@@ -18,9 +18,9 @@ import (
 	tcmysql "github.com/testcontainers/testcontainers-go/modules/mysql"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 
-	"github.com/mattsp1290/beans/model"
-	"github.com/mattsp1290/beans/schema"
-	store "github.com/mattsp1290/beans/store"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/schema"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 // testStore starts a fresh Postgres container, runs bn migrations, and returns

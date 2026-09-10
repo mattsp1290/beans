@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	store "github.com/mattsp1290/beans/store"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 // insertMemoryDirect inserts a memory directly via the store (bypassing RunE)

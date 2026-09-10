@@ -51,7 +51,7 @@ DEFAULT_PG_DB="symphony"
 
 COMPOSE_PROJECT="bean-counter"
 COMPOSE_PROD="deploy/docker-compose.prod.yml"
-BEANS_MODULE="github.com/mattsp1290/beans"
+BEANS_MODULE="github.com/mattsp1290/beans/libs/beans"
 REVISION_LABEL="org.opencontainers.image.revision"
 
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-180}"

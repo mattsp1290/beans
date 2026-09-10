@@ -6,10 +6,10 @@ import (
 	"net/url"
 	"strings"
 
-	beansrepo "github.com/mattsp1290/beans/repo"
+	beansrepo "github.com/mattsp1290/beans/libs/beans/repo"
 
-	"github.com/mattsp1290/bean-counter/internal/api/dto"
-	"github.com/mattsp1290/bean-counter/internal/server"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/api/dto"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/server"
 )
 
 const (

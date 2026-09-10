@@ -1,10 +1,10 @@
-module github.com/mattsp1290/bean-counter
+module github.com/mattsp1290/beans/apps/bean-counter
 
 go 1.25.7
 
 require (
 	github.com/gofiber/fiber/v3 v3.3.0
-	github.com/mattsp1290/beans v0.1.2-0.20260615002029-e52dce57b52c
+	github.com/mattsp1290/beans/libs/beans v0.0.0
 	github.com/testcontainers/testcontainers-go/modules/mysql v0.42.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0
 )
@@ -99,3 +99,5 @@ require (
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.49.1 // indirect
 )
+
+replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans

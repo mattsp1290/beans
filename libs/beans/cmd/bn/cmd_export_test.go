@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mattsp1290/beans/model"
-	store "github.com/mattsp1290/beans/store"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 func TestWriteExportJSONLEmitsBDCompatibleLines(t *testing.T) {

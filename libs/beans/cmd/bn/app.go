@@ -14,8 +14,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/spf13/cobra"
 
-	"github.com/mattsp1290/beans/model"
-	store "github.com/mattsp1290/beans/store"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 type appState struct {

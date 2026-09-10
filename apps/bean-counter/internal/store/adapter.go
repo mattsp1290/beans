@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	beansmodel "github.com/mattsp1290/beans/model"
-	beansstore "github.com/mattsp1290/beans/store"
+	beansmodel "github.com/mattsp1290/beans/libs/beans/model"
+	beansstore "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 type Store = beansstore.Store
@@ -137,7 +137,8 @@ func (a *Adapter) EnsureProject(ctx context.Context) error {
 // ReadyIssues returns unblocked issues for the configured project prefix. It
 // requires an initialized Adapter with a non-nil Store.
 func (a *Adapter) ReadyIssues(ctx context.Context) ([]Issue, error) {
-	return a.store.ReadyIssues(ctx, a.projectPrefix, a.terminalStates, a.activeStates)
+	filter := ListFilter{Prefix: a.projectPrefix}
+	return a.store.ReadyIssues(ctx, filter, a.terminalStates, a.activeStates)
 }
 
 // Close releases database resources owned by the underlying store.

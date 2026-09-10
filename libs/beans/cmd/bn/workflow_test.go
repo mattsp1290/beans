@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 )
 
 // isolateWorkflowEnv points discovery at empty/explicit locations so a stray

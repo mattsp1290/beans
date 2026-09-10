@@ -11,8 +11,8 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	"github.com/mattsp1290/bean-counter/internal/server"
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/server"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 type fakeStore struct {
@@ -22,7 +22,7 @@ type fakeStore struct {
 	depsErr   error
 
 	listFilter appstore.ListFilter
-	depsPrefix string
+	depsFilter appstore.ListFilter
 }
 
 func (s *fakeStore) ListIssues(_ context.Context, filter appstore.ListFilter) ([]appstore.Issue, error) {
@@ -30,8 +30,8 @@ func (s *fakeStore) ListIssues(_ context.Context, filter appstore.ListFilter) ([
 	return s.issues, s.issuesErr
 }
 
-func (s *fakeStore) ListBlockingDeps(_ context.Context, prefix string) ([]appstore.DepEdge, error) {
-	s.depsPrefix = prefix
+func (s *fakeStore) ListBlockingDeps(_ context.Context, filter appstore.ListFilter) ([]appstore.DepEdge, error) {
+	s.depsFilter = filter
 	return s.deps, s.depsErr
 }
 
@@ -50,8 +50,8 @@ func TestGraphReturnsNodesAndEdges(t *testing.T) {
 	if store.listFilter.Prefix != "bc" {
 		t.Fatalf("list filter prefix = %q, want bc", store.listFilter.Prefix)
 	}
-	if store.depsPrefix != "bc" {
-		t.Fatalf("deps prefix = %q, want bc", store.depsPrefix)
+	if store.depsFilter.Prefix != "bc" {
+		t.Fatalf("deps filter prefix = %q, want bc", store.depsFilter.Prefix)
 	}
 	for _, want := range []string{
 		`"nodes"`,
@@ -73,8 +73,8 @@ func TestGraphStopsWhenListIssuesFails(t *testing.T) {
 	if resp.StatusCode != http.StatusInternalServerError {
 		t.Fatalf("status = %d body=%s", resp.StatusCode, body)
 	}
-	if store.depsPrefix != "" {
-		t.Fatalf("depsPrefix = %q, want no deps call", store.depsPrefix)
+	if store.depsFilter.Prefix != "" {
+		t.Fatalf("deps filter prefix = %q, want no deps call", store.depsFilter.Prefix)
 	}
 	if !bytes.Contains(body, []byte(`"error":"internal_error"`)) {
 		t.Fatalf("body missing internal_error: %s", body)

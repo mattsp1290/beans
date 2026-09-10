@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 
 	gmysql "gorm.io/driver/mysql"
 )

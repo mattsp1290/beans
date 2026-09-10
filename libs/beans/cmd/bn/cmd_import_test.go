@@ -13,9 +13,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 
-	store "github.com/mattsp1290/beans/store"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 func TestParseImportJSONLSkipsInvalidStatus(t *testing.T) {

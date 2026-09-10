@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 )
 
 // TestStoreAcceptsNewHoldStates proves the store validates against the default

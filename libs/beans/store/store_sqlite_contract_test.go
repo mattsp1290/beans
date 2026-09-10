@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 )
 
 func TestSQLiteStoreContractIssueLifecycle(t *testing.T) {

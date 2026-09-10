@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mattsp1290/beans/model"
-	"github.com/mattsp1290/beans/schema"
+	"github.com/mattsp1290/beans/libs/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/schema"
 )
 
 // ErrEmptyDSN is returned by Config.Validate when DSN is unset.

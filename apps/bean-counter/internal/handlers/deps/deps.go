@@ -6,9 +6,9 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	"github.com/mattsp1290/bean-counter/internal/api/dto"
-	"github.com/mattsp1290/bean-counter/internal/api/validate"
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/api/dto"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/api/validate"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 type Store interface {
@@ -17,7 +17,7 @@ type Store interface {
 	// ListBlockingDeps returns only blocking (dep_type="blocks") edges. beans
 	// 0008 added parent-child membership edges that ListDeps now also returns;
 	// the dependency views deliberately ignore non-blocking edges.
-	ListBlockingDeps(context.Context, string) ([]appstore.DepEdge, error)
+	ListBlockingDeps(context.Context, appstore.ListFilter) ([]appstore.DepEdge, error)
 }
 
 type Config struct {
@@ -37,7 +37,7 @@ type Handler struct {
 }
 
 func (h Handler) list(c fiber.Ctx) error {
-	deps, err := h.cfg.Store.ListBlockingDeps(c.Context(), h.cfg.ProjectPrefix)
+	deps, err := h.cfg.Store.ListBlockingDeps(c.Context(), appstore.ListFilter{Prefix: h.cfg.ProjectPrefix})
 	if err != nil {
 		return err
 	}

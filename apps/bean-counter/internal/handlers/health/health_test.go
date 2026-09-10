@@ -10,7 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	"github.com/mattsp1290/bean-counter/internal/server"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/server"
 )
 
 func TestReadyzReturnsOKWhenStoreProjectExists(t *testing.T) {

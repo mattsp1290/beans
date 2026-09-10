@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	store "github.com/mattsp1290/beans/store"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 func newShowCmd(rs *appState) *cobra.Command {

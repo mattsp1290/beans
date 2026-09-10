@@ -8,7 +8,7 @@ import (
 
 	"gorm.io/datatypes"
 
-	"github.com/mattsp1290/beans/model"
+	"github.com/mattsp1290/beans/libs/beans/model"
 )
 
 // GORM table models mirror the migration-owned bn_* schema. They deliberately

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 const (

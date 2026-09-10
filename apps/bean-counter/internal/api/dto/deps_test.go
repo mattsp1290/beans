@@ -3,7 +3,7 @@ package dto
 import (
 	"testing"
 
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 func TestDependenciesFromStore(t *testing.T) {

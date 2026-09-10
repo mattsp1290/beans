@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 
-	"github.com/mattsp1290/bean-counter/internal/api/dto"
-	appstore "github.com/mattsp1290/bean-counter/internal/store"
+	"github.com/mattsp1290/beans/apps/bean-counter/internal/api/dto"
+	appstore "github.com/mattsp1290/beans/apps/bean-counter/internal/store"
 )
 
 type Source interface {

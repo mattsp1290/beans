@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	store "github.com/mattsp1290/beans/store"
+	store "github.com/mattsp1290/beans/libs/beans/store"
 )
 
 // repoArgForm is the result of classifying a --repo flag value.
