@@ -43,14 +43,14 @@ browser ──https──►─────┤  /      ─► host :8088 ─► 
 
 ```bash
 # Preview the plan; resolve the target SHA; no tests, no remote mutation.
-scripts/deploy-production.sh --ref main --dry-run
+./apps/bean-counter/scripts/deploy-production.sh --ref main --dry-run
 
 # Read-only local + remote preflight (SSH, Docker, shared Postgres health,
 # external network, schema-version parity, DSN secret, UI port, compose render).
-scripts/deploy-production.sh --ref main --check
+./apps/bean-counter/scripts/deploy-production.sh --ref main --check
 
 # Full deploy of the current origin/main.
-scripts/deploy-production.sh --ref main
+./apps/bean-counter/scripts/deploy-production.sh --ref main
 ```
 
 `--help` lists every flag. Key safety properties (full design in the plan):
@@ -101,19 +101,19 @@ Each run generates `rollback.md` from the captured previous state. Preferred pat
 retags the previous images (no data touched):
 
 ```bash
-cd ~/git/bean-counter
-docker compose -p bean-counter -f deploy/docker-compose.prod.yml stop api ui
+cd ~/git/beans
+docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml stop api ui
 docker tag <previous_api_image_id> bean-counter-api:prod
 docker tag <previous_ui_image_id>  bean-counter-ui:prod
 UI_PORT=8088 SYMPHONY_NETWORK=local-symphony_symphony-internal \
   BN_DSN_SECRET=$HOME/bean-counter-secrets/bn_dsn \
-  docker compose -p bean-counter -f deploy/docker-compose.prod.yml up -d --no-build api ui
+  docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml up -d --no-build api ui
 ```
 
 Back out entirely (orchestrator untouched):
 
 ```bash
-docker compose -p bean-counter -f deploy/docker-compose.prod.yml down   # NEVER -v
+docker compose -p bean-counter -f apps/bean-counter/deploy/docker-compose.prod.yml down   # NEVER -v
 ```
 
 **Never** `-v` / `docker volume rm` — the Postgres volume is owned by
@@ -135,6 +135,6 @@ plan's task sequence.
 Pure-helper and argument-parsing tests (hermetic — no network/Docker/SSH):
 
 ```bash
-bash test/scripts/deploy-production_test.sh
-shellcheck scripts/deploy-production.sh test/scripts/deploy-production_test.sh
+bash apps/bean-counter/test/scripts/deploy-production_test.sh
+shellcheck apps/bean-counter/scripts/deploy-production.sh apps/bean-counter/test/scripts/deploy-production_test.sh
 ```

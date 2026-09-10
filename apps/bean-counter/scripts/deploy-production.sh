@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
-# scripts/deploy-production.sh — repeatable, audited deploy of bean-counter
+# apps/bean-counter/scripts/deploy-production.sh — repeatable, audited deploy
+# of bean-counter
 # (Go API + Svelte UI) to the infra host, pointed at the EXISTING Postgres that
 # the local-symphony orchestrator stack already runs there.
 #
-# Design and rationale: .agents/plans/deploy/ (00..07). This mirrors the proven
+# Run this from the MONOREPO ROOT, not from apps/bean-counter:
+#
+#   ./apps/bean-counter/scripts/deploy-production.sh --ref main
+#
+# Every relative path below is repository-root-relative, and the local git
+# gates describe the whole monorepo.
+#
+# Design and rationale: .agents/plans/bean-counter-deploy/ (00..07). This mirrors the proven
 # local-symphony deploy/update-production.sh contract and safety model, adapted
 # for a shared database that bean-counter does NOT own.
 #
@@ -18,6 +26,11 @@
 #     local-symphony project or the shared Postgres volume.
 #   * Never print or persist the DSN; reuse the secret file form verbatim.
 #   * A failed safety gate stops the deploy. There is no --force.
+#   * The clean-worktree gate now covers the whole monorepo — libs/beans and
+#     every other application, not just apps/bean-counter. That is stricter
+#     than before and deliberately so: the deploy records a single monorepo
+#     SHA, so uncommitted changes anywhere make that SHA an incomplete
+#     description of what was tested.
 #
 # Pure helpers (normalize_ui_port, assert_dsn_container_host,
 # migration_max_from_dir, extract_issue_count) live above the main guard so
@@ -33,7 +46,7 @@ set -euo pipefail
 DEFAULT_HOST="infra-admin@10.0.0.106"
 # Literal `$HOME` — expanded on the remote, never locally.
 # shellcheck disable=SC2016
-DEFAULT_REPO_DIR='$HOME/git/bean-counter'
+DEFAULT_REPO_DIR='$HOME/git/beans'
 DEFAULT_UI_PORT="8088"
 DEFAULT_API_PORT="8081"
 DEFAULT_CORS_ORIGIN="https://counter.birb.homes"
@@ -50,7 +63,7 @@ DEFAULT_PG_USER="symphony"
 DEFAULT_PG_DB="symphony"
 
 COMPOSE_PROJECT="bean-counter"
-COMPOSE_PROD="deploy/docker-compose.prod.yml"
+COMPOSE_PROD="apps/bean-counter/deploy/docker-compose.prod.yml"
 BEANS_MODULE="github.com/mattsp1290/beans/libs/beans"
 REVISION_LABEL="org.opencontainers.image.revision"
 
@@ -92,10 +105,12 @@ fatal() {
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/deploy-production.sh --ref <ref> [options]
+Usage: ./apps/bean-counter/scripts/deploy-production.sh --ref <ref> [options]
+
+Run from the monorepo root; all relative paths are repository-root-relative.
 
 Deploy bean-counter (API + UI) to the infra host, pointed at the shared
-local-symphony Postgres. See .agents/plans/deploy/.
+local-symphony Postgres. See .agents/plans/bean-counter-deploy/.
 
 Required:
   --ref <ref>            'main' (must equal origin/main) or an exact commit SHA
@@ -104,7 +119,7 @@ Required:
 Options:
   --host <ssh-target>    Production SSH target (default: infra-admin@10.0.0.106).
   --repo-dir <path>      Remote checkout. $HOME expanded on the remote
-                         (default: $HOME/git/bean-counter).
+                         (default: $HOME/git/beans).
   --ui-port <port>       Host port for the UI, bound 0.0.0.0 (default: 8088).
   --api-port <port>      Host port for the API, bound 0.0.0.0 (default: 8081).
                          Traefik path-routes counter.birb.homes/api here.
@@ -194,6 +209,42 @@ extract_issue_count() {
   esac
   # Count issue objects by their "identifier" field; an empty array yields 0.
   printf '%s' "$body" | grep -o '"identifier"' | grep -c . || true
+}
+
+# The one replace directive apps/bean-counter is allowed to carry.
+SANCTIONED_BEANS_REPLACE='replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
+
+# check_sanctioned_replace <go.mod path> -> 0 if that file contains exactly the
+# sanctioned beans replace and no other replace directive; non-zero otherwise,
+# with the reason on stderr.
+#
+# In the monorepo the replace is mandatory, so the old "reject any beans
+# replace" gate would abort every deploy. Its purpose — never ship an image
+# built against library code that is not the deployed code — is now served by
+# the single target SHA that pins both modules. What this gate preserves is the
+# other half: a replace aimed anywhere else (a developer's local experiment)
+# must still stop the deploy.
+check_sanctioned_replace() {
+  local gomod="$1"
+  [ -f "$gomod" ] || { printf '%s: no such file\n' "$gomod" >&2; return 1; }
+
+  if ! grep -qF "$SANCTIONED_BEANS_REPLACE" "$gomod"; then
+    printf '%s must contain: %s\n' "$gomod" "$SANCTIONED_BEANS_REPLACE" >&2
+    return 1
+  fi
+
+  # Block form (`replace (` ... `)`) would hide extra entries from the
+  # single-line scan below, so it is rejected outright.
+  if grep -qE '^[[:space:]]*replace[[:space:]]*\(' "$gomod"; then
+    printf '%s uses a replace block; only the single sanctioned replace line is allowed\n' "$gomod" >&2
+    return 1
+  fi
+
+  if grep -E '^[[:space:]]*replace[[:space:]]' "$gomod" | grep -qvF "$SANCTIONED_BEANS_REPLACE"; then
+    printf '%s contains an unexpected replace directive\n' "$gomod" >&2
+    return 1
+  fi
+  return 0
 }
 
 # --------------------------------------------------------------------------- #
@@ -304,9 +355,12 @@ resolve_target_sha() {
 # the remote parity gate compares against the version actually shipping.
 resolve_embedded_migration_max() {
   local beans_dir
-  beans_dir="$(go list -m -f '{{.Dir}}' "$BEANS_MODULE" 2>/dev/null)" \
+  # With a filesystem replace this returns the worktree path of libs/beans
+  # rather than a module-cache path, which is a semantic improvement: the parity
+  # gate now reads the migrations actually compiled into the image.
+  beans_dir="$( cd apps/bean-counter && go list -m -f '{{.Dir}}' "$BEANS_MODULE" 2>/dev/null )" \
     || fatal "go list -m $BEANS_MODULE failed; module graph is not deployable"
-  [ -n "$beans_dir" ] || fatal "could not locate $BEANS_MODULE in the module cache"
+  [ -n "$beans_dir" ] || fatal "could not locate $BEANS_MODULE via the in-repo replace"
   EMBEDDED_MAX="$(migration_max_from_dir "$beans_dir/schema/migrations/postgres")"
   case "$EMBEDDED_MAX" in
     ''|*[!0-9]*) fatal "could not determine embedded beans migration max (got '$EMBEDDED_MAX')" ;;
@@ -333,11 +387,14 @@ require_clean_local_ref() {
     fatal "worktree HEAD ($head_sha) is not the target SHA ($TARGET_SHA); check out the target first (e.g. 'git checkout main' for --ref main) so local gates and the parity check validate exactly what ships"
   fi
 
-  if grep -nE 'replace[[:space:]]+.*github\.com/mattsp1290/beans' go.mod >/dev/null 2>&1; then
-    fatal "go.mod contains a local replace for $BEANS_MODULE; remove it before deploying"
-  fi
+  # See check_sanctioned_replace: this gate inverted under the monorepo rather
+  # than disappearing.
+  check_sanctioned_replace apps/bean-counter/go.mod \
+    || fatal "apps/bean-counter/go.mod failed the beans replace gate"
 
-  if ! go list -m -json "$BEANS_MODULE" >/dev/null 2>&1; then
+  # Run from the module directory: the replace is what resolves the library, and
+  # go list must read apps/bean-counter's own module graph.
+  if ! ( cd apps/bean-counter && go list -m -json "$BEANS_MODULE" ) >/dev/null 2>&1; then
     fatal "go list -m -json $BEANS_MODULE failed; module graph is not deployable"
   fi
 }
@@ -348,27 +405,30 @@ LOCAL_PREFLIGHT=""
 local_gates() {
   LOCAL_PREFLIGHT="ref=$REF target_sha=$TARGET_SHA host=$(hostname 2>/dev/null || echo '?')"
 
-  run go test ./...
+  # -C apps/bean-counter (and make -C below) rather than a bare ./... : the
+  # script now runs from the monorepo root, and these gates validate the
+  # application, not libs/beans. The library's own gates run in its CI job.
+  run make -C apps/bean-counter test
   LOCAL_PREFLIGHT="$LOCAL_PREFLIGHT
-go test ./... (incl. e2e): PASS"
+make -C apps/bean-counter test (incl. e2e): PASS"
 
   if [ "$SKIP_INTEGRATION" -eq 1 ]; then
     log "skipping integration gate (--skip-integration)"
     LOCAL_PREFLIGHT="$LOCAL_PREFLIGHT
 integration: SKIPPED (--skip-integration)"
   else
-    run go test -tags=integration ./...
+    run make -C apps/bean-counter test-integration
     LOCAL_PREFLIGHT="$LOCAL_PREFLIGHT
 integration: PASS"
   fi
 
-  run make vet
-  run make lint
-  run make fmt-check
+  run make -C apps/bean-counter vet
+  run make -C apps/bean-counter lint
+  run make -C apps/bean-counter fmt-check
   LOCAL_PREFLIGHT="$LOCAL_PREFLIGHT
 vet/lint/fmt-check: PASS"
 
-  ( cd frontend && run npm ci && run npm run check && run npm test && run npm run build )
+  ( cd apps/bean-counter/frontend && run npm ci && run npm run check && run npm test && run npm run build )
   LOCAL_PREFLIGHT="$LOCAL_PREFLIGHT
 frontend check/test/build: PASS"
 
@@ -383,10 +443,14 @@ local docker build: SKIPPED (--skip-local-build)"
       [ -n "${SSH_AUTH_SOCK:-}" ] || fatal "--build-ssh set but SSH_AUTH_SOCK is empty; start an ssh-agent"
       ssh_args=(--ssh default)
     fi
+    # The API context is the repository root and the Dockerfile is named
+    # explicitly: the build needs libs/beans, which the go.mod replace points
+    # at and which a bean-counter-scoped context would not contain.
     DOCKER_BUILDKIT=1 run docker build "${ssh_args[@]}" \
+      -f apps/bean-counter/Dockerfile \
       --label "$REVISION_LABEL=$TARGET_SHA" -t "$API_IMAGE" .
     DOCKER_BUILDKIT=1 run docker build "${ssh_args[@]}" \
-      --label "$REVISION_LABEL=$TARGET_SHA" -t "$UI_IMAGE" ./frontend
+      --label "$REVISION_LABEL=$TARGET_SHA" -t "$UI_IMAGE" ./apps/bean-counter/frontend
     # Plain if (not `cmd && ...` or `var=$(test && echo)`) so a false BUILD_SSH
     # test does not return non-zero into an assignment and trip `set -e`.
     local build_note=""
@@ -706,8 +770,8 @@ if [ "$no_rebuild" -eq 1 ] && [ "$(img_rev "$api_image")" = "$target_sha" ] && [
   say "skipping rebuild (--no-rebuild; live images already built from $short_sha)"
   rebuilt="no (--no-rebuild; revision label matched)"
 else
-  DOCKER_BUILDKIT=1 docker build --label "$revision_label=$target_sha" -t "$api_image" . 2>&1 | tee "$run_dir/build-api.txt"
-  DOCKER_BUILDKIT=1 docker build --label "$revision_label=$target_sha" -t "$ui_image" ./frontend 2>&1 | tee "$run_dir/build-ui.txt"
+  DOCKER_BUILDKIT=1 docker build -f apps/bean-counter/Dockerfile --label "$revision_label=$target_sha" -t "$api_image" . 2>&1 | tee "$run_dir/build-api.txt"
+  DOCKER_BUILDKIT=1 docker build --label "$revision_label=$target_sha" -t "$ui_image" ./apps/bean-counter/frontend 2>&1 | tee "$run_dir/build-ui.txt"
 fi
 new_api_id="$(docker image inspect "$api_image" --format '{{.Id}}')"
 new_ui_id="$(docker image inspect "$ui_image" --format '{{.Id}}')"
@@ -836,8 +900,8 @@ Planned deploy:
   embedded_max:  $EMBEDDED_MAX (beans migrations shipping in bean-counter)
 
 Phases:
-  1. local: clean worktree, pushed ref, go.mod (no beans replace), embedded max
-  2. local gates: go test ./... ; integration$( [ "$SKIP_INTEGRATION" -eq 1 ] && echo " [SKIPPED]") ; vet/lint/fmt ; frontend ; docker build$( [ "$SKIP_LOCAL_BUILD" -eq 1 ] && echo " [SKIPPED]")
+  1. local: clean monorepo worktree, pushed ref, sanctioned beans replace, embedded max
+  2. local gates: make -C apps/bean-counter test ; integration$( [ "$SKIP_INTEGRATION" -eq 1 ] && echo " [SKIPPED]") ; vet/lint/fmt ; frontend ; docker build$( [ "$SKIP_LOCAL_BUILD" -eq 1 ] && echo " [SKIPPED]")
   3. remote (one flock'd session): preflight -> version-parity gate ->
      compose config (secret scan, no db) -> pg_dump backup + rollback.md ->
      checkout $SHORT_SHA -> build$( [ "$NO_REBUILD" -eq 1 ] && echo " [skip if revision matches]") -> secret-readability ->

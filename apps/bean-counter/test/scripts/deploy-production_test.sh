@@ -3,14 +3,18 @@
 # Hermetic: sources the script (the main-guard prevents a deploy from running)
 # and exercises the sourceable helpers. No network, no Docker, no SSH.
 #
-#   bash test/scripts/deploy-production_test.sh
+#   bash apps/bean-counter/test/scripts/deploy-production_test.sh
+#
+# SC1090: every `source "$SCRIPT"` below resolves at runtime from SCRIPT_DIR,
+# so shellcheck cannot follow it statically. The single-directive form only
+# covers the next source, and this file sources in nine places.
+# shellcheck disable=SC1090
 
 # Intentionally NOT `set -e` in the harness: helpers return non-zero as part of
 # their contract and we assert on that.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SCRIPT="$SCRIPT_DIR/scripts/deploy-production.sh"
 
-# shellcheck source=/dev/null
 source "$SCRIPT"
 # The sourced script enables strict mode for live runs; disable it here so the
 # harness can drive helpers that intentionally fail.
@@ -47,7 +51,6 @@ assert_dsn_container_host "host=postgresx dbname=beans";         assert_rc "dsn 
 
 # ----- migration_max_from_dir ---------------------------------------------- #
 tmp="$(mktemp -d)"
-trap 'rm -rf "$tmp"' EXIT
 : > "$tmp/0001_init.sql"; : > "$tmp/0007_guards.sql"; : > "$tmp/0003_mid.sql"
 : > "$tmp/notes.txt"; : > "$tmp/readme_0099.sql"   # leading non-digit -> ignored
 out="$(migration_max_from_dir "$tmp")"; assert_eq "migration_max_from_dir picks max 7" "7" "$out"
@@ -61,6 +64,72 @@ assert_eq "extract_issue_count two issues" "2" "$out"
 out="$(extract_issue_count '{"issues":[]}')"
 assert_eq "extract_issue_count empty array -> 0" "0" "$out"
 extract_issue_count 'not-json' >/dev/null 2>&1; assert_rc "extract_issue_count rejects non-issues body" 1 $?
+
+# ----- check_sanctioned_replace -------------------------------------------- #
+# This gate replaced the old "reject any beans replace" check. In the monorepo
+# the replace is mandatory, so the property being defended changed: the deploy
+# must still abort when apps/bean-counter's go.mod points the library anywhere
+# other than the in-repo copy. Without these cases that swap is asserted only
+# in prose.
+gomod_tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp" "$gomod_tmp"' EXIT
+
+SANCTIONED='replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans'
+
+write_gomod() { printf '%s\n' "$2" > "$gomod_tmp/$1"; }
+
+write_gomod ok.mod "module github.com/mattsp1290/beans/apps/bean-counter
+
+go 1.25.7
+
+require github.com/gofiber/fiber/v3 v3.3.0
+
+$SANCTIONED"
+check_sanctioned_replace "$gomod_tmp/ok.mod" >/dev/null 2>&1
+assert_rc "sanctioned replace accepted" 0 $?
+
+write_gomod missing.mod "module github.com/mattsp1290/beans/apps/bean-counter
+
+go 1.25.7
+
+require github.com/gofiber/fiber/v3 v3.3.0"
+check_sanctioned_replace "$gomod_tmp/missing.mod" >/dev/null 2>&1
+assert_rc "missing beans replace rejected" 1 $?
+
+write_gomod elsewhere.mod "module github.com/mattsp1290/beans/apps/bean-counter
+
+go 1.25.7
+
+replace github.com/mattsp1290/beans/libs/beans => /Users/dev/experiment/beans"
+check_sanctioned_replace "$gomod_tmp/elsewhere.mod" >/dev/null 2>&1
+assert_rc "beans replace pointing elsewhere rejected" 1 $?
+
+write_gomod extra.mod "module github.com/mattsp1290/beans/apps/bean-counter
+
+go 1.25.7
+
+$SANCTIONED
+replace github.com/gofiber/fiber/v3 => ../../../fiber-fork"
+check_sanctioned_replace "$gomod_tmp/extra.mod" >/dev/null 2>&1
+assert_rc "unexpected second replace rejected" 1 $?
+
+write_gomod block.mod "module github.com/mattsp1290/beans/apps/bean-counter
+
+go 1.25.7
+
+replace (
+	github.com/mattsp1290/beans/libs/beans => ../../libs/beans
+	github.com/gofiber/fiber/v3 => ../../../fiber-fork
+)"
+check_sanctioned_replace "$gomod_tmp/block.mod" >/dev/null 2>&1
+assert_rc "replace block rejected (hides extra entries)" 1 $?
+
+check_sanctioned_replace "$gomod_tmp/does-not-exist.mod" >/dev/null 2>&1
+assert_rc "missing go.mod rejected" 1 $?
+
+# The real file must satisfy the gate, or a deploy from a clean checkout aborts.
+check_sanctioned_replace "$SCRIPT_DIR/go.mod" >/dev/null 2>&1
+assert_rc "apps/bean-counter/go.mod satisfies the gate" 0 $?
 
 # ----- argument parsing ---------------------------------------------------- #
 # parse_args mutates globals and may call fatal (exit); run in subshells.
