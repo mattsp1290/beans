@@ -1,7 +1,7 @@
 # bean-counter
 
 bean-counter is a local-network web UI and JSON API for
-[`beans`](https://github.com/mattsp1290/beans) issues. It provides issue CRUD,
+[`beans`](../../libs/beans) issues. It provides issue CRUD,
 dependency management, a ready queue, and a dependency graph API.
 
 The app is intended for trusted local or private-network use. It does not

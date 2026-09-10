@@ -7,7 +7,7 @@ it differs from older planning prompts.
 ## Scope
 
 bean-counter is a Go/Fiber API plus Svelte frontend for local-network issue
-tracking through `github.com/mattsp1290/beans`. It exposes issue CRUD,
+tracking through `github.com/mattsp1290/beans/libs/beans`. It exposes issue CRUD,
 dependencies, ready queue, graph, and health endpoints under `/api/v1`.
 
 The service is designed for trusted local or private networks. It deliberately
@@ -16,8 +16,20 @@ identity. Mutating beans operations use the configured `BN_ACTOR` string.
 
 ## Beans Dependency
 
-`github.com/mattsp1290/beans` is a normal tagged module dependency in
-`go.mod`. Do not add a local `replace` directive for beans during feature work.
+`github.com/mattsp1290/beans/libs/beans` is an in-repo module. bean-counter
+and the beans library now live in the same repository, so `go.mod` requires it
+at the placeholder version `v0.0.0` and resolves it through
+
+```
+replace github.com/mattsp1290/beans/libs/beans => ../../libs/beans
+```
+
+That `replace` is mandatory, not a local convenience: the container build and
+every `GOWORK=off` invocation resolve the library through it, and
+`scripts/deploy-production.sh` refuses to deploy if it is missing or points
+anywhere else. Do not remove it, and do not add a second `replace` for beans.
+Because one commit SHA now pins both modules, the library code that ships in an
+image is by construction the library code at the deployed commit.
 
 The beans store owns schema migration. `internal/store.NewStore` calls
 `beans/store.New`, which auto-runs its migrations. Do not add bean-counter

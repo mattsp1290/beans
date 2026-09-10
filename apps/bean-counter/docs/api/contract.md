@@ -84,7 +84,7 @@ All handler errors are returned as:
   "repo": {
     "id": "repo-1",
     "slug": "bean-counter",
-    "remote_url": "git@example.com:mattsp1290/bean-counter.git",
+    "remote_url": "git@example.com:example-org/bean-counter.git",
     "default_branch": "main",
     "requested_ref": "main",
     "base_ref": "main",
