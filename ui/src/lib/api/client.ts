@@ -1,30 +1,33 @@
 import type {
   AddDependencyRequest,
-  CloseIssueRequest,
   CreateIssueRequest,
-  Dependency,
-  DependencyListResponse,
+  CreateIssueResult,
+  DependencyKind,
+  DocPage,
+  DocsTreeResponse,
   ErrorEnvelope,
   GraphResponse,
   HealthResponse,
+  IssueDetail,
   Issue,
-  IssueListResponse,
   ListIssuesParams,
+  MutationResult,
+  ProjectSummary,
+  SearchParams,
+  SearchResult,
   UpdateIssueRequest,
 } from './types'
 
 export class ApiError extends Error {
   readonly status: number
   readonly code: string
-  readonly fields: ErrorEnvelope['fields']
   readonly envelope: ErrorEnvelope
 
   constructor(status: number, envelope: ErrorEnvelope) {
-    super(envelope.message)
+    super(envelope.error.message)
     this.name = 'ApiError'
     this.status = status
-    this.code = envelope.error
-    this.fields = envelope.fields
+    this.code = envelope.error.code
     this.envelope = envelope
   }
 }
@@ -34,82 +37,145 @@ export interface ApiClientOptions {
   fetch?: typeof fetch
 }
 
+type QueryValue = string | boolean | undefined
+
+interface RequestOptions {
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
+  body?: unknown
+  query?: Record<string, QueryValue>
+}
+
 export class ApiClient {
   private readonly baseUrl: string
   private readonly fetcher: typeof fetch
 
   constructor(options: ApiClientOptions = {}) {
-    this.baseUrl = trimTrailingSlash(options.baseUrl ?? '/api/v1')
+    this.baseUrl = trimTrailingSlash(options.baseUrl ?? '/api')
     this.fetcher = options.fetch ?? globalThis.fetch.bind(globalThis)
   }
 
   health(): Promise<HealthResponse> {
-    return this.request('/healthz')
+    return this.request('/health')
   }
 
-  listIssues(params: ListIssuesParams = {}): Promise<IssueListResponse> {
-    return this.request(`/issues${listIssuesQuery(params)}`)
+  listProjects(): Promise<ProjectSummary[]> {
+    return this.request('/projects')
   }
 
-  createIssue(input: CreateIssueRequest): Promise<Issue> {
-    return this.request('/issues', {
-      method: 'POST',
-      body: input,
+  listIssues(project: string, params: ListIssuesParams = {}): Promise<Issue[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/issues`, {
+      query: {
+        status: params.status,
+        type: params.type,
+        label: params.label,
+        archived: params.archived,
+        q: params.q,
+      },
     })
   }
 
-  getIssue(id: string): Promise<Issue> {
+  ready(project: string): Promise<Issue[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/ready`)
+  }
+
+  getIssue(id: string): Promise<IssueDetail> {
     return this.request(`/issues/${encodeURIComponent(id)}`)
   }
 
-  updateIssue(id: string, input: UpdateIssueRequest): Promise<Issue> {
+  createIssue(project: string, body: CreateIssueRequest): Promise<CreateIssueResult> {
+    return this.request(`/projects/${encodeURIComponent(project)}/issues`, {
+      method: 'POST',
+      body,
+    })
+  }
+
+  updateIssue(id: string, body: UpdateIssueRequest): Promise<MutationResult> {
     return this.request(`/issues/${encodeURIComponent(id)}`, {
       method: 'PATCH',
-      body: input,
+      body,
     })
   }
 
-  closeIssue(id: string, input: CloseIssueRequest = {}): Promise<Issue> {
+  addNote(id: string, text: string): Promise<MutationResult> {
+    return this.request(`/issues/${encodeURIComponent(id)}/notes`, {
+      method: 'POST',
+      body: { text },
+    })
+  }
+
+  /** The server requires a non-empty reason; callers must not invoke this with one. */
+  closeIssue(id: string, reason: string): Promise<MutationResult> {
     return this.request(`/issues/${encodeURIComponent(id)}/close`, {
       method: 'POST',
-      body: input,
+      body: { reason },
     })
   }
 
-  deleteIssue(id: string): Promise<void> {
-    return this.request(`/issues/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
+  reopenIssue(id: string): Promise<MutationResult> {
+    return this.request(`/issues/${encodeURIComponent(id)}/reopen`, {
+      method: 'POST',
     })
   }
 
-  listDependencies(): Promise<DependencyListResponse> {
-    return this.request('/deps')
-  }
-
-  addDependency(issueId: string, input: AddDependencyRequest): Promise<Dependency> {
-    return this.request(`/issues/${encodeURIComponent(issueId)}/deps`, {
+  addDependency(id: string, input: AddDependencyRequest): Promise<MutationResult> {
+    return this.request(`/issues/${encodeURIComponent(id)}/deps`, {
       method: 'POST',
       body: input,
     })
   }
 
-  removeDependency(issueId: string, blockedById: string): Promise<void> {
-    return this.request(
-      `/issues/${encodeURIComponent(issueId)}/deps/${encodeURIComponent(blockedById)}`,
-      { method: 'DELETE' },
-    )
+  removeDependency(id: string, target: string, type: DependencyKind): Promise<MutationResult> {
+    return this.request(`/issues/${encodeURIComponent(id)}/deps/${encodeURIComponent(target)}`, {
+      method: 'DELETE',
+      query: { type },
+    })
   }
 
-  ready(): Promise<IssueListResponse> {
-    return this.request('/ready')
+  /**
+   * Links `childId` under `parentId`. Dependency edges are recorded on the
+   * child, so the URL id is the child and `target` is the parent — do not
+   * call `addDependency` with the ids the other way around for this.
+   */
+  addChild(parentId: string, childId: string): Promise<MutationResult> {
+    return this.request(`/issues/${encodeURIComponent(childId)}/deps`, {
+      method: 'POST',
+      body: { target: parentId, type: 'parent-child' } satisfies AddDependencyRequest,
+    })
   }
 
-  graph(): Promise<GraphResponse> {
-    return this.request('/graph')
+  /** Unlinks `childId` from `parentId`. See {@link addChild} for the id direction. */
+  removeChild(parentId: string, childId: string): Promise<MutationResult> {
+    return this.request(`/issues/${encodeURIComponent(childId)}/deps/${encodeURIComponent(parentId)}`, {
+      method: 'DELETE',
+      query: { type: 'parent-child' },
+    })
+  }
+
+  graph(params: { project?: string; all?: boolean } = {}): Promise<GraphResponse> {
+    return this.request('/graph', { query: { project: params.project, all: params.all } })
+  }
+
+  docsTree(project?: string): Promise<DocsTreeResponse> {
+    return this.request('/docs/tree', { query: { project } })
+  }
+
+  getDoc(path: string): Promise<DocPage> {
+    return this.request(`/docs/${encodePathSegments(path)}`)
+  }
+
+  search(params: SearchParams): Promise<SearchResult[]> {
+    return this.request('/search', {
+      query: { q: params.q, kind: params.kind, project: params.project },
+    })
+  }
+
+  /** URL for the server-sent `reload` event stream; consumed via `new EventSource(...)`. */
+  eventsUrl(): string {
+    return `${this.baseUrl}/events`
   }
 
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const response = await this.fetcher(`${this.baseUrl}${path}`, {
+    const response = await this.fetcher(`${this.baseUrl}${path}${buildQuery(options.query)}`, {
       method: options.method ?? 'GET',
       headers: requestHeaders(options.body),
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -127,31 +193,32 @@ export class ApiClient {
   }
 }
 
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
-  body?: unknown
-}
-
 export const api = new ApiClient()
 
 function trimTrailingSlash(value: string): string {
   return value.endsWith('/') ? value.slice(0, -1) : value
 }
 
-function listIssuesQuery(params: ListIssuesParams): string {
-  const query = new URLSearchParams()
-  const states = Array.isArray(params.state)
-    ? params.state
-    : params.state === undefined
-      ? []
-      : [params.state]
-  for (const state of states) {
-    query.append('state', state)
+function encodePathSegments(path: string): string {
+  return path
+    .split('/')
+    .filter((segment) => segment !== '')
+    .map(encodeURIComponent)
+    .join('/')
+}
+
+function buildQuery(query: RequestOptions['query']): string {
+  if (!query) {
+    return ''
   }
-  if (params.limit !== undefined) {
-    query.set('limit', String(params.limit))
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined || value === '') {
+      continue
+    }
+    search.set(key, String(value))
   }
-  const encoded = query.toString()
+  const encoded = search.toString()
   return encoded === '' ? '' : `?${encoded}`
 }
 
@@ -177,16 +244,17 @@ function toErrorEnvelope(payload: unknown): ErrorEnvelope {
   if (isErrorEnvelope(payload)) {
     return payload
   }
-  return {
-    error: 'request_error',
-    message: 'request failed',
-  }
+  return { error: { code: 'request_error', message: 'request failed' } }
 }
 
 function isErrorEnvelope(payload: unknown): payload is ErrorEnvelope {
   if (typeof payload !== 'object' || payload === null) {
     return false
   }
-  const candidate = payload as Partial<ErrorEnvelope>
-  return typeof candidate.error === 'string' && typeof candidate.message === 'string'
+  const candidate = payload as { error?: unknown }
+  if (typeof candidate.error !== 'object' || candidate.error === null) {
+    return false
+  }
+  const err = candidate.error as { code?: unknown; message?: unknown }
+  return typeof err.code === 'string' && typeof err.message === 'string'
 }

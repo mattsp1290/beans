@@ -1,47 +1,84 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-
-  import { ApiError, api, type GraphResponse } from '../../lib/api'
+  import { ALL_PROJECTS, ApiError, api, type GraphEdge, type GraphNode } from '../../lib/api'
   import { graphEdgePath, layoutDependencyGraph } from '../../lib/graph'
   import EmptyState from '../../lib/components/EmptyState.svelte'
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
 
-  let graph = $state<GraphResponse>({ nodes: [], edges: [] })
+  interface Props {
+    project: string
+    reloadKey: number
+  }
+
+  let { project, reloadKey }: Props = $props()
+
+  let nodes = $state<GraphNode[]>([])
+  let edges = $state<GraphEdge[]>([])
   let loading = $state(false)
   let error = $state('')
   let selectedID = $state('')
   let refreshedAt = $state<Date | null>(null)
 
-  const layout = $derived(layoutDependencyGraph(graph.nodes, graph.edges))
+  const allProjects = $derived(project === ALL_PROJECTS)
+  const layout = $derived(layoutDependencyGraph(nodes, edges))
   const selectedNode = $derived(layout.nodes.find((node) => node.id === selectedID) ?? layout.nodes[0])
   const selectedEdges = $derived(
     selectedNode ? layout.edges.filter((edge) => edge.source === selectedNode.id || edge.target === selectedNode.id) : [],
   )
-
-  onMount(() => {
-    void loadGraph()
+  const projectColors = $derived.by(() => {
+    const colors = new Map<string, string>()
+    const seen = new Set(nodes.map((node) => node.project).filter((p): p is string => Boolean(p)))
+    let i = 0
+    for (const p of Array.from(seen).sort()) {
+      colors.set(p, `hsl(${(i * 67) % 360} 55% 45%)`)
+      i += 1
+    }
+    return colors
   })
 
-  async function loadGraph() {
+  $effect(() => {
+    project
+    reloadKey
+    let cancelled = false
+    loadGraph(() => cancelled)
+    return () => {
+      cancelled = true
+    }
+  })
+
+  async function loadGraph(isCancelled: () => boolean = () => false) {
     loading = true
     error = ''
     try {
-      graph = await api.graph()
+      const response = allProjects ? await api.graph({ all: true }) : await api.graph({ project })
+      if (isCancelled()) return
+      nodes = response.nodes.map((node) => ({
+        id: node.id,
+        title: node.title,
+        state: node.status,
+        priority: node.priority,
+        labels: [],
+        status: node.status,
+        type: node.type,
+        project: node.project,
+        archived: node.archived,
+      }))
+      edges = response.edges.map((edge) => ({ source: edge.from, target: edge.to, kind: edge.kind }))
       refreshedAt = new Date()
-      if (selectedID !== '' && !graph.nodes.some((node) => node.id === selectedID)) {
+      if (selectedID !== '' && !nodes.some((node) => node.id === selectedID)) {
         selectedID = ''
       }
     } catch (err) {
+      if (isCancelled()) return
       error = errorMessage(err)
     } finally {
-      loading = false
+      if (!isCancelled()) loading = false
     }
   }
 
   function errorMessage(err: unknown): string {
     if (err instanceof ApiError) {
-      return err.fields?.map((field) => `${field.field}: ${field.message}`).join(', ') || err.message
+      return err.message
     }
     return err instanceof Error ? err.message : 'Request failed.'
   }
@@ -49,35 +86,49 @@
   function nodeTitle(value: string): string {
     return value.length > 20 ? `${value.slice(0, 19)}...` : value
   }
+
+  function nodeFill(node: GraphNode): string | undefined {
+    if (!allProjects || !node.project) {
+      return undefined
+    }
+    return projectColors.get(node.project)
+  }
 </script>
 
 <section class="workspace graph-workspace" aria-label="Dependency graph workspace">
   <div class="toolbar graph-toolbar">
-    <div class="graph-summary">
-      <strong>{graph.nodes.length}</strong>
-      <span>{graph.nodes.length === 1 ? 'issue' : 'issues'}</span>
-      <strong>{graph.edges.length}</strong>
-      <span>{graph.edges.length === 1 ? 'dependency' : 'dependencies'}</span>
+    <div class="queue-summary">
+      <strong>{layout.nodes.length}</strong>
+      <span>{layout.nodes.length === 1 ? 'issue' : 'issues'}</span>
+      <strong>{layout.edges.length}</strong>
+      <span>{layout.edges.length === 1 ? 'dependency' : 'dependencies'}</span>
       {#if refreshedAt}
         <small>Refreshed {refreshedAt.toLocaleTimeString()}</small>
       {/if}
     </div>
-    <button type="button" class="secondary" disabled={loading} onclick={loadGraph}>
+    <button type="button" class="secondary" disabled={loading} onclick={() => loadGraph()}>
       {loading ? 'Refreshing' : 'Refresh'}
     </button>
   </div>
 
-  {#if loading && graph.nodes.length === 0}
+  {#if loading && layout.nodes.length === 0}
     <LoadingState message="Loading dependency graph" />
-  {:else if error !== '' && graph.nodes.length === 0}
+  {:else if error !== '' && layout.nodes.length === 0}
     <ErrorState title="Could not load graph" message={error} />
-  {:else if graph.nodes.length === 0}
+  {:else if layout.nodes.length === 0}
     <EmptyState title="No graph data" message="Create issues and dependencies to build the graph." />
   {:else}
     <div class="graph-content">
       <div class="graph-canvas" aria-label="Dependency network">
         {#if error !== ''}
           <p class="form-error" role="alert">{error}</p>
+        {/if}
+        {#if allProjects}
+          <ul class="graph-legend" aria-label="Project colors">
+            {#each Array.from(projectColors.entries()) as [name, color] (name)}
+              <li><span class="graph-legend-swatch" style={`background:${color}`}></span>{name}</li>
+            {/each}
+          </ul>
         {/if}
         <svg
           viewBox={`0 0 ${layout.width} ${layout.height}`}
@@ -89,12 +140,12 @@
               <path d="M 0 0 L 10 5 L 0 10 z"></path>
             </marker>
           </defs>
-          {#each layout.edges as edge}
+          {#each layout.edges as edge, index (index)}
             <path class="graph-edge" d={graphEdgePath(edge)} marker-end="url(#graph-arrow)">
-              <title>{edge.source} blocks {edge.target}</title>
+              <title>{edge.source} {edge.kind ?? 'blocks'} {edge.target}</title>
             </path>
           {/each}
-          {#each layout.nodes as node}
+          {#each layout.nodes as node (node.id)}
             <g
               class:selected={selectedNode?.id === node.id}
               class="graph-node"
@@ -111,9 +162,10 @@
               }}
             >
               <title>{node.title} ({node.id})</title>
-              <rect x="-70" y="-30" width="140" height="60" rx="8"></rect>
-              <text y="-7" text-anchor="middle">{nodeTitle(node.title)}</text>
-              <text y="14" text-anchor="middle">{node.state} · P{node.priority}</text>
+              <rect x="-70" y="-30" width="140" height="60" rx="8" style={nodeFill(node) ? `fill:${nodeFill(node)}` : undefined}
+              ></rect>
+              <text y="-7" text-anchor="middle" class:on-color={Boolean(nodeFill(node))}>{nodeTitle(node.title)}</text>
+              <text y="14" text-anchor="middle" class:on-color={Boolean(nodeFill(node))}>{node.state} · P{node.priority}</text>
             </g>
           {/each}
         </svg>
@@ -123,7 +175,7 @@
         {#if selectedNode}
           <div>
             <h2>{selectedNode.title}</h2>
-            <p>{selectedNode.id}</p>
+            <p>{selectedNode.id}{selectedNode.project ? ` · ${selectedNode.project}` : ''}</p>
           </div>
           <div class="graph-pills">
             <span>{selectedNode.state}</span>
@@ -131,23 +183,16 @@
             <span>{selectedNode.incoming} blockers</span>
             <span>{selectedNode.outgoing} blocked</span>
           </div>
-          {#if selectedNode.labels.length > 0}
-            <div class="label-row">
-              {#each selectedNode.labels as label}
-                <span>{label}</span>
-              {/each}
-            </div>
-          {/if}
           <div class="edge-list">
             <h3>Relationships</h3>
             {#if selectedEdges.length === 0}
               <p class="muted">No dependencies yet.</p>
             {:else}
               <ul>
-                {#each selectedEdges as edge}
+                {#each selectedEdges as edge, index (index)}
                   <li>
                     <span>{edge.sourceNode.title}</span>
-                    <small>blocks</small>
+                    <small>{edge.kind ?? 'blocks'}</small>
                     <span>{edge.targetNode.title}</span>
                   </li>
                 {/each}
@@ -165,24 +210,6 @@
     justify-content: space-between;
   }
 
-  .graph-summary {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 6px;
-    color: #657166;
-  }
-
-  .graph-summary strong {
-    color: #17211b;
-    font-size: 24px;
-  }
-
-  .graph-summary small {
-    flex-basis: 100%;
-    color: #657166;
-  }
-
   .graph-content {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 300px;
@@ -191,9 +218,33 @@
 
   .graph-canvas {
     min-width: 0;
-    border-right: 1px solid #d9ded4;
+    border-right: 1px solid var(--border);
     overflow: auto;
     padding: 16px;
+  }
+
+  .graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .graph-legend li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .graph-legend-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
   }
 
   svg {
@@ -203,12 +254,12 @@
   }
 
   marker path {
-    fill: #657166;
+    fill: var(--muted);
   }
 
   .graph-edge {
     fill: none;
-    stroke: #9aa694;
+    stroke: var(--border-strong);
     stroke-width: 2;
   }
 
@@ -218,28 +269,31 @@
   }
 
   .graph-node rect {
-    fill: #ffffff;
-    stroke: #cbd3c7;
+    fill: var(--surface);
+    stroke: var(--border-strong);
     stroke-width: 1.5;
   }
 
   .graph-node:hover rect,
   .graph-node:focus-visible rect,
   .graph-node.selected rect {
-    fill: #f1f5ee;
-    stroke: #245942;
+    stroke: var(--accent);
     stroke-width: 2;
   }
 
   .graph-node text:first-of-type {
-    fill: #17211b;
+    fill: var(--fg);
     font-size: 14px;
     font-weight: 700;
   }
 
   .graph-node text:last-of-type {
-    fill: #657166;
+    fill: var(--muted);
     font-size: 12px;
+  }
+
+  .graph-node text.on-color {
+    fill: #ffffff;
   }
 
   .graph-inspector {
@@ -255,7 +309,7 @@
 
   .graph-inspector p,
   .edge-list small {
-    color: #657166;
+    color: var(--muted);
   }
 
   .graph-pills {
@@ -267,8 +321,8 @@
   .graph-pills span {
     border-radius: 999px;
     padding: 4px 10px;
-    color: #245942;
-    background: #e4ebe1;
+    color: var(--accent);
+    background: var(--accent-soft);
     font-size: 13px;
   }
 
@@ -292,7 +346,7 @@
   .edge-list li {
     display: grid;
     gap: 2px;
-    border: 1px solid #d9ded4;
+    border: 1px solid var(--border);
     border-radius: 6px;
     padding: 8px 10px;
   }
@@ -304,7 +358,7 @@
 
     .graph-canvas {
       border-right: 0;
-      border-bottom: 1px solid #d9ded4;
+      border-bottom: 1px solid var(--border);
     }
   }
 </style>

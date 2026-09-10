@@ -1,12 +1,15 @@
-import type { CreateIssueRequest, Issue, IssueType, UpdateIssueRequest } from '../../lib/api'
+import type { CreateIssueRequest } from '../../lib/api'
 
+/** Editable form model backing the "new issue" panel on the issues board. */
 export interface IssueForm {
   title: string
   description: string
   priority: number
-  issue_type: IssueType
+  type: string
   labels: string
-  branch_name: string
+  parent: string
+  assignee: string
+  blocked_by: string
   url: string
 }
 
@@ -15,47 +18,32 @@ export function emptyIssueForm(): IssueForm {
     title: '',
     description: '',
     priority: 2,
-    issue_type: 'task',
+    type: 'task',
     labels: '',
-    branch_name: '',
+    parent: '',
+    assignee: '',
+    blocked_by: '',
     url: '',
   }
 }
 
-export function issueToIssueForm(issue: Issue): IssueForm {
-  return {
-    title: issue.title,
-    description: issue.description,
-    priority: issue.priority,
-    issue_type: issue.issue_type,
-    labels: issue.labels.join(', '),
-    branch_name: issue.branch_name ?? '',
-    url: issue.url ?? '',
-  }
-}
-
 export function issueFormToCreateRequest(value: IssueForm): CreateIssueRequest {
-  const branchName = value.branch_name.trim()
+  const description = value.description.trim()
+  const parent = value.parent.trim()
+  const assignee = value.assignee.trim()
   const url = value.url.trim()
+  const labels = splitList(value.labels)
+  const blockedBy = splitList(value.blocked_by)
   return {
     title: value.title.trim(),
-    description: value.description,
+    description: description === '' ? undefined : description,
     priority: Number(value.priority),
-    issue_type: value.issue_type,
-    labels: labelsFromIssueForm(value),
-    branch_name: branchName || undefined,
-    url: url || undefined,
-  }
-}
-
-export function issueFormToUpdateRequest(value: IssueForm): UpdateIssueRequest {
-  return {
-    title: value.title.trim(),
-    description: value.description,
-    priority: Number(value.priority),
-    labels: labelsFromIssueForm(value),
-    branch_name: value.branch_name.trim(),
-    url: value.url.trim(),
+    type: value.type,
+    labels: labels.length > 0 ? labels : undefined,
+    parent: parent === '' ? undefined : parent,
+    assignee: assignee === '' ? undefined : assignee,
+    blocked_by: blockedBy.length > 0 ? blockedBy : undefined,
+    url: url === '' ? undefined : url,
   }
 }
 
@@ -72,15 +60,12 @@ export function validateIssueForm(value: IssueForm): string {
   if (value.priority < 0 || value.priority > 4) {
     return 'Priority must be between 0 and 4.'
   }
-  const labels = value.labels.split(',').map((label) => label.trim())
-  if (labels.filter(Boolean).length > 100) {
+  const labels = splitList(value.labels)
+  if (labels.length > 100) {
     return 'Use at most 100 labels.'
   }
   if (labels.some((label) => label.length > 100)) {
     return 'Labels must be at most 100 characters.'
-  }
-  if (value.branch_name.length > 255) {
-    return 'Branch name must be at most 255 characters.'
   }
   if (value.url.trim() !== '' && !/^https?:\/\//.test(value.url.trim())) {
     return 'URL must start with http:// or https://.'
@@ -88,9 +73,9 @@ export function validateIssueForm(value: IssueForm): string {
   return ''
 }
 
-function labelsFromIssueForm(value: IssueForm): string[] {
-  return value.labels
+function splitList(value: string): string[] {
+  return value
     .split(',')
-    .map((label) => label.trim())
+    .map((item) => item.trim())
     .filter(Boolean)
 }

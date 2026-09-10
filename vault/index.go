@@ -628,6 +628,14 @@ func (ix *Index) Reload(paths ...string) error {
 	return nil
 }
 
+// ReloadAll rebuilds the whole index from disk under the write lock; bn serve
+// calls it after every mutation so the next request sees the commit.
+func (ix *Index) ReloadAll() error {
+	ix.Lock()
+	defer ix.Unlock()
+	return ix.reloadAll()
+}
+
 // reloadAll rebuilds the index from disk in place (caller holds the lock).
 func (ix *Index) reloadAll() error {
 	fresh, err := LoadWithOptions(ix.HubDir, LoadOptions{ExplicitWorkflow: ix.ExplicitWorkflow})

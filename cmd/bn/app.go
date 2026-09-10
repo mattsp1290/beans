@@ -109,6 +109,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newDoctorCmd(rs),
 		newPrimeCmd(),
 		newImportCmd(rs),
+		newServeCmd(rs),
 	)
 	return root
 }

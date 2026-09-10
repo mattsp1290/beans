@@ -1,6 +1,7 @@
 package ops
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,9 @@ import (
 	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/vault"
 )
+
+// ErrCycle marks a dependency that would close a cycle.
+var ErrCycle = errors.New("dependency cycle")
 
 // DepAdd makes child blocked by parent (kind "blocks") or sets child's
 // parent (kind "parent-child"). A blocks edge that would create a cycle is
@@ -48,7 +52,7 @@ func DepAdd(env Env, child, parent, kind string) gitops.Operation {
 				return nil, err
 			}
 			if path := wouldCycle(ix, child, parent); len(path) > 0 {
-				return nil, fmt.Errorf("adding %s → %s would create a cycle: %s", child, parent, strings.Join(path, " → "))
+				return nil, fmt.Errorf("%w: adding %s → %s would create a cycle: %s", ErrCycle, child, parent, strings.Join(path, " → "))
 			}
 			iss.BlockedBy = append(iss.BlockedBy, issue.NewLink(target))
 			issue.AppendLog(iss, env.entry("blocked_by + "+parent))
@@ -61,7 +65,7 @@ func DepAdd(env Env, child, parent, kind string) gitops.Operation {
 				return nil, err
 			}
 			if path := parentChainCycle(ix, child, parent); len(path) > 0 {
-				return nil, fmt.Errorf("making %s a child of %s would create a parent cycle: %s", child, parent, strings.Join(path, " → "))
+				return nil, fmt.Errorf("%w: making %s a child of %s would create a parent cycle: %s", ErrCycle, child, parent, strings.Join(path, " → "))
 			}
 			issue.AppendLog(iss, env.entry("field parent: "+orEmpty(iss.Parent.Target)+" → "+target))
 			iss.Parent = issue.NewLink(target)

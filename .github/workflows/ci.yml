@@ -42,13 +42,30 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The go job embeds this build so the release binary carries the real
+      # UI; a plain `go build` without it still compiles against the
+      # committed placeholder.
+      - name: Upload the built UI
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-dist
+          path: ui/dist
+          if-no-files-found: error
+
   go:
     name: go
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: ui
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Download the built UI
+        uses: actions/download-artifact@v8
+        with:
+          name: ui-dist
+          path: ui/dist
 
       - name: Setup Go
         uses: actions/setup-go@v7
@@ -75,5 +92,8 @@ jobs:
       - name: Tidy check
         run: make tidy-check
 
-      - name: Version is linked
-        run: ./bin/bn --version
+      - name: Version is linked and the UI is embedded
+        run: |
+          ./bin/bn --version
+          ./bin/bn --help >/dev/null
+          test "$(ls ui/dist/assets | wc -l)" -gt 0

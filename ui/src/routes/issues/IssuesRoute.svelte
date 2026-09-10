@@ -1,503 +1,256 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-
-  import {
-    ApiError,
-    api,
-    type Issue,
-    type IssueState,
-  } from '../../lib/api'
+  import { ALL_PROJECTS, ApiError, api, type Issue, type ListIssuesParams, type WorkflowInfo } from '../../lib/api'
   import EmptyState from '../../lib/components/EmptyState.svelte'
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
-  import {
-    emptyIssueForm,
-    issueFormToCreateRequest,
-    issueFormToUpdateRequest,
-    issueToIssueForm,
-    validateIssueForm,
-  } from './form'
+  import { emptyIssueForm, issueFormToCreateRequest, validateIssueForm, type IssueForm } from './form'
 
   interface Props {
-    pathname: string
+    project: string
+    workflow: WorkflowInfo
     navigate: (path: string) => void
+    reloadKey: number
+    onBanner: (message: string) => void
   }
 
-  type Mode = 'list' | 'create' | 'detail' | 'edit'
-
-  let { pathname, navigate }: Props = $props()
+  let { project, workflow, navigate, reloadKey, onBanner }: Props = $props()
 
   let issues = $state<Issue[]>([])
-  let dependencyCandidates = $state<Issue[]>([])
-  let selectedIssue = $state<Issue | null>(null)
-  let listLoading = $state(false)
-  let detailLoading = $state(false)
-  let saving = $state(false)
+  let loading = $state(false)
   let error = $state('')
-  let stateFilter = $state<'all' | IssueState>('all')
-  let search = $state('')
+
+  let view = $state<'board' | 'list'>('board')
+  let filterType = $state('')
+  let filterLabel = $state('')
+  let filterQuery = $state('')
+  let showClosed = $state(false)
+
+  let showNewForm = $state(false)
+  let form = $state<IssueForm>(emptyIssueForm())
   let formError = $state('')
-  let dependencyError = $state('')
-  let dependencyInput = $state('')
-  let dependencySaving = $state(false)
-  let form = $state(emptyIssueForm())
+  let creating = $state(false)
 
-  const route = $derived(parseIssueRoute(pathname))
-  const visibleIssues = $derived(filterIssues(issues, search))
-  const dependencyOptions = $derived(availableDependencyOptions(dependencyCandidates, selectedIssue))
+  // Issues in a terminal status (e.g. closed/done) are hidden from both the
+  // board and the list until "show closed" is on, mirroring the archived=true
+  // request already made to the API for that toggle.
+  const visibleIssues = $derived.by(() =>
+    showClosed ? issues : issues.filter((issue) => !workflow.terminal.includes(issue.status)),
+  )
 
-  onMount(() => {
-    void loadIssues()
-    void loadDependencyCandidates()
+  const grouped = $derived.by(() => {
+    const order = workflow.statuses.length > 0 ? workflow.statuses : Array.from(new Set(visibleIssues.map((issue) => issue.status)))
+    const columns = new Map<string, Issue[]>()
+    for (const status of order) {
+      if (!showClosed && workflow.terminal.includes(status)) {
+        continue
+      }
+      columns.set(status, [])
+    }
+    for (const issue of visibleIssues) {
+      if (!columns.has(issue.status)) {
+        columns.set(issue.status, [])
+      }
+      columns.get(issue.status)!.push(issue)
+    }
+    return Array.from(columns.entries())
   })
 
   $effect(() => {
-    if (route.mode === 'detail' || route.mode === 'edit') {
-      void loadIssue(route.id)
-    } else {
-      selectedIssue = null
+    reloadKey
+    let cancelled = false
+    load(() => cancelled)
+    return () => {
+      cancelled = true
     }
   })
 
-  async function loadIssues() {
-    listLoading = true
+  async function load(isCancelled: () => boolean = () => false) {
+    loading = true
     error = ''
+    const params: ListIssuesParams = {
+      type: filterType || undefined,
+      label: filterLabel || undefined,
+      q: filterQuery || undefined,
+      archived: showClosed || undefined,
+    }
     try {
-      const response = await api.listIssues({
-        state: stateFilter === 'all' ? undefined : stateFilter,
-      })
-      issues = response.issues
-      syncSelectedIssueFromList()
+      const result = await api.listIssues(project, params)
+      if (isCancelled()) return
+      issues = result
     } catch (err) {
+      if (isCancelled()) return
       error = errorMessage(err)
     } finally {
-      listLoading = false
+      if (!isCancelled()) loading = false
     }
   }
 
-  async function loadDependencyCandidates() {
-    try {
-      const response = await api.listIssues()
-      dependencyCandidates = response.issues
-      syncSelectedIssueFromCandidates()
-    } catch (err) {
-      if (selectedIssue) {
-        dependencyError = errorMessage(err)
-      }
-    }
-  }
-
-  async function loadIssue(id: string) {
-    detailLoading = true
-    error = ''
-    try {
-      selectedIssue = await api.getIssue(id)
-      dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
-      dependencyError = ''
-      if (route.mode === 'edit') {
-        form = issueToIssueForm(selectedIssue)
-      }
-    } catch (err) {
-      error = errorMessage(err)
-      selectedIssue = null
-    } finally {
-      detailLoading = false
-    }
-  }
-
-  function startCreate() {
-    form = emptyIssueForm()
-    formError = ''
-    navigate('/issues/new')
-  }
-
-  function startEdit(issue: Issue) {
-    form = issueToIssueForm(issue)
-    formError = ''
-    navigate(`/issues/${issue.id}/edit`)
-  }
-
-  async function addDependency(event: SubmitEvent) {
-    event.preventDefault()
-    if (!selectedIssue || dependencyInput === '') {
-      dependencyError = 'Choose an issue to add as a blocker.'
-      return
-    }
-    dependencySaving = true
-    dependencyError = ''
-    try {
-      await api.addDependency(selectedIssue.id, { blocked_by_id: dependencyInput })
-      await refreshSelectedIssue(selectedIssue.id)
-    } catch (err) {
-      dependencyError = errorMessage(err)
-    } finally {
-      dependencySaving = false
-    }
-  }
-
-  async function removeDependency(blockedById: string) {
-    if (!selectedIssue) {
-      return
-    }
-    dependencySaving = true
-    dependencyError = ''
-    try {
-      await api.removeDependency(selectedIssue.id, blockedById)
-      await refreshSelectedIssue(selectedIssue.id)
-    } catch (err) {
-      dependencyError = errorMessage(err)
-    } finally {
-      dependencySaving = false
-    }
-  }
-
-  async function submitIssue(event: SubmitEvent) {
+  async function submitNewIssue(event: SubmitEvent) {
     event.preventDefault()
     formError = validateIssueForm(form)
     if (formError !== '') {
       return
     }
-    saving = true
+    creating = true
     try {
-      const issue =
-        route.mode === 'edit' && route.id !== ''
-          ? await api.updateIssue(route.id, issueFormToUpdateRequest(form))
-          : await api.createIssue(issueFormToCreateRequest(form))
-      await loadIssues()
-      navigate(`/issues/${issue.id}`)
+      const result = await api.createIssue(project, issueFormToCreateRequest(form))
+      showNewForm = false
+      form = emptyIssueForm()
+      onBanner(result.pushed ? '' : result.message)
+      await load()
+      navigate(`/issues/${encodeURIComponent(result.id)}`)
     } catch (err) {
       formError = errorMessage(err)
     } finally {
-      saving = false
+      creating = false
     }
-  }
-
-  async function closeIssue(issue: Issue) {
-    if (!window.confirm(`Close ${issue.id}?`)) {
-      return
-    }
-    try {
-      selectedIssue = await api.closeIssue(issue.id, { reason: 'completed from UI' })
-      await loadIssues()
-    } catch (err) {
-      error = errorMessage(err)
-    }
-  }
-
-  async function deleteIssue(issue: Issue) {
-    if (!window.confirm(`Delete ${issue.id}?`)) {
-      return
-    }
-    try {
-      await api.deleteIssue(issue.id)
-      await loadIssues()
-      navigate('/')
-    } catch (err) {
-      error = errorMessage(err)
-    }
-  }
-
-  function setStateFilter(value: 'all' | IssueState) {
-    stateFilter = value
-    void loadIssues()
-  }
-
-  async function refreshSelectedIssue(id: string) {
-    selectedIssue = await api.getIssue(id)
-    dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
-    void refreshIssueLists()
-  }
-
-  async function refreshIssueLists() {
-    await Promise.allSettled([loadIssues(), loadDependencyCandidates()])
-  }
-
-  function parseIssueRoute(path: string): { mode: Mode; id: string } {
-    if (path === '/issues/new') {
-      return { mode: 'create', id: '' }
-    }
-    const edit = path.match(/^\/issues\/([^/]+)\/edit$/)
-    if (edit) {
-      return { mode: 'edit', id: decodeURIComponent(edit[1]) }
-    }
-    const detail = path.match(/^\/issues\/([^/]+)$/)
-    if (detail) {
-      return { mode: 'detail', id: decodeURIComponent(detail[1]) }
-    }
-    return { mode: 'list', id: '' }
-  }
-
-  function filterIssues(items: Issue[], query: string): Issue[] {
-    const needle = query.trim().toLowerCase()
-    if (needle === '') {
-      return items
-    }
-    return items.filter((issue) =>
-      [issue.id, issue.title, issue.state, issue.issue_type, ...issue.labels]
-        .join(' ')
-        .toLowerCase()
-        .includes(needle),
-    )
-  }
-
-  function availableDependencyOptions(items: Issue[], issue: Issue | null): Issue[] {
-    if (!issue) {
-      return []
-    }
-    const existing = new Set(issue.blocked_by)
-    return items
-      .filter((candidate) => candidate.id !== issue.id && !existing.has(candidate.id))
-      .sort((left, right) => left.priority - right.priority || left.title.localeCompare(right.title))
-  }
-
-  function defaultDependencyInput(issue: Issue | null, items: Issue[]): string {
-    return availableDependencyOptions(items, issue)[0]?.id ?? ''
-  }
-
-  function syncSelectedIssueFromList() {
-    if (!selectedIssue) {
-      return
-    }
-    const updated = issues.find((issue) => issue.id === selectedIssue?.id)
-    if (updated) {
-      selectedIssue = updated
-      if (
-        dependencyInput === '' ||
-        !availableDependencyOptions(dependencyCandidates, selectedIssue).some((issue) => issue.id === dependencyInput)
-      ) {
-        dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
-      }
-    }
-  }
-
-  function syncSelectedIssueFromCandidates() {
-    if (!selectedIssue) {
-      return
-    }
-    const updated = dependencyCandidates.find((issue) => issue.id === selectedIssue?.id)
-    if (updated) {
-      selectedIssue = updated
-    }
-    if (
-      dependencyInput === '' ||
-      !availableDependencyOptions(dependencyCandidates, selectedIssue).some((issue) => issue.id === dependencyInput)
-    ) {
-      dependencyInput = defaultDependencyInput(selectedIssue, dependencyCandidates)
-    }
-  }
-
-  function issueLabel(id: string): string {
-    const issue = dependencyCandidates.find((item) => item.id === id) ?? issues.find((item) => item.id === id)
-    return issue ? `${issue.title} (${issue.id})` : id
   }
 
   function errorMessage(err: unknown): string {
     if (err instanceof ApiError) {
-      return err.fields?.map((field) => `${field.field}: ${field.message}`).join(', ') || err.message
+      return err.message
     }
     return err instanceof Error ? err.message : 'Request failed.'
   }
 </script>
 
-<section class="issues-layout" aria-label="Issues workspace">
-  <div class="workspace issues-list">
-    <div class="toolbar">
-      <label>
-        <span>Filter</span>
-        <input bind:value={search} type="search" placeholder="Title, label, or id" />
-      </label>
-      <select
-        aria-label="State"
-        value={stateFilter}
-        onchange={(event) => setStateFilter(event.currentTarget.value as 'all' | IssueState)}
-      >
-        <option value="all">All states</option>
-        <option value="open">Open</option>
-        <option value="in_progress">In progress</option>
-        <option value="blocked">Blocked</option>
-        <option value="closed">Closed</option>
-        <option value="done">Done</option>
-      </select>
-      <button type="button" onclick={startCreate}>New issue</button>
+<section class="workspace issues-workspace" aria-label="Issues workspace">
+  <div class="toolbar">
+    <label>
+      Type
+      <input type="text" bind:value={filterType} placeholder="bug, feature..." />
+    </label>
+    <label>
+      Label
+      <input type="text" bind:value={filterLabel} placeholder="ui, backend..." />
+    </label>
+    <label>
+      Search
+      <input type="text" bind:value={filterQuery} placeholder="Search title and body" />
+    </label>
+    <label class="checkbox-field">
+      <input type="checkbox" bind:checked={showClosed} />
+      Show closed
+    </label>
+    <div class="view-toggle" role="group" aria-label="Board or list view">
+      <button type="button" class:active={view === 'board'} onclick={() => (view = 'board')}>Board</button>
+      <button type="button" class:active={view === 'list'} onclick={() => (view = 'list')}>List</button>
     </div>
+    {#if project !== ALL_PROJECTS}
+      <button type="button" class="secondary" onclick={() => (showNewForm = !showNewForm)}>
+        {showNewForm ? 'Cancel' : 'New issue'}
+      </button>
+    {/if}
+  </div>
 
-    {#if listLoading}
-      <LoadingState message="Loading issues" />
-    {:else if error !== '' && issues.length === 0}
-      <ErrorState title="Could not load issues" message={error} />
-    {:else if visibleIssues.length === 0}
-      <EmptyState title="No issues found" message="Create an issue or adjust the current filters." />
+  {#if project === ALL_PROJECTS}
+    <p class="form-error" role="note">Select a single project to create an issue.</p>
+  {/if}
+
+  {#if showNewForm}
+    <form class="issue-form" onsubmit={submitNewIssue}>
+      <h2>New issue</h2>
+      {#if formError !== ''}
+        <p class="form-error" role="alert">{formError}</p>
+      {/if}
+      <label>
+        Title
+        <input type="text" bind:value={form.title} required maxlength="300" />
+      </label>
+      <label>
+        Description
+        <textarea bind:value={form.description} maxlength="20000"></textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          Priority
+          <input type="number" min="0" max="4" bind:value={form.priority} />
+        </label>
+        <label>
+          Type
+          <input type="text" bind:value={form.type} />
+        </label>
+        <label>
+          Assignee
+          <input type="text" bind:value={form.assignee} />
+        </label>
+        <label>
+          Parent id
+          <input type="text" bind:value={form.parent} />
+        </label>
+        <label>
+          Labels (comma separated)
+          <input type="text" bind:value={form.labels} />
+        </label>
+        <label>
+          Blocked by (comma separated ids)
+          <input type="text" bind:value={form.blocked_by} />
+        </label>
+        <label>
+          URL
+          <input type="text" bind:value={form.url} />
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" disabled={creating}>{creating ? 'Creating…' : 'Create issue'}</button>
+      </div>
+    </form>
+  {/if}
+
+  {#if loading && issues.length === 0}
+    <LoadingState message="Loading issues" />
+  {:else if error !== '' && issues.length === 0}
+    <ErrorState title="Could not load issues" message={error} />
+  {:else if visibleIssues.length === 0}
+    <EmptyState
+      title="No issues found"
+      message={issues.length > 0
+        ? 'All matching issues are closed. Turn on "Show closed" to see them.'
+        : 'Adjust the filters or create the first issue.'}
+    />
+  {:else}
+    {#if error !== ''}
+      <p class="form-error" role="alert">{error}</p>
+    {/if}
+    {#if view === 'board'}
+      <div class="board" aria-label="Issues board">
+        {#each grouped as [status, items] (status)}
+          <div class="board-column">
+            <div class="board-column-header">
+              <strong>{status}</strong>
+              <span>{items.length}</span>
+            </div>
+            <div class="board-cards">
+              {#each items as issue (issue.id)}
+                <button type="button" class="board-card" onclick={() => navigate(`/issues/${encodeURIComponent(issue.id)}`)}>
+                  <strong>{issue.title}</strong>
+                  <span class="board-card-meta">
+                    <span>{issue.id}</span>
+                    <span class="priority-pill">P{issue.priority}</span>
+                    {#if project === ALL_PROJECTS}
+                      <span class="project-pill">{issue.project}</span>
+                    {/if}
+                  </span>
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/each}
+      </div>
     {:else}
-      <div class="issue-table" role="list" aria-label="Issues">
-        {#each visibleIssues as issue}
-          <button
-            type="button"
-            class:active={route.id === issue.id}
-            class="issue-row"
-            onclick={() => navigate(`/issues/${issue.id}`)}
-          >
+      <div class="issue-table" aria-label="Issues list">
+        {#each visibleIssues as issue (issue.id)}
+          <button type="button" class="issue-row" onclick={() => navigate(`/issues/${encodeURIComponent(issue.id)}`)}>
             <span>
               <strong>{issue.title}</strong>
-              <small>{issue.id}</small>
+              <small>{issue.id}{project === ALL_PROJECTS ? ` · ${issue.project}` : ''}</small>
             </span>
-            <span>{issue.state}</span>
-            <span>P{issue.priority}</span>
+            <span class="status-pill">{issue.status}</span>
+            <span class="priority-pill">P{issue.priority}</span>
+            <span class="type-pill">{issue.type}</span>
           </button>
         {/each}
       </div>
     {/if}
-  </div>
-
-  <div class="workspace issue-panel">
-    {#if route.mode === 'create' || route.mode === 'edit'}
-      <form class="issue-form" onsubmit={submitIssue}>
-        <div>
-          <h2>{route.mode === 'edit' ? 'Edit issue' : 'Create issue'}</h2>
-          <p>{route.mode === 'edit' ? route.id : 'Add work to the current project.'}</p>
-        </div>
-
-        {#if formError !== ''}
-          <p class="form-error">{formError}</p>
-        {/if}
-
-        <label>
-          <span>Title</span>
-          <input bind:value={form.title} required maxlength="300" />
-        </label>
-
-        <label>
-          <span>Description</span>
-          <textarea bind:value={form.description} maxlength="20000"></textarea>
-        </label>
-
-        <div class="form-grid">
-          <label>
-            <span>Priority</span>
-            <input bind:value={form.priority} type="number" min="0" max="4" />
-          </label>
-
-          {#if route.mode === 'create'}
-            <label>
-              <span>Type</span>
-              <select bind:value={form.issue_type}>
-                <option value="bug">Bug</option>
-                <option value="feature">Feature</option>
-                <option value="task">Task</option>
-                <option value="epic">Epic</option>
-                <option value="chore">Chore</option>
-              </select>
-            </label>
-          {:else}
-            <label>
-              <span>Type</span>
-              <input value={form.issue_type} disabled />
-            </label>
-          {/if}
-        </div>
-
-        <label>
-          <span>Labels</span>
-          <input bind:value={form.labels} placeholder="ui, api" />
-        </label>
-
-        <label>
-          <span>Branch</span>
-          <input bind:value={form.branch_name} maxlength="255" />
-        </label>
-
-        <label>
-          <span>URL</span>
-          <input bind:value={form.url} type="url" maxlength="2048" />
-        </label>
-
-        <div class="actions">
-          <button disabled={saving} type="submit">{saving ? 'Saving' : 'Save issue'}</button>
-          <button type="button" class="secondary" onclick={() => navigate(route.id ? `/issues/${route.id}` : '/')}>
-            Cancel
-          </button>
-        </div>
-      </form>
-    {:else if detailLoading}
-      <LoadingState message="Loading issue" />
-    {:else if route.mode === 'detail' && selectedIssue}
-      <article class="issue-detail">
-        {#if error !== ''}
-          <p class="form-error">{error}</p>
-        {/if}
-        <div>
-          <h2>{selectedIssue.title}</h2>
-          <p>{selectedIssue.id} · {selectedIssue.issue_type} · P{selectedIssue.priority}</p>
-        </div>
-        <p class="status-pill">{selectedIssue.state}</p>
-        <p>{selectedIssue.description || 'No description.'}</p>
-        <div class="label-row">
-          {#each selectedIssue.labels as label}
-            <span>{label}</span>
-          {/each}
-        </div>
-        <dl>
-          <div><dt>Created</dt><dd>{new Date(selectedIssue.created_at).toLocaleString()}</dd></div>
-          <div><dt>Updated</dt><dd>{new Date(selectedIssue.updated_at).toLocaleString()}</dd></div>
-        </dl>
-        <section class="dependency-editor" aria-label="Dependencies">
-          <div>
-            <h3>Blocked by</h3>
-            <p>Issues that must close before this work is ready.</p>
-          </div>
-
-          {#if dependencyError !== ''}
-            <p class="form-error" role="alert">{dependencyError}</p>
-          {/if}
-
-          {#if selectedIssue.blocked_by.length === 0}
-            <p class="muted">No blockers.</p>
-          {:else}
-            <ul class="dependency-list" aria-label="Current blockers">
-              {#each selectedIssue.blocked_by as blockedById}
-                <li>
-                  <span>{issueLabel(blockedById)}</span>
-                  <button
-                    type="button"
-                    class="secondary"
-                    disabled={dependencySaving}
-                    aria-label={`Remove blocker ${issueLabel(blockedById)}`}
-                    onclick={() => removeDependency(blockedById)}
-                  >
-                    Remove
-                  </button>
-                </li>
-              {/each}
-            </ul>
-          {/if}
-
-          <form class="dependency-form" onsubmit={addDependency}>
-            <label>
-              <span>Add blocker</span>
-              <select bind:value={dependencyInput} disabled={dependencyOptions.length === 0 || dependencySaving}>
-                {#if dependencyOptions.length === 0}
-                  <option value="">No available issues</option>
-                {:else}
-                  {#each dependencyOptions as issue}
-                    <option value={issue.id}>{issue.title} ({issue.id})</option>
-                  {/each}
-                {/if}
-              </select>
-            </label>
-            <button type="submit" disabled={dependencyOptions.length === 0 || dependencySaving}>
-              {dependencySaving ? 'Updating' : 'Add blocker'}
-            </button>
-          </form>
-        </section>
-        <div class="actions">
-          <button type="button" onclick={() => startEdit(selectedIssue!)}>Edit</button>
-          <button type="button" class="secondary" onclick={() => closeIssue(selectedIssue!)}>Close</button>
-          <button type="button" class="danger" onclick={() => deleteIssue(selectedIssue!)}>Delete</button>
-        </div>
-      </article>
-    {:else if error !== ''}
-      <ErrorState title="Could not load issue" message={error} />
-    {:else}
-      <EmptyState title="Select an issue" message="Choose an issue from the list or create a new one." />
-    {/if}
-  </div>
+  {/if}
 </section>

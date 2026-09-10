@@ -1,62 +1,53 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-
-  import { ApiError, api, type Issue } from '../../lib/api'
+  import { ALL_PROJECTS, ApiError, api, type Issue } from '../../lib/api'
   import EmptyState from '../../lib/components/EmptyState.svelte'
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
 
   interface Props {
+    project: string
     navigate: (path: string) => void
+    reloadKey: number
   }
 
-  let { navigate }: Props = $props()
+  let { project, navigate, reloadKey }: Props = $props()
 
   let issues = $state<Issue[]>([])
   let loading = $state(false)
   let error = $state('')
   let refreshedAt = $state<Date | null>(null)
 
-  onMount(() => {
-    void loadReadyQueue()
+  $effect(() => {
+    project
+    reloadKey
+    let cancelled = false
+    load(() => cancelled)
+    return () => {
+      cancelled = true
+    }
   })
 
-  async function loadReadyQueue() {
+  async function load(isCancelled: () => boolean = () => false) {
     loading = true
     error = ''
     try {
-      const response = await api.ready()
-      issues = response.issues
+      const result = await api.ready(project)
+      if (isCancelled()) return
+      issues = result
       refreshedAt = new Date()
     } catch (err) {
+      if (isCancelled()) return
       error = errorMessage(err)
     } finally {
-      loading = false
+      if (!isCancelled()) loading = false
     }
   }
 
   function errorMessage(err: unknown): string {
     if (err instanceof ApiError) {
-      return err.fields?.map((field) => `${field.field}: ${field.message}`).join(', ') || err.message
+      return err.message
     }
     return err instanceof Error ? err.message : 'Request failed.'
-  }
-
-  function ageLabel(issue: Issue): string {
-    const updatedAt = new Date(issue.updated_at).getTime()
-    const elapsed = Math.max(0, Date.now() - updatedAt)
-    const minutes = Math.floor(elapsed / 60000)
-    if (minutes < 1) {
-      return 'Updated just now'
-    }
-    if (minutes < 60) {
-      return `Updated ${minutes}m ago`
-    }
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) {
-      return `Updated ${hours}h ago`
-    }
-    return `Updated ${Math.floor(hours / 24)}d ago`
   }
 </script>
 
@@ -69,7 +60,7 @@
         <small>Refreshed {refreshedAt.toLocaleTimeString()}</small>
       {/if}
     </div>
-    <button type="button" class="secondary" disabled={loading} onclick={loadReadyQueue}>
+    <button type="button" class="secondary" disabled={loading} onclick={() => load()}>
       {loading ? 'Refreshing' : 'Refresh'}
     </button>
   </div>
@@ -85,15 +76,15 @@
       <p class="form-error" role="alert">{error}</p>
     {/if}
     <ul class="ready-list" aria-label="Ready issues">
-      {#each issues as issue, index}
+      {#each issues as issue, index (issue.id)}
         <li>
-          <button type="button" class="ready-row" onclick={() => navigate(`/issues/${issue.id}`)}>
+          <button type="button" class="ready-row" onclick={() => navigate(`/issues/${encodeURIComponent(issue.id)}`)}>
             <span class="queue-rank">{index + 1}</span>
             <span class="ready-copy">
               <strong>{issue.title}</strong>
-              <small>{issue.id} · {issue.issue_type} · {ageLabel(issue)}</small>
+              <small>{issue.id} · {issue.type}{project === ALL_PROJECTS ? ` · ${issue.project}` : ''}</small>
             </span>
-            <span class="status-pill">{issue.state}</span>
+            <span class="status-pill">{issue.status}</span>
             <span class="priority-pill">P{issue.priority}</span>
           </button>
         </li>
