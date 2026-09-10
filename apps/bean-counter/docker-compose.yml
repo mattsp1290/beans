@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bean_counter}
+      POSTGRES_USER: ${POSTGRES_USER:-bean_counter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bean_counter}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - bean-counter-dev-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mysql:
+    image: mysql:9.5
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bean_counter}
+      MYSQL_USER: ${MYSQL_USER:-bean_counter}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bean_counter}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-bean_counter_root}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - bean-counter-dev-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u\"$${MYSQL_USER}\" -p\"$${MYSQL_PASSWORD}\" --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  bean-counter-dev-postgres:
+  bean-counter-dev-mysql:

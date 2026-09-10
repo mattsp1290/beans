@@ -1,0 +1,12 @@
+Dockerfile
+.dockerignore
+README.md
+.env
+.env.*
+.npmrc
+.yarnrc*
+dist
+node_modules
+npm-debug.log*
+.vite
+.DS_Store
