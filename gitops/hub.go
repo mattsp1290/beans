@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gofrs/flock"
@@ -56,6 +57,10 @@ type Hub struct {
 	Actor    string    // commit author name
 	Stderr   io.Writer // notices; defaults to os.Stderr
 	NoSync   bool      // skip fetch/rebase before and push after a mutation
+
+	identOnce  sync.Once
+	identName  string
+	identEmail string
 }
 
 // Operation is one mutation of the hub. Apply must be idempotent and must
@@ -115,8 +120,39 @@ func (h *Hub) stderr() io.Writer {
 	return h.Stderr
 }
 
+// git runs a git command in the hub with the actor's identity configured,
+// because rebases and commits need a committer and a fresh machine (or a CI
+// runner) may have no global user.name/user.email.
 func (h *Hub) git(ctx context.Context, args ...string) (string, error) {
-	return h.runner().Run(ctx, h.Dir, args...)
+	name, email := h.identity(ctx)
+	full := append([]string{"-c", "user.name=" + name, "-c", "user.email=" + email}, args...)
+	return h.runner().Run(ctx, h.Dir, full...)
+}
+
+// identity returns the commit identity: the sanitized actor as the name and
+// the hub clone's user.email when set, else <actor>@bn.local.
+func (h *Hub) identity(ctx context.Context) (name, email string) {
+	h.identOnce.Do(func() {
+		n := strings.Map(func(r rune) rune {
+			if r == '<' || r == '>' || r == '\n' || r == '\r' {
+				return -1
+			}
+			return r
+		}, h.Actor)
+		n = strings.TrimSpace(n)
+		if n == "" {
+			n = "bn"
+		}
+		e := ""
+		if out, err := h.runner().Run(ctx, h.Dir, "config", "--get", "user.email"); err == nil {
+			e = strings.TrimSpace(out)
+		}
+		if e == "" {
+			e = strings.ReplaceAll(n, " ", "-") + "@bn.local"
+		}
+		h.identName, h.identEmail = n, e
+	})
+	return h.identName, h.identEmail
 }
 
 func (h *Hub) cachePath(name string) string { return filepath.Join(h.CacheDir, name) }
@@ -619,24 +655,8 @@ func (h *Hub) applyAndCommit(ctx context.Context, op Operation, subject, nonce s
 }
 
 func (h *Hub) commit(ctx context.Context, msg string, trailers ...string) error {
-	name := strings.Map(func(r rune) rune {
-		if r == '<' || r == '>' || r == '\n' || r == '\r' {
-			return -1
-		}
-		return r
-	}, h.Actor)
-	name = strings.TrimSpace(name)
-	if name == "" {
-		name = "bn"
-	}
-	email := ""
-	if out, err := h.git(ctx, "config", "--get", "user.email"); err == nil {
-		email = strings.TrimSpace(out)
-	}
-	if email == "" {
-		email = strings.ReplaceAll(name, " ", "-") + "@bn.local"
-	}
-	args := []string{"-c", "user.name=" + name, "-c", "user.email=" + email, "commit", "--quiet", "-m", msg}
+	name, email := h.identity(ctx)
+	args := []string{"commit", "--quiet", "-m", msg}
 	for _, t := range trailers {
 		args = append(args, "-m", t)
 	}

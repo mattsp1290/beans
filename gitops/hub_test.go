@@ -450,8 +450,8 @@ func TestLockTimeoutExits4(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer unlock()
-	// Use a second Hub value on the same cache dir with a short deadline.
-	b := *a.Hub
+	// Use a second Hub on the same cache dir with a short deadline.
+	b := &Hub{Dir: a.Dir, CacheDir: a.CacheDir, Branch: a.Branch, Runner: a.Runner, Actor: "b", Stderr: a.Stderr}
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 	defer cancel()
 	_, err = b.Mutate(ctx, setOp("create", "p-1", "projects/p/issues/p-1.md", "one\n"))
