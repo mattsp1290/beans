@@ -506,8 +506,12 @@ require_repo_root() {
   toplevel="$(cd "$toplevel" && pwd -P)"
   [ "$toplevel" = "$here" ] \
     || fatal "run this from the repository root ($toplevel), not $here"
-  [ -f apps/bean-counter/go.mod ] && [ -d libs/beans ] \
-    || fatal "$here does not look like the beans monorepo (expected apps/bean-counter/go.mod and libs/beans/)"
+  # An explicit if, not `A && B || C`: that shape reads as if-then-else but runs
+  # C whenever the conjunction is false, and shellcheck flags it (SC2015). The
+  # behaviour was already what we wanted; the form was not worth defending.
+  if [ ! -f apps/bean-counter/go.mod ] || [ ! -d libs/beans ]; then
+    fatal "$here does not look like the beans monorepo (expected apps/bean-counter/go.mod and libs/beans/)"
+  fi
 
   REPO_ROOT_PHYS="$toplevel"
 
