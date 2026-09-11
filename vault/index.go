@@ -694,7 +694,7 @@ func (ix *Index) reloadAll() error {
 		return err
 	}
 	ix.HubConfig, ix.Workflow, ix.Projects = fresh.HubConfig, fresh.Workflow, fresh.Projects
-	ix.Issues, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
+	ix.Issues, ix.Plans, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Plans, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
 	ix.Assets, ix.Warnings = fresh.Assets, fresh.Warnings
 	ix.order, ix.parseWarnings, ix.linkWarnings, ix.dupWarnings, ix.hubTOML = fresh.order, fresh.parseWarnings, fresh.linkWarnings, fresh.dupWarnings, fresh.hubTOML
 	return nil
@@ -717,6 +717,10 @@ func (ix *Index) toRelPath(p string) (string, error) {
 }
 
 func (ix *Index) reloadOne(rel string) {
+	if project, root, ok := planRoot(rel); ok {
+		ix.reloadPlan(project, root)
+		return
+	}
 	ix.removeNoteByPath(rel)
 	delete(ix.parseWarnings, rel)
 	delete(ix.Assets, rel)
@@ -740,6 +744,37 @@ func (ix *Index) reloadOne(rel string) {
 		return
 	}
 	ix.indexFile(kind, project, rel, data)
+}
+
+// planRoot maps a manifest or section event to its aggregate bundle root.
+func planRoot(rel string) (project, root string, ok bool) {
+	parts := strings.Split(rel, "/")
+	if len(parts) >= 5 && parts[0] == "projects" && parts[2] == "plans" {
+		return parts[1], strings.Join(parts[:4], "/"), true
+	}
+	return "", "", false
+}
+
+// reloadPlan preserves a last known valid aggregate while an editor is in
+// the middle of a multi-file update. A missing root is a real deletion.
+func (ix *Index) reloadPlan(project, root string) {
+	manifest := root + "/plan.md"
+	abs := filepath.Join(ix.HubDir, filepath.FromSlash(root))
+	if _, err := os.Stat(abs); os.IsNotExist(err) {
+		ix.removeNoteByPath(manifest)
+		delete(ix.parseWarnings, manifest)
+		return
+	}
+	b, err := plan.Load(abs)
+	if err != nil {
+		ix.addParseWarning(manifest, err)
+		return
+	}
+	ix.removeNoteByPath(manifest)
+	delete(ix.parseWarnings, manifest)
+	// loadPlan performs the same identity and link extraction as initial load.
+	_ = b
+	ix.loadPlan(ix.HubDir, project, root)
 }
 
 // removeNoteByPath drops the note (if any) previously indexed from rel.
