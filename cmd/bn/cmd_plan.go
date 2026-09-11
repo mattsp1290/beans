@@ -90,6 +90,9 @@ func newPlanCmd(rs *appState) *cobra.Command {
 				}
 			}
 		}
+		if !refreshed {
+			fmt.Fprintf(rs.stderr, "bn: warning: published %s but local source changed; retrieve or merge before the next plan put\n", res.ID)
+		}
 		if rs.jsonOut {
 			return writeJSON(map[string]any{"id": res.ID, "path": res.Path, "status": res.Status, "updated": res.Updated, "local_revision_refreshed": refreshed, "commit": result.SHA, "pushed": result.Pushed})
 		}
