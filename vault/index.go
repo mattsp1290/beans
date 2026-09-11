@@ -304,6 +304,10 @@ func planManifestPath(rel string) (string, bool) {
 }
 
 func (ix *Index) loadPlan(root, project, rel string) {
+	if err := gitops.RecoverPlanTemp(filepath.Join(root, filepath.FromSlash(rel), "plan.md")); err != nil {
+		ix.addParseWarning(rel, err)
+		return
+	}
 	b, err := plan.Load(filepath.Join(root, filepath.FromSlash(rel)))
 	if err != nil {
 		ix.addParseWarning(rel, err)

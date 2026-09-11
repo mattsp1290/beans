@@ -67,7 +67,14 @@ export interface PlanEdge { from: string; to: string; kind: string; label?: stri
 export interface PlanGraph { version: number; nodes: PlanNode[]; edges: PlanEdge[] }
 export interface PlanSummary { status: PlanStatus; outcome_html: string; affected_areas_html: string; execution_order_html: string; risks_html: string; graph: PlanGraph }
 export interface PlanListItem { id:string; title:string; status:PlanStatus; project:string; path:string; created:string; updated:string; section_count:number }
-export interface PlanDetail extends PlanListItem { summary: PlanSummary; sections: {path:string; html:string}[]; backlinks: Backlink[] }
+export type PlanBindingKind = 'unlinked' | 'reference' | 'issue' | 'missing_issue'
+export type PlanWorkState = '' | 'runnable' | 'in_progress' | 'held' | 'blocked' | 'done' | 'missing'
+export interface PlanExecutionIssue { id:string; title:string; status:string; priority:number; project:string; archived:boolean }
+export interface PlanExecutionBlocker { target:string; id:string; title:string; status:string; project:string; missing:boolean }
+export interface PlanExecutionNode { node_id:string; label:string; kind:string; ref:string; binding:PlanBindingKind; work_state:PlanWorkState; hold_reason:string; issue?:PlanExecutionIssue; blockers:PlanExecutionBlocker[] }
+export interface PlanExecutionCounts { unlinked:number; reference:number; issue:number; missing_issue:number; missing:number; runnable:number; in_progress:number; held:number; blocked:number; done:number; distinct_issues:number }
+export interface PlanExecution { plan_id:string; title:string; project:string; lifecycle_status:string; execution_state:string; lifecycle_mismatch:boolean; counts:PlanExecutionCounts; nodes:PlanExecutionNode[] }
+export interface PlanDetail extends PlanListItem { summary: PlanSummary; sections: {path:string; html:string}[]; backlinks: Backlink[]; execution: PlanExecution }
 
 /**
  * A reference to this note from elsewhere in the hub. `from` is the issue id

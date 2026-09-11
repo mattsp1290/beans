@@ -71,6 +71,9 @@ type Operation struct {
 	ID      string // issue id or other subject; may be empty
 	Summary string // one line for the commit message
 	Apply   func(hubDir string) (changedPaths []string, err error)
+	// RequireFreshBase rejects offline publication. It is for replacement
+	// operations whose snapshot cannot safely be replayed later.
+	RequireFreshBase bool
 }
 
 // Result reports what Mutate did.
@@ -428,7 +431,14 @@ func (h *Hub) Mutate(ctx context.Context, op Operation) (Result, error) {
 	if err := h.commitStrays(ctx); err != nil {
 		return Result{}, err
 	}
-	if !h.NoSync {
+	if op.RequireFreshBase {
+		if h.NoSync {
+			return Result{}, &ExitError{Code: ExitGit, Msg: "operation requires a fresh remote base; --no-sync is not allowed"}
+		}
+		if err := h.requireFreshBase(ctx); err != nil {
+			return Result{}, err
+		}
+	} else if !h.NoSync {
 		if err := h.fetchAndRebase(ctx); err != nil {
 			return Result{}, err
 		}
@@ -517,6 +527,19 @@ func (h *Hub) Mutate(ctx context.Context, op Operation) (Result, error) {
 		h.clearJournal()
 		return res, errConflict
 	}
+}
+
+func (h *Hub) requireFreshBase(ctx context.Context) error {
+	h.writeTime(lastAttemptFile, h.now())
+	if _, err := h.git(ctx, "fetch", "--quiet", "origin"); err != nil {
+		return &ExitError{Code: ExitGit, Msg: "operation requires a fresh remote base; fetch failed: " + firstLine(err.Error())}
+	}
+	if _, err := h.git(ctx, "rebase", "--quiet", "origin/"+h.Branch); err != nil {
+		_, _ = h.git(ctx, "rebase", "--abort")
+		return errConflict
+	}
+	h.writeTime(lastFetchFile, h.now())
+	return nil
 }
 
 // opSubject is the commit subject of an operation.
@@ -665,7 +688,8 @@ func (h *Hub) commit(ctx context.Context, msg string, trailers ...string) error 
 	return err
 }
 
-// removeTempFiles deletes *.tmp everywhere in the hub except under .git.
+// removeTempFiles deletes only named temporary files created by Beans. User
+// files ending in .tmp are ordinary hub content and must survive.
 func (h *Hub) removeTempFiles() error {
 	return filepath.WalkDir(h.Dir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -677,7 +701,7 @@ func (h *Hub) removeTempFiles() error {
 			}
 			return nil
 		}
-		if strings.HasSuffix(d.Name(), ".tmp") {
+		if strings.HasPrefix(d.Name(), ".bn-write-") || strings.HasPrefix(d.Name(), ".bn-plan-") || d.Name() == "plan.md.tmp" {
 			return os.Remove(p)
 		}
 		return nil
@@ -755,11 +779,57 @@ func WriteFile(path string, data []byte) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".bn-write-")
+	if err != nil {
 		return err
 	}
-	return os.Rename(tmp, path)
+	name := tmp.Name()
+	defer os.Remove(name)
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(name, path)
+}
+
+// WritePlanFile atomically replaces a manifest without staging an artifact
+// inside the strict plan bundle. The temporary is in the bundle parent.
+func WritePlanFile(path string, data []byte) error {
+	parent := filepath.Dir(filepath.Dir(path))
+	if err := os.MkdirAll(parent, 0o755); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(parent, ".bn-plan-")
+	if err != nil {
+		return err
+	}
+	name := tmp.Name()
+	defer os.Remove(name)
+	if _, err = tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err = tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err = tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(name, path)
+}
+
+// RecoverPlanTemp removes only the legacy temporary filename previously
+// emitted by WriteFile for a plan manifest.
+func RecoverPlanTemp(path string) error {
+	err := os.Remove(path + ".tmp")
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	return err
 }
 
 func short(sha string) string {

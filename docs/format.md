@@ -253,6 +253,18 @@ only exposes plan browsing and graph inspection; it never mutates plans.
 
 ## Configuration
 
+## Plan execution bindings
+
+A change-graph node's optional `ref` remains generic metadata. When it resolves
+to a Beans issue, it is also that node's canonical execution binding. Use
+`bn plan link PLAN NODE ISSUE` and `bn plan unlink PLAN NODE ISSUE`; complete
+plans are immutable. Empty refs are unlinked, unresolved issue-shaped refs are
+reported as missing, and other refs remain generic references. Link mutations
+may canonicalize graph-fence YAML but preserve its semantics, surrounding
+prose, and section files. Plan lifecycle is authored separately from derived
+execution. `plan put` requires a freshly fetched base and rejects stale local
+revisions; retrieve with `bn plan get`, merge, and publish again.
+
 See `docs/beans.toml.example` for the hub `beans.toml`, the project
 `beans.toml`, and the per-user `~/.beans/config.toml`. Workflow precedence:
 `BN_CONFIG` (explicit; missing file is an error) > project `[workflow]` >

@@ -398,15 +398,19 @@ func TestInterruptedRebaseExits3UntilAborted(t *testing.T) {
 	}
 }
 
-func TestOrphanedTmpFilesAreDeletedNotCommitted(t *testing.T) {
+func TestOwnedTempsAreDeletedAndUserTempsSurvive(t *testing.T) {
 	t.Parallel()
 	remote := newRemote(t)
 	a := newClone(t, remote, "a")
-	tmp := filepath.Join(a.Dir, "projects/p/issues/x.md.tmp")
+	tmp := filepath.Join(a.Dir, "projects/p/issues/.bn-write-orphan")
+	userTmp := filepath.Join(a.Dir, "projects/p/issues/user.tmp")
 	if err := os.MkdirAll(filepath.Dir(tmp), 0o755); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(tmp, []byte("half"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(userTmp, []byte("keep"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := a.Mutate(context.Background(), setOp("create", "p-1", "projects/p/issues/p-1.md", "one\n")); err != nil {
@@ -415,9 +419,12 @@ func TestOrphanedTmpFilesAreDeletedNotCommitted(t *testing.T) {
 	if _, err := os.Stat(tmp); !errors.Is(err, os.ErrNotExist) {
 		t.Error("tmp file should be deleted")
 	}
+	if _, err := os.Stat(userTmp); err != nil {
+		t.Errorf("user temp was removed: %v", err)
+	}
 	files := runGit(t, remote, "ls-tree", "-r", "--name-only", "main")
-	if strings.Contains(files, ".tmp") {
-		t.Errorf("tmp path committed:\n%s", files)
+	if strings.Contains(files, ".bn-write-") {
+		t.Errorf("owned temp path committed:\n%s", files)
 	}
 }
 

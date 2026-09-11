@@ -210,3 +210,48 @@ func oneOf(s string, xs ...string) bool {
 	}
 	return false
 }
+
+// SetNodeRef changes one graph node reference and rewrites only the graph
+// fence in the plan body.  The fence is deliberately canonicalized: graph
+// comments and YAML presentation are not part of a plan's semantic model.
+func SetNodeRef(p *Plan, nodeID, ref string) error {
+	if p == nil {
+		return fmt.Errorf("nil plan")
+	}
+	found := false
+	for i := range p.Graph.Nodes {
+		if p.Graph.Nodes[i].ID == nodeID {
+			p.Graph.Nodes[i].Ref = ref
+			found = true
+			break
+		}
+	}
+	if !found {
+		return fmt.Errorf("graph node %q not found", nodeID)
+	}
+	data, err := yaml.Marshal(struct {
+		Version int         `yaml:"version"`
+		Nodes   []GraphNode `yaml:"nodes"`
+		Edges   []GraphEdge `yaml:"edges"`
+	}{p.Graph.Version, p.Graph.Nodes, p.Graph.Edges})
+	if err != nil {
+		return err
+	}
+	start := strings.Index(p.Body, "```bn-change-graph\n")
+	if start < 0 {
+		return fmt.Errorf("%s: missing bn-change-graph fence", p.Path)
+	}
+	content := start + len("```bn-change-graph\n")
+	relEnd := strings.Index(p.Body[content:], "\n```")
+	if relEnd < 0 {
+		return fmt.Errorf("%s: unterminated bn-change-graph fence", p.Path)
+	}
+	end := content + relEnd
+	p.Body = p.Body[:content] + string(data) + p.Body[end:]
+	summary, graph, err := parseSummary(p.Path, p.Body)
+	if err != nil {
+		return err
+	}
+	p.Summary, p.Graph = summary, graph
+	return Validate(p)
+}

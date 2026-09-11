@@ -50,8 +50,17 @@
   <ErrorState title="Could not load plans" message={error} />
 {:else if detail}
   <article class="plan-detail">
-    <p class="muted">{detail.project} · <strong>{detail.summary.status}</strong></p>
+    <p class="muted">{detail.project} · lifecycle <strong>{detail.execution.lifecycle_status}</strong> · execution <strong>{detail.execution.execution_state}</strong></p>
     <h2>{detail.title}</h2>
+    {#if detail.execution.lifecycle_mismatch}<p role="alert">Execution and lifecycle differ. Change plan lifecycle explicitly after validating the artifact.</p>{/if}
+    <section aria-label="Execution counts"><h3>Execution</h3><p>Runnable {detail.execution.counts.runnable} · In progress {detail.execution.counts.in_progress} · Held {detail.execution.counts.held} · Blocked {detail.execution.counts.blocked} · Done {detail.execution.counts.done} · Missing {detail.execution.counts.missing}</p>
+      <ul>
+      {#each detail.execution.nodes as node}
+        <li><strong>{node.label}</strong>: {node.binding}{#if node.work_state} — {node.work_state}{/if}{#if node.issue} — <a href={'/issues/' + encodeURIComponent(node.issue.id)}>{node.issue.id}</a> ({node.issue.status}){/if}{#if node.hold_reason} — {node.hold_reason}{/if}{#if node.binding === 'reference'} — {node.ref}{/if}
+        {#if node.blockers.length}<ul aria-label={'Blockers for ' + node.label}>{#each node.blockers as blocker}<li>Blocked by {blocker.missing ? blocker.target + ' (missing issue)' : blocker.id + ' (' + blocker.status + ')'}</li>{/each}</ul>{/if}</li>
+      {/each}
+      </ul>
+    </section>
     <section><h3>Outcome</h3>{@html detail.summary.outcome_html}</section>
     <section><h3>Affected areas</h3>{@html detail.summary.affected_areas_html}</section>
     <section><h3>Execution order</h3>{@html detail.summary.execution_order_html}</section>

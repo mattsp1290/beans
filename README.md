@@ -76,6 +76,11 @@ create`, then `bn request link` to associate work. Their fixed lifecycle is
 managed from the CLI; `bn serve` offers read-only browsing, search, and issue
 relationship summaries.
 
+Plans can track execution without changing their authored lifecycle: publish a
+bundle, create its issues, run `bn plan link PLAN NODE ISSUE`, then `bn sync`
+and `bn plan status PLAN --json`. A stale `plan put` is rejected; retrieve and
+merge the latest bundle rather than overwriting newer bindings.
+
 ## Development
 
 ```bash

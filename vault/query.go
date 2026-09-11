@@ -60,12 +60,12 @@ func (ix *Index) Ready(project string, all bool) []*issue.Issue {
 
 func (ix *Index) hasBlocker(iss *issue.Issue) bool {
 	for _, b := range iss.BlockedBy {
-		note, ok := ix.Lookup(b.Target)
-		if !ok || note.Issue == nil {
+		_, blocker, ok := ix.ResolveIssueRef(b.Raw)
+		if !ok {
 			return true
 		}
-		bwf := ix.WorkflowFor(note.Issue.Project)
-		if !bwf.IsTerminal(note.Issue.Status) {
+		bwf := ix.WorkflowFor(blocker.Project)
+		if !bwf.IsTerminal(blocker.Status) {
 			return true
 		}
 	}
@@ -157,9 +157,9 @@ func (ix *Index) Parents(id string) []*issue.Issue {
 // Blockers resolves iss's blocked_by list against the index.
 func (ix *Index) Blockers(iss *issue.Issue) (resolved []*issue.Issue, unresolved []string) {
 	for _, b := range iss.BlockedBy {
-		note, ok := ix.Lookup(b.Target)
-		if ok && note.Issue != nil {
-			resolved = append(resolved, note.Issue)
+		_, blocker, ok := ix.ResolveIssueRef(b.Raw)
+		if ok {
+			resolved = append(resolved, blocker)
 		} else {
 			unresolved = append(unresolved, b.Target)
 		}
