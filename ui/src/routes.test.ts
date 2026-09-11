@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRoute, parseIssueId, parsePlanId, parseWikiPath } from './routes'
+import { getRoute, parseIssueId, parsePlanId, parseRequestId, parseWikiPath } from './routes'
 
 describe('routes', () => {
   it('redirects the root path to the issues board metadata', () => {
@@ -26,6 +26,11 @@ describe('routes', () => {
       title: 'Dependency Graph',
     })
   })
+
+	it('maps request list and detail paths to Requests', () => {
+		expect(getRoute('/requests/p-r-a3f2')).toMatchObject({ path: '/requests', title: 'Requests' })
+		expect(parseRequestId('/requests/p-r-a3f2')).toBe('p-r-a3f2')
+	})
 
   it('maps wiki index and wiki page paths to the wiki route metadata', () => {
     expect(getRoute('/wiki')).toMatchObject({ path: '/wiki', title: 'Wiki' })

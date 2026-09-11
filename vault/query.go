@@ -373,6 +373,8 @@ func (ix *Index) Search(q string, kinds []Kind) []Hit {
 			id = n.Issue.ID
 		} else if n.Kind == KindPlan && n.Plan != nil {
 			id = n.Plan.ID
+		} else if n.Kind == KindRequest && n.Request != nil {
+			id = n.Request.ID
 		}
 
 		score := 0
@@ -388,7 +390,7 @@ func (ix *Index) Search(q string, kinds []Kind) []Hit {
 					break
 				}
 			}
-			if score == 0 && strings.Contains(strings.ToLower(noteSearchBody(n)), ql) {
+			if score == 0 && strings.Contains(strings.ToLower(noteSearchBody(n)+"\n"+noteSearchExtra(n)), ql) {
 				score = 1
 			}
 		}
@@ -415,6 +417,13 @@ func (ix *Index) Search(q string, kinds []Kind) []Hit {
 	return hits
 }
 
+func noteSearchExtra(n *Note) string {
+	if n.Kind == KindRequest && n.Request != nil {
+		return n.Request.RequestedBy
+	}
+	return ""
+}
+
 func noteSearchBody(n *Note) string {
 	switch n.Kind {
 	case KindIssue:
@@ -424,6 +433,10 @@ func noteSearchBody(n *Note) string {
 	case KindMemory:
 		if n.Memory != nil {
 			return n.Memory.Body
+		}
+	case KindRequest:
+		if n.Request != nil {
+			return n.Request.Body
 		}
 	case KindDoc:
 		return n.docBody

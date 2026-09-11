@@ -66,6 +66,7 @@ func newEnv(t *testing.T) *env {
 	}
 	write("projects/p/issues/p-aaaa-first.md", "---\nid: p-aaaa\naliases: [p-aaaa]\ntitle: First\ntype: task\nstatus: open\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nSee [[guide]] and ![[img.png]].\n\n## Log\n- 2026-01-01T00:00:00Z t: created\n")
 	write("projects/p/issues/p-bbbb-second.md", "---\nid: p-bbbb\naliases: [p-bbbb]\ntitle: Second\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n  - \"[[p-aaaa-first]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n")
+	write("projects/p/requests/p-r-a3f2-first-request.md", "---\nid: p-r-a3f2\naliases: [p-r-a3f2]\ntitle: First request\nstatus: open\npriority: 2\nrequested_by: tester\nissues:\n  - \"[[p-aaaa]]\"\n  - \"[[missing-a1b2]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nRequest body with [[p-bbbb]].\n\n## Log\n- 2026-01-01T00:00:00Z t: created\n")
 	write("projects/p/docs/guide.md", "# Guide\n\nLinks to [[p-aaaa-first]] and [[missing-page]].\n\n## Section\n\ntext\n")
 	write("projects/p/docs/img.png", "PNG")
 	write("projects/p/plans/p-plan-a3f2-add/plan.md", "---\nid: p-plan-a3f2\naliases: [p-plan-a3f2]\ntitle: Add plan support\nslug: add\nstatus: draft\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nsections:\n  - sections/context.md\n---\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n")
@@ -238,6 +239,41 @@ func TestDocsGraphSearchAssetsAndSPA(t *testing.T) {
 	}
 	if code, _, _ := e.do("GET", "/api/health", nil); code != 200 {
 		t.Fatalf("health: %d", code)
+	}
+}
+
+func TestRequestReadAPIAndRelationships(t *testing.T) {
+	e := newEnv(t)
+	code, _, raw := e.do("GET", "/api/projects/p/requests", nil)
+	if code != 200 || !strings.Contains(string(raw), `"id":"p-r-a3f2"`) || !strings.Contains(string(raw), `"issue_count":2`) {
+		t.Fatalf("request list: %d %s", code, raw)
+	}
+	code, m, _ := e.do("GET", "/api/requests/p-r-a3f2", nil)
+	if code != 200 || len(m["issues"].([]any)) != 2 || !strings.Contains(m["html"].(string), `/issues/p-bbbb`) {
+		t.Fatalf("request detail: %d %v", code, m)
+	}
+	issues := m["issues"].([]any)
+	if !issues[1].(map[string]any)["missing"].(bool) {
+		t.Fatalf("missing issue was not retained: %v", issues)
+	}
+	code, m, _ = e.do("GET", "/api/issues/p-aaaa", nil)
+	if code != 200 || len(m["requests"].([]any)) != 1 || m["requests"].([]any)[0].(map[string]any)["id"] != "p-r-a3f2" {
+		t.Fatalf("issue requests: %d %v", code, m["requests"])
+	}
+	for _, backlink := range m["backlinks"].([]any) {
+		if backlink.(map[string]any)["kind"] == "request_issue" {
+			t.Fatalf("canonical request relationship duplicated as backlink: %v", m["backlinks"])
+		}
+	}
+	code, _, raw = e.do("GET", "/api/search?q=first%20request&kind=request", nil)
+	if code != 200 || !strings.Contains(string(raw), `"kind":"request"`) {
+		t.Fatalf("request search: %d %s", code, raw)
+	}
+	if code, _, _ = e.do("GET", "/api/docs/projects/p/requests/p-r-a3f2-first-request", nil); code != 404 {
+		t.Fatalf("request must not be a docs route: %d", code)
+	}
+	if code, _, _ = e.do("POST", "/api/requests/p-r-a3f2", map[string]any{}); code != 405 && code != 404 {
+		t.Fatalf("request mutation route must not exist: %d", code)
 	}
 }
 

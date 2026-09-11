@@ -63,11 +63,19 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 		if found && current.Plan.Created != b.Plan.Created {
 			return nil, fmt.Errorf("plan created timestamp is immutable")
 		}
+		removed := []string(nil)
+		if found {
+			for _, name := range current.Snapshot().Paths() {
+				if _, retained := desired.Files[name]; !retained {
+					removed = append(removed, filepath.ToSlash(filepath.Join(root, name)))
+				}
+			}
+		}
 		if err := gitops.ReplaceTree(filepath.Join(hubDir, filepath.FromSlash(root)), desired.Files); err != nil {
 			return nil, err
 		}
 		res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
-		return snapshotPaths(root, desired), nil
+		return append(removed, snapshotPaths(root, desired)...), nil
 	}}, res, nil
 }
 

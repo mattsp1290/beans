@@ -33,3 +33,23 @@ func LoadTemplate(typ, projectDir, hubDir string) string {
 	}
 	return DefaultTemplate(typ)
 }
+
+// DefaultRequestTemplate returns the built-in body template for a request.
+func DefaultRequestTemplate() string {
+	data, _ := templateFS.ReadFile("templates/request.md")
+	return string(data)
+}
+
+// LoadRequestTemplate returns the request body template from the target
+// project, then the hub, then the built-in default.
+func LoadRequestTemplate(projectDir, hubDir string) string {
+	for _, dir := range []string{projectDir, hubDir} {
+		if dir == "" {
+			continue
+		}
+		if data, err := os.ReadFile(filepath.Join(dir, "templates", "request.md")); err == nil {
+			return string(data)
+		}
+	}
+	return DefaultRequestTemplate()
+}

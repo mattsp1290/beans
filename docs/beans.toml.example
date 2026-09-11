@@ -28,6 +28,9 @@ names = ["task", "bug", "feature", "epic", "chore"]
 # Length of the random hash in generated ids (<prefix>-<hash>).
 length = 4
 
+# Request statuses are fixed in bn (`open`, `accepted`, `in_progress`,
+# `resolved`, and `declined`) and intentionally have no configuration table.
+
 # --- projects/<name>/beans.toml -------------------------------------------
 #
 # name    = "exampleA"

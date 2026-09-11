@@ -316,6 +316,26 @@
       <div class="rendered" onclick={(event) => handleRenderedContentClick(event, navigate)}>{@html issue.html}</div>
     </div>
 
+    <div class="detail-section">
+      <h3>Requests</h3>
+      {#if !issue.requests || issue.requests.length === 0}
+        <p class="muted">No requests link to this issue.</p>
+      {:else}
+        <ul class="dependency-list">
+          {#each issue.requests as request (request.id)}
+            <li>
+              <span>
+                <a href={`/requests/${encodeURIComponent(request.id)}`} onclick={goTo(`/requests/${encodeURIComponent(request.id)}`)}>{request.title}</a>
+                <span class="project-pill">{request.project}</span>
+                <span class="status-pill">{request.status}</span>
+                <span>P{request.priority}</span>
+              </span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+
     <div class="dependency-editor">
       <h3>Blockers</h3>
       {#if !issue.blockers || issue.blockers.length === 0}

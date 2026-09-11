@@ -76,6 +76,13 @@ func TestLoadRetainsOrderedSectionBodies(t *testing.T) {
 	}
 }
 
+func TestParseSummaryIgnoresHeadingsInFences(t *testing.T) {
+	body := "## Summary\n\n### Outcome\n```text\n## not a section\n```\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n\n## Next\n"
+	if _, _, err := parseSummary("plan.md", body); err != nil {
+		t.Fatalf("parseSummary: %v", err)
+	}
+}
+
 func TestLoadRejectsUnlistedSection(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "draft")
 	if err := WriteScaffold(dir, "beans-plan-a3f2", "x", time.Now()); err != nil {

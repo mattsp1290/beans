@@ -83,6 +83,7 @@
     if (result.kind === 'issue') {
       return `/issues/${encodeURIComponent(result.id)}`
     }
+		if (result.kind === 'request') { return `/requests/${encodeURIComponent(result.id)}` }
     if (result.kind === 'memory') {
       return `/search?q=${encodeURIComponent(result.basename)}`
     }
@@ -108,6 +109,7 @@
       <select bind:value={kind}>
         <option value="">All</option>
         <option value="issue">Issues</option>
+			<option value="request">Requests</option>
         <option value="doc">Docs</option>
         <option value="memory">Memories</option>
       </select>

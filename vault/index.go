@@ -24,20 +24,22 @@ import (
 type Kind string
 
 const (
-	KindIssue  Kind = "issue"
-	KindDoc    Kind = "doc"
-	KindMemory Kind = "memory"
-	KindPlan   Kind = "plan"
+	KindIssue   Kind = "issue"
+	KindDoc     Kind = "doc"
+	KindMemory  Kind = "memory"
+	KindRequest Kind = "request"
+	KindPlan    Kind = "plan"
 )
 
 // LinkKind is the origin of one outbound link from a note.
 type LinkKind string
 
 const (
-	LinkBody      LinkKind = "body"
-	LinkParent    LinkKind = "parent"
-	LinkBlockedBy LinkKind = "blocked_by"
-	LinkEmbed     LinkKind = "embed"
+	LinkBody         LinkKind = "body"
+	LinkParent       LinkKind = "parent"
+	LinkBlockedBy    LinkKind = "blocked_by"
+	LinkRequestIssue LinkKind = "request_issue"
+	LinkEmbed        LinkKind = "embed"
 )
 
 // LinkRef is one link between two notes, or from a note to an unresolved
@@ -65,9 +67,10 @@ type Note struct {
 	Tags        []string
 	Outlinks    []LinkRef
 	Frontmatter map[string]any
-	Issue       *issue.Issue  // set for KindIssue
-	Memory      *issue.Memory // set for KindMemory
-	Plan        *plan.Plan    // set for KindPlan
+	Issue       *issue.Issue   // set for KindIssue
+	Memory      *issue.Memory  // set for KindMemory
+	Request     *issue.Request // set for KindRequest
+	Plan        *plan.Plan     // set for KindPlan
 
 	rawOut  []rawLink // link targets before resolution
 	docBody string    // doc body, kept for Search; issues/memories keep it on Issue/Memory
@@ -101,13 +104,14 @@ type Index struct {
 	HubConfig issue.HubConfig
 	Workflow  issue.WorkflowConfig // hub-level
 	Projects  map[string]*Project
-	Issues    map[string]*issue.Issue // by id
-	Plans     map[string]*plan.Plan   // by stable id
-	Notes     map[string]*Note        // by basename; on a collision the first in walk order wins
-	ByPath    map[string]*Note        // by hub-relative path; every note, collisions included
-	Aliases   map[string]string       // alias -> basename
-	Backlinks map[string][]LinkRef    // basename -> refs pointing at it
-	Assets    map[string]bool         // hub-relative paths of image files
+	Issues    map[string]*issue.Issue   // by id
+	Requests  map[string]*issue.Request // by id
+	Plans     map[string]*plan.Plan     // by stable id
+	Notes     map[string]*Note          // by basename; on a collision the first in walk order wins
+	ByPath    map[string]*Note          // by hub-relative path; every note, collisions included
+	Aliases   map[string]string         // alias -> basename
+	Backlinks map[string][]LinkRef      // basename -> refs pointing at it
+	Assets    map[string]bool           // hub-relative paths of image files
 	Warnings  []Warning
 
 	// ExplicitWorkflow is the BN_CONFIG path used to load workflow config, if any.
@@ -166,6 +170,7 @@ func LoadWithOptions(hubDir string, opts LoadOptions) (*Index, error) {
 		HubDir:           abs,
 		Projects:         map[string]*Project{},
 		Issues:           map[string]*issue.Issue{},
+		Requests:         map[string]*issue.Request{},
 		Plans:            map[string]*plan.Plan{},
 		Notes:            map[string]*Note{},
 		ByPath:           map[string]*Note{},
@@ -377,6 +382,10 @@ func classify(relPath string) (kind Kind, project string, ok bool) {
 			if len(rest) == 2 {
 				return KindMemory, project, true
 			}
+		case "requests":
+			if len(rest) == 2 {
+				return KindRequest, project, true
+			}
 		}
 		return "", "", false
 	}
@@ -474,6 +483,22 @@ func (ix *Index) indexFile(kind Kind, project, rel string, data []byte) {
 		note.rawOut = linksToRaw(markdown.Links([]byte(mem.Body)))
 		ix.registerNote(basename, note)
 
+	case KindRequest:
+		req, err := issue.ParseRequest(rel, data)
+		if err != nil {
+			ix.addParseWarning(rel, err)
+			return
+		}
+		note := &Note{Kind: KindRequest, Path: rel, Basename: basename, Project: req.Project, Title: req.Title, Tags: append([]string(nil), req.Labels...), Request: req}
+		raw := linksToRaw(markdown.Links([]byte(req.Body)))
+		for _, link := range req.Issues {
+			if !link.IsZero() {
+				raw = append(raw, rawLink{to: link.Target, kind: LinkRequestIssue})
+			}
+		}
+		note.rawOut = raw
+		ix.registerNote(basename, note)
+
 	case KindDoc:
 		fmBytes, body := splitDocFrontmatter(data)
 		var fmMap map[string]any
@@ -535,6 +560,7 @@ func (ix *Index) addParseWarning(path string, err error) {
 func (ix *Index) rebuild() {
 	notes := map[string]*Note{}
 	issues := map[string]*issue.Issue{}
+	requests := map[string]*issue.Request{}
 	plans := map[string]*plan.Plan{}
 	var dups []Warning
 	for _, n := range ix.order {
@@ -550,6 +576,13 @@ func (ix *Index) rebuild() {
 				issues[n.Issue.ID] = n.Issue
 			}
 		}
+		if n.Kind == KindRequest && n.Request != nil {
+			if first, dup := requests[n.Request.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate request id %q (also %s); the first is used", n.Request.ID, first.Path)})
+			} else {
+				requests[n.Request.ID] = n.Request
+			}
+		}
 		if n.Kind == KindPlan && n.Plan != nil {
 			if first, dup := plans[n.Plan.ID]; dup {
 				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate plan id %q (also %s); the first is used", n.Plan.ID, first.Path)})
@@ -560,6 +593,7 @@ func (ix *Index) rebuild() {
 	}
 	ix.Notes = notes
 	ix.Issues = issues
+	ix.Requests = requests
 	ix.Plans = plans
 	ix.dupWarnings = dups
 	aliases := map[string]string{}
@@ -587,6 +621,10 @@ func noteAliases(n *Note) []string {
 		}
 	case KindDoc:
 		return stringListField(n.Frontmatter, "aliases")
+	case KindRequest:
+		if n.Request != nil {
+			return n.Request.Aliases
+		}
 	case KindPlan:
 		if n.Plan != nil {
 			return n.Plan.Aliases
@@ -846,6 +884,40 @@ func (ix *Index) IssueByID(id string) (*issue.Issue, bool) {
 	return iss, ok
 }
 
+// RequestByID looks up a request by stable id.
+func (ix *Index) RequestByID(id string) (*issue.Request, bool) {
+	req, ok := ix.Requests[id]
+	return req, ok
+}
+
+// ProjectRequests returns requests filtered and ordered for CLI and API reads.
+func (ix *Index) ProjectRequests(project, status, label string, priority *int, query string, terminal bool) []*issue.Request {
+	var out []*issue.Request
+	q := strings.ToLower(strings.TrimSpace(query))
+	for _, req := range ix.Requests {
+		if project != "" && req.Project != project || status != "" && req.Status != status || label != "" && !hasString(req.Labels, label) || priority != nil && req.Priority != *priority {
+			continue
+		}
+		if !terminal && status == "" && (req.Status == issue.RequestResolved || req.Status == issue.RequestDeclined) {
+			continue
+		}
+		if q != "" && !strings.Contains(strings.ToLower(req.Title+"\n"+req.ID+"\n"+req.RequestedBy+"\n"+strings.Join(req.Labels, "\n")+"\n"+req.Body), q) {
+			continue
+		}
+		out = append(out, req)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Priority != out[j].Priority {
+			return out[i].Priority < out[j].Priority
+		}
+		if !out[i].Created.Equal(out[j].Created) {
+			return out[i].Created.Before(out[j].Created)
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out
+}
+
 // ProjectIssues returns the issues in project ("" = all projects), sorted by
 // id.
 func (ix *Index) ProjectIssues(project string, includeArchived bool) []*issue.Issue {
@@ -865,6 +937,15 @@ func (ix *Index) ProjectIssues(project string, includeArchived bool) []*issue.Is
 
 func sortByID(list []*issue.Issue) {
 	sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })
+}
+
+func hasString(list []string, want string) bool {
+	for _, value := range list {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }
 
 // --- small helpers -----------------------------------------------------

@@ -58,6 +58,7 @@ bn prime                                     # the rules, for agents
     └── projects/<name>/
         ├── beans.toml           name, prefix, remotes
         ├── issues/<id>-<slug>.md
+		├── requests/<id>-<slug>.md
         ├── archive/<YYYY>/<id>-<slug>.md
         ├── docs/
         ├── memories/<key>.md
@@ -69,6 +70,11 @@ The file format is specified in [`docs/format.md`](docs/format.md); `bn`
 preserves every key, comment, and line it does not own, so hand edits in
 Obsidian or any editor are first class. The next `bn` command commits them
 as `bn: hand edits`.
+
+Requests are durable project-scoped Markdown artifacts: use `bn request
+create`, then `bn request link` to associate work. Their fixed lifecycle is
+managed from the CLI; `bn serve` offers read-only browsing, search, and issue
+relationship summaries.
 
 ## Development
 
