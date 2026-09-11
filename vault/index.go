@@ -14,8 +14,10 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/mattsp1290/beans/gitops"
 	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/markdown"
+	"github.com/mattsp1290/beans/plan"
 )
 
 // Kind is the kind of note indexed from the hub.
@@ -25,6 +27,8 @@ const (
 	KindIssue   Kind = "issue"
 	KindDoc     Kind = "doc"
 	KindMemory  Kind = "memory"
+	KindRequest Kind = "request"
+	KindPlan    Kind = "plan"
 	KindHandoff Kind = "handoff"
 )
 
@@ -35,6 +39,7 @@ const (
 	LinkBody         LinkKind = "body"
 	LinkParent       LinkKind = "parent"
 	LinkBlockedBy    LinkKind = "blocked_by"
+	LinkRequestIssue LinkKind = "request_issue"
 	LinkEmbed        LinkKind = "embed"
 	LinkHandoffIssue LinkKind = "handoff_issue"
 )
@@ -66,6 +71,8 @@ type Note struct {
 	Frontmatter map[string]any
 	Issue       *issue.Issue   // set for KindIssue
 	Memory      *issue.Memory  // set for KindMemory
+	Request     *issue.Request // set for KindRequest
+	Plan        *plan.Plan     // set for KindPlan
 	Handoff     *issue.Handoff // set for KindHandoff
 
 	rawOut  []rawLink // link targets before resolution
@@ -101,6 +108,8 @@ type Index struct {
 	Workflow  issue.WorkflowConfig // hub-level
 	Projects  map[string]*Project
 	Issues    map[string]*issue.Issue   // by id
+	Requests  map[string]*issue.Request // by id
+	Plans     map[string]*plan.Plan     // by stable id
 	Handoffs  map[string]*issue.Handoff // by id
 	Notes     map[string]*Note          // by basename; on a collision the first in walk order wins
 	ByPath    map[string]*Note          // by hub-relative path; every note, collisions included
@@ -165,6 +174,8 @@ func LoadWithOptions(hubDir string, opts LoadOptions) (*Index, error) {
 		HubDir:           abs,
 		Projects:         map[string]*Project{},
 		Issues:           map[string]*issue.Issue{},
+		Requests:         map[string]*issue.Request{},
+		Plans:            map[string]*plan.Plan{},
 		Handoffs:         map[string]*issue.Handoff{},
 		Notes:            map[string]*Note{},
 		ByPath:           map[string]*Note{},
@@ -233,9 +244,23 @@ func (ix *Index) walkAndIndex(root string) error {
 		if path == root {
 			return nil
 		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
 		name := d.Name()
 		if d.IsDir() {
+			if isPlansDirectory(rel) {
+				if err := gitops.RecoverTrees(path); err != nil {
+					return fmt.Errorf("vault: recover plan trees in %s: %w", rel, err)
+				}
+			}
 			if skipDirName(name) {
+				return filepath.SkipDir
+			}
+			if project, ok := planBundlePath(rel); ok {
+				ix.loadPlan(root, project, rel)
 				return filepath.SkipDir
 			}
 			return nil
@@ -243,14 +268,68 @@ func (ix *Index) walkAndIndex(root string) error {
 		if strings.HasPrefix(name, ".") {
 			return nil
 		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			return err
+		if isPlanRootEntry(rel) {
+			ix.addParseWarning(rel, fmt.Errorf("plan root must be a directory"))
+			return nil
 		}
-		rel = filepath.ToSlash(rel)
-		ix.loadPath(root, rel)
+		if project, ok := planManifestPath(rel); ok {
+			ix.loadPlan(root, project, filepath.ToSlash(filepath.Dir(rel)))
+		} else {
+			ix.loadPath(root, rel)
+		}
 		return nil
 	})
+}
+
+func isPlansDirectory(rel string) bool {
+	parts := strings.Split(filepath.ToSlash(rel), "/")
+	return len(parts) == 3 && parts[0] == "projects" && parts[1] != "" && parts[2] == "plans"
+}
+
+func planBundlePath(rel string) (string, bool) {
+	s := strings.Split(rel, "/")
+	if len(s) == 4 && s[0] == "projects" && s[2] == "plans" {
+		return s[1], true
+	}
+	return "", false
+}
+func isPlanRootEntry(rel string) bool {
+	s := strings.Split(rel, "/")
+	return len(s) == 4 && s[0] == "projects" && s[2] == "plans"
+}
+
+func planManifestPath(rel string) (string, bool) {
+	s := strings.Split(rel, "/")
+	return func() (string, bool) {
+		if len(s) == 5 && s[0] == "projects" && s[2] == "plans" && s[4] == "plan.md" {
+			return s[1], true
+		}
+		return "", false
+	}()
+}
+
+func (ix *Index) loadPlan(root, project, rel string) {
+	b, err := plan.Load(filepath.Join(root, filepath.FromSlash(rel)))
+	if err != nil {
+		ix.addParseWarning(rel, err)
+		return
+	}
+	projectRecord, exists := ix.Projects[project]
+	if !exists {
+		ix.addParseWarning(rel, fmt.Errorf("plan project %q has no beans.toml", project))
+		return
+	}
+	if !plan.ValidID(projectRecord.Config.Prefix, b.Plan.ID) && !plan.ValidID(project, b.Plan.ID) {
+		ix.addParseWarning(rel, fmt.Errorf("plan id %q does not match project", b.Plan.ID))
+		return
+	}
+	b.Plan.Path = rel + "/plan.md"
+	n := &Note{Kind: KindPlan, Path: b.Plan.Path, Basename: b.Plan.ID, Project: project, Title: b.Plan.Title, Plan: b.Plan}
+	n.rawOut = linksToRaw(markdown.Links([]byte(b.Plan.Body)))
+	for _, s := range b.Sections {
+		n.rawOut = append(n.rawOut, linksToRaw(markdown.Links([]byte(s.Markdown)))...)
+	}
+	ix.registerNote(b.Plan.ID, n)
 }
 
 func skipDirName(name string) bool {
@@ -307,6 +386,10 @@ func classify(relPath string) (kind Kind, project string, ok bool) {
 		case "memories":
 			if len(rest) == 2 {
 				return KindMemory, project, true
+			}
+		case "requests":
+			if len(rest) == 2 {
+				return KindRequest, project, true
 			}
 		case "handoffs":
 			if len(rest) == 2 || (len(rest) == 4 && rest[1] == "archive" && len(rest[2]) == 4) {
@@ -409,6 +492,22 @@ func (ix *Index) indexFile(kind Kind, project, rel string, data []byte) {
 		note.rawOut = linksToRaw(markdown.Links([]byte(mem.Body)))
 		ix.registerNote(basename, note)
 
+	case KindRequest:
+		req, err := issue.ParseRequest(rel, data)
+		if err != nil {
+			ix.addParseWarning(rel, err)
+			return
+		}
+		note := &Note{Kind: KindRequest, Path: rel, Basename: basename, Project: req.Project, Title: req.Title, Tags: append([]string(nil), req.Labels...), Request: req}
+		raw := linksToRaw(markdown.Links([]byte(req.Body)))
+		for _, link := range req.Issues {
+			if !link.IsZero() {
+				raw = append(raw, rawLink{to: link.Target, kind: LinkRequestIssue})
+			}
+		}
+		note.rawOut = raw
+		ix.registerNote(basename, note)
+
 	case KindHandoff:
 		h, err := issue.ParseHandoff(rel, data)
 		if err != nil {
@@ -484,6 +583,8 @@ func (ix *Index) addParseWarning(path string, err error) {
 func (ix *Index) rebuild() {
 	notes := map[string]*Note{}
 	issues := map[string]*issue.Issue{}
+	requests := map[string]*issue.Request{}
+	plans := map[string]*plan.Plan{}
 	handoffs := map[string]*issue.Handoff{}
 	var dups []Warning
 	for _, n := range ix.order {
@@ -499,24 +600,32 @@ func (ix *Index) rebuild() {
 				issues[n.Issue.ID] = n.Issue
 			}
 		}
+		if n.Kind == KindRequest && n.Request != nil {
+			if first, dup := requests[n.Request.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate request id %q (also %s); the first is used", n.Request.ID, first.Path)})
+			} else {
+				requests[n.Request.ID] = n.Request
+			}
+		}
+		if n.Kind == KindPlan && n.Plan != nil {
+			if first, dup := plans[n.Plan.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate plan id %q (also %s); the first is used", n.Plan.ID, first.Path)})
+			} else {
+				plans[n.Plan.ID] = n.Plan
+			}
+		}
 		if n.Kind == KindHandoff && n.Handoff != nil {
 			if first, dup := handoffs[n.Handoff.ID]; dup {
 				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate handoff id %q (also %s); the first is used", n.Handoff.ID, first.Path)})
 			} else {
 				handoffs[n.Handoff.ID] = n.Handoff
 			}
-			if first, dup := issues[n.Handoff.ID]; dup {
-				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("handoff id %q collides with issue %s", n.Handoff.ID, first.Path)})
-			}
-		}
-		if n.Kind == KindIssue && n.Issue != nil {
-			if first, dup := handoffs[n.Issue.ID]; dup {
-				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("issue id %q collides with handoff %s", n.Issue.ID, first.Path)})
-			}
 		}
 	}
 	ix.Notes = notes
 	ix.Issues = issues
+	ix.Requests = requests
+	ix.Plans = plans
 	ix.Handoffs = handoffs
 	ix.dupWarnings = dups
 	aliases := map[string]string{}
@@ -544,6 +653,14 @@ func noteAliases(n *Note) []string {
 		}
 	case KindDoc:
 		return stringListField(n.Frontmatter, "aliases")
+	case KindRequest:
+		if n.Request != nil {
+			return n.Request.Aliases
+		}
+	case KindPlan:
+		if n.Plan != nil {
+			return n.Plan.Aliases
+		}
 	}
 	if n.Handoff != nil {
 		return n.Handoff.Aliases
@@ -621,6 +738,14 @@ func (ix *Index) Lookup(target string) (*Note, bool) {
 	}
 	t = strings.TrimSuffix(t, ".md")
 
+	if n, ok := ix.Notes[t]; ok {
+		return n, true
+	}
+	if basename, ok := ix.Aliases[t]; ok {
+		if n, ok := ix.Notes[basename]; ok {
+			return n, true
+		}
+	}
 	if iss, ok := ix.Issues[t]; ok {
 		basename := strings.TrimSuffix(pathBase(iss.Path), ".md")
 		if n, ok := ix.Notes[basename]; ok {
@@ -629,14 +754,6 @@ func (ix *Index) Lookup(target string) (*Note, bool) {
 	}
 	if h, ok := ix.Handoffs[t]; ok {
 		if n, ok := ix.ByPath[h.Path]; ok {
-			return n, true
-		}
-	}
-	if n, ok := ix.Notes[t]; ok {
-		return n, true
-	}
-	if basename, ok := ix.Aliases[t]; ok {
-		if n, ok := ix.Notes[basename]; ok {
 			return n, true
 		}
 	}
@@ -691,7 +808,7 @@ func (ix *Index) reloadAll() error {
 		return err
 	}
 	ix.HubConfig, ix.Workflow, ix.Projects = fresh.HubConfig, fresh.Workflow, fresh.Projects
-	ix.Issues, ix.Handoffs, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Handoffs, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
+	ix.Issues, ix.Requests, ix.Plans, ix.Handoffs, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Requests, fresh.Plans, fresh.Handoffs, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
 	ix.Assets, ix.Warnings = fresh.Assets, fresh.Warnings
 	ix.order, ix.parseWarnings, ix.linkWarnings, ix.dupWarnings, ix.hubTOML = fresh.order, fresh.parseWarnings, fresh.linkWarnings, fresh.dupWarnings, fresh.hubTOML
 	return nil
@@ -714,6 +831,10 @@ func (ix *Index) toRelPath(p string) (string, error) {
 }
 
 func (ix *Index) reloadOne(rel string) {
+	if project, root, ok := planRoot(rel); ok {
+		ix.reloadPlan(project, root)
+		return
+	}
 	ix.removeNoteByPath(rel)
 	delete(ix.parseWarnings, rel)
 	delete(ix.Assets, rel)
@@ -737,6 +858,41 @@ func (ix *Index) reloadOne(rel string) {
 		return
 	}
 	ix.indexFile(kind, project, rel, data)
+}
+
+// planRoot maps a manifest or section event to its aggregate bundle root.
+func planRoot(rel string) (project, root string, ok bool) {
+	parts := strings.Split(rel, "/")
+	if len(parts) >= 5 && parts[0] == "projects" && parts[2] == "plans" {
+		return parts[1], strings.Join(parts[:4], "/"), true
+	}
+	return "", "", false
+}
+
+// reloadPlan preserves a last known valid aggregate while an editor is in
+// the middle of a multi-file update. A missing root is a real deletion.
+func (ix *Index) reloadPlan(project, root string) {
+	manifest := root + "/plan.md"
+	abs := filepath.Join(ix.HubDir, filepath.FromSlash(root))
+	if err := gitops.RecoverTree(abs); err != nil {
+		ix.addParseWarning(manifest, fmt.Errorf("recover plan tree: %w", err))
+		return
+	}
+	if _, err := os.Stat(abs); os.IsNotExist(err) {
+		ix.removeNoteByPath(manifest)
+		delete(ix.parseWarnings, manifest)
+		return
+	}
+	b, err := plan.Load(abs)
+	if err != nil {
+		ix.addParseWarning(manifest, err)
+		return
+	}
+	ix.removeNoteByPath(manifest)
+	delete(ix.parseWarnings, manifest)
+	// loadPlan performs the same identity and link extraction as initial load.
+	_ = b
+	ix.loadPlan(ix.HubDir, project, root)
 }
 
 // removeNoteByPath drops the note (if any) previously indexed from rel.
@@ -768,6 +924,40 @@ func (ix *Index) IssueByID(id string) (*issue.Issue, bool) {
 	return iss, ok
 }
 
+// RequestByID looks up a request by stable id.
+func (ix *Index) RequestByID(id string) (*issue.Request, bool) {
+	req, ok := ix.Requests[id]
+	return req, ok
+}
+
+// ProjectRequests returns requests filtered and ordered for CLI and API reads.
+func (ix *Index) ProjectRequests(project, status, label string, priority *int, query string, terminal bool) []*issue.Request {
+	var out []*issue.Request
+	q := strings.ToLower(strings.TrimSpace(query))
+	for _, req := range ix.Requests {
+		if project != "" && req.Project != project || status != "" && req.Status != status || label != "" && !hasString(req.Labels, label) || priority != nil && req.Priority != *priority {
+			continue
+		}
+		if !terminal && status == "" && (req.Status == issue.RequestResolved || req.Status == issue.RequestDeclined) {
+			continue
+		}
+		if q != "" && !strings.Contains(strings.ToLower(req.Title+"\n"+req.ID+"\n"+req.RequestedBy+"\n"+strings.Join(req.Labels, "\n")+"\n"+req.Body), q) {
+			continue
+		}
+		out = append(out, req)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Priority != out[j].Priority {
+			return out[i].Priority < out[j].Priority
+		}
+		if !out[i].Created.Equal(out[j].Created) {
+			return out[i].Created.Before(out[j].Created)
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out
+}
+
 // ProjectIssues returns the issues in project ("" = all projects), sorted by
 // id.
 func (ix *Index) ProjectIssues(project string, includeArchived bool) []*issue.Issue {
@@ -787,6 +977,15 @@ func (ix *Index) ProjectIssues(project string, includeArchived bool) []*issue.Is
 
 func sortByID(list []*issue.Issue) {
 	sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })
+}
+
+func hasString(list []string, want string) bool {
+	for _, value := range list {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }
 
 // --- small helpers -----------------------------------------------------

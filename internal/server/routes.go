@@ -16,6 +16,7 @@ import (
 
 	"github.com/mattsp1290/beans/internal/ops"
 	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
 	"github.com/mattsp1290/beans/vault"
 )
 
@@ -26,9 +27,13 @@ func (s *Server) routes(api fiber.Router) {
 	api.Get("/health", s.health)
 	api.Get("/projects", s.listProjects)
 	api.Get("/projects/:p/issues", s.listIssues)
+	api.Get("/projects/:p/requests", s.listRequests)
+	api.Get("/projects/:p/plans", s.listPlans)
 	api.Get("/projects/:p/ready", s.ready)
 	api.Post("/projects/:p/issues", s.createIssue)
 	api.Get("/issues/:id", s.showIssue)
+	api.Get("/requests/:id", s.showRequest)
+	api.Get("/plans/:id", s.showPlan)
 	api.Patch("/issues/:id", s.updateIssue)
 	api.Post("/issues/:id/notes", s.addNote)
 	api.Post("/issues/:id/close", s.closeIssue)
@@ -48,28 +53,97 @@ func (s *Server) routes(api fiber.Router) {
 // ---------------------------------------------------------------------------
 
 type issueJSON struct {
-	ID          string         `json:"id"`
-	Title       string         `json:"title"`
-	Type        string         `json:"type"`
-	Status      string         `json:"status"`
-	Priority    int            `json:"priority"`
-	Labels      []string       `json:"labels"`
-	Assignee    string         `json:"assignee"`
-	Parent      string         `json:"parent"`
-	BlockedBy   []string       `json:"blocked_by"`
-	URL         string         `json:"url"`
-	Created     string         `json:"created"`
-	Updated     string         `json:"updated"`
-	Project     string         `json:"project"`
-	Path        string         `json:"path"`
-	Archived    bool           `json:"archived"`
-	Description string         `json:"description,omitempty"`
-	Log         []logJSON      `json:"log,omitempty"`
-	Children    []childJSON    `json:"children,omitempty"`
-	Backlinks   []backlinkJSON `json:"backlinks,omitempty"`
-	Blockers    []blockerJSON  `json:"blockers,omitempty"`
-	HTML        string         `json:"html,omitempty"`
-	Workflow    *workflowJSON  `json:"workflow,omitempty"`
+	ID          string               `json:"id"`
+	Title       string               `json:"title"`
+	Type        string               `json:"type"`
+	Status      string               `json:"status"`
+	Priority    int                  `json:"priority"`
+	Labels      []string             `json:"labels"`
+	Assignee    string               `json:"assignee"`
+	Parent      string               `json:"parent"`
+	BlockedBy   []string             `json:"blocked_by"`
+	URL         string               `json:"url"`
+	Created     string               `json:"created"`
+	Updated     string               `json:"updated"`
+	Project     string               `json:"project"`
+	Path        string               `json:"path"`
+	Archived    bool                 `json:"archived"`
+	Description string               `json:"description,omitempty"`
+	Log         []logJSON            `json:"log,omitempty"`
+	Children    []childJSON          `json:"children,omitempty"`
+	Backlinks   []backlinkJSON       `json:"backlinks,omitempty"`
+	Blockers    []blockerJSON        `json:"blockers,omitempty"`
+	HTML        string               `json:"html,omitempty"`
+	Workflow    *workflowJSON        `json:"workflow,omitempty"`
+	Requests    []requestSummaryJSON `json:"requests,omitempty"`
+}
+
+type requestSummaryJSON struct {
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Status   string `json:"status"`
+	Priority int    `json:"priority"`
+	Project  string `json:"project"`
+}
+type linkedIssueJSON struct {
+	ID       string `json:"id"`
+	Title    string `json:"title,omitempty"`
+	Status   string `json:"status,omitempty"`
+	Priority int    `json:"priority,omitempty"`
+	Project  string `json:"project,omitempty"`
+	Archived bool   `json:"archived,omitempty"`
+	Missing  bool   `json:"missing,omitempty"`
+}
+type requestJSON struct {
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Status      string            `json:"status"`
+	Priority    int               `json:"priority"`
+	Labels      []string          `json:"labels"`
+	RequestedBy string            `json:"requested_by"`
+	Created     string            `json:"created"`
+	Updated     string            `json:"updated"`
+	Project     string            `json:"project"`
+	Path        string            `json:"path"`
+	IssueCount  int               `json:"issue_count"`
+	Issues      []linkedIssueJSON `json:"issues,omitempty"`
+	Backlinks   []backlinkJSON    `json:"backlinks,omitempty"`
+	Log         []logJSON         `json:"log,omitempty"`
+	Toc         []headingJSON     `json:"toc,omitempty"`
+	HTML        string            `json:"html,omitempty"`
+}
+
+type planListJSON struct {
+	ID           string `json:"id"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	Project      string `json:"project"`
+	Path         string `json:"path"`
+	Created      string `json:"created"`
+	Updated      string `json:"updated"`
+	SectionCount int    `json:"section_count"`
+}
+type planSectionJSON struct {
+	Path string `json:"path"`
+	HTML string `json:"html"`
+}
+type planDetailJSON struct {
+	planListJSON
+	Summary   planSummaryJSON   `json:"summary"`
+	Sections  []planSectionJSON `json:"sections"`
+	Backlinks []backlinkJSON    `json:"backlinks"`
+}
+type planSummaryJSON struct {
+	Status             string `json:"status"`
+	OutcomeHTML        string `json:"outcome_html"`
+	AffectedAreasHTML  string `json:"affected_areas_html"`
+	ExecutionOrderHTML string `json:"execution_order_html"`
+	RisksHTML          string `json:"risks_html"`
+	Graph              any    `json:"graph"`
+}
+
+func planList(project string, p *plan.Plan) planListJSON {
+	return planListJSON{ID: p.ID, Title: p.Title, Status: string(p.Status), Project: project, Path: p.Path, Created: p.Created.UTC().Format(time.RFC3339), Updated: p.Updated.UTC().Format(time.RFC3339), SectionCount: len(p.Sections)}
 }
 
 type logJSON struct {
@@ -117,12 +191,9 @@ type workflowJSON struct {
 
 // backlinksOf lists the notes linking to basename, sorted, with the
 // referring note's kind so the UI can route to /issues/<id> or /wiki/<path>.
-func backlinksOf(ix *vault.Index, basename string) []backlinkJSON {
-	return backlinksOfOptions(ix, basename, true)
-}
-
-func backlinksOfOptions(ix *vault.Index, basename string, includeArchivedHandoffs bool) []backlinkJSON {
-	refs := ix.IssueBacklinks(basename, includeArchivedHandoffs)
+func backlinksOf(ix *vault.Index, basename string, includeArchivedHandoffs ...bool) []backlinkJSON {
+	includeArchived := len(includeArchivedHandoffs) > 0 && includeArchivedHandoffs[0]
+	refs := ix.IssueBacklinks(basename, includeArchived)
 	sort.Slice(refs, func(i, j int) bool { return refs[i].From < refs[j].From })
 	out := make([]backlinkJSON, 0, len(refs))
 	for _, r := range refs {
@@ -176,7 +247,11 @@ func (s *Server) toIssueDetail(ix *vault.Index, iss *issue.Issue, includeArchive
 		out.Children = append(out.Children, childJSON{ID: c.ID, Status: c.Status, Project: c.Project, Title: c.Title})
 	}
 	base := strings.TrimSuffix(filepath.Base(iss.Path), ".md")
-	out.Backlinks = backlinksOfOptions(ix, base, includeArchivedHandoffs)
+	for _, link := range backlinksOf(ix, base, includeArchivedHandoffs) {
+		if link.Kind != string(vault.LinkRequestIssue) {
+			out.Backlinks = append(out.Backlinks, link)
+		}
+	}
 	resolved, unresolved := ix.Blockers(iss)
 	for _, b := range resolved {
 		out.Blockers = append(out.Blockers, blockerJSON{ID: b.ID, Status: b.Status, Project: b.Project, Title: b.Title})
@@ -188,8 +263,56 @@ func (s *Server) toIssueDetail(ix *vault.Index, iss *issue.Issue, includeArchive
 	if err == nil {
 		out.HTML = string(html)
 	}
+	for _, link := range ix.Backlinks[base] {
+		if link.Kind != vault.LinkRequestIssue {
+			continue
+		}
+		note, ok := ix.Notes[link.From]
+		if !ok || note.Request == nil {
+			continue
+		}
+		req := note.Request
+		out.Requests = append(out.Requests, requestSummaryJSON{ID: req.ID, Title: req.Title, Status: req.Status, Priority: req.Priority, Project: req.Project})
+	}
+	sort.Slice(out.Requests, func(i, j int) bool { return out.Requests[i].ID < out.Requests[j].ID })
 	wf := ix.WorkflowFor(iss.Project)
 	out.Workflow = &workflowJSON{Statuses: wf.Statuses, Active: wf.Active, Terminal: wf.Terminal}
+	return out
+}
+
+func toRequestJSON(ix *vault.Index, req *issue.Request) requestJSON {
+	out := requestJSON{ID: req.ID, Title: req.Title, Status: req.Status, Priority: req.Priority, Labels: req.Labels, RequestedBy: req.RequestedBy, Created: req.Created.UTC().Format(time.RFC3339), Updated: req.Updated.UTC().Format(time.RFC3339), Project: req.Project, Path: req.Path, IssueCount: len(req.Issues)}
+	if out.Labels == nil {
+		out.Labels = []string{}
+	}
+	return out
+}
+
+func (s *Server) toRequestDetail(ix *vault.Index, req *issue.Request) requestJSON {
+	out := toRequestJSON(ix, req)
+	for _, link := range req.Issues {
+		if n, ok := ix.Lookup(link.Target); ok && n.Issue != nil {
+			i := n.Issue
+			out.Issues = append(out.Issues, linkedIssueJSON{ID: i.ID, Title: i.Title, Status: i.Status, Priority: i.Priority, Project: i.Project, Archived: i.Archived})
+		} else {
+			out.Issues = append(out.Issues, linkedIssueJSON{ID: link.Target, Missing: true})
+		}
+	}
+	for _, e := range req.Log {
+		out.Log = append(out.Log, logJSON{At: e.At.UTC().Format(time.RFC3339), Actor: e.Actor, Repo: e.Repo, SHA: e.SHA, Branch: e.Branch, Event: e.Event, Raw: e.Raw})
+	}
+	base := strings.TrimSuffix(filepath.Base(req.Path), ".md")
+	for _, b := range backlinksOf(ix, base) {
+		if b.Kind != string(vault.LinkRequestIssue) {
+			out.Backlinks = append(out.Backlinks, b)
+		}
+	}
+	if html, toc, err := s.rend.HTML([]byte(req.Body)); err == nil {
+		out.HTML = string(html)
+		for _, h := range toc {
+			out.Toc = append(out.Toc, headingJSON{Level: h.Level, ID: h.ID, Text: h.Text})
+		}
+	}
 	return out
 }
 
@@ -279,6 +402,34 @@ func (s *Server) listIssues(c fiber.Ctx) error {
 	})
 }
 
+func (s *Server) listRequests(c fiber.Ctx) error {
+	project, err := projectParam(c)
+	if err != nil {
+		return err
+	}
+	status, label, q := c.Query("status"), c.Query("label"), c.Query("q")
+	if status != "" && !issue.ValidRequestStatus(status) {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request status")
+	}
+	terminal := c.Query("terminal") == "true"
+	var priority *int
+	if raw := c.Query("priority"); raw != "" {
+		var n int
+		if _, err := fmt.Sscan(raw, &n); err != nil || n < 0 || n > 4 {
+			return fiber.NewError(fiber.StatusBadRequest, "invalid priority")
+		}
+		priority = &n
+	}
+	return s.read(c.Context(), func(ix *vault.Index) error {
+		reqs := ix.ProjectRequests(project, status, label, priority, q, terminal)
+		out := make([]requestJSON, 0, len(reqs))
+		for _, r := range reqs {
+			out = append(out, toRequestJSON(ix, r))
+		}
+		return c.JSON(out)
+	})
+}
+
 func (s *Server) ready(c fiber.Ctx) error {
 	project, err := projectParam(c)
 	if err != nil {
@@ -295,12 +446,69 @@ func (s *Server) ready(c fiber.Ctx) error {
 
 func (s *Server) showIssue(c fiber.Ctx) error {
 	id := c.Params("id")
+	includeArchivedHandoffs := c.Query("include_archived_handoffs") == "true"
 	return s.read(c.Context(), func(ix *vault.Index) error {
 		iss, ok := ix.Issues[id]
 		if !ok {
 			return fiber.NewError(fiber.StatusNotFound, "issue "+id+" not found")
 		}
-		return c.JSON(s.toIssueDetail(ix, iss, c.Query("include_archived_handoffs") == "true"))
+		return c.JSON(s.toIssueDetail(ix, iss, includeArchivedHandoffs))
+	})
+}
+
+func (s *Server) showRequest(c fiber.Ctx) error {
+	id := c.Params("id")
+	return s.read(c.Context(), func(ix *vault.Index) error {
+		req, ok := ix.RequestByID(id)
+		if !ok {
+			return fiber.NewError(fiber.StatusNotFound, "request "+id+" not found")
+		}
+		return c.JSON(s.toRequestDetail(ix, req))
+	})
+}
+
+func (s *Server) listPlans(c fiber.Ctx) error {
+	project, err := projectParam(c)
+	if err != nil {
+		return err
+	}
+	status := c.Query("status")
+	return s.read(c.Context(), func(ix *vault.Index) error {
+		out := []planListJSON{}
+		for _, p := range ix.ProjectPlans(project) {
+			if status != "" && string(p.Status) != status {
+				continue
+			}
+			n := ix.ByPath[p.Path]
+			out = append(out, planList(n.Project, p))
+		}
+		return c.JSON(out)
+	})
+}
+func (s *Server) showPlan(c fiber.Ctx) error {
+	id := c.Params("id")
+	if strings.TrimSpace(id) == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid plan id")
+	}
+	return s.read(c.Context(), func(ix *vault.Index) error {
+		p, ok := ix.PlanByID(id)
+		if !ok {
+			return fiber.NewError(fiber.StatusNotFound, "plan "+id+" not found")
+		}
+		n := ix.ByPath[p.Path]
+		out := planDetailJSON{planListJSON: planList(n.Project, p), Backlinks: backlinksOf(ix, p.ID)}
+		html := func(md string) string {
+			b, _, e := s.rend.HTML([]byte(md))
+			if e != nil {
+				return ""
+			}
+			return string(b)
+		}
+		out.Summary = planSummaryJSON{Status: string(p.Status), OutcomeHTML: html(p.Summary.Outcome), AffectedAreasHTML: html(p.Summary.AffectedAreas), ExecutionOrderHTML: html(p.Summary.ExecutionOrder), RisksHTML: html(p.Summary.Risks), Graph: p.Graph}
+		for _, section := range p.SectionBodies {
+			out.Sections = append(out.Sections, planSectionJSON{Path: section.Path, HTML: html(section.Markdown)})
+		}
+		return c.JSON(out)
 	})
 }
 
@@ -380,7 +588,7 @@ func (s *Server) docPage(c fiber.Ctx) error {
 	}
 	return s.read(c.Context(), func(ix *vault.Index) error {
 		n, ok := ix.ByPath[path]
-		if !ok || n.Kind == vault.KindIssue {
+		if !ok || (n.Kind != vault.KindDoc && n.Kind != vault.KindHandoff) {
 			return fiber.NewError(fiber.StatusNotFound, "doc "+path+" not found")
 		}
 		data, err := os.ReadFile(filepath.Join(s.cfg.HubDir, filepath.FromSlash(n.Path)))
@@ -407,7 +615,7 @@ func (s *Server) docPage(c fiber.Ctx) error {
 		if fm == nil {
 			fm = map[string]any{}
 		}
-		return c.JSON(fiber.Map{"kind": n.Kind, "path": n.Path, "title": n.Title, "project": n.Project, "frontmatter": fm, "html": string(html), "toc": headings, "backlinks": backlinks, "outlinks": outlinks})
+		return c.JSON(fiber.Map{"path": n.Path, "title": n.Title, "project": n.Project, "kind": n.Kind, "frontmatter": fm, "html": string(html), "toc": headings, "backlinks": backlinks, "outlinks": outlinks})
 	})
 }
 
@@ -458,9 +666,6 @@ func (s *Server) search(c fiber.Ctx) error {
 	}
 	var kinds []vault.Kind
 	if k := c.Query("kind"); k != "" {
-		if k != string(vault.KindIssue) && k != string(vault.KindDoc) && k != string(vault.KindMemory) && k != string(vault.KindHandoff) {
-			return fiber.NewError(fiber.StatusBadRequest, "unknown kind "+k)
-		}
 		kinds = []vault.Kind{vault.Kind(k)}
 	}
 	return s.read(c.Context(), func(ix *vault.Index) error {

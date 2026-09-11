@@ -15,6 +15,7 @@ beans/
 ├── .github/workflows/ci.yml      one workflow, jobs `ui` and `go`
 ├── cmd/bn/                       cobra + fang entry point and every command
 ├── issue/                        issue model, frontmatter codec, ids, log lines, templates, config
+├── plan/                         first-class plan bundle model, validation, lifecycle, graph schema
 ├── vault/                        hub paths, project resolution, index, queries, watcher
 ├── gitops/                       git resolver seam and the hub write pipeline
 ├── markdown/                     goldmark renderer for Obsidian-flavored markdown

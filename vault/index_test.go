@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mattsp1290/beans/plan"
 )
 
 // copyFixtureHub copies vault/testdata/hub into a fresh temp directory so
@@ -37,6 +40,130 @@ func copyFixtureHub(t *testing.T) string {
 		t.Fatalf("copy fixture hub: %v", err)
 	}
 	return dst
+}
+
+func TestReloadPlanSectionRetainsLastValidAggregate(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	root := filepath.Join(hub, "projects", "p", "plans", "p-plan-a3f2-test")
+	if err := os.MkdirAll(filepath.Dir(root), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(root, "p-plan-a3f2", "test", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := os.ReadFile(filepath.Join(root, "plan.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest = []byte(strings.Replace(string(manifest), "updated:", "sections:\n  - sections/one.md\nupdated:", 1))
+	if err := os.WriteFile(filepath.Join(root, "plan.md"), manifest, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(root, "sections"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	section := filepath.Join(root, "sections", "one.md")
+	if err := os.WriteFile(section, []byte("# Original\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := ix.PlanByID("p-plan-a3f2"); !ok || got.SectionBodies[0].Markdown != "# Original\n" {
+		t.Fatalf("initial plan = %#v", got)
+	}
+	if err := os.WriteFile(section, []byte("# Changed\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := ix.Reload(section); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := ix.PlanByID("p-plan-a3f2"); got.SectionBodies[0].Markdown != "# Changed\n" {
+		t.Fatalf("section reload = %#v", got.SectionBodies)
+	}
+	if err := os.Remove(section); err != nil {
+		t.Fatal(err)
+	}
+	if err := ix.Reload(section); err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := ix.PlanByID("p-plan-a3f2"); !ok || got.SectionBodies[0].Markdown != "# Changed\n" {
+		t.Fatal("invalid reload replaced last valid aggregate")
+	}
+	if len(ix.Warnings) == 0 {
+		t.Fatal("invalid reload did not record a warning")
+	}
+}
+
+func TestLoadWarnsForIncompletePlanRoot(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	root := filepath.Join(hub, "projects", "p", "plans", "incomplete")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, warning := range ix.Warnings {
+		if warning.Path == "projects/p/plans/incomplete" && strings.Contains(warning.Err.Error(), "missing plan.md") {
+			return
+		}
+	}
+	t.Fatalf("missing incomplete plan warning: %#v", ix.Warnings)
+}
+
+func TestLoadRecoversInterruptedPlanTree(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	plans := filepath.Join(hub, "projects", "p", "plans")
+	backup := filepath.Join(plans, ".p-plan-a3f2-test.backup")
+	if err := os.MkdirAll(plans, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(backup, "p-plan-a3f2", "test", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := ix.PlanByID("p-plan-a3f2"); !ok {
+		t.Fatal("interrupted plan tree was not recovered")
+	}
+	if _, err := os.Stat(filepath.Join(plans, "p-plan-a3f2-test", "plan.md")); err != nil {
+		t.Fatalf("canonical plan root not restored: %v", err)
+	}
+}
+
+func TestReloadRecoversInterruptedPlanTree(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	plans := filepath.Join(hub, "projects", "p", "plans")
+	root := filepath.Join(plans, "p-plan-a3f2-test")
+	if err := os.MkdirAll(plans, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(root, "p-plan-a3f2", "test", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	backup := filepath.Join(plans, ".p-plan-a3f2-test.backup")
+	if err := os.Rename(root, backup); err != nil {
+		t.Fatal(err)
+	}
+	if err := ix.Reload(filepath.Join(root, "plan.md")); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := ix.PlanByID("p-plan-a3f2"); !ok {
+		t.Fatal("interrupted plan tree was not restored on reload")
+	}
 }
 
 func loadFixture(t *testing.T) (*Index, string) {

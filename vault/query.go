@@ -5,7 +5,29 @@ import (
 	"strings"
 
 	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
 )
+
+// PlanByID returns one plan by stable id.
+func (ix *Index) PlanByID(id string) (*plan.Plan, bool) { p, ok := ix.Plans[id]; return p, ok }
+
+// ProjectPlans returns plans for a project, sorted by updated descending then id.
+func (ix *Index) ProjectPlans(project string) []*plan.Plan {
+	var out []*plan.Plan
+	for _, p := range ix.Plans {
+		n, ok := ix.ByPath[p.Path]
+		if ok && (project == "" || n.Project == project) {
+			out = append(out, p)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if !out[i].Updated.Equal(out[j].Updated) {
+			return out[i].Updated.After(out[j].Updated)
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out
+}
 
 // Ready returns the issues eligible for dispatch: status is Active per the
 // issue's project workflow, not archived, not an epic with children, and
@@ -367,6 +389,12 @@ func (ix *Index) SearchWithOptions(q string, opts SearchOptions) []Hit {
 		if n.Kind == KindHandoff && n.Handoff != nil {
 			id = n.Handoff.ID
 		}
+		if n.Kind == KindRequest && n.Request != nil {
+			id = n.Request.ID
+		}
+		if n.Kind == KindPlan && n.Plan != nil {
+			id = n.Plan.ID
+		}
 
 		score := 0
 		switch {
@@ -420,6 +448,18 @@ func noteSearchBody(n *Note) string {
 		}
 	case KindDoc:
 		return n.docBody
+	case KindRequest:
+		if n.Request != nil {
+			return n.Request.Body
+		}
+	case KindPlan:
+		if n.Plan != nil {
+			body := n.Plan.Body + "\n" + n.Plan.Summary.Outcome + "\n" + n.Plan.Summary.AffectedAreas + "\n" + n.Plan.Summary.ExecutionOrder + "\n" + n.Plan.Summary.Risks
+			for _, section := range n.Plan.SectionBodies {
+				body += "\n" + section.Markdown
+			}
+			return body
+		}
 	case KindHandoff:
 		if n.Handoff != nil {
 			return n.Handoff.Body

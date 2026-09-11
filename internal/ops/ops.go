@@ -135,11 +135,40 @@ func save(hubDir string, loc Located, iss *issue.Issue) error {
 	return gitops.WriteFile(filepath.Join(hubDir, filepath.FromSlash(loc.Rel)), data)
 }
 
-// existsID reports whether any issue file in the hub carries id.
+// existsID reports whether any issue or request file in the hub carries id.
+// It parses candidates rather than trusting a filename prefix, which keeps
+// overlapping ids and id-like slugs from colliding incorrectly.
 func existsID(hubDir string) func(string) bool {
 	return func(id string) bool {
-		_, err := Find(hubDir, id)
-		return err == nil
+		found := false
+		_ = filepath.WalkDir(hubDir, func(path string, d os.DirEntry, err error) error {
+			if err != nil || found || d.IsDir() || filepath.Ext(path) != ".md" {
+				if err == nil && d != nil && d.IsDir() && d.Name() == ".git" {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			rel, _ := filepath.Rel(hubDir, path)
+			rel = filepath.ToSlash(rel)
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return nil
+			}
+			basename := strings.TrimSuffix(filepath.Base(rel), ".md")
+			if basename == id {
+				found = true
+				return filepath.SkipAll
+			}
+			if strings.Contains(rel, "/requests/") {
+				r, err := issue.ParseRequest(rel, data)
+				found = err == nil && (r.ID == id || contains(r.Aliases, id))
+			} else if strings.Contains(rel, "/issues/") || strings.Contains(rel, "/archive/") {
+				r, err := issue.Parse(rel, data)
+				found = err == nil && (r.ID == id || contains(r.Aliases, id))
+			}
+			return nil
+		})
+		return found
 	}
 }
 

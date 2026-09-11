@@ -129,6 +129,45 @@ func TestCreateReadyCloseRoundTrip(t *testing.T) {
 	}
 }
 
+func TestRequestCLIWorkflow(t *testing.T) {
+	e := newCLIEnv(t)
+	e.mustRun(t, "init", e.remote)
+	issueID := strings.TrimSpace(e.mustRun(t, "create", "linked work", "--silent"))
+	requestID := strings.TrimSpace(e.mustRun(t, "request", "create", "A request", "--issue", issueID, "--requested-by", "tester", "--silent"))
+	if !strings.HasPrefix(requestID, "myapp-r-") {
+		t.Fatalf("request id = %q", requestID)
+	}
+	if out := e.mustRun(t, "request", "list"); !strings.Contains(out, requestID) {
+		t.Fatalf("request list:\n%s", out)
+	}
+	shown := e.mustRun(t, "request", "show", requestID, "--json")
+	var detail map[string]any
+	if err := json.Unmarshal([]byte(shown), &detail); err != nil {
+		t.Fatal(err)
+	}
+	linked := detail["linked_issues"].([]any)
+	if len(linked) != 1 || linked[0].(map[string]any)["id"] != issueID {
+		t.Fatalf("request show: %#v", detail)
+	}
+	e.mustRun(t, "request", "update", requestID, "--status", "accepted")
+	e.mustRun(t, "request", "update", requestID, "--status", "in_progress")
+	e.mustRun(t, "request", "update", requestID, "--status", "resolved")
+	if out := e.mustRun(t, "request", "list"); strings.Contains(out, requestID) {
+		t.Fatalf("terminal request was listed by default:\n%s", out)
+	}
+	if out := e.mustRun(t, "request", "list", "--terminal"); !strings.Contains(out, requestID) {
+		t.Fatalf("terminal request missing:\n%s", out)
+	}
+	if _, code, err := e.runOut(t, "request", "update", requestID, "--status", "open"); err == nil || code != exitUsage {
+		t.Fatalf("terminal reopen without force: %d %v", code, err)
+	}
+	e.mustRun(t, "request", "update", requestID, "--status", "open", "--force")
+	e.mustRun(t, "request", "unlink", requestID, issueID)
+	if out := e.mustRun(t, "request", "show", requestID); strings.Contains(out, "linked issues:") {
+		t.Fatalf("unlink did not remove issue:\n%s", out)
+	}
+}
+
 func TestDepCyclesAndTree(t *testing.T) {
 	e := newCLIEnv(t)
 	e.mustRun(t, "init", e.remote)

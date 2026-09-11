@@ -53,7 +53,21 @@ export interface IssueLogEntry {
 }
 
 /** What kind of note a backlink's `from` (and `path`, when set) refers to. */
-export type NoteKind = 'issue' | 'doc' | 'memory' | 'handoff'
+export type NoteKind = 'issue' | 'doc' | 'memory' | 'plan' | 'request' | 'handoff'
+
+export type RequestStatus = 'open' | 'accepted' | 'in_progress' | 'resolved' | 'declined'
+export interface LinkedIssueSummary { id:string; title?:string; status?:string; priority?:number; project?:string; archived?:boolean; missing?:boolean }
+export interface RequestSummary { id:string; title:string; status:RequestStatus; priority:number; labels:string[]; requested_by:string; created:string; updated:string; project:string; path:string; issue_count:number }
+export interface RequestDetail extends RequestSummary { issues:LinkedIssueSummary[]; backlinks:Backlink[]; log:IssueLogEntry[]; toc:TocEntry[]; html:string }
+export interface ListRequestsParams { status?:RequestStatus; label?:string; priority?:number; q?:string; terminal?:boolean }
+
+export type PlanStatus = 'draft' | 'blocked' | 'ready' | 'complete'
+export interface PlanNode { id: string; label: string; kind: string; ref?: string }
+export interface PlanEdge { from: string; to: string; kind: string; label?: string }
+export interface PlanGraph { version: number; nodes: PlanNode[]; edges: PlanEdge[] }
+export interface PlanSummary { status: PlanStatus; outcome_html: string; affected_areas_html: string; execution_order_html: string; risks_html: string; graph: PlanGraph }
+export interface PlanListItem { id:string; title:string; status:PlanStatus; project:string; path:string; created:string; updated:string; section_count:number }
+export interface PlanDetail extends PlanListItem { summary: PlanSummary; sections: {path:string; html:string}[]; backlinks: Backlink[] }
 
 /**
  * A reference to this note from elsewhere in the hub. `from` is the issue id
@@ -109,7 +123,8 @@ export interface Issue {
   log?: IssueLogEntry[]
   children?: IssueChildSummary[]
   backlinks?: Backlink[]
-  blockers?: IssueBlocker[]
+	blockers?: IssueBlocker[]
+	requests?: {id:string;title:string;status:RequestStatus;priority:number;project:string}[]
 }
 
 export interface WorkflowInfo {
@@ -243,7 +258,7 @@ export interface DocOutlink {
 export type DocBacklink = Backlink
 
 export interface DocPage {
-  kind?: NoteKind
+	kind?: NoteKind
   path: string
   title: string
   project: string
@@ -259,12 +274,12 @@ export interface DocPage {
 export interface SearchParams {
   q: string
   kind?: string
-  project?: string
-  include_archived_handoffs?: boolean
+	project?: string
+	include_archived_handoffs?: boolean
 }
 
 export interface SearchResult {
-  kind: NoteKind
+	kind: NoteKind
   id: string
   basename: string
   title: string

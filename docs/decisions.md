@@ -108,3 +108,13 @@ They live in project `handoffs/` directories with stable IDs and an optional
 issue attachment, rather than becoming issue types or untyped docs. This keeps
 them out of readiness, blockers, and issue archival while retaining search,
 backlinks, and the normal git-backed write pipeline.
+
+## 2026-09-11: Requests are hub-native, request-owned artifacts
+
+Requests live under `projects/<project>/requests/` with a request-specific id
+namespace and a fixed lifecycle. Their canonical issue relationships are
+stored only in request frontmatter, permitting many-to-many and
+cross-project links without synchronizing issue files. The CLI is the sole
+authoring surface; the server and UI expose read-only request browsing.
+External request-directory discovery and migration were rejected to keep the
+hub the only source of truth.
