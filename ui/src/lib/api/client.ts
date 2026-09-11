@@ -13,6 +13,8 @@ import type {
   ListIssuesParams,
   MutationResult,
   ProjectSummary,
+	PlanDetail,
+	PlanListItem,
   SearchParams,
   SearchResult,
   UpdateIssueRequest,
@@ -80,6 +82,14 @@ export class ApiClient {
 
   getIssue(id: string): Promise<IssueDetail> {
     return this.request(`/issues/${encodeURIComponent(id)}`)
+  }
+
+  listPlans(project: string, status?: string): Promise<PlanListItem[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/plans`, { query: { status } })
+  }
+
+  getPlan(id: string): Promise<PlanDetail> {
+    return this.request(`/plans/${encodeURIComponent(id)}`)
   }
 
   createIssue(project: string, body: CreateIssueRequest): Promise<CreateIssueResult> {

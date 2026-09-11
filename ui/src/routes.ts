@@ -6,6 +6,7 @@ export interface AppRoute {
 }
 
 export const routes: AppRoute[] = [
+	{ path: '/plans', label: 'Plans', title: 'Plans', description: 'Read-only implementation plans' },
   {
     path: '/issues',
     label: 'Issues',
@@ -40,28 +41,35 @@ export const routes: AppRoute[] = [
 
 /** Returns the route metadata (nav highlight, page title) for a pathname. */
 export function getRoute(pathname: string): AppRoute {
-  if (pathname === '/' || pathname === '/issues' || pathname.startsWith('/issues/')) {
-    return routes[0]
+	const route = (path: string) => routes.find((item) => item.path === path)!
+	if (pathname === '/plans' || pathname.startsWith('/plans/')) { return route('/plans') }
+	if (pathname === '/' || pathname === '/issues' || pathname.startsWith('/issues/')) {
+		return route('/issues')
   }
   if (pathname === '/ready') {
-    return routes[1]
+		return route('/ready')
   }
   if (pathname === '/graph') {
-    return routes[2]
+		return route('/graph')
   }
   if (pathname === '/wiki' || pathname.startsWith('/wiki/')) {
-    return routes[3]
+		return route('/wiki')
   }
   if (pathname === '/search') {
-    return routes[4]
+		return route('/search')
   }
-  return routes[0]
+	return route('/issues')
 }
 
 /** Extracts the issue id from `/issues/:id`, or null when the path is not a detail path. */
 export function parseIssueId(pathname: string): string | null {
   const match = /^\/issues\/([^/]+)\/?$/.exec(pathname)
   return match ? decodeURIComponent(match[1]) : null
+}
+
+export function parsePlanId(pathname: string): string | null {
+	const match = /^\/plans\/([^/]+)\/?$/.exec(pathname)
+	return match ? decodeURIComponent(match[1]) : null
 }
 
 /** Extracts the doc path from `/wiki` or `/wiki/*path`, as a hub-relative path (no leading slash). */

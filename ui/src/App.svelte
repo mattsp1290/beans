@@ -7,7 +7,8 @@
   import ReadyRoute from './routes/ready/ReadyRoute.svelte'
   import SearchRoute from './routes/search/SearchRoute.svelte'
   import WikiRoute from './routes/wiki/WikiRoute.svelte'
-  import { getRoute, parseIssueId, parseWikiPath, routes } from './routes'
+	import PlansRoute from './routes/plans/PlansRoute.svelte'
+	import { getRoute, parseIssueId, parsePlanId, parseWikiPath, routes } from './routes'
 
   const PROJECT_STORAGE_KEY = 'bn-ui:project'
   const EMPTY_WORKFLOW: WorkflowInfo = { statuses: [], active: [], terminal: [] }
@@ -16,6 +17,7 @@
   let search = $state(window.location.search)
   const route = $derived(getRoute(pathname))
   const issueId = $derived(parseIssueId(pathname))
+	const planId = $derived(parsePlanId(pathname))
   const wikiPath = $derived(parseWikiPath(pathname))
   const searchQuery = $derived(new URLSearchParams(search).get('q') ?? '')
 
@@ -179,7 +181,9 @@
     <p>{route.description}</p>
   {/snippet}
 
-  {#if issueId}
+  {#if planId || pathname === '/plans'}
+    <PlansRoute {project} id={planId} navigate={go} {reloadKey} />
+  {:else if issueId}
     <IssueDetailRoute id={issueId} navigate={go} {reloadKey} onBanner={setBanner} />
   {:else if pathname === '/ready'}
     <ReadyRoute {project} navigate={go} {reloadKey} />
