@@ -262,16 +262,19 @@ func (s *Server) toIssueDetail(ix *vault.Index, iss *issue.Issue) issueJSON {
 	if err == nil {
 		out.HTML = string(html)
 	}
-	wf := ix.WorkflowFor(iss.Project)
-	for _, req := range ix.Requests {
-		for _, link := range req.Issues {
-			if n, ok := ix.Lookup(link.Target); ok && n.Issue != nil && n.Issue.ID == iss.ID {
-				out.Requests = append(out.Requests, requestSummaryJSON{ID: req.ID, Title: req.Title, Status: req.Status, Priority: req.Priority, Project: req.Project})
-				break
-			}
+	for _, link := range ix.Backlinks[base] {
+		if link.Kind != vault.LinkRequestIssue {
+			continue
 		}
+		note, ok := ix.Notes[link.From]
+		if !ok || note.Request == nil {
+			continue
+		}
+		req := note.Request
+		out.Requests = append(out.Requests, requestSummaryJSON{ID: req.ID, Title: req.Title, Status: req.Status, Priority: req.Priority, Project: req.Project})
 	}
 	sort.Slice(out.Requests, func(i, j int) bool { return out.Requests[i].ID < out.Requests[j].ID })
+	wf := ix.WorkflowFor(iss.Project)
 	out.Workflow = &workflowJSON{Statuses: wf.Statuses, Active: wf.Active, Terminal: wf.Terminal}
 	return out
 }
