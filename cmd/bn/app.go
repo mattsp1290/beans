@@ -55,6 +55,9 @@ type appState struct {
 }
 
 func newRootCmd(rs *appState) *cobra.Command {
+	if rs.clock == nil {
+		rs.clock = time.Now
+	}
 	if rs.git == nil {
 		rs.git = gitops.SystemGit{}
 	}
