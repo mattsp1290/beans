@@ -106,6 +106,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newMemoriesCmd(rs),
 		newForgetCmd(rs),
 		newDocCmd(rs),
+		newPlanCmd(rs),
 		newDoctorCmd(rs),
 		newPrimeCmd(),
 		newImportCmd(rs),

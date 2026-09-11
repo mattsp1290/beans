@@ -16,6 +16,7 @@ import (
 
 	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/markdown"
+	"github.com/mattsp1290/beans/plan"
 )
 
 // Kind is the kind of note indexed from the hub.
@@ -25,6 +26,7 @@ const (
 	KindIssue  Kind = "issue"
 	KindDoc    Kind = "doc"
 	KindMemory Kind = "memory"
+	KindPlan   Kind = "plan"
 )
 
 // LinkKind is the origin of one outbound link from a note.
@@ -64,6 +66,7 @@ type Note struct {
 	Frontmatter map[string]any
 	Issue       *issue.Issue  // set for KindIssue
 	Memory      *issue.Memory // set for KindMemory
+	Plan        *plan.Plan    // set for KindPlan
 
 	rawOut  []rawLink // link targets before resolution
 	docBody string    // doc body, kept for Search; issues/memories keep it on Issue/Memory
@@ -98,6 +101,7 @@ type Index struct {
 	Workflow  issue.WorkflowConfig // hub-level
 	Projects  map[string]*Project
 	Issues    map[string]*issue.Issue // by id
+	Plans     map[string]*plan.Plan   // by stable id
 	Notes     map[string]*Note        // by basename; on a collision the first in walk order wins
 	ByPath    map[string]*Note        // by hub-relative path; every note, collisions included
 	Aliases   map[string]string       // alias -> basename
@@ -161,6 +165,7 @@ func LoadWithOptions(hubDir string, opts LoadOptions) (*Index, error) {
 		HubDir:           abs,
 		Projects:         map[string]*Project{},
 		Issues:           map[string]*issue.Issue{},
+		Plans:            map[string]*plan.Plan{},
 		Notes:            map[string]*Note{},
 		ByPath:           map[string]*Note{},
 		Aliases:          map[string]string{},
@@ -243,9 +248,42 @@ func (ix *Index) walkAndIndex(root string) error {
 			return err
 		}
 		rel = filepath.ToSlash(rel)
-		ix.loadPath(root, rel)
+		if project, ok := planManifestPath(rel); ok {
+			ix.loadPlan(root, project, filepath.ToSlash(filepath.Dir(rel)))
+		} else {
+			ix.loadPath(root, rel)
+		}
 		return nil
 	})
+}
+
+func planManifestPath(rel string) (string, bool) {
+	s := strings.Split(rel, "/")
+	return func() (string, bool) {
+		if len(s) == 5 && s[0] == "projects" && s[2] == "plans" && s[4] == "plan.md" {
+			return s[1], true
+		}
+		return "", false
+	}()
+}
+
+func (ix *Index) loadPlan(root, project, rel string) {
+	b, err := plan.Load(filepath.Join(root, filepath.FromSlash(rel)))
+	if err != nil {
+		ix.addParseWarning(rel, err)
+		return
+	}
+	if !plan.ValidID(ix.Projects[project].Config.Prefix, b.Plan.ID) && !plan.ValidID(project, b.Plan.ID) {
+		ix.addParseWarning(rel, fmt.Errorf("plan id %q does not match project", b.Plan.ID))
+		return
+	}
+	b.Plan.Path = rel + "/plan.md"
+	n := &Note{Kind: KindPlan, Path: b.Plan.Path, Basename: b.Plan.ID, Project: project, Title: b.Plan.Title, Plan: b.Plan}
+	n.rawOut = linksToRaw(markdown.Links([]byte(b.Plan.Body)))
+	for _, s := range b.Sections {
+		n.rawOut = append(n.rawOut, linksToRaw(markdown.Links([]byte(s.Markdown)))...)
+	}
+	ix.registerNote(b.Plan.ID, n)
 }
 
 func skipDirName(name string) bool {
@@ -461,6 +499,7 @@ func (ix *Index) addParseWarning(path string, err error) {
 func (ix *Index) rebuild() {
 	notes := map[string]*Note{}
 	issues := map[string]*issue.Issue{}
+	plans := map[string]*plan.Plan{}
 	var dups []Warning
 	for _, n := range ix.order {
 		if first, dup := notes[n.Basename]; dup {
@@ -475,9 +514,17 @@ func (ix *Index) rebuild() {
 				issues[n.Issue.ID] = n.Issue
 			}
 		}
+		if n.Kind == KindPlan && n.Plan != nil {
+			if first, dup := plans[n.Plan.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate plan id %q (also %s); the first is used", n.Plan.ID, first.Path)})
+			} else {
+				plans[n.Plan.ID] = n.Plan
+			}
+		}
 	}
 	ix.Notes = notes
 	ix.Issues = issues
+	ix.Plans = plans
 	ix.dupWarnings = dups
 	aliases := map[string]string{}
 	for _, n := range ix.order {
@@ -504,6 +551,10 @@ func noteAliases(n *Note) []string {
 		}
 	case KindDoc:
 		return stringListField(n.Frontmatter, "aliases")
+	case KindPlan:
+		if n.Plan != nil {
+			return n.Plan.Aliases
+		}
 	}
 	return nil
 }
