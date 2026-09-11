@@ -140,6 +140,7 @@ func LoadSnapshot(root string, snap BundleSnapshot) (*Bundle, error) {
 	if err := Validate(p); err != nil {
 		return nil, err
 	}
+	p.SectionBodies = append([]Section(nil), sections...)
 	return &Bundle{Plan: p, Sections: sections, Root: root}, nil
 }
 func projectPrefix(id string) string { return strings.Split(id, "-plan-")[0] }

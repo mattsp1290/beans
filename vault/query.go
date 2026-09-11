@@ -442,7 +442,11 @@ func noteSearchBody(n *Note) string {
 		return n.docBody
 	case KindPlan:
 		if n.Plan != nil {
-			return n.Plan.Body + "\n" + n.Plan.Summary.Outcome + "\n" + n.Plan.Summary.AffectedAreas + "\n" + n.Plan.Summary.ExecutionOrder + "\n" + n.Plan.Summary.Risks
+			body := n.Plan.Body + "\n" + n.Plan.Summary.Outcome + "\n" + n.Plan.Summary.AffectedAreas + "\n" + n.Plan.Summary.ExecutionOrder + "\n" + n.Plan.Summary.Risks
+			for _, section := range n.Plan.SectionBodies {
+				body += "\n" + section.Markdown
+			}
+			return body
 		}
 	}
 	return ""

@@ -110,6 +110,13 @@ func WatchWithOptions(ctx context.Context, ix *Index, opts WatchOptions) error {
 // directories to the watch set, and records relevant .md file paths into
 // pending. It reports whether pending changed.
 func handleEvent(w *fsnotify.Watcher, hubDir string, ev fsnotify.Event, pending map[string]bool) bool {
+	planChanged := false
+	if ev.Op&(fsnotify.Create|fsnotify.Write|fsnotify.Rename|fsnotify.Remove) != 0 {
+		if root, ok := watchedPlanRoot(hubDir, ev.Name); ok {
+			pending[root+"/plan.md"] = true
+			planChanged = true
+		}
+	}
 	if ev.Op&fsnotify.Create != 0 {
 		if fi, err := os.Stat(ev.Name); err == nil && fi.IsDir() {
 			if skipDirName(filepath.Base(ev.Name)) {
@@ -129,11 +136,11 @@ func handleEvent(w *fsnotify.Watcher, hubDir string, ev fsnotify.Event, pending 
 				}
 				return nil
 			})
-			return changed
+			return changed || watchedPlanRootChanged(hubDir, ev.Name, pending)
 		}
 	}
 	if _, ok := watchedRel(hubDir, ev.Name); !ok {
-		return false
+		return planChanged
 	}
 	if ev.Op&(fsnotify.Create|fsnotify.Write|fsnotify.Rename|fsnotify.Remove) == 0 {
 		return false
@@ -141,6 +148,28 @@ func handleEvent(w *fsnotify.Watcher, hubDir string, ev fsnotify.Event, pending 
 	rel, _ := watchedRel(hubDir, ev.Name)
 	pending[rel] = true
 	return true
+}
+
+func watchedPlanRootChanged(hubDir, name string, pending map[string]bool) bool {
+	root, ok := watchedPlanRoot(hubDir, name)
+	if ok {
+		pending[root+"/plan.md"] = true
+	}
+	return ok
+}
+
+// watchedPlanRoot maps any path at or below a direct plans child to its
+// canonical manifest. This also works after a directory has disappeared.
+func watchedPlanRoot(hubDir, name string) (string, bool) {
+	rel, err := filepath.Rel(hubDir, name)
+	if err != nil {
+		return "", false
+	}
+	parts := strings.Split(filepath.ToSlash(rel), "/")
+	if len(parts) >= 4 && parts[0] == "projects" && parts[2] == "plans" && !pathIgnored(filepath.ToSlash(rel)) {
+		return strings.Join(parts[:4], "/"), true
+	}
+	return "", false
 }
 
 // watchedRel returns the hub-relative path of a file the watcher cares

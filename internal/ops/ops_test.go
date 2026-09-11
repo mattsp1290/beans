@@ -9,6 +9,7 @@ import (
 
 	"github.com/mattsp1290/beans/gitops"
 	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
 )
 
 func testEnv(t *testing.T) (Env, string) {
@@ -63,6 +64,36 @@ func TestCreateWritesFileAndIsReplaySafe(t *testing.T) {
 		if _, err := op2.Apply(hub); err == nil {
 			t.Fatal("unknown type must be rejected")
 		}
+	}
+}
+
+func TestPlanPutRejectsDuplicateIDInAnotherProject(t *testing.T) {
+	env, hub := testEnv(t)
+	id := "p-plan-a3f2"
+	other := filepath.Join(hub, "projects", "other", "plans", "p-plan-a3f2-existing")
+	if err := os.MkdirAll(filepath.Dir(other), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(other, id, "other project", env.Now()); err != nil {
+		t.Fatal(err)
+	}
+	draftDir := filepath.Join(t.TempDir(), "draft")
+	if err := plan.WriteScaffold(draftDir, id, "target project", env.Now()); err != nil {
+		t.Fatal(err)
+	}
+	draft, err := plan.Load(draftDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	op, _, err := PlanPut(env, PlanPutInput{Snapshot: draft.Snapshot(), Prefix: "p"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := op.Apply(hub); err == nil || !strings.Contains(err.Error(), "already belongs to project") {
+		t.Fatalf("cross-project duplicate must be rejected: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(other, "plan.md")); err != nil {
+		t.Fatalf("other project plan was changed: %v", err)
 	}
 }
 

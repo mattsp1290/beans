@@ -14,15 +14,15 @@ var scaffold string
 
 // Scaffold produces the initial valid draft body with a frozen id and slug.
 func Scaffold(id, title string, now time.Time) []byte {
-	replacements := map[string]string{
-		"{{ .ID }}": id, "{{ .Title }}": title, "{{ .Slug }}": Slug(title),
-		"{{ .Created }}": now.UTC().Format(time.RFC3339), "{{ .Updated }}": now.UTC().Format(time.RFC3339),
+	body := scaffold
+	if end := strings.Index(body[4:], "\n---\n"); end >= 0 {
+		body = body[end+9:]
 	}
-	s := scaffold
-	for old, new := range replacements {
-		s = strings.ReplaceAll(s, old, new)
+	data, err := Encode(&Plan{ID: id, Aliases: []string{id}, Title: title, Slug: Slug(title), Status: StatusDraft, Created: now, Updated: now, Body: body})
+	if err != nil {
+		panic(err)
 	}
-	return []byte(s)
+	return data
 }
 
 // WriteScaffold creates an empty destination containing a draft bundle.

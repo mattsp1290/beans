@@ -14,6 +14,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/mattsp1290/beans/gitops"
 	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/markdown"
 	"github.com/mattsp1290/beans/plan"
@@ -238,9 +239,23 @@ func (ix *Index) walkAndIndex(root string) error {
 		if path == root {
 			return nil
 		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
 		name := d.Name()
 		if d.IsDir() {
+			if isPlansDirectory(rel) {
+				if err := gitops.RecoverTrees(path); err != nil {
+					return fmt.Errorf("vault: recover plan trees in %s: %w", rel, err)
+				}
+			}
 			if skipDirName(name) {
+				return filepath.SkipDir
+			}
+			if project, ok := planBundlePath(rel); ok {
+				ix.loadPlan(root, project, rel)
 				return filepath.SkipDir
 			}
 			return nil
@@ -248,11 +263,10 @@ func (ix *Index) walkAndIndex(root string) error {
 		if strings.HasPrefix(name, ".") {
 			return nil
 		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			return err
+		if isPlanRootEntry(rel) {
+			ix.addParseWarning(rel, fmt.Errorf("plan root must be a directory"))
+			return nil
 		}
-		rel = filepath.ToSlash(rel)
 		if project, ok := planManifestPath(rel); ok {
 			ix.loadPlan(root, project, filepath.ToSlash(filepath.Dir(rel)))
 		} else {
@@ -260,6 +274,23 @@ func (ix *Index) walkAndIndex(root string) error {
 		}
 		return nil
 	})
+}
+
+func isPlansDirectory(rel string) bool {
+	parts := strings.Split(filepath.ToSlash(rel), "/")
+	return len(parts) == 3 && parts[0] == "projects" && parts[1] != "" && parts[2] == "plans"
+}
+
+func planBundlePath(rel string) (string, bool) {
+	s := strings.Split(rel, "/")
+	if len(s) == 4 && s[0] == "projects" && s[2] == "plans" {
+		return s[1], true
+	}
+	return "", false
+}
+func isPlanRootEntry(rel string) bool {
+	s := strings.Split(rel, "/")
+	return len(s) == 4 && s[0] == "projects" && s[2] == "plans"
 }
 
 func planManifestPath(rel string) (string, bool) {
@@ -278,7 +309,12 @@ func (ix *Index) loadPlan(root, project, rel string) {
 		ix.addParseWarning(rel, err)
 		return
 	}
-	if !plan.ValidID(ix.Projects[project].Config.Prefix, b.Plan.ID) && !plan.ValidID(project, b.Plan.ID) {
+	projectRecord, exists := ix.Projects[project]
+	if !exists {
+		ix.addParseWarning(rel, fmt.Errorf("plan project %q has no beans.toml", project))
+		return
+	}
+	if !plan.ValidID(projectRecord.Config.Prefix, b.Plan.ID) && !plan.ValidID(project, b.Plan.ID) {
 		ix.addParseWarning(rel, fmt.Errorf("plan id %q does not match project", b.Plan.ID))
 		return
 	}
@@ -732,7 +768,7 @@ func (ix *Index) reloadAll() error {
 		return err
 	}
 	ix.HubConfig, ix.Workflow, ix.Projects = fresh.HubConfig, fresh.Workflow, fresh.Projects
-	ix.Issues, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
+	ix.Issues, ix.Plans, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Plans, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
 	ix.Assets, ix.Warnings = fresh.Assets, fresh.Warnings
 	ix.order, ix.parseWarnings, ix.linkWarnings, ix.dupWarnings, ix.hubTOML = fresh.order, fresh.parseWarnings, fresh.linkWarnings, fresh.dupWarnings, fresh.hubTOML
 	return nil
@@ -755,6 +791,10 @@ func (ix *Index) toRelPath(p string) (string, error) {
 }
 
 func (ix *Index) reloadOne(rel string) {
+	if project, root, ok := planRoot(rel); ok {
+		ix.reloadPlan(project, root)
+		return
+	}
 	ix.removeNoteByPath(rel)
 	delete(ix.parseWarnings, rel)
 	delete(ix.Assets, rel)
@@ -778,6 +818,41 @@ func (ix *Index) reloadOne(rel string) {
 		return
 	}
 	ix.indexFile(kind, project, rel, data)
+}
+
+// planRoot maps a manifest or section event to its aggregate bundle root.
+func planRoot(rel string) (project, root string, ok bool) {
+	parts := strings.Split(rel, "/")
+	if len(parts) >= 5 && parts[0] == "projects" && parts[2] == "plans" {
+		return parts[1], strings.Join(parts[:4], "/"), true
+	}
+	return "", "", false
+}
+
+// reloadPlan preserves a last known valid aggregate while an editor is in
+// the middle of a multi-file update. A missing root is a real deletion.
+func (ix *Index) reloadPlan(project, root string) {
+	manifest := root + "/plan.md"
+	abs := filepath.Join(ix.HubDir, filepath.FromSlash(root))
+	if err := gitops.RecoverTree(abs); err != nil {
+		ix.addParseWarning(manifest, fmt.Errorf("recover plan tree: %w", err))
+		return
+	}
+	if _, err := os.Stat(abs); os.IsNotExist(err) {
+		ix.removeNoteByPath(manifest)
+		delete(ix.parseWarnings, manifest)
+		return
+	}
+	b, err := plan.Load(abs)
+	if err != nil {
+		ix.addParseWarning(manifest, err)
+		return
+	}
+	ix.removeNoteByPath(manifest)
+	delete(ix.parseWarnings, manifest)
+	// loadPlan performs the same identity and link extraction as initial load.
+	_ = b
+	ix.loadPlan(ix.HubDir, project, root)
 }
 
 // removeNoteByPath drops the note (if any) previously indexed from rel.

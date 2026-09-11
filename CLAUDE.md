@@ -71,6 +71,7 @@ project's issues live under `projects/<name>/`.
 | --- | --- |
 | `cmd/bn/` | cobra + fang entry point and every command |
 | `issue/` | issue and memory model, the round-trip-safe frontmatter codec, ids, log lines, templates, config |
+| `plan/` | validated project plan bundles, lifecycle, sections, and change graph schema |
 | `vault/` | hub paths, project resolution, remote-URL normalization, the in-memory index, queries, watcher |
 | `gitops/` | the git write pipeline: lock, fetch throttle, rebase, commit, push with replay |
 | `markdown/` | goldmark renderer for Obsidian-flavored markdown (wikilinks, embeds, callouts, highlight) |
