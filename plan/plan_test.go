@@ -3,6 +3,7 @@ package plan
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -19,6 +20,36 @@ func TestScaffoldLoadsAsDraft(t *testing.T) {
 	}
 	if b.Plan.ID != "beans-plan-a3f2" || b.Plan.Slug != "add-plan-artifacts" || b.Plan.Status != StatusDraft {
 		t.Fatalf("unexpected plan: %#v", b.Plan)
+	}
+}
+
+func TestLoadRetainsOrderedSectionBodies(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "draft")
+	if err := WriteScaffold(dir, "beans-plan-a3f2", "x", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := os.ReadFile(filepath.Join(dir, "plan.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest = []byte(strings.Replace(string(manifest), "updated:", "sections:\n  - sections/02.md\n  - sections/01.md\nupdated:", 1))
+	if err := os.WriteFile(filepath.Join(dir, "plan.md"), manifest, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(dir, "sections"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, item := range []struct{ name, body string }{{"01.md", "# First\n"}, {"02.md", "# Second\n"}} {
+		if err := os.WriteFile(filepath.Join(dir, "sections", item.name), []byte(item.body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	b, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(b.Plan.SectionBodies) != 2 || b.Plan.SectionBodies[0].Path != "sections/02.md" || b.Plan.SectionBodies[1].Markdown != "# First\n" {
+		t.Fatalf("unexpected section bodies: %#v", b.Plan.SectionBodies)
 	}
 }
 
