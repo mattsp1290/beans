@@ -93,18 +93,31 @@ func findPlan(hub, id string) (bool, string, *plan.Bundle, error) {
 	var root string
 	err := filepath.WalkDir(filepath.Join(hub, "projects"), func(p string, d os.DirEntry, e error) error {
 		if e != nil {
-			return nil
+			return e
 		}
 		if !d.IsDir() || d.Name() != "plans" {
 			return nil
 		}
-		entries, _ := os.ReadDir(p)
+		entries, readErr := os.ReadDir(p)
+		if readErr != nil {
+			return readErr
+		}
 		for _, x := range entries {
 			if !x.IsDir() {
 				continue
 			}
-			b, e := plan.Load(filepath.Join(p, x.Name()))
-			if e == nil && b.Plan.ID == id {
+			candidate := filepath.Join(p, x.Name())
+			if _, statErr := os.Stat(filepath.Join(candidate, "plan.md")); statErr != nil {
+				if os.IsNotExist(statErr) {
+					continue
+				}
+				return statErr
+			}
+			b, loadErr := plan.Load(candidate)
+			if loadErr != nil {
+				return loadErr
+			}
+			if b.Plan.ID == id {
 				r, _ := filepath.Rel(hub, filepath.Join(p, x.Name()))
 				root = filepath.ToSlash(r)
 				return filepath.SkipAll

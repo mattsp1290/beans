@@ -52,7 +52,7 @@ func Parse(path string, data []byte) (*Plan, error) {
 		}
 		seen[k.Value] = true
 		if !owned[k.Value] {
-			continue
+			return nil, fmt.Errorf("%s: unknown frontmatter key %q", path, k.Value)
 		}
 		var err error
 		switch k.Value {
@@ -134,19 +134,35 @@ func Encode(p *Plan) ([]byte, error) {
 	if !p.Status.Valid() {
 		return nil, fmt.Errorf("invalid status")
 	}
+	root := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
+	add := func(key, value string) {
+		root.Content = append(root.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: key}, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: value})
+	}
+	add("id", p.ID)
+	aliases := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+	for _, alias := range p.Aliases {
+		aliases.Content = append(aliases.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: alias})
+	}
+	root.Content = append(root.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "aliases"}, aliases)
+	add("title", p.Title)
+	add("slug", p.Slug)
+	add("status", string(p.Status))
+	add("created", p.Created.UTC().Format(time.RFC3339))
+	add("updated", p.Updated.UTC().Format(time.RFC3339))
+	if len(p.Sections) > 0 {
+		sections := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+		for _, section := range p.Sections {
+			sections.Content = append(sections.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: section})
+		}
+		root.Content = append(root.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "sections"}, sections)
+	}
+	fm, err := yaml.Marshal(root)
+	if err != nil {
+		return nil, err
+	}
 	var b strings.Builder
 	b.WriteString("---\n")
-	fmt.Fprintf(&b, "id: %s\naliases:\n", p.ID)
-	for _, a := range p.Aliases {
-		fmt.Fprintf(&b, "  - %s\n", a)
-	}
-	fmt.Fprintf(&b, "title: %s\nslug: %s\nstatus: %s\ncreated: %s\nupdated: %s\n", p.Title, p.Slug, p.Status, p.Created.UTC().Format(time.RFC3339), p.Updated.UTC().Format(time.RFC3339))
-	if len(p.Sections) > 0 {
-		b.WriteString("sections:\n")
-		for _, s := range p.Sections {
-			fmt.Fprintf(&b, "  - %s\n", s)
-		}
-	}
+	b.Write(fm)
 	b.WriteString("---\n")
 	b.WriteString(p.Body)
 	if !strings.HasSuffix(p.Body, "\n") {

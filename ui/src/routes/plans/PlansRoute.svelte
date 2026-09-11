@@ -6,6 +6,7 @@
   interface Props { project:string; id:string|null; reloadKey:number; navigate:(path:string)=>void }
   let { project, id, reloadKey, navigate }:Props=$props()
   let plans=$state<PlanListItem[]>([]), detail=$state<PlanDetail|null>(null), error=$state(''), loading=$state(true)
+  let showGraphText=$state(false)
   $effect(()=>{ project; id; reloadKey; let cancelled=false;loading=true;error='';(id?api.getPlan(id):api.listPlans(project)).then((v)=>{if(cancelled)return;if(id)detail=v as PlanDetail;else plans=v as PlanListItem[]}).catch((e)=>{if(!cancelled)error=e instanceof Error?e.message:'Could not load plans'}).finally(()=>{if(!cancelled)loading=false});return()=>{cancelled=true}})
 </script>
 
@@ -18,7 +19,7 @@
     <section><h3>Affected areas</h3>{@html detail.summary.affected_areas_html}</section>
     <section><h3>Execution order</h3>{@html detail.summary.execution_order_html}</section>
     <section><h3>Risks</h3>{@html detail.summary.risks_html}</section>
-		<section><h3>Change graph</h3><PlanGraph graph={detail.summary.graph} /><button type="button" onclick={(e)=>{const n=(e.currentTarget.nextElementSibling as HTMLElement);n.hidden=!n.hidden}}>View graph as text</button><ul hidden>{#each detail.summary.graph.nodes as node}<li><strong>{node.label}</strong> — {node.kind}{#if node.ref}: {node.ref}{/if}</li>{/each}{#each detail.summary.graph.edges as edge}<li>{edge.from} → {edge.to} ({edge.kind})</li>{/each}</ul></section>
+		<section><h3>Change graph</h3><PlanGraph graph={detail.summary.graph} /><button type="button" aria-expanded={showGraphText} onclick={()=>showGraphText=!showGraphText}>View graph as text</button><ul hidden={!showGraphText}>{#each detail.summary.graph.nodes as node}<li><strong>{node.label}</strong> — {node.kind}{#if node.ref}: {node.ref}{/if}</li>{/each}{#each detail.summary.graph.edges as edge}<li>{edge.from} → {edge.to} ({edge.kind})</li>{/each}</ul></section>
     {#each detail.sections as section}<section><h3>{section.path}</h3>{@html section.html}</section>{/each}
   </article>
 {:else}

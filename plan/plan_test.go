@@ -23,6 +23,29 @@ func TestScaffoldLoadsAsDraft(t *testing.T) {
 	}
 }
 
+func TestScaffoldSafelyEncodesSpecialTitle(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "draft")
+	title := "Ship: phase #1 \"quoted\""
+	if err := WriteScaffold(dir, "beans-plan-a3f2", title, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	b, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b.Plan.Title != title {
+		t.Fatalf("title = %q, want %q", b.Plan.Title, title)
+	}
+}
+
+func TestParseRejectsUnknownFrontmatter(t *testing.T) {
+	data := Scaffold("beans-plan-a3f2", "x", time.Now())
+	data = []byte(strings.Replace(string(data), "title:", "provenance: agent\ntitle:", 1))
+	if _, err := Parse("plan.md", data); err == nil {
+		t.Fatal("accepted unknown frontmatter")
+	}
+}
+
 func TestLoadRetainsOrderedSectionBodies(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "draft")
 	if err := WriteScaffold(dir, "beans-plan-a3f2", "x", time.Now()); err != nil {

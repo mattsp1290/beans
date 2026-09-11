@@ -30,7 +30,12 @@ func parseSummary(path, body string) (Summary, ChangeGraph, error) {
 		return Summary{}, ChangeGraph{}, fmt.Errorf("%s: missing Summary", path)
 	}
 	ends := len(lines)
+	inFence = false
 	for i := summary + 1; i < len(lines); i++ {
+		if strings.HasPrefix(strings.TrimSpace(lines[i]), "```") {
+			inFence = !inFence
+			continue
+		}
 		if !inFence && strings.HasPrefix(lines[i], "## ") {
 			ends = i
 			break

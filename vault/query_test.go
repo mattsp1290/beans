@@ -8,7 +8,15 @@ import (
 	"testing"
 
 	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
 )
+
+func TestPlanSearchBodyIncludesSectionBodies(t *testing.T) {
+	n := &Note{Kind: KindPlan, Plan: &plan.Plan{Body: "manifest", SectionBodies: []plan.Section{{Path: "sections/one.md", Markdown: "needle-only-in-section"}}}}
+	if !strings.Contains(noteSearchBody(n), "needle-only-in-section") {
+		t.Fatal("plan section content missing from search body")
+	}
+}
 
 func TestReadyExcludesBlocked(t *testing.T) {
 	ix, _ := loadFixture(t)

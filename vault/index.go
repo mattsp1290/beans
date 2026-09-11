@@ -293,7 +293,12 @@ func (ix *Index) loadPlan(root, project, rel string) {
 		ix.addParseWarning(rel, err)
 		return
 	}
-	if !plan.ValidID(ix.Projects[project].Config.Prefix, b.Plan.ID) && !plan.ValidID(project, b.Plan.ID) {
+	projectRecord, exists := ix.Projects[project]
+	if !exists {
+		ix.addParseWarning(rel, fmt.Errorf("plan project %q has no beans.toml", project))
+		return
+	}
+	if !plan.ValidID(projectRecord.Config.Prefix, b.Plan.ID) && !plan.ValidID(project, b.Plan.ID) {
 		ix.addParseWarning(rel, fmt.Errorf("plan id %q does not match project", b.Plan.ID))
 		return
 	}
