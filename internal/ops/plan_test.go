@@ -97,3 +97,28 @@ func TestPlanPutRejectsStaleRevision(t *testing.T) {
 		t.Fatalf("stale put error = %v", err)
 	}
 }
+
+func TestPlanLinkAndUnlinkAreIdempotent(t *testing.T) {
+	env, hub := testEnv(t)
+	issueID := create(t, env, hub, "Work", CreateInput{})
+	data := []byte(strings.Replace(string(plan.Scaffold("p-plan-a3f2", "Plan", env.now())), "nodes: []", "nodes:\n  - id: work\n    label: Work\n    kind: component", 1))
+	op, _, err := PlanPut(env, PlanPutInput{Snapshot: plan.BundleSnapshot{Files: map[string][]byte{"plan.md": data}}, Prefix: "p"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	apply(t, hub, op)
+	link, linked := PlanLink(env, "p-plan-a3f2", "work", issueID, false)
+	if paths := apply(t, hub, link); len(paths) != 1 || linked.Ref != issueID {
+		t.Fatalf("link = paths %v result %+v", paths, linked)
+	}
+	if paths := apply(t, hub, link); len(paths) != 0 {
+		t.Fatalf("idempotent link paths = %v", paths)
+	}
+	unlink, unlinked := PlanUnlink(env, "p-plan-a3f2", "work", issueID)
+	if paths := apply(t, hub, unlink); len(paths) != 1 || unlinked.Ref != "" || unlinked.IssueID != issueID {
+		t.Fatalf("unlink = paths %v result %+v", paths, unlinked)
+	}
+	if paths := apply(t, hub, unlink); len(paths) != 0 || unlinked.IssueID != issueID {
+		t.Fatalf("idempotent unlink = paths %v result %+v", paths, unlinked)
+	}
+}
