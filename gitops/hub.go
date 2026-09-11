@@ -688,7 +688,8 @@ func (h *Hub) commit(ctx context.Context, msg string, trailers ...string) error 
 	return err
 }
 
-// removeTempFiles deletes *.tmp everywhere in the hub except under .git.
+// removeTempFiles deletes only named temporary files created by Beans. User
+// files ending in .tmp are ordinary hub content and must survive.
 func (h *Hub) removeTempFiles() error {
 	return filepath.WalkDir(h.Dir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -700,7 +701,7 @@ func (h *Hub) removeTempFiles() error {
 			}
 			return nil
 		}
-		if strings.HasSuffix(d.Name(), ".tmp") {
+		if strings.HasPrefix(d.Name(), ".bn-write-") || strings.HasPrefix(d.Name(), ".bn-plan-") {
 			return os.Remove(p)
 		}
 		return nil
@@ -778,11 +779,20 @@ func WriteFile(path string, data []byte) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".bn-write-")
+	if err != nil {
 		return err
 	}
-	return os.Rename(tmp, path)
+	name := tmp.Name()
+	defer os.Remove(name)
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(name, path)
 }
 
 // WritePlanFile atomically replaces a manifest without staging an artifact
