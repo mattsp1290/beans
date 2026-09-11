@@ -79,3 +79,10 @@ func TestReadyRequiresStructuredSummary(t *testing.T) {
 		t.Fatal("ready plan accepted prose execution order")
 	}
 }
+
+func TestParseGraphRejectsUnknownFields(t *testing.T) {
+	_, err := ParseGraph("plan.md", "```bn-change-graph\nversion: 1\nnodes:\n  - id: model\n    label: Model\n    kind: component\n    color: red\nedges: []\n```")
+	if err == nil {
+		t.Fatal("ParseGraph accepted unknown node field")
+	}
+}
