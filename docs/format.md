@@ -153,6 +153,26 @@ Any `.md` under `docs/` at hub or project level. Frontmatter is optional;
 doc. `bn doc new` copies `templates/doc.md` if present, else writes a title
 line.
 
+## Plan bundle
+
+Project plans live in `projects/<project>/plans/<id>-<slug>/`. A bundle has a
+required `plan.md` manifest and optional Markdown files below `sections/`.
+The manifest owns `id`, `aliases`, `title`, `slug`, `status`, `created`,
+`updated`, and an ordered `sections` list. Plan ids are
+`<project-prefix>-plan-<random>`; the generated slug is frozen and aliases
+include the id. Only listed, regular `sections/<name>.md` files are allowed.
+
+`plan.md` contains exactly one `## Summary`, with `### Outcome`, `### Affected
+areas`, `### Execution order`, `### Risks`, and `### Change graph` in that
+order. Change graph is exactly one `bn-change-graph` YAML fence containing
+version 1, nodes, and edges. Plans use `draft`, `blocked`, `ready`, and
+`complete`; ready and complete plans require meaningful Summary content and
+at least one graph node. Complete plans are immutable.
+
+Use `bn plan init`, edit the local bundle, `bn plan validate`, and `bn plan
+put` to publish. `bn plan get`, `list`, and `show` are read-only. The browser
+only exposes plan browsing and graph inspection; it never mutates plans.
+
 ## Templates
 
 `projects/<project>/templates/<type>.md`, then hub-level

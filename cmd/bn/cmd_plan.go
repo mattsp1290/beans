@@ -83,6 +83,53 @@ func newPlanCmd(rs *appState) *cobra.Command {
 		}
 		return rs.printCommit(cmd, result, "published "+res.ID)
 	}}
+	var getOutput string
+	get := &cobra.Command{Use: "get <id>", Short: "Copy a published plan into a new local directory", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		if strings.TrimSpace(getOutput) == "" {
+			return fmt.Errorf("--output is required")
+		}
+		if err := rs.setupProject(false, false); err != nil {
+			return err
+		}
+		if _, err := os.Lstat(getOutput); err == nil {
+			return fmt.Errorf("plan output already exists: %s", getOutput)
+		} else if !os.IsNotExist(err) {
+			return err
+		}
+		ix, err := rs.readIndex(cmd.Context())
+		if err != nil {
+			return err
+		}
+		ix.RLock()
+		p, ok := ix.PlanByID(args[0])
+		ix.RUnlock()
+		if !ok {
+			return notFound("plan %s not found", args[0])
+		}
+		if err := os.Mkdir(getOutput, 0o755); err != nil {
+			return err
+		}
+		root := filepath.Join(rs.paths.Hub, filepath.FromSlash(strings.TrimSuffix(p.Path, "/plan.md")))
+		bundle, err := plan.Load(root)
+		if err != nil {
+			_ = os.RemoveAll(getOutput)
+			return err
+		}
+		for name, data := range bundle.Snapshot().Files {
+			if err := os.MkdirAll(filepath.Dir(filepath.Join(getOutput, filepath.FromSlash(name))), 0o755); err != nil {
+				return err
+			}
+			if err := os.WriteFile(filepath.Join(getOutput, filepath.FromSlash(name)), data, 0o644); err != nil {
+				return err
+			}
+		}
+		if rs.jsonOut {
+			return writeJSON(map[string]any{"id": p.ID, "status": p.Status, "source": p.Path, "destination": getOutput})
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "retrieved %s to %s\n", p.ID, getOutput)
+		return nil
+	}}
+	get.Flags().StringVar(&getOutput, "output", "", "new local directory")
 	var status string
 	list := &cobra.Command{Use: "list", Short: "List plans in the project", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, args []string) error {
 		if err := rs.setupProject(false, false); err != nil {
@@ -131,6 +178,6 @@ func newPlanCmd(rs *appState) *cobra.Command {
 		fmt.Fprintf(cmd.OutOrStdout(), "%s (%s)\n\n%s\n", p.Title, p.Status, p.Body)
 		return nil
 	}}
-	root.AddCommand(init, validate, put, list, show)
+	root.AddCommand(init, validate, put, get, list, show)
 	return root
 }
