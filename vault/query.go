@@ -371,6 +371,8 @@ func (ix *Index) Search(q string, kinds []Kind) []Hit {
 		id := ""
 		if n.Kind == KindIssue && n.Issue != nil {
 			id = n.Issue.ID
+		} else if n.Kind == KindPlan && n.Plan != nil {
+			id = n.Plan.ID
 		}
 
 		score := 0
@@ -425,6 +427,10 @@ func noteSearchBody(n *Note) string {
 		}
 	case KindDoc:
 		return n.docBody
+	case KindPlan:
+		if n.Plan != nil {
+			return n.Plan.Body + "\n" + n.Plan.Summary.Outcome + "\n" + n.Plan.Summary.AffectedAreas + "\n" + n.Plan.Summary.ExecutionOrder + "\n" + n.Plan.Summary.Risks
+		}
 	}
 	return ""
 }

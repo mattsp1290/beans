@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -26,6 +27,9 @@ func newSearchCmd(rs *appState) *cobra.Command {
 			}
 			var kinds []vault.Kind
 			if kind != "" {
+				if !map[vault.Kind]bool{vault.KindIssue: true, vault.KindDoc: true, vault.KindMemory: true, vault.KindPlan: true}[vault.Kind(kind)] {
+					return errors.New("--kind must be issue, doc, memory, or plan")
+				}
 				kinds = []vault.Kind{vault.Kind(kind)}
 			}
 			hits := ix.Search(strings.Join(args, " "), kinds)
@@ -50,7 +54,7 @@ func newSearchCmd(rs *appState) *cobra.Command {
 			return w.Flush()
 		},
 	}
-	cmd.Flags().StringVar(&kind, "kind", "", "issue, doc, or memory")
+	cmd.Flags().StringVar(&kind, "kind", "", "issue, doc, memory, or plan")
 	cmd.Flags().BoolVar(&all, "all-projects", false, "every project in the hub")
 	return cmd
 }
