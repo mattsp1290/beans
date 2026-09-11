@@ -701,7 +701,7 @@ func (h *Hub) removeTempFiles() error {
 			}
 			return nil
 		}
-		if strings.HasPrefix(d.Name(), ".bn-write-") || strings.HasPrefix(d.Name(), ".bn-plan-") {
+		if strings.HasPrefix(d.Name(), ".bn-write-") || strings.HasPrefix(d.Name(), ".bn-plan-") || d.Name() == "plan.md.tmp" {
 			return os.Remove(p)
 		}
 		return nil
