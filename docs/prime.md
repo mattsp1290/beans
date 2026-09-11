@@ -26,8 +26,9 @@ Ids are `<prefix>-<hash>`, for example `beans-a3f2`; they are unique across the 
 - `bn search <query>` — issues, docs, and memories
 - `bn remember "text" [--key k] [--global]` and `bn memories [keyword]` — persistent notes
 - `bn doc new <path>`, `bn doc list`, `bn doc backlinks <path>` — wiki pages
+- `bn request create|list|show|update|link|unlink` — hub-native requests; requests own their canonical `issues` links, and only bn mutates them
 - `bn status`, `bn sync`, `bn doctor` — hub state, force a pull and push, check for problems
-- `bn serve` — the issues board and wiki in a browser
+- `bn serve` — the issues board, requests, and wiki in a browser (requests are read-only there)
 
 Every read accepts `--json` for machine-readable output; use it instead of parsing tables.
 

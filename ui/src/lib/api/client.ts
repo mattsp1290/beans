@@ -10,6 +10,9 @@ import type {
   HealthResponse,
   IssueDetail,
   Issue,
+	ListRequestsParams,
+	RequestDetail,
+	RequestSummary,
   ListIssuesParams,
   MutationResult,
   ProjectSummary,
@@ -75,6 +78,12 @@ export class ApiClient {
       },
     })
   }
+
+  listRequests(project: string, params: ListRequestsParams = {}): Promise<RequestSummary[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/requests`, { query: { status: params.status, label: params.label, priority: params.priority?.toString(), q: params.q, terminal: params.terminal } })
+  }
+
+  getRequest(id: string): Promise<RequestDetail> { return this.request(`/requests/${encodeURIComponent(id)}`) }
 
   ready(project: string): Promise<Issue[]> {
     return this.request(`/projects/${encodeURIComponent(project)}/ready`)

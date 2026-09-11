@@ -6,6 +6,7 @@ export interface AppRoute {
 }
 
 export const routes: AppRoute[] = [
+	{ path: '/requests', label: 'Requests', title: 'Requests', description: 'Read-only project requests' },
 	{ path: '/plans', label: 'Plans', title: 'Plans', description: 'Read-only implementation plans' },
   {
     path: '/issues',
@@ -43,6 +44,7 @@ export const routes: AppRoute[] = [
 export function getRoute(pathname: string): AppRoute {
 	const route = (path: string) => routes.find((item) => item.path === path)!
 	if (pathname === '/plans' || pathname.startsWith('/plans/')) { return route('/plans') }
+	if (pathname === '/requests' || pathname.startsWith('/requests/')) { return route('/requests') }
 	if (pathname === '/' || pathname === '/issues' || pathname.startsWith('/issues/')) {
 		return route('/issues')
   }
@@ -71,6 +73,8 @@ export function parsePlanId(pathname: string): string | null {
 	const match = /^\/plans\/([^/]+)\/?$/.exec(pathname)
 	return match ? decodeURIComponent(match[1]) : null
 }
+
+export function parseRequestId(pathname: string): string | null { const match=/^\/requests\/([^/]+)\/?$/.exec(pathname); return match?decodeURIComponent(match[1]):null }
 
 /** Extracts the doc path from `/wiki` or `/wiki/*path`, as a hub-relative path (no leading slash). */
 export function parseWikiPath(pathname: string): string {

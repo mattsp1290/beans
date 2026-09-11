@@ -136,7 +136,7 @@ func TestResolveAutoCreateOnWriteNotRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(paths) != 5 || paths[0] != "projects/my-repo/beans.toml" {
+	if len(paths) != 6 || paths[0] != "projects/my-repo/beans.toml" || paths[5] != "projects/my-repo/requests/.gitkeep" {
 		t.Errorf("paths = %v", paths)
 	}
 	cfg, err := issue.LoadProjectConfig(filepath.Join(hub, "projects", "my-repo", "beans.toml"))
