@@ -116,6 +116,56 @@ func TestLoadWarnsForIncompletePlanRoot(t *testing.T) {
 	t.Fatalf("missing incomplete plan warning: %#v", ix.Warnings)
 }
 
+func TestLoadRecoversInterruptedPlanTree(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	plans := filepath.Join(hub, "projects", "p", "plans")
+	backup := filepath.Join(plans, ".p-plan-a3f2-test.backup")
+	if err := os.MkdirAll(plans, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(backup, "p-plan-a3f2", "test", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := ix.PlanByID("p-plan-a3f2"); !ok {
+		t.Fatal("interrupted plan tree was not recovered")
+	}
+	if _, err := os.Stat(filepath.Join(plans, "p-plan-a3f2-test", "plan.md")); err != nil {
+		t.Fatalf("canonical plan root not restored: %v", err)
+	}
+}
+
+func TestReloadRecoversInterruptedPlanTree(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	plans := filepath.Join(hub, "projects", "p", "plans")
+	root := filepath.Join(plans, "p-plan-a3f2-test")
+	if err := os.MkdirAll(plans, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(root, "p-plan-a3f2", "test", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	backup := filepath.Join(plans, ".p-plan-a3f2-test.backup")
+	if err := os.Rename(root, backup); err != nil {
+		t.Fatal(err)
+	}
+	if err := ix.Reload(filepath.Join(root, "plan.md")); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := ix.PlanByID("p-plan-a3f2"); !ok {
+		t.Fatal("interrupted plan tree was not restored on reload")
+	}
+}
+
 func loadFixture(t *testing.T) (*Index, string) {
 	t.Helper()
 	dir := copyFixtureHub(t)

@@ -14,6 +14,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/mattsp1290/beans/gitops"
 	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/markdown"
 	"github.com/mattsp1290/beans/plan"
@@ -240,6 +241,11 @@ func (ix *Index) walkAndIndex(root string) error {
 		rel = filepath.ToSlash(rel)
 		name := d.Name()
 		if d.IsDir() {
+			if isPlansDirectory(rel) {
+				if err := gitops.RecoverTrees(path); err != nil {
+					return fmt.Errorf("vault: recover plan trees in %s: %w", rel, err)
+				}
+			}
 			if skipDirName(name) {
 				return filepath.SkipDir
 			}
@@ -263,6 +269,11 @@ func (ix *Index) walkAndIndex(root string) error {
 		}
 		return nil
 	})
+}
+
+func isPlansDirectory(rel string) bool {
+	parts := strings.Split(filepath.ToSlash(rel), "/")
+	return len(parts) == 3 && parts[0] == "projects" && parts[1] != "" && parts[2] == "plans"
 }
 
 func planBundlePath(rel string) (string, bool) {
@@ -785,6 +796,10 @@ func planRoot(rel string) (project, root string, ok bool) {
 func (ix *Index) reloadPlan(project, root string) {
 	manifest := root + "/plan.md"
 	abs := filepath.Join(ix.HubDir, filepath.FromSlash(root))
+	if err := gitops.RecoverTree(abs); err != nil {
+		ix.addParseWarning(manifest, fmt.Errorf("recover plan tree: %w", err))
+		return
+	}
 	if _, err := os.Stat(abs); os.IsNotExist(err) {
 		ix.removeNoteByPath(manifest)
 		delete(ix.parseWarnings, manifest)

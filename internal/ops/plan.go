@@ -37,7 +37,7 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 	desiredPlan.Updated = operationTime
 	desired := (&plan.Bundle{Plan: &desiredPlan, Sections: b.Sections}).Snapshot()
 	return gitops.Operation{Verb: "plan put", ID: b.Plan.ID, Summary: b.Plan.Title, Apply: func(hubDir string) ([]string, error) {
-		found, root, current, err := findPlan(hubDir, b.Plan.ID)
+		found, root, current, err := findPlan(hubDir, env.Project, b.Plan.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -89,13 +89,53 @@ func sameIgnoringUpdated(current, source *plan.Bundle) bool {
 }
 
 func mustEncode(p *plan.Plan) []byte { b, _ := plan.Encode(p); return b }
-func findPlan(hub, id string) (bool, string, *plan.Bundle, error) {
+func findPlan(hub, project, id string) (bool, string, *plan.Bundle, error) {
 	var root string
-	err := filepath.WalkDir(filepath.Join(hub, "projects"), func(p string, d os.DirEntry, e error) error {
+	plansDir := filepath.Join(hub, "projects", project, "plans")
+	entries, err := os.ReadDir(plansDir)
+	if os.IsNotExist(err) {
+		return false, "", nil, rejectPlanIDOutsideProject(hub, project, id)
+	}
+	if err != nil {
+		return false, "", nil, err
+	}
+	for _, x := range entries {
+		if !x.IsDir() {
+			continue
+		}
+		candidate := filepath.Join(plansDir, x.Name())
+		if _, statErr := os.Stat(filepath.Join(candidate, "plan.md")); statErr != nil {
+			if os.IsNotExist(statErr) {
+				continue
+			}
+			return false, "", nil, statErr
+		}
+		b, loadErr := plan.Load(candidate)
+		if loadErr != nil {
+			return false, "", nil, loadErr
+		}
+		if b.Plan.ID == id {
+			r, _ := filepath.Rel(hub, candidate)
+			root = filepath.ToSlash(r)
+			break
+		}
+	}
+	if err := rejectPlanIDOutsideProject(hub, project, id); err != nil {
+		return false, "", nil, err
+	}
+	if root == "" {
+		return false, "", nil, nil
+	}
+	b, err := plan.Load(filepath.Join(hub, filepath.FromSlash(root)))
+	return true, root, b, err
+}
+
+func rejectPlanIDOutsideProject(hub, project, id string) error {
+	return filepath.WalkDir(filepath.Join(hub, "projects"), func(p string, d os.DirEntry, e error) error {
 		if e != nil {
 			return e
 		}
-		if !d.IsDir() || d.Name() != "plans" {
+		if !d.IsDir() || d.Name() != "plans" || filepath.Base(filepath.Dir(p)) == project {
 			return nil
 		}
 		entries, readErr := os.ReadDir(p)
@@ -118,21 +158,11 @@ func findPlan(hub, id string) (bool, string, *plan.Bundle, error) {
 				return loadErr
 			}
 			if b.Plan.ID == id {
-				r, _ := filepath.Rel(hub, filepath.Join(p, x.Name()))
-				root = filepath.ToSlash(r)
-				return filepath.SkipAll
+				return fmt.Errorf("plan id %q already belongs to project %q", id, filepath.Base(filepath.Dir(p)))
 			}
 		}
 		return nil
 	})
-	if err != nil {
-		return false, "", nil, err
-	}
-	if root == "" {
-		return false, "", nil, nil
-	}
-	b, e := plan.Load(filepath.Join(hub, filepath.FromSlash(root)))
-	return true, root, b, e
 }
 func sameSnapshot(a, b plan.BundleSnapshot) bool {
 	if len(a.Files) != len(b.Files) {

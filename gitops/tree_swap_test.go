@@ -55,3 +55,21 @@ func TestReplaceTreeRecoversInterruptedBackup(t *testing.T) {
 		t.Fatalf("backup remains: %v", err)
 	}
 }
+
+func TestRecoverTreesRestoresInterruptedBackup(t *testing.T) {
+	parent := t.TempDir()
+	backup := filepath.Join(parent, ".bundle.backup")
+	if err := os.MkdirAll(backup, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(backup, "plan.md"), []byte("old\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := RecoverTrees(parent); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(parent, "bundle", "plan.md"))
+	if err != nil || string(data) != "old\n" {
+		t.Fatalf("recovered tree = %q, %v", data, err)
+	}
+}
