@@ -68,6 +68,8 @@ func newEnv(t *testing.T) *env {
 	write("projects/p/issues/p-bbbb-second.md", "---\nid: p-bbbb\naliases: [p-bbbb]\ntitle: Second\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n  - \"[[p-aaaa-first]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n")
 	write("projects/p/docs/guide.md", "# Guide\n\nLinks to [[p-aaaa-first]] and [[missing-page]].\n\n## Section\n\ntext\n")
 	write("projects/p/docs/img.png", "PNG")
+	write("projects/p/plans/p-plan-a3f2-add/plan.md", "---\nid: p-plan-a3f2\naliases: [p-plan-a3f2]\ntitle: Add plan support\nslug: add\nstatus: draft\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nsections:\n  - sections/context.md\n---\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n")
+	write("projects/p/plans/p-plan-a3f2-add/sections/context.md", "# Context\n\nPlan details.\n")
 	runGit(t, dir, "add", "-A")
 	runGit(t, dir, "commit", "-qm", "seed")
 	runGit(t, dir, "push", "-q", "origin", "HEAD:main")
@@ -168,6 +170,22 @@ func TestReadsAndMutations(t *testing.T) {
 	code, _, _ = e.do("POST", "/api/projects/p/issues", map[string]any{"title": ""})
 	if code != 400 {
 		t.Fatalf("empty title: %d", code)
+	}
+}
+
+func TestPlanReadEndpointsAreGetOnly(t *testing.T) {
+	e := newEnv(t)
+	code, _, raw := e.do("GET", "/api/projects/p/plans", nil)
+	if code != 200 || !strings.Contains(string(raw), `"id":"p-plan-a3f2"`) {
+		t.Fatalf("plan list: %d %s", code, raw)
+	}
+	code, m, _ := e.do("GET", "/api/plans/p-plan-a3f2", nil)
+	if code != 200 || m["summary"] == nil || len(m["sections"].([]any)) != 1 {
+		t.Fatalf("plan detail: %d %v", code, m)
+	}
+	code, _, _ = e.do("POST", "/api/plans/p-plan-a3f2", map[string]any{})
+	if code != 405 {
+		t.Fatalf("plan mutation status = %d, want 405", code)
 	}
 }
 
