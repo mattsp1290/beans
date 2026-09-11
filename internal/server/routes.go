@@ -16,6 +16,7 @@ import (
 
 	"github.com/mattsp1290/beans/internal/ops"
 	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
 	"github.com/mattsp1290/beans/vault"
 )
 
@@ -26,9 +27,11 @@ func (s *Server) routes(api fiber.Router) {
 	api.Get("/health", s.health)
 	api.Get("/projects", s.listProjects)
 	api.Get("/projects/:p/issues", s.listIssues)
+	api.Get("/projects/:p/plans", s.listPlans)
 	api.Get("/projects/:p/ready", s.ready)
 	api.Post("/projects/:p/issues", s.createIssue)
 	api.Get("/issues/:id", s.showIssue)
+	api.Get("/plans/:id", s.showPlan)
 	api.Patch("/issues/:id", s.updateIssue)
 	api.Post("/issues/:id/notes", s.addNote)
 	api.Post("/issues/:id/close", s.closeIssue)
@@ -70,6 +73,39 @@ type issueJSON struct {
 	Blockers    []blockerJSON  `json:"blockers,omitempty"`
 	HTML        string         `json:"html,omitempty"`
 	Workflow    *workflowJSON  `json:"workflow,omitempty"`
+}
+
+type planListJSON struct {
+	ID           string `json:"id"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	Project      string `json:"project"`
+	Path         string `json:"path"`
+	Created      string `json:"created"`
+	Updated      string `json:"updated"`
+	SectionCount int    `json:"section_count"`
+}
+type planSectionJSON struct {
+	Path string `json:"path"`
+	HTML string `json:"html"`
+}
+type planDetailJSON struct {
+	planListJSON
+	Summary   planSummaryJSON   `json:"summary"`
+	Sections  []planSectionJSON `json:"sections"`
+	Backlinks []backlinkJSON    `json:"backlinks"`
+}
+type planSummaryJSON struct {
+	Status             string `json:"status"`
+	OutcomeHTML        string `json:"outcome_html"`
+	AffectedAreasHTML  string `json:"affected_areas_html"`
+	ExecutionOrderHTML string `json:"execution_order_html"`
+	RisksHTML          string `json:"risks_html"`
+	Graph              any    `json:"graph"`
+}
+
+func planList(project string, p *plan.Plan) planListJSON {
+	return planListJSON{ID: p.ID, Title: p.Title, Status: string(p.Status), Project: project, Path: p.Path, Created: p.Created.UTC().Format(time.RFC3339), Updated: p.Updated.UTC().Format(time.RFC3339), SectionCount: len(p.Sections)}
 }
 
 type logJSON struct {
@@ -297,6 +333,54 @@ func (s *Server) showIssue(c fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusNotFound, "issue "+id+" not found")
 		}
 		return c.JSON(s.toIssueDetail(ix, iss))
+	})
+}
+
+func (s *Server) listPlans(c fiber.Ctx) error {
+	project, err := projectParam(c)
+	if err != nil {
+		return err
+	}
+	status := c.Query("status")
+	return s.read(c.Context(), func(ix *vault.Index) error {
+		out := []planListJSON{}
+		for _, p := range ix.ProjectPlans(project) {
+			if status != "" && string(p.Status) != status {
+				continue
+			}
+			n := ix.ByPath[p.Path]
+			out = append(out, planList(n.Project, p))
+		}
+		return c.JSON(out)
+	})
+}
+func (s *Server) showPlan(c fiber.Ctx) error {
+	id := c.Params("id")
+	if strings.TrimSpace(id) == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid plan id")
+	}
+	return s.read(c.Context(), func(ix *vault.Index) error {
+		p, ok := ix.PlanByID(id)
+		if !ok {
+			return fiber.NewError(fiber.StatusNotFound, "plan "+id+" not found")
+		}
+		n := ix.ByPath[p.Path]
+		out := planDetailJSON{planListJSON: planList(n.Project, p), Backlinks: backlinksOf(ix, p.ID)}
+		html := func(md string) string {
+			b, _, e := s.rend.HTML([]byte(md))
+			if e != nil {
+				return ""
+			}
+			return string(b)
+		}
+		out.Summary = planSummaryJSON{Status: string(p.Status), OutcomeHTML: html(p.Summary.Outcome), AffectedAreasHTML: html(p.Summary.AffectedAreas), ExecutionOrderHTML: html(p.Summary.ExecutionOrder), RisksHTML: html(p.Summary.Risks), Graph: p.Graph}
+		for _, section := range p.Sections {
+			data, err := os.ReadFile(filepath.Join(ix.HubDir, filepath.FromSlash(strings.TrimSuffix(p.Path, "/plan.md")), filepath.FromSlash(section)))
+			if err == nil {
+				out.Sections = append(out.Sections, planSectionJSON{Path: section, HTML: html(string(data))})
+			}
+		}
+		return c.JSON(out)
 	})
 }
 
