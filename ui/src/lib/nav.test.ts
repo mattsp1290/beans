@@ -22,16 +22,21 @@ describe('backlinkHref', () => {
     expect(backlinkHref(backlink({ note_kind: 'doc', from: 'notes/todo.md', path: undefined }))).toBe('/wiki/notes/todo')
   })
 
-  it('routes a memory backlink to a search for its basename', () => {
+	it('routes a memory backlink to a search for its basename', () => {
     expect(backlinkHref(backlink({ note_kind: 'memory', from: '2026-06-14 standup' }))).toBe(
       '/search?q=2026-06-14%20standup',
     )
-  })
+	})
+
+	it('routes a request backlink to request detail', () => {
+		expect(backlinkHref(backlink({ note_kind: 'request', from: 'beans-r-a3f2' }))).toBe('/requests/beans-r-a3f2')
+	})
 })
 
 describe('isInterceptableContentLink', () => {
   it('intercepts issue, wiki, and search links', () => {
     expect(isInterceptableContentLink('/issues/bn-1')).toBe(true)
+		expect(isInterceptableContentLink('/requests/bn-r-1')).toBe(true)
     expect(isInterceptableContentLink('/wiki/projects/beans/README')).toBe(true)
     expect(isInterceptableContentLink('/search?q=hello')).toBe(true)
   })

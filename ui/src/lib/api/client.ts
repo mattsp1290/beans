@@ -10,9 +10,14 @@ import type {
   HealthResponse,
   IssueDetail,
   Issue,
+	ListRequestsParams,
+	RequestDetail,
+	RequestSummary,
   ListIssuesParams,
   MutationResult,
   ProjectSummary,
+	PlanDetail,
+	PlanListItem,
   SearchParams,
   SearchResult,
   UpdateIssueRequest,
@@ -74,12 +79,26 @@ export class ApiClient {
     })
   }
 
+  listRequests(project: string, params: ListRequestsParams = {}): Promise<RequestSummary[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/requests`, { query: { status: params.status, label: params.label, priority: params.priority?.toString(), q: params.q, terminal: params.terminal } })
+  }
+
+  getRequest(id: string): Promise<RequestDetail> { return this.request(`/requests/${encodeURIComponent(id)}`) }
+
   ready(project: string): Promise<Issue[]> {
     return this.request(`/projects/${encodeURIComponent(project)}/ready`)
   }
 
   getIssue(id: string): Promise<IssueDetail> {
     return this.request(`/issues/${encodeURIComponent(id)}`)
+  }
+
+  listPlans(project: string, status?: string): Promise<PlanListItem[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/plans`, { query: { status } })
+  }
+
+  getPlan(id: string): Promise<PlanDetail> {
+    return this.request(`/plans/${encodeURIComponent(id)}`)
   }
 
   createIssue(project: string, body: CreateIssueRequest): Promise<CreateIssueResult> {

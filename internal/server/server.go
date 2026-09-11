@@ -150,7 +150,7 @@ func ErrorHandler(c fiber.Ctx, err error) error {
 		} else {
 			status = fiber.StatusBadGateway
 		}
-	case errors.Is(err, ops.ErrNotFound):
+	case errors.Is(err, ops.ErrNotFound), errors.Is(err, ops.ErrRequestNotFound):
 		status, message = fiber.StatusNotFound, err.Error()
 	case errors.Is(err, ops.ErrCycle):
 		status, message = fiber.StatusConflict, err.Error()
@@ -259,6 +259,12 @@ func noteHref(n *vault.Note) string {
 		return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 	case vault.KindMemory:
 		return "/search?q=" + n.Basename
+	case vault.KindRequest:
+		if n.Request != nil {
+			return "/requests/" + n.Request.ID
+		}
+	case vault.KindPlan:
+		return "/plans/" + n.Basename
 	}
 	return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 }

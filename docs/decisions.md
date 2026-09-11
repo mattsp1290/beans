@@ -100,3 +100,13 @@ Reads fetch at most once per throttle window, measured from the last fetch
 attempt rather than the last success, so an offline machine does not pay a
 network timeout on every read; `bn status` still reports the last successful
 fetch.
+
+## 2026-09-11: Requests are hub-native, request-owned artifacts
+
+Requests live under `projects/<project>/requests/` with a request-specific id
+namespace and a fixed lifecycle. Their canonical issue relationships are
+stored only in request frontmatter, permitting many-to-many and
+cross-project links without synchronizing issue files. The CLI is the sole
+authoring surface; the server and UI expose read-only request browsing.
+External request-directory discovery and migration were rejected to keep the
+hub the only source of truth.

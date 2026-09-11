@@ -29,7 +29,7 @@ func TestImportBDLiveExport(t *testing.T) {
 	}
 	op, rep = ImportBD(env, recs, false, false)
 	paths := apply(t, hub, op)
-	if len(paths) != 178+2+5 {
+	if len(paths) != 178+2+6 {
 		t.Fatalf("paths = %d", len(paths))
 	}
 	ix, err := vault.Load(hub)

@@ -106,6 +106,8 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newMemoriesCmd(rs),
 		newForgetCmd(rs),
 		newDocCmd(rs),
+		newRequestCmd(rs),
+		newPlanCmd(rs),
 		newDoctorCmd(rs),
 		newPrimeCmd(),
 		newImportCmd(rs),
@@ -209,7 +211,7 @@ func exitCode(err error) int {
 	if errors.As(err, &ce) {
 		return ce.code
 	}
-	if errors.Is(err, ops.ErrNotFound) {
+	if errors.Is(err, ops.ErrNotFound) || errors.Is(err, ops.ErrRequestNotFound) {
 		return exitNotFound
 	}
 	return exitUsage
