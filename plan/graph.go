@@ -123,6 +123,9 @@ func ParseGraph(path, text string) (ChangeGraph, error) {
 	if len(doc.Content) != 1 || !allowedMapping(doc.Content[0], map[string]bool{"version": true, "nodes": true, "edges": true}) {
 		return ChangeGraph{}, fmt.Errorf("%s: graph contains an unknown or invalid field", path)
 	}
+	if hasUnsafeYAMLNode(&doc) {
+		return ChangeGraph{}, fmt.Errorf("%s: graph YAML aliases and custom tags are not allowed", path)
+	}
 	root := doc.Content[0]
 	for i := 0; i+1 < len(root.Content); i += 2 {
 		if root.Content[i].Value == "nodes" && root.Content[i+1].Kind == yaml.SequenceNode {
@@ -181,6 +184,18 @@ func allowedMapping(node *yaml.Node, allowed map[string]bool) bool {
 		}
 	}
 	return true
+}
+
+func hasUnsafeYAMLNode(node *yaml.Node) bool {
+	if node.Kind == yaml.AliasNode || (node.Tag != "" && node.Tag != "!!map" && node.Tag != "!!seq" && node.Tag != "!!str" && node.Tag != "!!int" && node.Tag != "!!null") {
+		return true
+	}
+	for _, child := range node.Content {
+		if hasUnsafeYAMLNode(child) {
+			return true
+		}
+	}
+	return false
 }
 func oneOf(s string, xs ...string) bool {
 	for _, x := range xs {

@@ -86,3 +86,14 @@ func TestParseGraphRejectsUnknownFields(t *testing.T) {
 		t.Fatal("ParseGraph accepted unknown node field")
 	}
 }
+
+func TestParseGraphRejectsAliasAndCustomTag(t *testing.T) {
+	for _, text := range []string{
+		"```bn-change-graph\nversion: 1\nnodes: &nodes []\nedges: *nodes\n```",
+		"```bn-change-graph\nversion: !beans 1\nnodes: []\nedges: []\n```",
+	} {
+		if _, err := ParseGraph("plan.md", text); err == nil {
+			t.Fatal("ParseGraph accepted unsafe YAML")
+		}
+	}
+}
