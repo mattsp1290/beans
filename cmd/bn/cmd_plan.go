@@ -106,23 +106,42 @@ func newPlanCmd(rs *appState) *cobra.Command {
 		if !ok {
 			return notFound("plan %s not found", args[0])
 		}
-		if err := os.Mkdir(getOutput, 0o755); err != nil {
-			return err
-		}
 		root := filepath.Join(rs.paths.Hub, filepath.FromSlash(strings.TrimSuffix(p.Path, "/plan.md")))
 		bundle, err := plan.Load(root)
 		if err != nil {
-			_ = os.RemoveAll(getOutput)
 			return err
 		}
+		parent, base := filepath.Dir(getOutput), filepath.Base(getOutput)
+		staged, err := os.MkdirTemp(parent, "."+base+".plan-get-")
+		if err != nil {
+			return err
+		}
+		published := false
+		defer func() {
+			if !published {
+				_ = os.RemoveAll(staged)
+			}
+		}()
 		for name, data := range bundle.Snapshot().Files {
-			if err := os.MkdirAll(filepath.Dir(filepath.Join(getOutput, filepath.FromSlash(name))), 0o755); err != nil {
+			if err := os.MkdirAll(filepath.Dir(filepath.Join(staged, filepath.FromSlash(name))), 0o755); err != nil {
 				return err
 			}
-			if err := os.WriteFile(filepath.Join(getOutput, filepath.FromSlash(name)), data, 0o644); err != nil {
+			if err := os.WriteFile(filepath.Join(staged, filepath.FromSlash(name)), data, 0o644); err != nil {
 				return err
 			}
 		}
+		if _, err := plan.Load(staged); err != nil {
+			return fmt.Errorf("validate staged plan: %w", err)
+		}
+		if _, err := os.Lstat(getOutput); err == nil {
+			return fmt.Errorf("plan output already exists: %s", getOutput)
+		} else if !os.IsNotExist(err) {
+			return err
+		}
+		if err := os.Rename(staged, getOutput); err != nil {
+			return err
+		}
+		published = true
 		if rs.jsonOut {
 			return writeJSON(map[string]any{"id": p.ID, "status": p.Status, "source": p.Path, "destination": getOutput})
 		}
