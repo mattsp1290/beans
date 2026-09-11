@@ -233,9 +233,18 @@ func (ix *Index) walkAndIndex(root string) error {
 		if path == root {
 			return nil
 		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
 		name := d.Name()
 		if d.IsDir() {
 			if skipDirName(name) {
+				return filepath.SkipDir
+			}
+			if project, ok := planBundlePath(rel); ok {
+				ix.loadPlan(root, project, rel)
 				return filepath.SkipDir
 			}
 			return nil
@@ -243,11 +252,10 @@ func (ix *Index) walkAndIndex(root string) error {
 		if strings.HasPrefix(name, ".") {
 			return nil
 		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			return err
+		if isPlanRootEntry(rel) {
+			ix.addParseWarning(rel, fmt.Errorf("plan root must be a directory"))
+			return nil
 		}
-		rel = filepath.ToSlash(rel)
 		if project, ok := planManifestPath(rel); ok {
 			ix.loadPlan(root, project, filepath.ToSlash(filepath.Dir(rel)))
 		} else {
@@ -255,6 +263,18 @@ func (ix *Index) walkAndIndex(root string) error {
 		}
 		return nil
 	})
+}
+
+func planBundlePath(rel string) (string, bool) {
+	s := strings.Split(rel, "/")
+	if len(s) == 4 && s[0] == "projects" && s[2] == "plans" {
+		return s[1], true
+	}
+	return "", false
+}
+func isPlanRootEntry(rel string) bool {
+	s := strings.Split(rel, "/")
+	return len(s) == 4 && s[0] == "projects" && s[2] == "plans"
 }
 
 func planManifestPath(rel string) (string, bool) {

@@ -97,6 +97,25 @@ func TestReloadPlanSectionRetainsLastValidAggregate(t *testing.T) {
 	}
 }
 
+func TestLoadWarnsForIncompletePlanRoot(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	root := filepath.Join(hub, "projects", "p", "plans", "incomplete")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, warning := range ix.Warnings {
+		if warning.Path == "projects/p/plans/incomplete" && strings.Contains(warning.Err.Error(), "missing plan.md") {
+			return
+		}
+	}
+	t.Fatalf("missing incomplete plan warning: %#v", ix.Warnings)
+}
+
 func loadFixture(t *testing.T) (*Index, string) {
 	t.Helper()
 	dir := copyFixtureHub(t)
