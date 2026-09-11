@@ -27,23 +27,32 @@ func FindRequest(hubDir, id string) (RequestLocated, error) {
 	for _, project := range projects {
 		dir := filepath.Join(hubDir, "projects", project, "requests")
 		var found RequestLocated
-		_ = filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
-			if err != nil || d.IsDir() || filepath.Ext(path) != ".md" {
+		err = filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if d.IsDir() || filepath.Ext(path) != ".md" {
 				return nil
 			}
 			rel, _ := filepath.Rel(hubDir, path)
 			rel = filepath.ToSlash(rel)
 			data, err := os.ReadFile(path)
 			if err != nil {
-				return nil
+				return err
 			}
 			r, err := issue.ParseRequest(rel, data)
-			if err == nil && r.ID == id {
+			if err != nil {
+				return err
+			}
+			if r.ID == id {
 				found = RequestLocated{Path: path, Rel: rel, Project: project}
 				return filepath.SkipAll
 			}
 			return nil
 		})
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return RequestLocated{}, err
+		}
 		if found.Path != "" {
 			return found, nil
 		}

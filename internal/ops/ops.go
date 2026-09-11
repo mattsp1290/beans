@@ -141,8 +141,11 @@ func save(hubDir string, loc Located, iss *issue.Issue) error {
 func existsID(hubDir string) func(string) bool {
 	return func(id string) bool {
 		found := false
-		_ = filepath.WalkDir(filepath.Join(hubDir, "projects"), func(path string, d os.DirEntry, err error) error {
+		_ = filepath.WalkDir(hubDir, func(path string, d os.DirEntry, err error) error {
 			if err != nil || found || d.IsDir() || filepath.Ext(path) != ".md" {
+				if err == nil && d != nil && d.IsDir() && d.Name() == ".git" {
+					return filepath.SkipDir
+				}
 				return nil
 			}
 			rel, _ := filepath.Rel(hubDir, path)

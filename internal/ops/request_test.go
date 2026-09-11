@@ -2,6 +2,8 @@ package ops
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/mattsp1290/beans/issue"
@@ -90,5 +92,18 @@ func TestArtifactIDRegistrySeesAliasesAndBasenames(t *testing.T) {
 	exists := existsID(hub)
 	if !exists(id) || !exists("reserved-r-a3f2") {
 		t.Fatal("id registry missed parsed id or alias")
+	}
+}
+
+func TestArtifactIDRegistrySeesHubGlobalBasenames(t *testing.T) {
+	_, hub := testEnv(t)
+	if err := os.MkdirAll(filepath.Join(hub, "docs"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(hub, "docs", "reserved-r-a3f2.md"), []byte("# Reserved\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !existsID(hub)("reserved-r-a3f2") {
+		t.Fatal("id registry missed hub-global document basename")
 	}
 }

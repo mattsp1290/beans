@@ -3,6 +3,7 @@ package plan
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -19,6 +20,20 @@ func TestScaffoldLoadsAsDraft(t *testing.T) {
 	}
 	if b.Plan.ID != "beans-plan-a3f2" || b.Plan.Slug != "add-plan-artifacts" || b.Plan.Status != StatusDraft {
 		t.Fatalf("unexpected plan: %#v", b.Plan)
+	}
+}
+
+func TestParseRejectsUnknownFrontmatter(t *testing.T) {
+	data := strings.Replace(string(Scaffold("beans-plan-a3f2", "x", time.Now())), "title: x\n", "title: x\nunknown: value\n", 1)
+	if _, err := Parse("plan.md", []byte(data)); err == nil {
+		t.Fatal("Parse accepted unknown frontmatter")
+	}
+}
+
+func TestParseSummaryIgnoresHeadingsInFences(t *testing.T) {
+	body := "## Summary\n\n### Outcome\n```text\n## not a section\n```\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n\n## Next\n"
+	if _, _, err := parseSummary("plan.md", body); err != nil {
+		t.Fatalf("parseSummary: %v", err)
 	}
 }
 

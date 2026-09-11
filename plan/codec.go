@@ -52,7 +52,7 @@ func Parse(path string, data []byte) (*Plan, error) {
 		}
 		seen[k.Value] = true
 		if !owned[k.Value] {
-			continue
+			return nil, fmt.Errorf("%s: unsupported frontmatter key %q", path, k.Value)
 		}
 		var err error
 		switch k.Value {
