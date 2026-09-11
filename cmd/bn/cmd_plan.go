@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mattsp1290/beans/gitops"
 	"github.com/mattsp1290/beans/internal/ops"
 	"github.com/mattsp1290/beans/plan"
 )
@@ -78,8 +79,19 @@ func newPlanCmd(rs *appState) *cobra.Command {
 		if err != nil {
 			return err
 		}
+		refreshed := false
+		if current, loadErr := plan.Load(args[0]); loadErr == nil && samePlanSnapshot(current.Snapshot(), b.Snapshot()) {
+			current.Plan.Updated = res.Updated
+			if data, encodeErr := plan.Encode(current.Plan); encodeErr == nil {
+				if writeErr := gitops.WritePlanFile(filepath.Join(args[0], "plan.md"), data); writeErr == nil {
+					refreshed = true
+				} else {
+					fmt.Fprintf(rs.stderr, "bn: warning: published %s but could not refresh local revision: %v\n", res.ID, writeErr)
+				}
+			}
+		}
 		if rs.jsonOut {
-			return writeJSON(map[string]any{"id": res.ID, "path": res.Path, "status": res.Status, "commit": result.SHA, "pushed": result.Pushed})
+			return writeJSON(map[string]any{"id": res.ID, "path": res.Path, "status": res.Status, "updated": res.Updated, "local_revision_refreshed": refreshed, "commit": result.SHA, "pushed": result.Pushed})
 		}
 		return rs.printCommit(cmd, result, "published "+res.ID)
 	}}
@@ -248,18 +260,45 @@ func newPlanCmd(rs *appState) *cobra.Command {
 			return writeJSON(report)
 		}
 		fmt.Fprintf(cmd.OutOrStdout(), "%s — %s\nlifecycle: %s\nexecution: %s\n", report.PlanID, report.Title, report.LifecycleStatus, report.ExecutionState)
+		if report.LifecycleMismatch {
+			fmt.Fprintln(cmd.OutOrStdout(), "warning: execution and lifecycle differ; change lifecycle explicitly")
+		}
+		c := report.Counts
+		fmt.Fprintf(cmd.OutOrStdout(), "counts: runnable=%d in_progress=%d held=%d blocked=%d done=%d missing=%d issue=%d missing_issue=%d unlinked=%d reference=%d distinct_issues=%d\n", c.Runnable, c.InProgress, c.Held, c.Blocked, c.Done, c.Missing, c.Issue, c.MissingIssue, c.Unlinked, c.Reference, c.DistinctIssues)
 		for _, n := range report.Nodes {
-			fmt.Fprintf(cmd.OutOrStdout(), "%s: %s", n.NodeID, n.Binding)
+			fmt.Fprintf(cmd.OutOrStdout(), "%s: %s ref=%q", n.NodeID, n.Binding, n.Ref)
 			if n.WorkState != "" {
 				fmt.Fprintf(cmd.OutOrStdout(), " (%s)", n.WorkState)
 			}
 			if n.Issue != nil {
-				fmt.Fprintf(cmd.OutOrStdout(), " %s [%s]", n.Issue.ID, n.Issue.Status)
+				fmt.Fprintf(cmd.OutOrStdout(), " %s [%s] %s — %s", n.Issue.ID, n.Issue.Status, n.Issue.Project, n.Issue.Title)
+			}
+			if n.HoldReason != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), " reason=%s", n.HoldReason)
 			}
 			fmt.Fprintln(cmd.OutOrStdout())
+			for _, blocker := range n.Blockers {
+				if blocker.Missing {
+					fmt.Fprintf(cmd.OutOrStdout(), "  blocked by missing %s\n", blocker.Target)
+				} else {
+					fmt.Fprintf(cmd.OutOrStdout(), "  blocked by %s [%s] %s — %s\n", blocker.ID, blocker.Status, blocker.Project, blocker.Title)
+				}
+			}
 		}
 		return nil
 	}}
 	root.AddCommand(init, validate, put, get, list, show, link, unlink, statusCmd)
 	return root
+}
+
+func samePlanSnapshot(a, b plan.BundleSnapshot) bool {
+	if len(a.Files) != len(b.Files) {
+		return false
+	}
+	for path, data := range a.Files {
+		if string(data) != string(b.Files[path]) {
+			return false
+		}
+	}
+	return true
 }

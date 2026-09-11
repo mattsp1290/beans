@@ -57,7 +57,7 @@
       <ul>
       {#each detail.execution.nodes as node}
         <li><strong>{node.label}</strong>: {node.binding}{#if node.work_state} — {node.work_state}{/if}{#if node.issue} — <a href={'/issues/' + encodeURIComponent(node.issue.id)}>{node.issue.id}</a> ({node.issue.status}){/if}{#if node.hold_reason} — {node.hold_reason}{/if}{#if node.binding === 'reference'} — {node.ref}{/if}
-        {#if node.blockers.length}<ul>{#each node.blockers as blocker}<li>Blocked by {blocker.missing ? blocker.target + ' (missing)' : blocker.id + ' (' + blocker.status + ')'}</li>{/each}</ul>{/if}</li>
+        {#if node.blockers.length}<ul aria-label={'Blockers for ' + node.label}>{#each node.blockers as blocker}<li>Blocked by {blocker.missing ? blocker.target + ' (missing issue)' : blocker.id + ' (' + blocker.status + ')'}</li>{/each}</ul>{/if}</li>
       {/each}
       </ul>
     </section>

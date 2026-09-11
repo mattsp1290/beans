@@ -124,8 +124,7 @@ func PlanLink(env Env, planID, nodeID, issueID string, force bool) (gitops.Opera
 		if err != nil {
 			return nil, err
 		}
-		target, iss, ok := ix.ResolveIssueRef(issueID)
-		_ = target
+		_, iss, ok := ix.ResolveIssueRef(issueID)
 		if !ok {
 			return nil, fmt.Errorf("issue %s not found", issueID)
 		}
@@ -164,7 +163,7 @@ func PlanLink(env Env, planID, nodeID, issueID string, force bool) (gitops.Opera
 		if err != nil {
 			return nil, err
 		}
-		if err = gitops.WriteFile(filepath.Join(hub, filepath.FromSlash(root), "plan.md"), data); err != nil {
+		if err = gitops.WritePlanFile(filepath.Join(hub, filepath.FromSlash(root), "plan.md"), data); err != nil {
 			return nil, err
 		}
 		res.IssueID = iss.ID
@@ -212,7 +211,7 @@ func PlanUnlink(env Env, planID, nodeID, expected string) (gitops.Operation, *Pl
 		currentTarget := issue.ParseLink(current).Target
 		_, ci, cok := ix.ResolveIssueRef(current)
 		_, ei, eok := ix.ResolveIssueRef(expected)
-		match := cok && eok && ci.ID == ei.ID || !eok && issue.ValidID(expectedTarget) && currentTarget == expectedTarget
+		match := (cok && eok && ci.ID == ei.ID) || (!eok && issue.ValidID(expectedTarget) && currentTarget == expectedTarget)
 		if !match {
 			return nil, fmt.Errorf("plan %s node %s ref %q does not match expected issue %q", planID, nodeID, current, expected)
 		}
@@ -229,10 +228,14 @@ func PlanUnlink(env Env, planID, nodeID, expected string) (gitops.Operation, *Pl
 		if err != nil {
 			return nil, err
 		}
-		if err = gitops.WriteFile(filepath.Join(hub, filepath.FromSlash(root), "plan.md"), data); err != nil {
+		if err = gitops.WritePlanFile(filepath.Join(hub, filepath.FromSlash(root), "plan.md"), data); err != nil {
 			return nil, err
 		}
-		res.IssueID = expectedTarget
+		if eok {
+			res.IssueID = ei.ID
+		} else {
+			res.IssueID = expectedTarget
+		}
 		res.Ref = ""
 		res.Updated = b.Plan.Updated
 		return []string{filepath.ToSlash(filepath.Join(root, "plan.md"))}, nil
@@ -272,6 +275,9 @@ func findPlan(hub, project, id string) (bool, string, *plan.Bundle, error) {
 			continue
 		}
 		candidate := filepath.Join(plansDir, x.Name())
+		if err := gitops.RecoverPlanTemp(filepath.Join(candidate, "plan.md")); err != nil {
+			return false, "", nil, err
+		}
 		if _, statErr := os.Stat(filepath.Join(candidate, "plan.md")); statErr != nil {
 			if os.IsNotExist(statErr) {
 				continue

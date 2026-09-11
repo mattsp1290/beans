@@ -426,6 +426,11 @@ func (h *Hub) Mutate(ctx context.Context, op Operation) (Result, error) {
 	if err := h.Preflight(ctx); err != nil {
 		return Result{}, err
 	}
+	// Hand edits are committed even with --no-sync so Apply always starts
+	// from a clean tree and a failed Apply can be rolled back safely.
+	if err := h.commitStrays(ctx); err != nil {
+		return Result{}, err
+	}
 	if op.RequireFreshBase {
 		if h.NoSync {
 			return Result{}, &ExitError{Code: ExitGit, Msg: "operation requires a fresh remote base; --no-sync is not allowed"}
@@ -433,13 +438,7 @@ func (h *Hub) Mutate(ctx context.Context, op Operation) (Result, error) {
 		if err := h.requireFreshBase(ctx); err != nil {
 			return Result{}, err
 		}
-	}
-	// Hand edits are committed even with --no-sync so Apply always starts
-	// from a clean tree and a failed Apply can be rolled back safely.
-	if err := h.commitStrays(ctx); err != nil {
-		return Result{}, err
-	}
-	if !h.NoSync {
+	} else if !h.NoSync {
 		if err := h.fetchAndRebase(ctx); err != nil {
 			return Result{}, err
 		}
@@ -784,6 +783,43 @@ func WriteFile(path string, data []byte) error {
 		return err
 	}
 	return os.Rename(tmp, path)
+}
+
+// WritePlanFile atomically replaces a manifest without staging an artifact
+// inside the strict plan bundle. The temporary is in the bundle parent.
+func WritePlanFile(path string, data []byte) error {
+	parent := filepath.Dir(filepath.Dir(path))
+	if err := os.MkdirAll(parent, 0o755); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(parent, ".bn-plan-")
+	if err != nil {
+		return err
+	}
+	name := tmp.Name()
+	defer os.Remove(name)
+	if _, err = tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err = tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err = tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(name, path)
+}
+
+// RecoverPlanTemp removes only the legacy temporary filename previously
+// emitted by WriteFile for a plan manifest.
+func RecoverPlanTemp(path string) error {
+	err := os.Remove(path + ".tmp")
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	return err
 }
 
 func short(sha string) string {
