@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mattsp1290/beans/plan"
 )
 
 // copyFixtureHub copies vault/testdata/hub into a fresh temp directory so
@@ -37,6 +40,61 @@ func copyFixtureHub(t *testing.T) string {
 		t.Fatalf("copy fixture hub: %v", err)
 	}
 	return dst
+}
+
+func TestReloadPlanSectionRetainsLastValidAggregate(t *testing.T) {
+	hub := newHub(t)
+	addProject(t, hub, "p")
+	root := filepath.Join(hub, "projects", "p", "plans", "p-plan-a3f2-test")
+	if err := os.MkdirAll(filepath.Dir(root), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := plan.WriteScaffold(root, "p-plan-a3f2", "test", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := os.ReadFile(filepath.Join(root, "plan.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest = []byte(strings.Replace(string(manifest), "updated:", "sections:\n  - sections/one.md\nupdated:", 1))
+	if err := os.WriteFile(filepath.Join(root, "plan.md"), manifest, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(root, "sections"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	section := filepath.Join(root, "sections", "one.md")
+	if err := os.WriteFile(section, []byte("# Original\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ix, err := Load(hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := ix.PlanByID("p-plan-a3f2"); !ok || got.SectionBodies[0].Markdown != "# Original\n" {
+		t.Fatalf("initial plan = %#v", got)
+	}
+	if err := os.WriteFile(section, []byte("# Changed\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := ix.Reload(section); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := ix.PlanByID("p-plan-a3f2"); got.SectionBodies[0].Markdown != "# Changed\n" {
+		t.Fatalf("section reload = %#v", got.SectionBodies)
+	}
+	if err := os.Remove(section); err != nil {
+		t.Fatal(err)
+	}
+	if err := ix.Reload(section); err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := ix.PlanByID("p-plan-a3f2"); !ok || got.SectionBodies[0].Markdown != "# Changed\n" {
+		t.Fatal("invalid reload replaced last valid aggregate")
+	}
+	if len(ix.Warnings) == 0 {
+		t.Fatal("invalid reload did not record a warning")
+	}
 }
 
 func loadFixture(t *testing.T) (*Index, string) {
