@@ -116,6 +116,30 @@ func ParseGraph(path, text string) (ChangeGraph, error) {
 		Nodes   []GraphNode `yaml:"nodes"`
 		Edges   []GraphEdge `yaml:"edges"`
 	}
+	var doc yaml.Node
+	if err := yaml.Unmarshal([]byte(strings.Join(lines[start+1:end], "\n")), &doc); err != nil {
+		return ChangeGraph{}, fmt.Errorf("%s: graph YAML: %w", path, err)
+	}
+	if len(doc.Content) != 1 || !allowedMapping(doc.Content[0], map[string]bool{"version": true, "nodes": true, "edges": true}) {
+		return ChangeGraph{}, fmt.Errorf("%s: graph contains an unknown or invalid field", path)
+	}
+	root := doc.Content[0]
+	for i := 0; i+1 < len(root.Content); i += 2 {
+		if root.Content[i].Value == "nodes" && root.Content[i+1].Kind == yaml.SequenceNode {
+			for _, node := range root.Content[i+1].Content {
+				if !allowedMapping(node, map[string]bool{"id": true, "label": true, "kind": true, "ref": true}) {
+					return ChangeGraph{}, fmt.Errorf("%s: graph node contains an unknown field", path)
+				}
+			}
+		}
+		if root.Content[i].Value == "edges" && root.Content[i+1].Kind == yaml.SequenceNode {
+			for _, edge := range root.Content[i+1].Content {
+				if !allowedMapping(edge, map[string]bool{"from": true, "to": true, "kind": true, "label": true}) {
+					return ChangeGraph{}, fmt.Errorf("%s: graph edge contains an unknown field", path)
+				}
+			}
+		}
+	}
 	if err := yaml.Unmarshal([]byte(strings.Join(lines[start+1:end], "\n")), &raw); err != nil {
 		return ChangeGraph{}, fmt.Errorf("%s: graph YAML: %w", path, err)
 	}
@@ -145,6 +169,18 @@ func ParseGraph(path, text string) (ChangeGraph, error) {
 		seen[k] = true
 	}
 	return g, nil
+}
+
+func allowedMapping(node *yaml.Node, allowed map[string]bool) bool {
+	if node.Kind != yaml.MappingNode {
+		return false
+	}
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		if node.Content[i].Kind != yaml.ScalarNode || !allowed[node.Content[i].Value] {
+			return false
+		}
+	}
+	return true
 }
 func oneOf(s string, xs ...string) bool {
 	for _, x := range xs {
