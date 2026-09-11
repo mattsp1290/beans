@@ -129,9 +129,10 @@ type planSectionJSON struct {
 }
 type planDetailJSON struct {
 	planListJSON
-	Summary   planSummaryJSON   `json:"summary"`
-	Sections  []planSectionJSON `json:"sections"`
-	Backlinks []backlinkJSON    `json:"backlinks"`
+	Summary   planSummaryJSON     `json:"summary"`
+	Sections  []planSectionJSON   `json:"sections"`
+	Backlinks []backlinkJSON      `json:"backlinks"`
+	Execution vault.PlanExecution `json:"execution"`
 }
 type planSummaryJSON struct {
 	Status             string `json:"status"`
@@ -495,6 +496,7 @@ func (s *Server) showPlan(c fiber.Ctx) error {
 		}
 		n := ix.ByPath[p.Path]
 		out := planDetailJSON{planListJSON: planList(n.Project, p), Backlinks: backlinksOf(ix, p.ID)}
+		out.Execution, _ = ix.PlanExecution(id)
 		html := func(md string) string {
 			b, _, e := s.rend.HTML([]byte(md))
 			if e != nil {

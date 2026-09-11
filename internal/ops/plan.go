@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/mattsp1290/beans/gitops"
+	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/plan"
+	"github.com/mattsp1290/beans/vault"
 )
 
 type PlanPutInput struct {
@@ -18,6 +20,7 @@ type PlanPutInput struct {
 type PlanPutResult struct {
 	ID, Path string
 	Status   plan.Status
+	Updated  time.Time
 }
 
 // PlanPut publishes the complete, already-captured bundle in one operation.
@@ -34,9 +37,16 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 	// Capture this exactly once. Hub.Mutate may replay Apply after a push race.
 	operationTime := env.now()
 	desiredPlan := *b.Plan
-	desiredPlan.Updated = operationTime
+	// A first publication retains the authored revision. Replacement
+	// publication receives a strictly newer optimistic revision.
+	if existing, _, _, lookupErr := findPlan(env.HubDir, env.Project, b.Plan.ID); lookupErr == nil && existing {
+		if !operationTime.After(b.Plan.Updated) {
+			operationTime = b.Plan.Updated.Add(time.Second)
+		}
+		desiredPlan.Updated = operationTime
+	}
 	desired := (&plan.Bundle{Plan: &desiredPlan, Sections: b.Sections}).Snapshot()
-	return gitops.Operation{Verb: "plan put", ID: b.Plan.ID, Summary: b.Plan.Title, Apply: func(hubDir string) ([]string, error) {
+	return gitops.Operation{Verb: "plan put", ID: b.Plan.ID, Summary: b.Plan.Title, RequireFreshBase: true, Apply: func(hubDir string) ([]string, error) {
 		found, root, current, err := findPlan(hubDir, env.Project, b.Plan.ID)
 		if err != nil {
 			return nil, err
@@ -47,6 +57,14 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 			}
 			res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
 			return nil, nil
+		}
+		if found && current.Plan.Updated.Equal(desiredPlan.Updated) && sameIgnoringUpdated(current, &plan.Bundle{Plan: &desiredPlan, Sections: b.Sections}) {
+			res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
+			res.Updated = current.Plan.Updated
+			return nil, nil
+		}
+		if found && !current.Plan.Updated.Equal(b.Plan.Updated) {
+			return nil, fmt.Errorf("stale plan %s: expected updated %s, current %s; run bn plan get and merge changes", b.Plan.ID, b.Plan.Updated.Format(time.RFC3339), current.Plan.Updated.Format(time.RFC3339))
 		}
 		if found && sameIgnoringUpdated(current, b) {
 			res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
@@ -75,8 +93,150 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 			return nil, err
 		}
 		res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
+		res.Updated = desiredPlan.Updated
 		return append(removed, snapshotPaths(root, desired)...), nil
 	}}, res, nil
+}
+
+type PlanLinkResult struct {
+	PlanID, NodeID, IssueID, Ref, FormerRef string
+	Updated                                 time.Time
+}
+type PlanUnlinkResult = PlanLinkResult
+
+// PlanLink changes one published graph reference. It reloads both plan and
+// issue index on every Apply so a push-race replay preserves other nodes.
+func PlanLink(env Env, planID, nodeID, issueID string, force bool) (gitops.Operation, *PlanLinkResult) {
+	res := &PlanLinkResult{PlanID: planID, NodeID: nodeID}
+	at := env.now()
+	return gitops.Operation{Verb: "plan link", ID: planID, Summary: nodeID, Apply: func(hub string) ([]string, error) {
+		found, root, b, err := findPlan(hub, env.Project, planID)
+		if err != nil {
+			return nil, err
+		}
+		if !found {
+			return nil, fmt.Errorf("plan %s not found", planID)
+		}
+		if b.Plan.Status == plan.StatusComplete {
+			return nil, fmt.Errorf("completed plan %s is immutable", planID)
+		}
+		ix, err := vault.Load(hub)
+		if err != nil {
+			return nil, err
+		}
+		target, iss, ok := ix.ResolveIssueRef(issueID)
+		_ = target
+		if !ok {
+			return nil, fmt.Errorf("issue %s not found", issueID)
+		}
+		var current string
+		exists := false
+		for _, n := range b.Plan.Graph.Nodes {
+			if n.ID == nodeID {
+				current = n.Ref
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			return nil, fmt.Errorf("plan %s graph node %s not found", planID, nodeID)
+		}
+		_, curIssue, curOK := ix.ResolveIssueRef(current)
+		if curOK && curIssue.ID == iss.ID {
+			res.IssueID = iss.ID
+			res.Ref = current
+			res.Updated = b.Plan.Updated
+			return nil, nil
+		}
+		if current != "" && !force {
+			return nil, fmt.Errorf("plan %s node %s already has ref %q (use --force to replace)", planID, nodeID, current)
+		}
+		res.FormerRef = current
+		if err := plan.SetNodeRef(b.Plan, nodeID, iss.ID); err != nil {
+			return nil, err
+		}
+		if !at.After(b.Plan.Updated) {
+			b.Plan.Updated = b.Plan.Updated.Add(time.Second)
+		} else {
+			b.Plan.Updated = at
+		}
+		data, err := plan.Encode(b.Plan)
+		if err != nil {
+			return nil, err
+		}
+		if err = gitops.WriteFile(filepath.Join(hub, filepath.FromSlash(root), "plan.md"), data); err != nil {
+			return nil, err
+		}
+		res.IssueID = iss.ID
+		res.Ref = iss.ID
+		res.Updated = b.Plan.Updated
+		return []string{filepath.ToSlash(filepath.Join(root, "plan.md"))}, nil
+	}}, res
+}
+func PlanUnlink(env Env, planID, nodeID, expected string) (gitops.Operation, *PlanUnlinkResult) {
+	res := &PlanLinkResult{PlanID: planID, NodeID: nodeID}
+	at := env.now()
+	return gitops.Operation{Verb: "plan unlink", ID: planID, Summary: nodeID, Apply: func(hub string) ([]string, error) {
+		found, root, b, err := findPlan(hub, env.Project, planID)
+		if err != nil {
+			return nil, err
+		}
+		if !found {
+			return nil, fmt.Errorf("plan %s not found", planID)
+		}
+		if b.Plan.Status == plan.StatusComplete {
+			return nil, fmt.Errorf("completed plan %s is immutable", planID)
+		}
+		ix, err := vault.Load(hub)
+		if err != nil {
+			return nil, err
+		}
+		var current string
+		exists := false
+		for _, n := range b.Plan.Graph.Nodes {
+			if n.ID == nodeID {
+				current = n.Ref
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			return nil, fmt.Errorf("plan %s graph node %s not found", planID, nodeID)
+		}
+		if current == "" {
+			res.Ref = ""
+			res.Updated = b.Plan.Updated
+			return nil, nil
+		}
+		expectedTarget := issue.ParseLink(expected).Target
+		currentTarget := issue.ParseLink(current).Target
+		_, ci, cok := ix.ResolveIssueRef(current)
+		_, ei, eok := ix.ResolveIssueRef(expected)
+		match := cok && eok && ci.ID == ei.ID || !eok && issue.ValidID(expectedTarget) && currentTarget == expectedTarget
+		if !match {
+			return nil, fmt.Errorf("plan %s node %s ref %q does not match expected issue %q", planID, nodeID, current, expected)
+		}
+		res.FormerRef = current
+		if err := plan.SetNodeRef(b.Plan, nodeID, ""); err != nil {
+			return nil, err
+		}
+		if !at.After(b.Plan.Updated) {
+			b.Plan.Updated = b.Plan.Updated.Add(time.Second)
+		} else {
+			b.Plan.Updated = at
+		}
+		data, err := plan.Encode(b.Plan)
+		if err != nil {
+			return nil, err
+		}
+		if err = gitops.WriteFile(filepath.Join(hub, filepath.FromSlash(root), "plan.md"), data); err != nil {
+			return nil, err
+		}
+		res.IssueID = expectedTarget
+		res.Ref = ""
+		res.Updated = b.Plan.Updated
+		return []string{filepath.ToSlash(filepath.Join(root, "plan.md"))}, nil
+	}}, res
 }
 
 func sameIgnoringUpdated(current, source *plan.Bundle) bool {

@@ -71,6 +71,9 @@ type Operation struct {
 	ID      string // issue id or other subject; may be empty
 	Summary string // one line for the commit message
 	Apply   func(hubDir string) (changedPaths []string, err error)
+	// RequireFreshBase rejects offline publication. It is for replacement
+	// operations whose snapshot cannot safely be replayed later.
+	RequireFreshBase bool
 }
 
 // Result reports what Mutate did.
@@ -423,6 +426,14 @@ func (h *Hub) Mutate(ctx context.Context, op Operation) (Result, error) {
 	if err := h.Preflight(ctx); err != nil {
 		return Result{}, err
 	}
+	if op.RequireFreshBase {
+		if h.NoSync {
+			return Result{}, &ExitError{Code: ExitGit, Msg: "operation requires a fresh remote base; --no-sync is not allowed"}
+		}
+		if err := h.requireFreshBase(ctx); err != nil {
+			return Result{}, err
+		}
+	}
 	// Hand edits are committed even with --no-sync so Apply always starts
 	// from a clean tree and a failed Apply can be rolled back safely.
 	if err := h.commitStrays(ctx); err != nil {
@@ -517,6 +528,19 @@ func (h *Hub) Mutate(ctx context.Context, op Operation) (Result, error) {
 		h.clearJournal()
 		return res, errConflict
 	}
+}
+
+func (h *Hub) requireFreshBase(ctx context.Context) error {
+	h.writeTime(lastAttemptFile, h.now())
+	if _, err := h.git(ctx, "fetch", "--quiet", "origin"); err != nil {
+		return &ExitError{Code: ExitGit, Msg: "operation requires a fresh remote base; fetch failed: " + firstLine(err.Error())}
+	}
+	if _, err := h.git(ctx, "rebase", "--quiet", "origin/"+h.Branch); err != nil {
+		_, _ = h.git(ctx, "rebase", "--abort")
+		return errConflict
+	}
+	h.writeTime(lastFetchFile, h.now())
+	return nil
 }
 
 // opSubject is the commit subject of an operation.

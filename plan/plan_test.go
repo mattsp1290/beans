@@ -127,3 +127,31 @@ func TestParseGraphRejectsAliasAndCustomTag(t *testing.T) {
 		}
 	}
 }
+
+func TestSetNodeRefPreservesPlanAndCanonicalizesFence(t *testing.T) {
+	data := []byte(strings.Replace(string(Scaffold("beans-plan-a3f2", "x", time.Now())), "nodes: []", "nodes:\n  - id: model\n    label: Model\n    kind: component", 1))
+	p, err := Parse("plan.md", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before := p.Summary.Outcome
+	if err := SetNodeRef(p, "model", "[[beans-a1b2|work]]"); err != nil {
+		t.Fatal(err)
+	}
+	if p.Graph.Nodes[0].Ref != "[[beans-a1b2|work]]" {
+		t.Fatalf("ref = %q", p.Graph.Nodes[0].Ref)
+	}
+	if p.Summary.Outcome != before {
+		t.Fatal("summary prose changed")
+	}
+	encoded, err := Encode(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Parse("plan.md", encoded); err != nil {
+		t.Fatalf("rewritten plan invalid: %v", err)
+	}
+	if err := SetNodeRef(p, "missing", "x"); err == nil {
+		t.Fatal("missing node accepted")
+	}
+}

@@ -197,6 +197,69 @@ func newPlanCmd(rs *appState) *cobra.Command {
 		fmt.Fprintf(cmd.OutOrStdout(), "%s (%s)\n\n%s\n", p.Title, p.Status, p.Body)
 		return nil
 	}}
-	root.AddCommand(init, validate, put, get, list, show)
+	var forceLink bool
+	link := &cobra.Command{Use: "link <plan-id> <node-id> <issue-id>", Short: "Bind a plan graph node to an issue", Args: cobra.ExactArgs(3), RunE: func(cmd *cobra.Command, args []string) error {
+		if err := rs.setupProject(true, false); err != nil {
+			return err
+		}
+		op, res := ops.PlanLink(rs.opsEnv(), args[0], args[1], args[2], forceLink)
+		result, err := rs.mutate(cmd.Context(), op)
+		if err != nil {
+			return err
+		}
+		if rs.jsonOut {
+			return writeJSON(map[string]any{"plan_id": res.PlanID, "node_id": res.NodeID, "issue_id": res.IssueID, "ref": res.Ref, "updated": res.Updated, "commit": result.SHA, "pushed": result.Pushed, "message": result.Message})
+		}
+		return rs.printCommit(cmd, result, fmt.Sprintf("linked %s/%s to %s", res.PlanID, res.NodeID, res.IssueID))
+	}}
+	link.Flags().BoolVar(&forceLink, "force", false, "replace an existing ref")
+	unlink := &cobra.Command{Use: "unlink <plan-id> <node-id> <issue-id>", Short: "Remove an expected plan issue binding", Args: cobra.ExactArgs(3), RunE: func(cmd *cobra.Command, args []string) error {
+		if err := rs.setupProject(true, false); err != nil {
+			return err
+		}
+		op, res := ops.PlanUnlink(rs.opsEnv(), args[0], args[1], args[2])
+		result, err := rs.mutate(cmd.Context(), op)
+		if err != nil {
+			return err
+		}
+		if rs.jsonOut {
+			return writeJSON(map[string]any{"plan_id": res.PlanID, "node_id": res.NodeID, "issue_id": res.IssueID, "ref": res.Ref, "updated": res.Updated, "commit": result.SHA, "pushed": result.Pushed, "message": result.Message})
+		}
+		return rs.printCommit(cmd, result, fmt.Sprintf("unlinked %s/%s", res.PlanID, res.NodeID))
+	}}
+	statusCmd := &cobra.Command{Use: "status <plan-id>", Short: "Show derived execution state for a plan", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		if err := rs.setupProject(false, false); err != nil {
+			return err
+		}
+		ix, err := rs.readIndex(cmd.Context())
+		if err != nil {
+			return err
+		}
+		ix.RLock()
+		report, ok := ix.PlanExecution(args[0])
+		ix.RUnlock()
+		if !ok {
+			return notFound("plan %s not found", args[0])
+		}
+		if report.Project != rs.resolved.Project {
+			return fmt.Errorf("plan %s belongs to project %s, not %s", args[0], report.Project, rs.resolved.Project)
+		}
+		if rs.jsonOut {
+			return writeJSON(report)
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "%s — %s\nlifecycle: %s\nexecution: %s\n", report.PlanID, report.Title, report.LifecycleStatus, report.ExecutionState)
+		for _, n := range report.Nodes {
+			fmt.Fprintf(cmd.OutOrStdout(), "%s: %s", n.NodeID, n.Binding)
+			if n.WorkState != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), " (%s)", n.WorkState)
+			}
+			if n.Issue != nil {
+				fmt.Fprintf(cmd.OutOrStdout(), " %s [%s]", n.Issue.ID, n.Issue.Status)
+			}
+			fmt.Fprintln(cmd.OutOrStdout())
+		}
+		return nil
+	}}
+	root.AddCommand(init, validate, put, get, list, show, link, unlink, statusCmd)
 	return root
 }

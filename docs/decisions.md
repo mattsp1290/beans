@@ -110,3 +110,10 @@ cross-project links without synchronizing issue files. The CLI is the sole
 authoring surface; the server and UI expose read-only request browsing.
 External request-directory discovery and migration were rejected to keep the
 hub the only source of truth.
+
+## 2026-09-11: Plan refs are canonical execution bindings
+
+Graph-node refs are the sole plan-to-issue binding. Direct replay-safe link
+mutations avoid stale whole-bundle replacement; execution is derived from live
+issue workflow and blockers, never changes plan lifecycle, and stale `put`
+requires a fresh base and explicit merge.
