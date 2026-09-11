@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mattsp1290/beans/internal/ops"
 	"github.com/mattsp1290/beans/plan"
 )
 
@@ -61,6 +62,75 @@ func newPlanCmd(rs *appState) *cobra.Command {
 		fmt.Fprintf(cmd.OutOrStdout(), "valid %s (%s)\n", b.Plan.ID, b.Plan.Status)
 		return nil
 	}}
-	root.AddCommand(init, validate)
+	put := &cobra.Command{Use: "put <directory>", Short: "Publish a validated plan bundle", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		if err := rs.setupProject(true, false); err != nil {
+			return err
+		}
+		b, err := plan.Load(args[0])
+		if err != nil {
+			return err
+		}
+		op, res, err := ops.PlanPut(rs.opsEnv(), ops.PlanPutInput{Snapshot: b.Snapshot(), Prefix: rs.prefixFor(rs.resolved.Project)})
+		if err != nil {
+			return err
+		}
+		result, err := rs.mutate(cmd.Context(), op)
+		if err != nil {
+			return err
+		}
+		if rs.jsonOut {
+			return writeJSON(map[string]any{"id": res.ID, "path": res.Path, "status": res.Status, "commit": result.SHA, "pushed": result.Pushed})
+		}
+		return rs.printCommit(cmd, result, "published "+res.ID)
+	}}
+	var status string
+	list := &cobra.Command{Use: "list", Short: "List plans in the project", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, args []string) error {
+		if err := rs.setupProject(false, false); err != nil {
+			return err
+		}
+		ix, err := rs.readIndex(cmd.Context())
+		if err != nil {
+			return err
+		}
+		ix.RLock()
+		defer ix.RUnlock()
+		out := []map[string]any{}
+		for _, p := range ix.ProjectPlans(rs.resolved.Project) {
+			if status != "" && string(p.Status) != status {
+				continue
+			}
+			out = append(out, map[string]any{"id": p.ID, "status": p.Status, "updated": p.Updated, "title": p.Title})
+		}
+		if rs.jsonOut {
+			return writeJSON(out)
+		}
+		w := tableWriter(cmd)
+		for _, p := range out {
+			fmt.Fprintf(w, "%s\t%s\t%v\t%s\n", p["id"], p["status"], p["updated"], p["title"])
+		}
+		return w.Flush()
+	}}
+	list.Flags().StringVar(&status, "status", "", "filter exact lifecycle status")
+	show := &cobra.Command{Use: "show <id>", Short: "Show a published plan", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		if err := rs.setupProject(false, false); err != nil {
+			return err
+		}
+		ix, err := rs.readIndex(cmd.Context())
+		if err != nil {
+			return err
+		}
+		ix.RLock()
+		defer ix.RUnlock()
+		p, ok := ix.PlanByID(args[0])
+		if !ok {
+			return notFound("plan %s not found", args[0])
+		}
+		if rs.jsonOut {
+			return writeJSON(p)
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "%s (%s)\n\n%s\n", p.Title, p.Status, p.Body)
+		return nil
+	}}
+	root.AddCommand(init, validate, put, list, show)
 	return root
 }
