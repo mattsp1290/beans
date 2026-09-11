@@ -68,6 +68,7 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 		}
 		if found && sameIgnoringUpdated(current, b) {
 			res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
+			res.Updated = current.Plan.Updated
 			return nil, nil
 		}
 		if found {
@@ -202,15 +203,21 @@ func PlanUnlink(env Env, planID, nodeID, expected string) (gitops.Operation, *Pl
 		if !exists {
 			return nil, fmt.Errorf("plan %s graph node %s not found", planID, nodeID)
 		}
+		expectedTarget := issue.ParseLink(expected).Target
+		_, expectedIssue, expectedResolved := ix.ResolveIssueRef(expected)
+		canonicalExpected := expectedTarget
+		if expectedResolved {
+			canonicalExpected = expectedIssue.ID
+		}
 		if current == "" {
+			res.IssueID = canonicalExpected
 			res.Ref = ""
 			res.Updated = b.Plan.Updated
 			return nil, nil
 		}
-		expectedTarget := issue.ParseLink(expected).Target
 		currentTarget := issue.ParseLink(current).Target
 		_, ci, cok := ix.ResolveIssueRef(current)
-		_, ei, eok := ix.ResolveIssueRef(expected)
+		ei, eok := expectedIssue, expectedResolved
 		match := (cok && eok && ci.ID == ei.ID) || (!eok && issue.ValidID(expectedTarget) && currentTarget == expectedTarget)
 		if !match {
 			return nil, fmt.Errorf("plan %s node %s ref %q does not match expected issue %q", planID, nodeID, current, expected)
