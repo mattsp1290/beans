@@ -56,6 +56,7 @@ func PlanPut(env Env, in PlanPutInput) (gitops.Operation, *PlanPutResult, error)
 				return nil, fmt.Errorf("completed plan %s is immutable", b.Plan.ID)
 			}
 			res.Path = filepath.ToSlash(filepath.Join(root, "plan.md"))
+			res.Updated = current.Plan.Updated
 			return nil, nil
 		}
 		if found && current.Plan.Updated.Equal(desiredPlan.Updated) && sameIgnoringUpdated(current, &plan.Bundle{Plan: &desiredPlan, Sections: b.Sections}) {
