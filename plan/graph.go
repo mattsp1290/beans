@@ -2,9 +2,10 @@ package plan
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"regexp"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 var nodeID = regexp.MustCompile(`^[a-z][a-z0-9-]{0,63}$`)

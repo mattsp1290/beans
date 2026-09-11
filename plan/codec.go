@@ -3,10 +3,11 @@ package plan
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"gopkg.in/yaml.v3"
 )
 
 var owned = map[string]bool{"id": true, "aliases": true, "title": true, "slug": true, "status": true, "created": true, "updated": true, "sections": true}
