@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mattsp1290/beans/plan"
 )
@@ -57,5 +58,42 @@ func TestPlanPutRemovesDroppedSections(t *testing.T) {
 	}
 	if _, err := plan.Load(filepath.Join(hub, "projects", "p", "plans", "p-plan-a3f2-plan")); err != nil {
 		t.Fatalf("updated bundle is invalid: %v", err)
+	}
+}
+
+func TestPlanPutRejectsStaleRevision(t *testing.T) {
+	env, hub := testEnv(t)
+	draft, err := plan.Parse("plan.md", plan.Scaffold("p-plan-a3f2", "Plan", env.now()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := plan.Encode(draft)
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot := plan.BundleSnapshot{Files: map[string][]byte{"plan.md": data}}
+	op, _, err := PlanPut(env, PlanPutInput{Snapshot: snapshot, Prefix: "p"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	apply(t, hub, op)
+	// A direct publication advances the hub revision; the unchanged local
+	// snapshot must not subsequently replace it.
+	published, err := plan.Load(filepath.Join(hub, "projects", "p", "plans", "p-plan-a3f2-plan"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	published.Plan.Updated = published.Plan.Updated.Add(time.Second)
+	published.Plan.Title = "Newer plan"
+	updated, _ := plan.Encode(published.Plan)
+	if err := os.WriteFile(filepath.Join(hub, "projects", "p", "plans", "p-plan-a3f2-plan", "plan.md"), updated, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	op, _, err = PlanPut(env, PlanPutInput{Snapshot: snapshot, Prefix: "p"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := op.Apply(hub); err == nil || !strings.Contains(err.Error(), "stale plan") {
+		t.Fatalf("stale put error = %v", err)
 	}
 }
