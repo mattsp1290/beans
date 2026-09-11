@@ -25,10 +25,12 @@
   let newBlockedBy = $state('')
   let newChild = $state('')
   let noteText = $state('')
+  let includeArchivedHandoffs = $state(false)
 
   $effect(() => {
     id
     reloadKey
+    includeArchivedHandoffs
     let cancelled = false
     load(() => cancelled)
     return () => {
@@ -40,7 +42,7 @@
     loading = true
     error = ''
     try {
-      const result = await api.getIssue(id)
+      const result = await api.getIssue(id, includeArchivedHandoffs)
       if (isCancelled()) return
       issue = result
     } catch (err) {
@@ -403,6 +405,7 @@
         </ul>
       </div>
     {/if}
+    <label><input type="checkbox" bind:checked={includeArchivedHandoffs} /> Include archived handoffs</label>
 
     {#if issue.log && issue.log.length > 0}
       <div class="detail-section">

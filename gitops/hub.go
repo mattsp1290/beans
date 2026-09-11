@@ -217,7 +217,7 @@ func Clone(ctx context.Context, r Runner, remote, dir string) (branch string, er
 
 // InitialHubFiles lists what an empty hub is seeded with.
 var InitialHubFiles = map[string]string{
-	"README.md":         "# beans hub\n\nThis repository is managed by `bn`. Issues live under `projects/<name>/issues/`,\ndocs under `docs/`, memories under `memories/`. Edit files freely; the next\n`bn` command commits hand edits as `bn: hand edits`.\n\nOpen this directory as an Obsidian vault to browse it.\n",
+	"README.md":         "# beans hub\n\nThis repository is managed by `bn`. Issues live under `projects/<name>/issues/`,\nhandoffs under `projects/<name>/handoffs/`, docs under `docs/`, memories under `memories/`. Edit files freely; the next\n`bn` command commits hand edits as `bn: hand edits`.\n\nOpen this directory as an Obsidian vault to browse it.\n",
 	".gitignore":        "*.tmp\n.obsidian/workspace*.json\n.DS_Store\n",
 	"beans.toml":        "[workflow]\nstatuses = [\"open\", \"in_progress\", \"ready_for_review\", \"ready_for_validation\", \"ready_for_merge\", \"blocked\", \"closed\", \"done\"]\ndefault = \"open\"\nactive = [\"open\"]\nterminal = [\"closed\", \"done\"]\n\n[types]\nnames = [\"task\", \"bug\", \"feature\", \"epic\", \"chore\"]\n\n[ids]\nlength = 4\n",
 	"docs/.gitkeep":     "",

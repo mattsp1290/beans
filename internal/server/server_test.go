@@ -28,6 +28,38 @@ type env struct {
 	hub string
 }
 
+func TestHandoffWikiRenderingAndArchivedSearch(t *testing.T) {
+	e := newEnv(t)
+	write := func(rel, content string) {
+		p := filepath.Join(e.hub, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	live := "projects/p/handoffs/p-handoff1-live.md"
+	archived := "projects/p/handoffs/archive/2026/p-handoff2-old.md"
+	write(live, "---\nid: p-handoff1\ntitle: Live handoff\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n# Live continuation\n\nneedle live\n")
+	write(archived, "---\nid: p-handoff2\ntitle: Archived handoff\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n# Archived continuation\n\nneedle archive\n")
+	if err := e.srv.index().Reload(live, archived); err != nil {
+		t.Fatal(err)
+	}
+	code, page, _ := e.do("GET", "/api/docs/projects/p/handoffs/p-handoff1-live", nil)
+	if code != 200 || page["kind"] != "handoff" || !strings.Contains(page["html"].(string), "Live continuation") || strings.Contains(page["html"].(string), "created:") {
+		t.Fatalf("handoff page: %d %#v", code, page)
+	}
+	code, _, raw := e.do("GET", "/api/search?q=needle+archive", nil)
+	if code != 200 || strings.Contains(string(raw), "p-handoff2") {
+		t.Fatalf("default archived search: %d %s", code, raw)
+	}
+	code, _, raw = e.do("GET", "/api/search?q=needle+archive&include_archived_handoffs=true", nil)
+	if code != 200 || !strings.Contains(string(raw), "p-handoff2") {
+		t.Fatalf("explicit archived search: %d %s", code, raw)
+	}
+}
+
 func runGit(t *testing.T, dir string, args ...string) {
 	t.Helper()
 	cmd := exec.Command("git", args...)

@@ -53,7 +53,7 @@ export interface IssueLogEntry {
 }
 
 /** What kind of note a backlink's `from` (and `path`, when set) refers to. */
-export type NoteKind = 'issue' | 'doc' | 'memory'
+export type NoteKind = 'issue' | 'doc' | 'memory' | 'handoff'
 
 /**
  * A reference to this note from elsewhere in the hub. `from` is the issue id
@@ -243,6 +243,7 @@ export interface DocOutlink {
 export type DocBacklink = Backlink
 
 export interface DocPage {
+  kind?: NoteKind
   path: string
   title: string
   project: string
@@ -259,10 +260,11 @@ export interface SearchParams {
   q: string
   kind?: string
   project?: string
+  include_archived_handoffs?: boolean
 }
 
 export interface SearchResult {
-  kind: string
+  kind: NoteKind
   id: string
   basename: string
   title: string

@@ -259,6 +259,8 @@ func noteHref(n *vault.Note) string {
 		return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 	case vault.KindMemory:
 		return "/search?q=" + n.Basename
+	case vault.KindHandoff:
+		return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 	}
 	return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 }

@@ -22,19 +22,21 @@ import (
 type Kind string
 
 const (
-	KindIssue  Kind = "issue"
-	KindDoc    Kind = "doc"
-	KindMemory Kind = "memory"
+	KindIssue   Kind = "issue"
+	KindDoc     Kind = "doc"
+	KindMemory  Kind = "memory"
+	KindHandoff Kind = "handoff"
 )
 
 // LinkKind is the origin of one outbound link from a note.
 type LinkKind string
 
 const (
-	LinkBody      LinkKind = "body"
-	LinkParent    LinkKind = "parent"
-	LinkBlockedBy LinkKind = "blocked_by"
-	LinkEmbed     LinkKind = "embed"
+	LinkBody         LinkKind = "body"
+	LinkParent       LinkKind = "parent"
+	LinkBlockedBy    LinkKind = "blocked_by"
+	LinkEmbed        LinkKind = "embed"
+	LinkHandoffIssue LinkKind = "handoff_issue"
 )
 
 // LinkRef is one link between two notes, or from a note to an unresolved
@@ -62,8 +64,9 @@ type Note struct {
 	Tags        []string
 	Outlinks    []LinkRef
 	Frontmatter map[string]any
-	Issue       *issue.Issue  // set for KindIssue
-	Memory      *issue.Memory // set for KindMemory
+	Issue       *issue.Issue   // set for KindIssue
+	Memory      *issue.Memory  // set for KindMemory
+	Handoff     *issue.Handoff // set for KindHandoff
 
 	rawOut  []rawLink // link targets before resolution
 	docBody string    // doc body, kept for Search; issues/memories keep it on Issue/Memory
@@ -97,12 +100,13 @@ type Index struct {
 	HubConfig issue.HubConfig
 	Workflow  issue.WorkflowConfig // hub-level
 	Projects  map[string]*Project
-	Issues    map[string]*issue.Issue // by id
-	Notes     map[string]*Note        // by basename; on a collision the first in walk order wins
-	ByPath    map[string]*Note        // by hub-relative path; every note, collisions included
-	Aliases   map[string]string       // alias -> basename
-	Backlinks map[string][]LinkRef    // basename -> refs pointing at it
-	Assets    map[string]bool         // hub-relative paths of image files
+	Issues    map[string]*issue.Issue   // by id
+	Handoffs  map[string]*issue.Handoff // by id
+	Notes     map[string]*Note          // by basename; on a collision the first in walk order wins
+	ByPath    map[string]*Note          // by hub-relative path; every note, collisions included
+	Aliases   map[string]string         // alias -> basename
+	Backlinks map[string][]LinkRef      // basename -> refs pointing at it
+	Assets    map[string]bool           // hub-relative paths of image files
 	Warnings  []Warning
 
 	// ExplicitWorkflow is the BN_CONFIG path used to load workflow config, if any.
@@ -161,6 +165,7 @@ func LoadWithOptions(hubDir string, opts LoadOptions) (*Index, error) {
 		HubDir:           abs,
 		Projects:         map[string]*Project{},
 		Issues:           map[string]*issue.Issue{},
+		Handoffs:         map[string]*issue.Handoff{},
 		Notes:            map[string]*Note{},
 		ByPath:           map[string]*Note{},
 		Aliases:          map[string]string{},
@@ -303,6 +308,10 @@ func classify(relPath string) (kind Kind, project string, ok bool) {
 			if len(rest) == 2 {
 				return KindMemory, project, true
 			}
+		case "handoffs":
+			if len(rest) == 2 || (len(rest) == 4 && rest[1] == "archive" && len(rest[2]) == 4) {
+				return KindHandoff, project, true
+			}
 		}
 		return "", "", false
 	}
@@ -400,6 +409,20 @@ func (ix *Index) indexFile(kind Kind, project, rel string, data []byte) {
 		note.rawOut = linksToRaw(markdown.Links([]byte(mem.Body)))
 		ix.registerNote(basename, note)
 
+	case KindHandoff:
+		h, err := issue.ParseHandoff(rel, data)
+		if err != nil {
+			ix.addParseWarning(rel, err)
+			return
+		}
+		note := &Note{Kind: KindHandoff, Path: rel, Basename: basename, Project: h.Project, Title: h.Title, Handoff: h,
+			Frontmatter: map[string]any{"id": h.ID, "aliases": h.Aliases, "title": h.Title, "issue": h.Issue.Raw, "created": h.Created, "updated": h.Updated}}
+		note.rawOut = linksToRaw(markdown.Links([]byte(h.Body)))
+		if !h.Issue.IsZero() {
+			note.rawOut = append(note.rawOut, rawLink{to: h.Issue.Target, kind: LinkHandoffIssue})
+		}
+		ix.registerNote(basename, note)
+
 	case KindDoc:
 		fmBytes, body := splitDocFrontmatter(data)
 		var fmMap map[string]any
@@ -461,6 +484,7 @@ func (ix *Index) addParseWarning(path string, err error) {
 func (ix *Index) rebuild() {
 	notes := map[string]*Note{}
 	issues := map[string]*issue.Issue{}
+	handoffs := map[string]*issue.Handoff{}
 	var dups []Warning
 	for _, n := range ix.order {
 		if first, dup := notes[n.Basename]; dup {
@@ -475,9 +499,25 @@ func (ix *Index) rebuild() {
 				issues[n.Issue.ID] = n.Issue
 			}
 		}
+		if n.Kind == KindHandoff && n.Handoff != nil {
+			if first, dup := handoffs[n.Handoff.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate handoff id %q (also %s); the first is used", n.Handoff.ID, first.Path)})
+			} else {
+				handoffs[n.Handoff.ID] = n.Handoff
+			}
+			if first, dup := issues[n.Handoff.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("handoff id %q collides with issue %s", n.Handoff.ID, first.Path)})
+			}
+		}
+		if n.Kind == KindIssue && n.Issue != nil {
+			if first, dup := handoffs[n.Issue.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("issue id %q collides with handoff %s", n.Issue.ID, first.Path)})
+			}
+		}
 	}
 	ix.Notes = notes
 	ix.Issues = issues
+	ix.Handoffs = handoffs
 	ix.dupWarnings = dups
 	aliases := map[string]string{}
 	for _, n := range ix.order {
@@ -504,6 +544,9 @@ func noteAliases(n *Note) []string {
 		}
 	case KindDoc:
 		return stringListField(n.Frontmatter, "aliases")
+	}
+	if n.Handoff != nil {
+		return n.Handoff.Aliases
 	}
 	return nil
 }
@@ -578,16 +621,21 @@ func (ix *Index) Lookup(target string) (*Note, bool) {
 	}
 	t = strings.TrimSuffix(t, ".md")
 
-	if n, ok := ix.Notes[t]; ok {
-		return n, true
-	}
-	if basename, ok := ix.Aliases[t]; ok {
+	if iss, ok := ix.Issues[t]; ok {
+		basename := strings.TrimSuffix(pathBase(iss.Path), ".md")
 		if n, ok := ix.Notes[basename]; ok {
 			return n, true
 		}
 	}
-	if iss, ok := ix.Issues[t]; ok {
-		basename := strings.TrimSuffix(pathBase(iss.Path), ".md")
+	if h, ok := ix.Handoffs[t]; ok {
+		if n, ok := ix.ByPath[h.Path]; ok {
+			return n, true
+		}
+	}
+	if n, ok := ix.Notes[t]; ok {
+		return n, true
+	}
+	if basename, ok := ix.Aliases[t]; ok {
 		if n, ok := ix.Notes[basename]; ok {
 			return n, true
 		}
@@ -643,7 +691,7 @@ func (ix *Index) reloadAll() error {
 		return err
 	}
 	ix.HubConfig, ix.Workflow, ix.Projects = fresh.HubConfig, fresh.Workflow, fresh.Projects
-	ix.Issues, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
+	ix.Issues, ix.Handoffs, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Handoffs, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
 	ix.Assets, ix.Warnings = fresh.Assets, fresh.Warnings
 	ix.order, ix.parseWarnings, ix.linkWarnings, ix.dupWarnings, ix.hubTOML = fresh.order, fresh.parseWarnings, fresh.linkWarnings, fresh.dupWarnings, fresh.hubTOML
 	return nil

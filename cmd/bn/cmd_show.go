@@ -26,6 +26,7 @@ func lookupIssue(ix *vault.Index, id string) (*issue.Issue, error) {
 
 func newShowCmd(rs *appState) *cobra.Command {
 	var raw bool
+	var includeArchivedHandoffs bool
 	cmd := &cobra.Command{
 		Use:   "show <id>",
 		Short: "Show an issue with its blockers, children, backlinks, and log",
@@ -51,6 +52,9 @@ func newShowCmd(rs *appState) *cobra.Command {
 				return err
 			}
 			detail := toIssueDetailJSON(ix, iss)
+			if !includeArchivedHandoffs {
+				detail.Backlinks = filteredIssueBacklinks(ix, iss, false)
+			}
 			if rs.jsonOut {
 				return writeJSON(detail)
 			}
@@ -115,5 +119,25 @@ func newShowCmd(rs *appState) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&raw, "raw", false, "print the issue file as is")
+	cmd.Flags().BoolVar(&includeArchivedHandoffs, "include-archived-handoffs", false, "include historical handoff backlinks")
 	return cmd
+}
+
+func filteredIssueBacklinks(ix *vault.Index, iss *issue.Issue, include bool) []backlinkJSON {
+	refs := ix.IssueBacklinks(noteBasename(iss), include)
+	out := []backlinkJSON{}
+	for _, r := range refs {
+		b := backlinkJSON{From: r.From, Kind: string(r.Kind)}
+		if n, ok := ix.Notes[r.From]; ok {
+			b.Path = n.Path
+			if n.Issue != nil {
+				b.From = n.Issue.ID
+			}
+			if n.Handoff != nil {
+				b.From = n.Handoff.ID
+			}
+		}
+		out = append(out, b)
+	}
+	return out
 }

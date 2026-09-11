@@ -1,7 +1,7 @@
 # beans
 
 `bn` (beans) is a git-backed issue tracker and wiki for humans and coding
-agents. Issues, docs, and memories are markdown files with YAML frontmatter
+agents. Issues, docs, memories, and session handoffs are markdown files with YAML frontmatter
 in one git repository, the hub, cloned at `~/.beans/hub`. Every `bn` command
 that changes something makes one commit and pushes it, so git is the source
 of truth across machines and every change has an author, a time, and a
@@ -58,6 +58,8 @@ bn prime                                     # the rules, for agents
         ├── archive/<YYYY>/<id>-<slug>.md
         ├── docs/
         ├── memories/<key>.md
+        ├── handoffs/<id>-<slug>.md
+        ├── handoffs/archive/<YYYY>/<id>-<slug>.md
         └── templates/<type>.md
 ```
 

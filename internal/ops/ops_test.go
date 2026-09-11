@@ -44,7 +44,7 @@ func TestCreateWritesFileAndIsReplaySafe(t *testing.T) {
 	env, hub := testEnv(t)
 	op, res := Create(env, CreateInput{Title: "First: issue", Description: "desc", Labels: []string{"a", "a", "b"}, Priority: 1}, "p")
 	paths := apply(t, hub, op)
-	if len(paths) != 6 || !strings.HasPrefix(res.ID, "p-") || !strings.HasSuffix(paths[5], res.ID+"-first-issue.md") {
+	if len(paths) != 8 || !strings.HasPrefix(res.ID, "p-") || !strings.HasSuffix(paths[7], res.ID+"-first-issue.md") {
 		t.Fatalf("paths=%v id=%s", paths, res.ID)
 	}
 	iss, _, err := Load(hub, res.ID)

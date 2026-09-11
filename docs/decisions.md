@@ -100,3 +100,11 @@ Reads fetch at most once per throttle window, measured from the last fetch
 attempt rather than the last success, so an offline machine does not pay a
 network timeout on every read; `bn status` still reports the last successful
 fetch.
+
+## 2026-09-10: Handoffs are their own note kind
+
+Session handoffs capture continuation context rather than schedulable work.
+They live in project `handoffs/` directories with stable IDs and an optional
+issue attachment, rather than becoming issue types or untyped docs. This keeps
+them out of readiness, blockers, and issue archival while retaining search,
+backlinks, and the normal git-backed write pipeline.

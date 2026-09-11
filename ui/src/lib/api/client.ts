@@ -78,8 +78,12 @@ export class ApiClient {
     return this.request(`/projects/${encodeURIComponent(project)}/ready`)
   }
 
-  getIssue(id: string): Promise<IssueDetail> {
-    return this.request(`/issues/${encodeURIComponent(id)}`)
+  getIssue(id: string, includeArchivedHandoffs = false): Promise<IssueDetail> {
+    const path = `/issues/${encodeURIComponent(id)}`
+    if (!includeArchivedHandoffs) {
+      return this.request(path)
+    }
+    return this.request(path, { query: { include_archived_handoffs: true } })
   }
 
   createIssue(project: string, body: CreateIssueRequest): Promise<CreateIssueResult> {
@@ -165,7 +169,12 @@ export class ApiClient {
 
   search(params: SearchParams): Promise<SearchResult[]> {
     return this.request('/search', {
-      query: { q: params.q, kind: params.kind, project: params.project },
+      query: {
+        q: params.q,
+        kind: params.kind,
+        project: params.project,
+        include_archived_handoffs: params.include_archived_handoffs,
+      },
     })
   }
 
