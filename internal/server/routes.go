@@ -374,11 +374,8 @@ func (s *Server) showPlan(c fiber.Ctx) error {
 			return string(b)
 		}
 		out.Summary = planSummaryJSON{Status: string(p.Status), OutcomeHTML: html(p.Summary.Outcome), AffectedAreasHTML: html(p.Summary.AffectedAreas), ExecutionOrderHTML: html(p.Summary.ExecutionOrder), RisksHTML: html(p.Summary.Risks), Graph: p.Graph}
-		for _, section := range p.Sections {
-			data, err := os.ReadFile(filepath.Join(ix.HubDir, filepath.FromSlash(strings.TrimSuffix(p.Path, "/plan.md")), filepath.FromSlash(section)))
-			if err == nil {
-				out.Sections = append(out.Sections, planSectionJSON{Path: section, HTML: html(string(data))})
-			}
+		for _, section := range p.SectionBodies {
+			out.Sections = append(out.Sections, planSectionJSON{Path: section.Path, HTML: html(section.Markdown)})
 		}
 		return c.JSON(out)
 	})

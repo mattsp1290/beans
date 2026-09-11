@@ -26,10 +26,13 @@ type Plan struct {
 	Created  time.Time
 	Updated  time.Time
 	Sections []string
-	Body     string
-	Path     string
-	Summary  Summary
-	Graph    ChangeGraph
+	// SectionBodies is validated ordered content supplied by bundle loading.
+	// It is not serialized into the manifest.
+	SectionBodies []Section
+	Body          string
+	Path          string
+	Summary       Summary
+	Graph         ChangeGraph
 }
 
 type Section struct{ Path, Markdown string }
