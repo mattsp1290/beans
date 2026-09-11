@@ -34,3 +34,24 @@ func TestReplaceTreeRejectsEscapingPath(t *testing.T) {
 		t.Fatal("accepted escaping path")
 	}
 }
+
+func TestReplaceTreeRecoversInterruptedBackup(t *testing.T) {
+	parent := t.TempDir()
+	target := filepath.Join(parent, "bundle")
+	backup := filepath.Join(parent, ".bundle.backup")
+	if err := os.MkdirAll(backup, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(backup, "old.md"), []byte("old\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := ReplaceTree(target, map[string][]byte{"plan.md": []byte("new\n")}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(target, "plan.md")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(backup); !os.IsNotExist(err) {
+		t.Fatalf("backup remains: %v", err)
+	}
+}

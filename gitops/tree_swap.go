@@ -20,6 +20,22 @@ func ReplaceTree(target string, files map[string][]byte) error {
 	if err := os.MkdirAll(parent, 0o755); err != nil {
 		return err
 	}
+	backup := filepath.Join(parent, "."+base+".backup")
+	if _, err := os.Lstat(backup); err == nil {
+		if _, targetErr := os.Lstat(target); os.IsNotExist(targetErr) {
+			if err := os.Rename(backup, target); err != nil {
+				return fmt.Errorf("recover tree backup: %w", err)
+			}
+		} else if targetErr == nil {
+			if err := os.RemoveAll(backup); err != nil {
+				return fmt.Errorf("clear completed tree backup: %w", err)
+			}
+		} else {
+			return targetErr
+		}
+	} else if !os.IsNotExist(err) {
+		return err
+	}
 	stage, err := os.MkdirTemp(parent, "."+base+".stage-")
 	if err != nil {
 		return err
@@ -47,7 +63,6 @@ func ReplaceTree(target string, files map[string][]byte) error {
 			return err
 		}
 	}
-	backup := filepath.Join(parent, "."+base+".backup")
 	if _, err := os.Lstat(backup); err == nil {
 		return fmt.Errorf("tree backup already exists: %s", backup)
 	} else if !os.IsNotExist(err) {
