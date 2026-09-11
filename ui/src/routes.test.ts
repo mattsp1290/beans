@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRoute, parseIssueId, parseWikiPath } from './routes'
+import { getRoute, parseIssueId, parsePlanId, parseWikiPath } from './routes'
 
 describe('routes', () => {
   it('redirects the root path to the issues board metadata', () => {
@@ -39,11 +39,24 @@ describe('routes', () => {
     expect(getRoute('/search')).toMatchObject({ path: '/search', title: 'Search' })
   })
 
+  it('maps plan list and detail paths to the plans workspace', () => {
+    expect(getRoute('/plans')).toMatchObject({ path: '/plans', title: 'Plans' })
+    expect(getRoute('/plans/p-plan-a3f2')).toMatchObject({ path: '/plans', title: 'Plans' })
+  })
+
   it('falls back to the issue workspace for unknown paths', () => {
     expect(getRoute('/missing')).toMatchObject({
       path: '/issues',
       title: 'Issues',
     })
+  })
+})
+
+describe('parsePlanId', () => {
+  it('extracts and decodes a plan id only from detail paths', () => {
+    expect(parsePlanId('/plans/p-plan-a3f2')).toBe('p-plan-a3f2')
+    expect(parsePlanId('/plans/p%2Fplan')).toBe('p/plan')
+    expect(parsePlanId('/plans')).toBeNull()
   })
 })
 
