@@ -1,0 +1,1 @@
+{"scenario":"false-terminal","assert":["terminal without exact-head ancestry stops","squash-equivalent tree still stops","next issue remains unclaimed","ancestry on refreshed base resumes"]}

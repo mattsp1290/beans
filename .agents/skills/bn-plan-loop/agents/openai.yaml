@@ -1,0 +1,4 @@
+interface:
+  display_name: "Beans Plan Loop"
+  short_description: "Execute a published Beans plan through reviewed issue branches"
+  default_prompt: "/goal $bn-plan-loop <plan-id>"

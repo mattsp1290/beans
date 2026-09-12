@@ -1,0 +1,1 @@
+{"scenario":"normal-two-node","assert":["materialize each marker once","claim first node only","reviewed remote head precedes review hold","terminal plus base ancestry before second claim","fresh get validate put show status completes plan"]}

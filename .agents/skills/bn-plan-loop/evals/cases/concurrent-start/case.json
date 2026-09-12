@@ -1,0 +1,1 @@
+{"scenario":"concurrent-start","assert":["one shared-common-dir lease owner","loser performs zero mutations","changed checkout incarnation enters recovery","cross-machine exclusion is not claimed"]}

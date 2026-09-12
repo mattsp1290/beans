@@ -1,0 +1,1 @@
+{"scenario":"materialization-resume","interrupt_after":"create before visible result","assert":["archived-inclusive marker search","one create maximum","recover and link exact marker","never use plan link --force","terminal orphan is not replaced"]}

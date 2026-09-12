@@ -31,6 +31,8 @@ Before detailed planning, obtain explicit answers to the following operating-con
 
 Ask missing questions together and continue independent research while waiting. Do not infer these answers from code. If both booleans are false, record flags as `not-applicable`. Preserve the user's answers through review. Record them with their confirmation time in the overview's Application context section. A missing answer blocks implementation readiness. With `decide-per-pr`, identify every behavior-changing package that needs a decision before implementation.
 
+Record the answers in the exact versioned `implementation-plan` JSON fence defined in [references/bundle-format.md](references/bundle-format.md), including its confirmation digest. This machine-readable record is required for lifecycle-`ready` plans; prose may explain it but must not replace it.
+
 Resolve other questions from repository evidence where possible. Classify remaining questions as blocking or non-blocking, and identify an owner and exact unblock action for each blocker. Apply compatibility, migration, rollout, rollback, and feature-flag decisions to the affected work packages.
 
 ## Author the bundle
@@ -40,6 +42,8 @@ Read [references/bundle-format.md](references/bundle-format.md) before editing. 
 Represent external dependencies and requests inside listed bundle sections so they travel with the hub plan. Record the owner repository, demonstrated and prospective consumers, requested contract, exclusions, acceptance criteria, affected packages, and exact unblock evidence. Inspect available owner contracts and releases before proposing shared work. A request is neither owner acceptance nor a usable dependency. A required contract without a verified usable revision blocks readiness. Creating repositories, contacting owners, or filing issues in other projects requires scope from the user; planning alone does not authorize those actions.
 
 Use `bn` for execution task tracking. Graph nodes can remain unlinked during planning; do not invent issue IDs or automatically create an issue for every node. If issue creation or linking is part of the requested scope, use the CLI and inspect its current help. `bn plan link <plan-id> <node-id> <issue-id>` binds an existing issue after publication; it does not create issue dependencies. Graph edges do not replace `bn dep` blockers. Retrieve a fresh bundle after link mutations before further edits.
+
+End the execution handoff with exactly one version-1 `bn-execution-map` fence as defined in the bundle-format reference. Classify every graph node exactly once as an executable package or a reference-only node. The map, source-section digests, graph `precedes` edges, detailed work packages, and handoff ordering must agree. A ready plan without this contract is not executable by `$bn-plan-loop`.
 
 ## Review and revise
 

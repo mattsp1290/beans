@@ -1,0 +1,1 @@
+{"scenario":"feedback-and-holds","assert":["feedback returns in_progress","new head is reviewed again","atomic approval binds exact head","validation precedes ready_for_merge","executor neither merges nor closes"]}

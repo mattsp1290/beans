@@ -1,0 +1,1 @@
+{"scenario":"contract-validation","assert":["valid and malformed context","missing duplicate conflicting map","workflow TOML YAML YML precedence","reference-only issue rejected","started semantic drift stops","link-only drift stable","shell metacharacters remain inert","monitor race overlap and retry boundaries","atomic approval commit boundary"]}

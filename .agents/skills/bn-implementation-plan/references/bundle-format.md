@@ -65,7 +65,20 @@ Edge fields are `from`, `to`, `kind`, and optional `label`. Both endpoints must 
 
 Include the source repository and observed revision, inferred change type, requested outcome, measurable success criteria, scope and non-goals, repository evidence, design decisions and relevant alternatives, a clear change model, assumptions, risks, and unresolved decisions. State that implementation has not occurred. Include a document map and any external dependency/request map.
 
-Under `## Application context`, record user-confirmed active-user and backward-compatibility booleans, the feature-flag choice, and the confirmation timestamp. Explicitly identify missing answers and their owner. This record preserves the original planning workflow's decision gates; no confirmation digest or compatibility with another execution skill is implied.
+Under `## Application context`, include exactly one fenced JSON block tagged `implementation-plan`:
+
+```implementation-plan
+{
+  "version": 1,
+  "active_users": false,
+  "backward_compatibility_required": false,
+  "feature_flags": "not-applicable",
+  "confirmed_at": "2026-09-12T01:35:16Z",
+  "confirmation_digest": "<lowercase-sha256>"
+}
+```
+
+Only those six keys are allowed. The two user answers are JSON booleans. `feature_flags` is one of `appropriate`, `not-appropriate`, `decide-per-pr`, or `not-applicable`; the last value is valid only when both booleans are false. `confirmed_at` is an RFC 3339 timestamp with a timezone. Compute `confirmation_digest` by removing that field, serializing the remaining object as UTF-8 canonical JSON with keys sorted and separators `,` and `:` (no insignificant whitespace), then taking lowercase SHA-256. Explicitly identify missing answers and their owner in prose, but never fabricate the block: a missing answer blocks `ready` status.
 
 ## Work packages
 
@@ -74,3 +87,26 @@ Each package specifies its goal, prerequisites, relevant source evidence, exact 
 ## Execution handoff
 
 Give dependency-ordered packages, concrete change surfaces, prerequisites and parallelization constraints, per-package verification commands, integration and regression gates, rollback requirements where relevant, and a final definition of done. Identify deferred work without presenting it as already filed or authorized. Keep this order consistent with the manifest and graph. Store execution progress in Beans issues, not a competing Markdown task tracker.
+
+End the handoff with exactly one `bn-execution-map` YAML fence. Its version-1 shape is:
+
+```bn-execution-map
+version: 1
+packages:
+  - id: package-id
+    node_id: graph-node-id
+    source: sections/01-package.md
+    source_digest: <lowercase-sha256>
+    prerequisites: []
+    paths: [repository/relative/path]
+    validation: [exact command or discovery rule]
+    acceptance: [observable result]
+    exclusions: [bounded non-goal]
+references:
+  - node_id: context-only-node
+    reason: architecture context only
+```
+
+Only the shown keys are allowed. Package and node IDs are unique and match the graph ID grammar. Every graph node appears exactly once in `packages` or `references`. A package source is one listed implementation-package section, never the overview or handoff. Normalize its UTF-8 bytes to LF, remove trailing spaces and tabs from each line, ensure one final newline, and hash those bytes for `source_digest`. Package prerequisites name package IDs, form a DAG, and match prerequisite-to-dependent graph `precedes` edges. Lists may be empty only where the package genuinely has no prerequisite; paths, validation, acceptance, and exclusions otherwise contain nonempty strings. Reference entries contain only `node_id` and a nonempty reason. An issue-resolving graph ref must be executable, never reference-only.
+
+For semantic drift checks, canonicalize the validated application-context object without its digest, the execution map, and the change graph as sorted-key compact JSON, then combine those values with the normalized bytes of each package source in map order. Before canonicalizing the graph, exclude node `ref` values. Hash every component as its eight-byte big-endian length followed by its bytes using SHA-256. CLI-owned manifest `updated` and lifecycle `status` are excluded. Thus link, revision, and lifecycle-only changes are stable while graph semantics, executable prose, or mapping changes are not.
