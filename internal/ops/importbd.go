@@ -101,6 +101,7 @@ func ImportBD(env Env, recs []BDRecord, dryRun, force bool) (gitops.Operation, *
 	subject := fmt.Sprintf("(%d issues, %d memories)", nIssues, nMemories)
 	return gitops.Operation{Verb: "import bd", ID: subject, Summary: env.Project, Apply: func(hubDir string) ([]string, error) {
 		*rep = ImportReport{Actors: map[string]string{}}
+		unmappedDependencies := map[string]int{}
 		wf := env.workflow(env.Project)
 		projectDir := filepath.Join("projects", env.Project)
 
@@ -193,6 +194,8 @@ func ImportBD(env Env, recs []BDRecord, dryRun, force bool) (gitops.Operation, *
 				case "parent-child":
 					iss.Parent = issue.NewLink(d.DependsOn)
 					rep.Parents++
+				default:
+					unmappedDependencies[d.Type]++
 				}
 			}
 			sub := "issues"
@@ -213,6 +216,14 @@ func ImportBD(env Env, recs []BDRecord, dryRun, force bool) (gitops.Operation, *
 			base := strings.TrimSuffix(issue.Filename(r.ID, issue.Slug(r.Title)), ".md")
 			basenameByID[r.ID] = base
 			plans = append(plans, planned{rel: filepath.ToSlash(filepath.Join(projectDir, sub, base+".md")), iss: iss})
+		}
+		unmappedTypes := make([]string, 0, len(unmappedDependencies))
+		for typ := range unmappedDependencies {
+			unmappedTypes = append(unmappedTypes, typ)
+		}
+		sort.Strings(unmappedTypes)
+		for _, typ := range unmappedTypes {
+			rep.Warnings = append(rep.Warnings, fmt.Sprintf("dropped %d %q edge(s); not mapped by bn import bd", unmappedDependencies[typ], typ))
 		}
 
 		// Second pass: resolve links to basenames.

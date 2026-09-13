@@ -1,12 +1,111 @@
 package ops
 
 import (
+	"io/fs"
 	"os"
+	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/mattsp1290/beans/issue"
 	"github.com/mattsp1290/beans/vault"
 )
+
+func directoryManifest(t *testing.T, root string) map[string]string {
+	t.Helper()
+	entries := map[string]string{}
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil || rel == "." {
+			return err
+		}
+		if d.IsDir() {
+			entries[rel] = "dir"
+			return nil
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		entries[rel] = "file:" + string(data)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return entries
+}
+
+func TestImportBDReportsUnmappedDependencyTypes(t *testing.T) {
+	env, hub := testEnv(t)
+	recs := []BDRecord{
+		{ID: "p-aaaa", Title: "target", Status: "open", IssueType: "task"},
+		{ID: "p-bbbb", Title: "blocks child", Status: "open", IssueType: "task", Dependencies: []BDDep{
+			{IssueID: "p-bbbb", DependsOn: "p-aaaa", Type: "blocks"},
+			{IssueID: "p-bbbb", DependsOn: "p-aaaa", Type: "discovered-from"},
+			{IssueID: "wrong-id", DependsOn: "p-aaaa", Type: "ignored"},
+		}},
+		{ID: "p-cccc", Title: "parent child", Status: "open", IssueType: "task", Dependencies: []BDDep{
+			{IssueID: "p-cccc", DependsOn: "p-aaaa", Type: "parent-child"},
+			{IssueID: "p-cccc", DependsOn: "p-aaaa", Type: "discovered-from"},
+			{IssueID: "p-cccc", DependsOn: "p-aaaa", Type: "related"},
+		}},
+	}
+	op, rep := ImportBD(env, recs, true, false)
+	before := directoryManifest(t, hub)
+	if paths := apply(t, hub, op); len(paths) != 0 {
+		t.Fatalf("dry run wrote paths: %v", paths)
+	}
+	if got := directoryManifest(t, hub); !reflect.DeepEqual(got, before) {
+		t.Fatalf("dry run changed hub: got=%v want=%v", got, before)
+	}
+	wantWarnings := []string{
+		`dropped 2 "discovered-from" edge(s); not mapped by bn import bd`,
+		`dropped 1 "related" edge(s); not mapped by bn import bd`,
+	}
+	if rep.Blocks != 1 || rep.Parents != 1 || !reflect.DeepEqual(rep.Warnings, wantWarnings) {
+		t.Fatalf("report = %+v", rep)
+	}
+	if paths := apply(t, hub, op); len(paths) != 0 || !reflect.DeepEqual(rep.Warnings, wantWarnings) || rep.Blocks != 1 || rep.Parents != 1 {
+		t.Fatalf("replayed dry run paths=%v report=%+v", paths, rep)
+	}
+	if got := directoryManifest(t, hub); !reflect.DeepEqual(got, before) {
+		t.Fatalf("replayed dry run changed hub: got=%v want=%v", got, before)
+	}
+
+	writeEnv, writeHub := testEnv(t)
+	writeOp, _ := ImportBD(writeEnv, recs, false, false)
+	apply(t, writeHub, writeOp)
+	ix, err := vault.Load(writeHub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	blocksChild := ix.Issues["p-bbbb"]
+	parentChild := ix.Issues["p-cccc"]
+	if blocksChild == nil || parentChild == nil {
+		t.Fatalf("issues = %v", ix.Issues)
+	}
+	if len(blocksChild.BlockedBy) != 1 || blocksChild.BlockedBy[0].Target != "p-aaaa-target" {
+		t.Fatalf("blocked_by = %+v", blocksChild.BlockedBy)
+	}
+	if parentChild.Parent.Target != "p-aaaa-target" {
+		t.Fatalf("parent = %+v", parentChild.Parent)
+	}
+	for _, iss := range []*issue.Issue{blocksChild, parentChild} {
+		if strings.Contains(iss.Description+iss.Body, "discovered-from") {
+			t.Fatalf("unmapped edge persisted in body: %+v", iss)
+		}
+		for _, log := range iss.Log {
+			if strings.Contains(log.Event, "discovered-from") || strings.Contains(log.Event, "related") {
+				t.Fatalf("unmapped edge persisted in log: %+v", log)
+			}
+		}
+	}
+}
 
 func TestImportBDLiveExport(t *testing.T) {
 	env, hub := testEnv(t)

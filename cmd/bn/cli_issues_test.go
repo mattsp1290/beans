@@ -4,11 +4,44 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"io/fs"
 	"os"
+	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/mattsp1290/beans/internal/ops"
 )
+
+func hubManifest(t *testing.T, root string) map[string]string {
+	t.Helper()
+	entries := map[string]string{}
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil || rel == "." || rel == ".git" || strings.HasPrefix(rel, ".git"+string(filepath.Separator)) {
+			return err
+		}
+		if d.IsDir() {
+			entries[rel] = "dir"
+			return nil
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		entries[rel] = "file:" + string(data)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return entries
+}
 
 // runOut runs bn capturing os.Stdout (commands write JSON and some tables
 // there) and returns stdout, exit code, and error.
@@ -270,6 +303,55 @@ func TestImportBDFromLiveExport(t *testing.T) {
 	if _, code, err := e.runOut(t, "import", "bd", "testdata/beans_export_2026-09-10.jsonl", "--project", "beans"); err == nil || code != exitUsage || !strings.Contains(err.Error(), "--force") {
 		t.Fatalf("re-import must refuse: %v", err)
 	}
+}
+
+func TestCLIImportBDReportsUnmappedDependencyTypes(t *testing.T) {
+	e := newCLIEnv(t)
+	e.mustRun(t, "init", e.remote)
+	hub := filepath.Join(e.home, "hub")
+	assertUnchanged := func(before map[string]string, head, status, remoteHead string) {
+		t.Helper()
+		if got := hubManifest(t, hub); !reflect.DeepEqual(got, before) {
+			t.Fatalf("hub changed: got=%v want=%v", got, before)
+		}
+		if got := strings.TrimSpace(e.git(hub, "rev-parse", "HEAD")); got != head {
+			t.Fatalf("hub HEAD changed: got=%s want=%s", got, head)
+		}
+		if got := e.git(hub, "status", "--porcelain=v1", "--untracked-files=all"); got != status {
+			t.Fatalf("hub status changed: got=%q want=%q", got, status)
+		}
+		if got := strings.TrimSpace(e.git(e.remote, "rev-parse", "main")); got != remoteHead {
+			t.Fatalf("remote HEAD changed: got=%s want=%s", got, remoteHead)
+		}
+	}
+	before := hubManifest(t, hub)
+	head := strings.TrimSpace(e.git(hub, "rev-parse", "HEAD"))
+	status := e.git(hub, "status", "--porcelain=v1", "--untracked-files=all")
+	remoteHead := strings.TrimSpace(e.git(e.remote, "rev-parse", "main"))
+	args := []string{"import", "bd", "testdata/import_bd_unmapped_dependencies.jsonl", "--project", "myapp", "--dry-run"}
+	out, code, err := e.runOut(t, args...)
+	if err != nil || code != 0 || !strings.Contains(out, `warning: dropped 1 "discovered-from" edge(s); not mapped by bn import bd`) || !strings.Contains(out, "issues: 2 (0 archived)  memories: 0  blocks: 1  parents: 0") || !strings.Contains(out, "dry run: nothing written") {
+		t.Fatalf("text import: code=%d err=%v out=%s", code, err, out)
+	}
+	assertUnchanged(before, head, status, remoteHead)
+
+	out, code, err = e.runOut(t, append(args, "--json")...)
+	if err != nil || code != 0 {
+		t.Fatalf("json import: code=%d err=%v out=%s", code, err, out)
+	}
+	var result struct {
+		Report ops.ImportReport `json:"report"`
+		DryRun bool             `json:"dry_run"`
+		Commit string           `json:"commit"`
+		Pushed bool             `json:"pushed"`
+	}
+	if err := json.Unmarshal([]byte(out), &result); err != nil {
+		t.Fatalf("complete JSON output: %v\n%s", err, out)
+	}
+	if !result.DryRun || result.Commit != "" || result.Pushed || result.Report.Blocks != 1 || !reflect.DeepEqual(result.Report.Warnings, []string{`dropped 1 "discovered-from" edge(s); not mapped by bn import bd`}) || strings.Contains(out, "warning:") || strings.Contains(out, "dry run:") {
+		t.Fatalf("JSON import result=%+v out=%s", result, out)
+	}
+	assertUnchanged(before, head, status, remoteHead)
 }
 
 func TestPrimeMatchesDocs(t *testing.T) {
