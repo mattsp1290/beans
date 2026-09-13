@@ -53,7 +53,7 @@ export interface IssueLogEntry {
 }
 
 /** What kind of note a backlink's `from` (and `path`, when set) refers to. */
-export type NoteKind = 'issue' | 'doc' | 'memory' | 'plan' | 'request'
+export type NoteKind = 'issue' | 'doc' | 'memory' | 'plan' | 'request' | 'handoff'
 
 export type RequestStatus = 'open' | 'accepted' | 'in_progress' | 'resolved' | 'declined'
 export interface LinkedIssueSummary { id:string; title?:string; status?:string; priority?:number; project?:string; archived?:boolean; missing?:boolean }
@@ -265,6 +265,7 @@ export interface DocOutlink {
 export type DocBacklink = Backlink
 
 export interface DocPage {
+	kind?: NoteKind
   path: string
   title: string
   project: string
@@ -280,11 +281,12 @@ export interface DocPage {
 export interface SearchParams {
   q: string
   kind?: string
-  project?: string
+	project?: string
+	include_archived_handoffs?: boolean
 }
 
 export interface SearchResult {
-  kind: string
+	kind: NoteKind
   id: string
   basename: string
   title: string

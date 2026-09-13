@@ -101,6 +101,14 @@ attempt rather than the last success, so an offline machine does not pay a
 network timeout on every read; `bn status` still reports the last successful
 fetch.
 
+## 2026-09-10: Handoffs are their own note kind
+
+Session handoffs capture continuation context rather than schedulable work.
+They live in project `handoffs/` directories with stable IDs and an optional
+issue attachment, rather than becoming issue types or untyped docs. This keeps
+them out of readiness, blockers, and issue archival while retaining search,
+backlinks, and the normal git-backed write pipeline.
+
 ## 2026-09-11: Requests are hub-native, request-owned artifacts
 
 Requests live under `projects/<project>/requests/` with a request-specific id

@@ -320,7 +320,7 @@ func CreateProjectFiles(hubDir, name, remote string) ([]string, error) {
 		}
 		paths = append(paths, filepath.ToSlash(filepath.Join("projects", name, "beans.toml")))
 	}
-	for _, sub := range []string{"issues", "archive", "docs", "memories", "requests"} {
+	for _, sub := range []string{"issues", "archive", "docs", "memories", "requests", "handoffs", "handoffs/archive"} {
 		keep := filepath.Join(dir, sub, ".gitkeep")
 		if _, err := os.Stat(keep); errors.Is(err, os.ErrNotExist) {
 			if err := gitops.WriteFile(keep, nil); err != nil {

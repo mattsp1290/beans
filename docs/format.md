@@ -195,6 +195,27 @@ require an explicit forced update.
 
 Path: `memories/<key>.md` at hub level, or `projects/<project>/memories/`.
 
+## Handoffs
+
+Handoffs are immutable session-continuation snapshots stored at
+`projects/<project>/handoffs/<id>-<slug>.md`. Archived handoffs move to
+`projects/<project>/handoffs/archive/<YYYY>/<id>-<slug>.md` without changing
+their contents. Required frontmatter is `id`, `title`, `created`, and
+`updated`; new notes also write `aliases: [<id>]`. An optional `issue` is a
+wikilink to its governing issue. All other frontmatter and the Markdown body
+are user-owned.
+
+```yaml
+---
+id: project-a1b2
+aliases: [project-a1b2]
+title: Continue validation
+issue: "[[project-c3d4-fix-validation]]"
+created: 2026-09-10T21:44:02Z
+updated: 2026-09-10T21:44:02Z
+---
+```
+
 ```markdown
 ---
 key: bean-counter-prod-schema

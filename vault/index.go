@@ -29,6 +29,7 @@ const (
 	KindMemory  Kind = "memory"
 	KindRequest Kind = "request"
 	KindPlan    Kind = "plan"
+	KindHandoff Kind = "handoff"
 )
 
 // LinkKind is the origin of one outbound link from a note.
@@ -40,6 +41,7 @@ const (
 	LinkBlockedBy    LinkKind = "blocked_by"
 	LinkRequestIssue LinkKind = "request_issue"
 	LinkEmbed        LinkKind = "embed"
+	LinkHandoffIssue LinkKind = "handoff_issue"
 )
 
 // LinkRef is one link between two notes, or from a note to an unresolved
@@ -71,6 +73,7 @@ type Note struct {
 	Memory      *issue.Memory  // set for KindMemory
 	Request     *issue.Request // set for KindRequest
 	Plan        *plan.Plan     // set for KindPlan
+	Handoff     *issue.Handoff // set for KindHandoff
 
 	rawOut  []rawLink // link targets before resolution
 	docBody string    // doc body, kept for Search; issues/memories keep it on Issue/Memory
@@ -107,6 +110,7 @@ type Index struct {
 	Issues    map[string]*issue.Issue   // by id
 	Requests  map[string]*issue.Request // by id
 	Plans     map[string]*plan.Plan     // by stable id
+	Handoffs  map[string]*issue.Handoff // by id
 	Notes     map[string]*Note          // by basename; on a collision the first in walk order wins
 	ByPath    map[string]*Note          // by hub-relative path; every note, collisions included
 	Aliases   map[string]string         // alias -> basename
@@ -172,6 +176,7 @@ func LoadWithOptions(hubDir string, opts LoadOptions) (*Index, error) {
 		Issues:           map[string]*issue.Issue{},
 		Requests:         map[string]*issue.Request{},
 		Plans:            map[string]*plan.Plan{},
+		Handoffs:         map[string]*issue.Handoff{},
 		Notes:            map[string]*Note{},
 		ByPath:           map[string]*Note{},
 		Aliases:          map[string]string{},
@@ -390,6 +395,10 @@ func classify(relPath string) (kind Kind, project string, ok bool) {
 			if len(rest) == 2 {
 				return KindRequest, project, true
 			}
+		case "handoffs":
+			if len(rest) == 2 || (len(rest) == 4 && rest[1] == "archive" && len(rest[2]) == 4) {
+				return KindHandoff, project, true
+			}
 		}
 		return "", "", false
 	}
@@ -503,6 +512,20 @@ func (ix *Index) indexFile(kind Kind, project, rel string, data []byte) {
 		note.rawOut = raw
 		ix.registerNote(basename, note)
 
+	case KindHandoff:
+		h, err := issue.ParseHandoff(rel, data)
+		if err != nil {
+			ix.addParseWarning(rel, err)
+			return
+		}
+		note := &Note{Kind: KindHandoff, Path: rel, Basename: basename, Project: h.Project, Title: h.Title, Handoff: h,
+			Frontmatter: map[string]any{"id": h.ID, "aliases": h.Aliases, "title": h.Title, "issue": h.Issue.Raw, "created": h.Created, "updated": h.Updated}}
+		note.rawOut = linksToRaw(markdown.Links([]byte(h.Body)))
+		if !h.Issue.IsZero() {
+			note.rawOut = append(note.rawOut, rawLink{to: h.Issue.Target, kind: LinkHandoffIssue})
+		}
+		ix.registerNote(basename, note)
+
 	case KindDoc:
 		fmBytes, body := splitDocFrontmatter(data)
 		var fmMap map[string]any
@@ -566,6 +589,7 @@ func (ix *Index) rebuild() {
 	issues := map[string]*issue.Issue{}
 	requests := map[string]*issue.Request{}
 	plans := map[string]*plan.Plan{}
+	handoffs := map[string]*issue.Handoff{}
 	var dups []Warning
 	for _, n := range ix.order {
 		if first, dup := notes[n.Basename]; dup {
@@ -594,11 +618,19 @@ func (ix *Index) rebuild() {
 				plans[n.Plan.ID] = n.Plan
 			}
 		}
+		if n.Kind == KindHandoff && n.Handoff != nil {
+			if first, dup := handoffs[n.Handoff.ID]; dup {
+				dups = append(dups, Warning{Path: n.Path, Err: fmt.Errorf("duplicate handoff id %q (also %s); the first is used", n.Handoff.ID, first.Path)})
+			} else {
+				handoffs[n.Handoff.ID] = n.Handoff
+			}
+		}
 	}
 	ix.Notes = notes
 	ix.Issues = issues
 	ix.Requests = requests
 	ix.Plans = plans
+	ix.Handoffs = handoffs
 	ix.dupWarnings = dups
 	aliases := map[string]string{}
 	for _, n := range ix.order {
@@ -633,6 +665,9 @@ func noteAliases(n *Note) []string {
 		if n.Plan != nil {
 			return n.Plan.Aliases
 		}
+	}
+	if n.Handoff != nil {
+		return n.Handoff.Aliases
 	}
 	return nil
 }
@@ -721,6 +756,11 @@ func (ix *Index) Lookup(target string) (*Note, bool) {
 			return n, true
 		}
 	}
+	if h, ok := ix.Handoffs[t]; ok {
+		if n, ok := ix.ByPath[h.Path]; ok {
+			return n, true
+		}
+	}
 	lower := strings.ToLower(t)
 	for basename, n := range ix.Notes {
 		if strings.ToLower(basename) == lower {
@@ -772,7 +812,7 @@ func (ix *Index) reloadAll() error {
 		return err
 	}
 	ix.HubConfig, ix.Workflow, ix.Projects = fresh.HubConfig, fresh.Workflow, fresh.Projects
-	ix.Issues, ix.Plans, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Plans, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
+	ix.Issues, ix.Requests, ix.Plans, ix.Handoffs, ix.Notes, ix.ByPath, ix.Aliases, ix.Backlinks = fresh.Issues, fresh.Requests, fresh.Plans, fresh.Handoffs, fresh.Notes, fresh.ByPath, fresh.Aliases, fresh.Backlinks
 	ix.Assets, ix.Warnings = fresh.Assets, fresh.Warnings
 	ix.order, ix.parseWarnings, ix.linkWarnings, ix.dupWarnings, ix.hubTOML = fresh.order, fresh.parseWarnings, fresh.linkWarnings, fresh.dupWarnings, fresh.hubTOML
 	return nil

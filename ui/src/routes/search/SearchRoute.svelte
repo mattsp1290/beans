@@ -16,6 +16,7 @@
 
   let query = $state('')
   let kind = $state('')
+  let includeArchivedHandoffs = $state(false)
   let results = $state<SearchResult[]>([])
   let loading = $state(false)
   let error = $state('')
@@ -68,6 +69,7 @@
         q,
         kind: kind || undefined,
         project: project === ALL_PROJECTS ? undefined : project,
+        include_archived_handoffs: includeArchivedHandoffs,
       })
       if (isCancelled()) return
       results = result
@@ -112,8 +114,10 @@
 			<option value="request">Requests</option>
         <option value="doc">Docs</option>
         <option value="memory">Memories</option>
+        <option value="handoff">Handoffs</option>
       </select>
     </label>
+    <label><input type="checkbox" bind:checked={includeArchivedHandoffs} /> Include archived handoffs</label>
     <button type="submit" disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
   </form>
 

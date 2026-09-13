@@ -347,34 +347,53 @@ type Hit struct {
 	Score    int
 }
 
+// SearchOptions controls typed search. Archived handoffs are opt-in because
+// they are historical continuation context rather than current work.
+type SearchOptions struct {
+	Kinds                   []Kind
+	IncludeArchivedHandoffs bool
+}
+
 // Search does a case-insensitive substring search over title, id, labels,
 // and body/description, ranked title match first, then id, then the rest.
 // kinds nil means all kinds.
 func (ix *Index) Search(q string, kinds []Kind) []Hit {
+	return ix.SearchWithOptions(q, SearchOptions{Kinds: kinds})
+}
+
+func (ix *Index) SearchWithOptions(q string, opts SearchOptions) []Hit {
 	ql := strings.ToLower(strings.TrimSpace(q))
 	if ql == "" {
 		return nil
 	}
 	var kindSet map[Kind]bool
-	if len(kinds) > 0 {
-		kindSet = make(map[Kind]bool, len(kinds))
-		for _, k := range kinds {
+	if len(opts.Kinds) > 0 {
+		kindSet = make(map[Kind]bool, len(opts.Kinds))
+		for _, k := range opts.Kinds {
 			kindSet[k] = true
 		}
 	}
 
 	var hits []Hit
 	for _, n := range ix.order {
+		if n.Handoff != nil && n.Handoff.Archived && !opts.IncludeArchivedHandoffs {
+			continue
+		}
 		if kindSet != nil && !kindSet[n.Kind] {
 			continue
 		}
 		id := ""
 		if n.Kind == KindIssue && n.Issue != nil {
 			id = n.Issue.ID
-		} else if n.Kind == KindPlan && n.Plan != nil {
-			id = n.Plan.ID
-		} else if n.Kind == KindRequest && n.Request != nil {
+		}
+		if n.Kind == KindHandoff && n.Handoff != nil {
+			id = n.Handoff.ID
+		}
+		if n.Kind == KindRequest && n.Request != nil {
 			id = n.Request.ID
+		}
+		if n.Kind == KindPlan && n.Plan != nil {
+			id = n.Plan.ID
 		}
 
 		score := 0
@@ -390,7 +409,7 @@ func (ix *Index) Search(q string, kinds []Kind) []Hit {
 					break
 				}
 			}
-			if score == 0 && strings.Contains(strings.ToLower(noteSearchBody(n)+"\n"+noteSearchExtra(n)), ql) {
+			if score == 0 && strings.Contains(strings.ToLower(noteSearchBody(n)), ql) {
 				score = 1
 			}
 		}
@@ -417,13 +436,6 @@ func (ix *Index) Search(q string, kinds []Kind) []Hit {
 	return hits
 }
 
-func noteSearchExtra(n *Note) string {
-	if n.Kind == KindRequest && n.Request != nil {
-		return n.Request.RequestedBy
-	}
-	return ""
-}
-
 func noteSearchBody(n *Note) string {
 	switch n.Kind {
 	case KindIssue:
@@ -434,12 +446,12 @@ func noteSearchBody(n *Note) string {
 		if n.Memory != nil {
 			return n.Memory.Body
 		}
+	case KindDoc:
+		return n.docBody
 	case KindRequest:
 		if n.Request != nil {
 			return n.Request.Body
 		}
-	case KindDoc:
-		return n.docBody
 	case KindPlan:
 		if n.Plan != nil {
 			body := n.Plan.Body + "\n" + n.Plan.Summary.Outcome + "\n" + n.Plan.Summary.AffectedAreas + "\n" + n.Plan.Summary.ExecutionOrder + "\n" + n.Plan.Summary.Risks
@@ -448,8 +460,47 @@ func noteSearchBody(n *Note) string {
 			}
 			return body
 		}
+	case KindHandoff:
+		if n.Handoff != nil {
+			return n.Handoff.Body
+		}
 	}
 	return ""
+}
+
+// HandoffByID returns a live or archived handoff by stable id.
+func (ix *Index) HandoffByID(id string) (*issue.Handoff, bool) {
+	h, ok := ix.Handoffs[id]
+	return h, ok
+}
+
+// ProjectHandoffs returns newest-first handoffs for a project (or all).
+func (ix *Index) ProjectHandoffs(project string, includeArchived bool) []*issue.Handoff {
+	out := make([]*issue.Handoff, 0, len(ix.Handoffs))
+	for _, h := range ix.Handoffs {
+		if (project == "" || h.Project == project) && (includeArchived || !h.Archived) {
+			out = append(out, h)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if !out[i].Created.Equal(out[j].Created) {
+			return out[i].Created.After(out[j].Created)
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out
+}
+
+// IssueBacklinks filters only archived handoff sources; raw backlinks remain complete.
+func (ix *Index) IssueBacklinks(basename string, includeArchivedHandoffs bool) []LinkRef {
+	out := []LinkRef{}
+	for _, r := range ix.Backlinks[basename] {
+		if n := ix.Notes[r.From]; n != nil && n.Handoff != nil && n.Handoff.Archived && !includeArchivedHandoffs {
+			continue
+		}
+		out = append(out, r)
+	}
+	return out
 }
 
 func sortIssues(list []*issue.Issue) {

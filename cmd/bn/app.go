@@ -104,6 +104,7 @@ func newRootCmd(rs *appState) *cobra.Command {
 		newDepCmd(rs),
 		newChildrenCmd(rs),
 		newArchiveCmd(rs),
+		newHandoffCmd(rs),
 		newSearchCmd(rs),
 		newRememberCmd(rs),
 		newMemoriesCmd(rs),

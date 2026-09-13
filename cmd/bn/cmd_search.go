@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 func newSearchCmd(rs *appState) *cobra.Command {
 	var kind string
 	var all bool
+	var includeArchivedHandoffs bool
 	cmd := &cobra.Command{
 		Use:   "search <query...>",
 		Short: "Search issues, requests, docs, and memories",
@@ -27,12 +27,12 @@ func newSearchCmd(rs *appState) *cobra.Command {
 			}
 			var kinds []vault.Kind
 			if kind != "" {
-				if !map[vault.Kind]bool{vault.KindIssue: true, vault.KindRequest: true, vault.KindDoc: true, vault.KindMemory: true, vault.KindPlan: true}[vault.Kind(kind)] {
-					return errors.New("--kind must be issue, request, doc, memory, or plan")
+				if !map[vault.Kind]bool{vault.KindIssue: true, vault.KindRequest: true, vault.KindDoc: true, vault.KindMemory: true, vault.KindPlan: true, vault.KindHandoff: true}[vault.Kind(kind)] {
+					return fmt.Errorf("unknown kind %q (valid: issue, request, doc, memory, plan, handoff)", kind)
 				}
 				kinds = []vault.Kind{vault.Kind(kind)}
 			}
-			hits := ix.Search(strings.Join(args, " "), kinds)
+			hits := ix.SearchWithOptions(strings.Join(args, " "), vault.SearchOptions{Kinds: kinds, IncludeArchivedHandoffs: includeArchivedHandoffs})
 			project := rs.projectScope(all)
 			var out []vault.Hit
 			for _, h := range hits {
@@ -54,7 +54,8 @@ func newSearchCmd(rs *appState) *cobra.Command {
 			return w.Flush()
 		},
 	}
-	cmd.Flags().StringVar(&kind, "kind", "", "issue, request, doc, memory, or plan")
+	cmd.Flags().StringVar(&kind, "kind", "", "issue, request, doc, memory, plan, or handoff")
 	cmd.Flags().BoolVar(&all, "all-projects", false, "every project in the hub")
+	cmd.Flags().BoolVar(&includeArchivedHandoffs, "include-archived-handoffs", false, "include historical handoffs")
 	return cmd
 }

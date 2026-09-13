@@ -41,8 +41,9 @@ When ending a work session, complete every step. Work is NOT complete until
    git status   # must show "up to date with origin"
    ```
 5. Verify the hub is pushed too: `bn status` shows ahead 0.
-6. Hand off: leave context for the next session in the issue log
-   (`bn note <id> ...`).
+6. Hand off: stream next-session context with `bn handoff create --file -`
+   and attach it to its governing issue when applicable. Keep `bn note` for
+   ordinary issue progress history.
 
 ## Build & Test
 

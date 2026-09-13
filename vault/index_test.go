@@ -235,6 +235,44 @@ func TestLoadBasics(t *testing.T) {
 	}
 }
 
+func TestHandoffsAreIndexedSearchableAndArchivedOptIn(t *testing.T) {
+	dir := copyFixtureHub(t)
+	live := filepath.Join(dir, "projects/a/handoffs/a-handoff1-live.md")
+	archived := filepath.Join(dir, "projects/a/handoffs/archive/2026/a-handoff2-old.md")
+	for path, values := range map[string][3]string{
+		live:     {"a-handoff1", "Live handoff", "unique live continuation"},
+		archived: {"a-handoff2", "Archived handoff", "unique archived continuation"},
+	} {
+		id, title, body := values[0], values[1], values[2]
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		data := "---\nid: " + id + "\ntitle: " + title + "\ncreated: 2026-09-10T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\n# " + title + "\n" + body + "\n"
+		if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	ix, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h, ok := ix.HandoffByID("a-handoff1"); !ok || h.Archived {
+		t.Fatalf("live handoff = %#v ok=%v", h, ok)
+	}
+	if got := ix.Search("unique archived continuation", nil); len(got) != 0 {
+		t.Fatalf("default search included archived handoff: %+v", got)
+	}
+	if got := ix.SearchWithOptions("unique archived continuation", SearchOptions{IncludeArchivedHandoffs: true}); len(got) != 1 || got[0].Kind != KindHandoff {
+		t.Fatalf("archived search = %+v", got)
+	}
+	if got := ix.ProjectHandoffs("a", false); len(got) != 1 {
+		t.Fatalf("live list = %+v", got)
+	}
+	if got := ix.ProjectHandoffs("a", true); len(got) != 2 {
+		t.Fatalf("full list = %+v", got)
+	}
+}
+
 func TestLookup(t *testing.T) {
 	ix, _ := loadFixture(t)
 

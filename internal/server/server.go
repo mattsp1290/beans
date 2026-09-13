@@ -265,6 +265,8 @@ func noteHref(n *vault.Note) string {
 		}
 	case vault.KindPlan:
 		return "/plans/" + n.Basename
+	case vault.KindHandoff:
+		return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 	}
 	return "/wiki/" + strings.TrimSuffix(n.Path, ".md")
 }

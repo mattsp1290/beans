@@ -2,7 +2,7 @@
 
 This repository is one Go module, `github.com/mattsp1290/beans`, that builds
 `bn`: a git-backed issue tracker and wiki for humans and coding agents.
-Issues and docs are markdown files in one git repository, the hub, cloned at
+Issues, docs, and handoffs are markdown files in one git repository, the hub, cloned at
 `~/.beans/hub`; `bn serve` puts an issues board and a wiki over it.
 
 ## Repository layout
@@ -53,7 +53,9 @@ This repository's issues live in the hub under `projects/beans/`. Run
 `bn prime` for the rules; `bn ready`, `bn show <id>`, `bn update <id>
 --claim`, `bn close <id> -r "reason"` are the daily loop. `bn` commits and
 pushes the hub itself; never commit hub files by hand. `CLAUDE.md` has the
-session-completion checklist.
+session-completion checklist. Create continuation context with `bn handoff
+create --file - [--issue <id>]`; discover it with `bn handoff list`, not
+`bn ready`.
 
 ## Non-Interactive Shell Commands
 

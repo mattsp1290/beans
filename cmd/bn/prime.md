@@ -18,12 +18,15 @@ Ids are `<prefix>-<hash>`, for example `beans-a3f2`; they are unique across the 
 - `bn create "title" [-d desc] [-p 0-4] [-t type] [-l label] [--blocked-by id] [--parent id] [--silent]` — new issue; `--silent` prints only the id
 - `bn update <id> [--claim] [--status s] [--title t] [--description d] [--priority n] [--assignee a] [--label l] [--note text]` — edit fields; `--claim` sets in_progress and assigns you
 - `bn note <id> <text>` — append a log note
+- `bn handoff create --file - [--issue <id>]` — save a session handoff from stdin
+- `bn handoff list` / `bn handoff show <id>` — discover continuation context (not `bn ready`)
+- Attach a handoff to its governing issue when useful. Archive stale context explicitly (use `--dry-run` before bulk cleanup); do not create new `$HOME/.agents/projects/*/handoffs/` files. Historical external handoffs are not imported automatically.
 - `bn close <id...> -r "reason"` — close with a reason; idempotent
 - `bn reopen <id>` — back to the default status
 - `bn delete <id> [--force]` — remove the file; refuses while other issues link to it unless forced
 - `bn dep add <child> <parent>` — child is blocked by parent; `-t parent-child` sets the parent instead
 - `bn dep remove <child> <parent>`, `bn dep tree [id]`, `bn dep cycles`, `bn children <id>`, `bn blocked`
-- `bn search <query>` — issues, docs, and memories
+- `bn search <query>` — issues, docs, memories, and handoffs
 - `bn remember "text" [--key k] [--global]` and `bn memories [keyword]` — persistent notes
 - `bn doc new <path>`, `bn doc list`, `bn doc backlinks <path>` — wiki pages
 - `bn plan init <title> --output <dir>`, edit, `bn plan validate <dir>`, `bn plan put <dir>` — project plans; create issues, then `bn plan link PLAN NODE ISSUE`; after `bn sync`, use `bn plan status PLAN --json` for execution state. Lifecycle remains explicit.

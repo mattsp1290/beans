@@ -192,8 +192,9 @@ type workflowJSON struct {
 
 // backlinksOf lists the notes linking to basename, sorted, with the
 // referring note's kind so the UI can route to /issues/<id> or /wiki/<path>.
-func backlinksOf(ix *vault.Index, basename string) []backlinkJSON {
-	refs := append([]vault.LinkRef(nil), ix.Backlinks[basename]...)
+func backlinksOf(ix *vault.Index, basename string, includeArchivedHandoffs ...bool) []backlinkJSON {
+	includeArchived := len(includeArchivedHandoffs) > 0 && includeArchivedHandoffs[0]
+	refs := ix.IssueBacklinks(basename, includeArchived)
 	sort.Slice(refs, func(i, j int) bool { return refs[i].From < refs[j].From })
 	out := make([]backlinkJSON, 0, len(refs))
 	for _, r := range refs {
@@ -237,7 +238,7 @@ func toIssueJSON(ix *vault.Index, iss *issue.Issue) issueJSON {
 	return out
 }
 
-func (s *Server) toIssueDetail(ix *vault.Index, iss *issue.Issue) issueJSON {
+func (s *Server) toIssueDetail(ix *vault.Index, iss *issue.Issue, includeArchivedHandoffs bool) issueJSON {
 	out := toIssueJSON(ix, iss)
 	out.Description = iss.Description
 	for _, e := range iss.Log {
@@ -247,7 +248,7 @@ func (s *Server) toIssueDetail(ix *vault.Index, iss *issue.Issue) issueJSON {
 		out.Children = append(out.Children, childJSON{ID: c.ID, Status: c.Status, Project: c.Project, Title: c.Title})
 	}
 	base := strings.TrimSuffix(filepath.Base(iss.Path), ".md")
-	for _, link := range backlinksOf(ix, base) {
+	for _, link := range backlinksOf(ix, base, includeArchivedHandoffs) {
 		if link.Kind != string(vault.LinkRequestIssue) {
 			out.Backlinks = append(out.Backlinks, link)
 		}
@@ -446,12 +447,13 @@ func (s *Server) ready(c fiber.Ctx) error {
 
 func (s *Server) showIssue(c fiber.Ctx) error {
 	id := c.Params("id")
+	includeArchivedHandoffs := c.Query("include_archived_handoffs") == "true"
 	return s.read(c.Context(), func(ix *vault.Index) error {
 		iss, ok := ix.Issues[id]
 		if !ok {
 			return fiber.NewError(fiber.StatusNotFound, "issue "+id+" not found")
 		}
-		return c.JSON(s.toIssueDetail(ix, iss))
+		return c.JSON(s.toIssueDetail(ix, iss, includeArchivedHandoffs))
 	})
 }
 
@@ -588,12 +590,15 @@ func (s *Server) docPage(c fiber.Ctx) error {
 	}
 	return s.read(c.Context(), func(ix *vault.Index) error {
 		n, ok := ix.ByPath[path]
-		if !ok || n.Kind != vault.KindDoc {
+		if !ok || (n.Kind != vault.KindDoc && n.Kind != vault.KindHandoff) {
 			return fiber.NewError(fiber.StatusNotFound, "doc "+path+" not found")
 		}
 		data, err := os.ReadFile(filepath.Join(s.cfg.HubDir, filepath.FromSlash(n.Path)))
 		if err != nil {
 			return fiber.NewError(fiber.StatusNotFound, "doc "+path+" not found")
+		}
+		if n.Handoff != nil {
+			data = []byte(n.Handoff.Body)
 		}
 		html, toc, err := s.rend.HTML(data)
 		if err != nil {
@@ -612,7 +617,7 @@ func (s *Server) docPage(c fiber.Ctx) error {
 		if fm == nil {
 			fm = map[string]any{}
 		}
-		return c.JSON(fiber.Map{"path": n.Path, "title": n.Title, "project": n.Project, "frontmatter": fm, "html": string(html), "toc": headings, "backlinks": backlinks, "outlinks": outlinks})
+		return c.JSON(fiber.Map{"path": n.Path, "title": n.Title, "project": n.Project, "kind": n.Kind, "frontmatter": fm, "html": string(html), "toc": headings, "backlinks": backlinks, "outlinks": outlinks})
 	})
 }
 
@@ -667,7 +672,7 @@ func (s *Server) search(c fiber.Ctx) error {
 	}
 	return s.read(c.Context(), func(ix *vault.Index) error {
 		out := []hitJSON{}
-		for _, h := range ix.Search(q, kinds) {
+		for _, h := range ix.SearchWithOptions(q, vault.SearchOptions{Kinds: kinds, IncludeArchivedHandoffs: c.Query("include_archived_handoffs") == "true"}) {
 			if project != "" && h.Project != "" && h.Project != project {
 				continue
 			}
