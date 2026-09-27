@@ -1,0 +1,17 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Implement first.txt, then second.txt referencing first; inspect target between starts.",
+  "expected_observations": [
+    "First integrates before dependent starts",
+    "Actual commands/check results and independent review artifacts exist",
+    "Stops for manual testing with no intermediate permission prompts"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

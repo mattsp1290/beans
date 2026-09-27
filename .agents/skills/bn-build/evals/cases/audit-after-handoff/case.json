@@ -1,0 +1,17 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-audit <milestone_id>",
+  "setup": "Audit after builder has stopped for manual testing.",
+  "expected_observations": [
+    "Actual request ID and fixed snapshot SHA reported",
+    "Auditor completes finite goal",
+    "Exact /goal $bn-build ID resume action; no claim publication wakes idle goal"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

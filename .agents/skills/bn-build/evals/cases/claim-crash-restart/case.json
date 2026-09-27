@@ -1,0 +1,18 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Interrupt after durable assignment and bn claim, preserve partial worktree; repeat with active=[open,in_progress].",
+  "expected_observations": [
+    "Default ready excludes claimed issue",
+    "Override ready includes it",
+    "Restart imports root notes and reconciles live harness before replacement",
+    "No duplicate worker and partial content retained"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

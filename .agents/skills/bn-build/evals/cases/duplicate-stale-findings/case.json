@@ -1,0 +1,18 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-audit <milestone_id>",
+  "setup": "Submit same failure across two snapshots, two same-file independent failures, stale snapshot and concurrent duplicate requests.",
+  "expected_observations": [
+    "Stable identity for same defect across commits",
+    "Distinct failures retain distinct fingerprints",
+    "Builder reproduces on current target and creates one repair per fingerprint",
+    "Deferred style suggestions stay later; unverified prerequisite is no pass"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

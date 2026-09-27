@@ -1,0 +1,16 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Point slices at an issue marked owned by bn-plan-loop with hold evidence.",
+  "expected_observations": [
+    "Refuse adoption",
+    "Old description/status/hold evidence byte-for-byte unchanged"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

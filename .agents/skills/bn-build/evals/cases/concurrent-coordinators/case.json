@@ -1,0 +1,17 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Start same goal in both actor clones before reserving.",
+  "expected_observations": [
+    "Exactly one remote owner pair",
+    "Loser makes no issue/source mutations",
+    "Alternate target for same milestone remains refused"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

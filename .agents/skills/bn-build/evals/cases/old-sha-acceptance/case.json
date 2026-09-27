@@ -1,0 +1,16 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Record user acceptance then advance target behavior.",
+  "expected_observations": [
+    "No final PR for changed SHA without renewed acceptance",
+    "Actual accepted SHA and final PR URL captured"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

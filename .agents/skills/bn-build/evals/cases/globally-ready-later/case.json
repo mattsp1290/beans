@@ -1,0 +1,16 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Create optional globally ready mvp:later issue outside contract.",
+  "expected_observations": [
+    "No optional dispatch",
+    "Must-have scope stays bounded"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

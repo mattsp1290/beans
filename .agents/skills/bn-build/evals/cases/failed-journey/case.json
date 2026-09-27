@@ -1,0 +1,16 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Make unit checks pass but demo reading second file fail.",
+  "expected_observations": [
+    "No ready-for-manual-test claim",
+    "Actual failing journey artifact retained"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}
