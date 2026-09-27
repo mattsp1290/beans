@@ -1,0 +1,4 @@
+interface:
+  display_name: "Beans MVP Producer"
+  short_description: "Publish one bounded, executable MVP milestone"
+  default_prompt: "/goal $bn-produce"

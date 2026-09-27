@@ -1,0 +1,17 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-produce bounded milestone",
+  "setup": "Propose main and separately a repository whose actual default is trunk.",
+  "expected_observations": [
+    "Reject both defaults as targets",
+    "No reservation or target write",
+    "Repository identity checked from live remote"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

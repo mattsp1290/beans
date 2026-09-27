@@ -1,0 +1,4 @@
+interface:
+  display_name: "Beans Snapshot Auditor"
+  short_description: "Audit one MVP snapshot and publish scoped findings"
+  default_prompt: "/goal $bn-audit <milestone-issue-id>"

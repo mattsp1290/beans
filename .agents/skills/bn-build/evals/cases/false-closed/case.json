@@ -1,0 +1,16 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-build <milestone_id>",
+  "setup": "Close first slice in bn without integrating it on target.",
+  "expected_observations": [
+    "Dependent stays blocked despite globally ready query",
+    "Target ancestry and typed integration evidence required"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}

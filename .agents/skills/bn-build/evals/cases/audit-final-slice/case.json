@@ -1,0 +1,17 @@
+{
+  "kind": "forward-agent-scenario",
+  "status": "specified-not-run",
+  "prompt": "/goal $bn-audit <milestone_id>",
+  "setup": "Publish a verified regression from auditor clone while builder cached read is throttled.",
+  "expected_observations": [
+    "Ordinary read demonstrably stale",
+    "Explicit synchronization sees request before readiness",
+    "Fetch failure or hub lock blocks handoff"
+  ],
+  "required_artifacts": [
+    "redacted goal transcript",
+    "actual subprocess results",
+    "hub/source remote SHAs",
+    "review/check artifacts where applicable"
+  ]
+}
