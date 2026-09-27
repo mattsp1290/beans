@@ -35,13 +35,18 @@ was not counted as additional independent approval. The coordinator's separate
 reviews supplied independence. Implementation was serial because the selected
 slices were dependent; no parallel-agent speedup is claimed.
 
-Three additional actual forward guard runs verified:
+Five additional actual forward guard runs verified:
 
 - Refusing an old-executor-owned issue preserved its claim and hold evidence.
 - A passing unit test with a failing real CLI acceptance journey produced a
   must-fix audit request (`fixture-r-dpdy`) and no fabricated demo.
 - A simulated lack of independent review capability preserved a correct candidate
   and stopped integration; no self-review was passed off as independent.
+- A real remotely successful issue create followed by a simulated lost response
+  recovered its one draft root by stable intent, with zero create retries.
+- The same defect reproduced on two snapshots retained both audit reports and
+  resolved to exactly one repair issue during repeated current-code intake. The
+  repair remained pending scope revision; no completion was inferred.
 
 Setup fault injections were distinguished from role actions. Actual command
 traces, independent review artifacts, runtime outputs and negative-effect checks
@@ -72,7 +77,9 @@ Milestone `interviewprep-q1wk`, target `mvp/saved-interview-navigation`.
 Brief started 2026-09-27T22:35:09.442252Z; producer finished/approved scope frozen
 2026-09-27T22:39:22.104502Z (4m 13s). The scope is lifecycle filtering, honest
 loaded-page/empty-state behavior and exact saved-session resume, preserving APIs
-and stored data. Server-wide filtering is deferred as `interviewprep-55mz`.
+and stored data. Server-wide filtering is deferred as `interviewprep-55mz`;
+a focused Flutter runner command is deferred as `interviewprep-riyq` after
+observing fresh-worktree/bootstrap overhead in this pilot.
 
 UI implementation started 22:43:53Z; first passing widget verification 22:47:52Z;
 full `check --offline` completed by 22:50:59Z. UI commit
@@ -86,8 +93,44 @@ error. Focused smoke passed on retry and the subsequent full UI check passed.
 The failure remains in elapsed time and reported acceptance failures; no backend
 fix or waived gate is attributed to it.
 
-Final assembled runtime proof, audit, timings and qualification verdict: pending.
-Manual user acceptance and final PR remain a separate phase after the demo.
+Final target is `4b38d335e7c960d98973a2d2c9c6b23065456b3e`. The exact default
+`doctor`, `check`, and `smoke:web` commands passed. Full check ran from
+23:07:49.792929Z to 23:10:50.674691Z on the unchanged clean tracked source.
+A fresh independent auditor reviewed the assembled ten-file diff, independently
+passed all five focused widget tests and the real browser journey, and published
+verified no-findings request `interviewprep-r-0opg`. Its browser run completed at
+23:13:44.978934Z; actual served `main.dart.js` SHA-256 was
+`85f1330e92f9060a88fcfd225a9e48c0713c5c59e8612c1a5f7180307fecc206`.
+The coordinator synchronized and inspected that request at hub
+`dc73fa1d62f5cc9944794ce8849b30c13b1010c6` before declaring readiness.
+
+The real browser journey used 51 API-created active sessions and a distinct saved
+revision: selected lifecycle semantics, empty categories with Load more retained,
+reset to All, exact saved route/source, return, and unchanged persisted data.
+Mixed finishing/completed records and paging append also passed widget fixtures;
+they were not fabricated as real API browser coverage. Native/provider features
+were outside the milestone. A separate disposable local demo from the exact target
+was started for manual testing, with served artifact identity checked.
+
+Recorded implementation friction: one fresh-worktree setup failure, six failed
+browser-harness journey attempts (two paging assumptions, three source-focus
+attempts, one return activation), and one independent review finding in the
+optional Go integration-test entrypoint. These were fixed and all required gates
+passed afterward. The pre-change database-ownership failure above is separate.
+Reviews consisted of one passing UI review, one smoke review requiring changes
+then passing, and the fresh independent assembled audit. No failures were waived.
+
+The demo and `ready-for-manual-test` phase were published and reconciled at
+2026-09-27T23:18:39.281596Z: **43m 30s brief-to-demo**, **39m 17s
+approved-scope-to-demo**, **zero intermediate human decisions**. Both slices were
+integrated into the remote non-default target. No main update or deployment
+occurred, and no unresolved must-fix finding remained at the stated cutoff.
+**Qualification passed** the bounded build-to-demo target (under 24 hours, at most
+one intervention, required gates intact). Manual user acceptance and final PR
+remain a separate phase; this is one small pilot, not a general speedup estimate.
+Pilot implementation workers inherited the parent conversation; the final skill
+now explicitly prefers isolated child context when the harness supports it. That
+context/cost improvement was not measured in this pilot.
 Usage accounting split into cached input, uncached input and output is unavailable;
 no dollar cost is inferred. Wall-clock metrics use elapsed intervals, never the
 sum of concurrent agent durations.

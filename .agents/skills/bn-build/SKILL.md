@@ -37,8 +37,11 @@ Use up to two independent implementation subagents and one reviewer within live
 harness limits. Give each implementing child its own branch/worktree, a concrete
 outcome, base SHA, acceptance checks, interfaces, and exclusions. Avoid overlapping
 writers. Serialize shared seams. Use fewer agents when the critical path or
-machine resources favor it. Give narrow tasks scoped context, not the entire
-history by default. Children return commit/check evidence; they do not write the
+machine resources favor it. Give narrow tasks scoped context. When the harness
+allows history control, start children without inherited conversation (for example,
+`fork_turns="none"`) and pass the outcome, exact base, acceptance and relevant paths.
+Use full history only for a stated dependency on earlier decisions. Children
+return commit/check evidence; they do not write the
 target, close slices, or expand the milestone.
 
 Paths are advisory within the authorized outcome and repository. Necessary
