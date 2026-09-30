@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use time::{Date, Month, PrimitiveDateTime, Time};
 
-const OWNED: &[&str] = &[
+pub(super) const OWNED: &[&str] = &[
     "id",
     "aliases",
     "title",
@@ -81,7 +81,8 @@ pub struct IssueDocument {
     pub log: Vec<super::log::LogEntry>,
     pub description: String,
     pub body: String,
-    document: Frontmatter,
+    pub(super) document: Frontmatter,
+    pub(super) original_metadata: IssueMetadata,
     original_log_len: usize,
 }
 
@@ -129,6 +130,7 @@ impl IssueDocument {
         let log = super::log::parse_section(sections.log);
         let original_log_len = log.len();
         Ok(Self {
+            original_metadata: metadata.clone(),
             metadata,
             log,
             description,

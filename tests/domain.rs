@@ -8,7 +8,7 @@ fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture()
     let corpus: Value = serde_json::from_str(include_str!("contract/frontmatter-primitives.json"))
         .expect("committed Go corpus");
     let cases = corpus["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 68);
+    assert_eq!(cases.len(), 70);
     for case in cases {
         let name = case["name"].as_str().unwrap();
         let input = case["input"].as_str().unwrap();
@@ -170,6 +170,27 @@ proptest! {
         }
         prop_assert_eq!(parsed.replace_fields(&[]).unwrap().bytes, source.as_bytes());
     }
+    #[test]
+    fn typed_issue_encode_preserves_all_unowned_bytes(
+        title in prop::collection::vec(any::<char>().prop_filter("printable YAML scalar", |ch| !ch.is_control() && !matches!(ch, '\u{fffe}' | '\u{ffff}')), 0..40),
+        body in prop::collection::vec(any::<char>(), 0..100),
+        blank_lines in 0usize..5,
+    ) {
+        let title = serde_json::to_string(&title.into_iter().collect::<String>()).unwrap();
+        let body = body.into_iter().collect::<String>();
+        let source = format!("---\nid: issue-prop\ntitle: {title}\ntype: task\n# preceding status\nstatus: open # retained\n{}# trailing comment\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\nextra: {{nested: [a, b]}}\nextra: duplicate unknown\n---\n{body}","\n".repeat(blank_lines));
+        if source.contains("\r\n") { return Ok(()); }
+        let mut parsed = beans::domain::issue::IssueDocument::parse("x.md",&source).unwrap();
+        prop_assert_eq!(parsed.encode().unwrap().bytes,source.as_bytes());
+        parsed.metadata.status = "in_progress".to_owned();
+        let output = parsed.encode().unwrap();
+        let expected = source.replacen("status: open # retained\n","status: in_progress # retained\n",1);
+        prop_assert_eq!(&output.bytes,expected.as_bytes());
+        for copy in output.copies {
+            prop_assert_eq!(&source.as_bytes()[copy.source],&output.bytes[copy.destination]);
+        }
+    }
+
 }
 
 #[test]
@@ -196,6 +217,12 @@ fn typed_issue_metadata_and_validation_match_fixed_go() {
                 case["name"]
             );
             assert_eq!(parsed.original(), input);
+            assert_eq!(
+                parsed.encode().unwrap().bytes,
+                case["encoded"].as_str().unwrap().as_bytes(),
+                "noop {}",
+                case["name"]
+            );
             assert_eq!(
                 serde_json::to_value(&parsed.log).unwrap(),
                 case.get("log_entries")
@@ -299,12 +326,100 @@ fn issue_body_mutations_match_go_without_rewriting_original_logs() {
                 _ => panic!("unknown mutation"),
             }
             assert_eq!(
+                issue.encode().unwrap().bytes,
+                mutation["encoded"].as_str().unwrap().as_bytes(),
+                "{} {} full document",
+                case["name"],
+                mutation["kind"]
+            );
+            assert_eq!(
                 issue.render_body().unwrap(),
                 mutation["body"].as_str().unwrap(),
                 "{} {}",
                 case["name"],
                 mutation["kind"]
             );
+        }
+    }
+}
+
+#[test]
+fn issue_owned_field_edits_match_go_full_documents() {
+    use beans::domain::{issue::IssueDocument, text::Link};
+    let corpus: Value =
+        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    for case in corpus["cases"].as_array().unwrap() {
+        let Some(edits) = case.get("edits") else {
+            continue;
+        };
+        for edit in edits.as_array().unwrap() {
+            let mut issue = IssueDocument::parse(
+                case["path"].as_str().unwrap(),
+                case["input"].as_str().unwrap(),
+            )
+            .unwrap();
+            for (key, value) in edit["values"].as_object().unwrap() {
+                let m = &mut issue.metadata;
+                let list = || {
+                    value
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|item| item.as_str().unwrap().to_owned())
+                        .collect::<Vec<_>>()
+                };
+                match key.as_str() {
+                    "id" => m.id = value.as_str().unwrap().to_owned(),
+                    "title" => m.title = value.as_str().unwrap().to_owned(),
+                    "type" => m.kind = value.as_str().unwrap().to_owned(),
+                    "status" => m.status = value.as_str().unwrap().to_owned(),
+                    "priority" => m.priority = value.as_i64().unwrap(),
+                    "assignee" => m.assignee = value.as_str().unwrap().to_owned(),
+                    "url" => m.url = value.as_str().unwrap().to_owned(),
+                    "parent" => m.parent = Link::parse(value.as_str().unwrap()),
+                    "aliases" => m.aliases = list(),
+                    "labels" => m.labels = list(),
+                    "blocked_by" => {
+                        m.blocked_by = list()
+                            .iter()
+                            .filter(|item| !item.trim().is_empty())
+                            .map(|item| Link::parse(item))
+                            .collect()
+                    }
+                    "created" | "updated" => {
+                        let time = time::OffsetDateTime::parse(
+                            value.as_str().unwrap(),
+                            &time::format_description::well_known::Rfc3339,
+                        )
+                        .unwrap();
+                        let timestamp = beans::domain::issue::Timestamp {
+                            seconds: time.unix_timestamp(),
+                            nanoseconds: time.nanosecond(),
+                            offset_seconds: time.offset().whole_seconds(),
+                        };
+                        if key == "created" {
+                            m.created = timestamp;
+                        } else {
+                            m.updated = timestamp;
+                        }
+                    }
+                    _ => panic!("unknown owned field"),
+                }
+            }
+            let encoded = issue.encode().unwrap();
+            assert_eq!(
+                encoded.bytes,
+                edit["encoded"].as_str().unwrap().as_bytes(),
+                "{} {}",
+                case["name"],
+                edit["values"]
+            );
+            for copy in encoded.copies {
+                assert_eq!(
+                    &encoded.bytes[copy.destination],
+                    &issue.original().as_bytes()[copy.source]
+                );
+            }
         }
     }
 }

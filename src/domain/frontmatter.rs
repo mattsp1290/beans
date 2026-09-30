@@ -241,6 +241,43 @@ impl Frontmatter {
                 bytes,
             ));
         }
+        self.apply_edits(edits)
+    }
+
+    pub(crate) fn splice_owned(
+        &self,
+        owned_order: &[&str],
+        changes: &[(&str, Option<&[u8]>)],
+        body: &[u8],
+    ) -> Result<EditResult, Error> {
+        let mut edits = super::splicing::owned_edits(
+            self.source.as_bytes(),
+            Span {
+                start: self.fm_start,
+                end: self.fm_end,
+            },
+            &self.fields,
+            owned_order,
+            changes,
+        )?;
+        if body != self.body().as_bytes() {
+            edits.push((
+                Span {
+                    start: self.body_start,
+                    end: self.source.len(),
+                },
+                body.to_vec(),
+            ));
+        }
+        self.apply_edits(
+            edits
+                .iter()
+                .map(|(span, bytes)| (*span, bytes.as_slice()))
+                .collect(),
+        )
+    }
+
+    fn apply_edits(&self, mut edits: Vec<(Span, &[u8])>) -> Result<EditResult, Error> {
         edits.sort_by_key(|(span, _)| (span.start, span.end));
         let spans: Vec<_> = edits.iter().map(|(span, _)| *span).collect();
         let source = self.source.as_bytes();

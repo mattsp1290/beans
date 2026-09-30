@@ -3,9 +3,10 @@
 WP3 is in progress. The current parser/editing primitives are implemented in
 `src/domain/frontmatter.rs`, with YAML event and source-position adaptation in
 `src/domain/yaml.rs`. Issue reading and body mutation semantics are in
-`src/domain/issue.rs`; stored log rules are in `src/domain/log.rs`. Full typed
-encoders, request codecs, other note kinds, plans, configuration, resolution and
-indexing remain to be ported. Go is still the
+`src/domain/issue.rs`; stored log rules are in `src/domain/log.rs`. Existing-issue encoding is in `src/domain/issue_encode.rs`, with owned YAML
+presentation in `src/domain/yaml_render.rs` and source-provenance planning in
+`src/domain/splicing.rs`. New-file construction, request codecs, other note
+kinds, plans, configuration, resolution and indexing remain to be ported. Go is still the
 default implementation, and no Go regression has been retired.
 
 The parser retains original UTF-8 text and derives absolute byte ranges from
@@ -20,7 +21,7 @@ bounds, and timestamp semantics including one-digit hours, comma fractions and
 zone hour 24. The corpus adds 33 generated metadata/validation cases.
 
 The pinned yaml-rust2 low-level event API passed the prototype gate across all
-21 original issue/request roundtrip inputs plus 14 added syntax inputs. Node
+21 original issue/request roundtrip inputs plus 16 added syntax inputs. Node
 positions need adaptation: nonempty block scalars report content positions,
 anchored/tagged nodes can report positions after their prefixes, and implicit
 empty values can report the next key's line. The adapter reconstructs these
@@ -59,14 +60,38 @@ UTC year 10000 format correctly. Description replacements match Go's
 trailing-newline behavior. AppendLog
 compares instants including nanoseconds and sets a later Updated to UTC. Body
 rendering appends only entries beyond the original log length, preserving the
-original section even if an existing semantic log entry is edited. The 252 differential
+original section even if an existing semantic log entry is edited. The 270 differential
 body mutations include earlier/equal/later appends and opaque original edits.
-This renders the body region; full-document encoding and verified body splices
-remain open, so these mutation methods are not yet CLI/file write paths.
+`IssueDocument::encode` now renders full documents, including changed timestamps
+and appended logs, using the real verified byte-copy path. CLI and filesystem
+writes still await the later operation/CLI packages.
+
+The fixed-Go corpus compares 532 complete owned-field edits across 28 valid
+issue inputs: every owned field, optional removals and combined updates. It also
+compares all 270 body mutations as complete documents and 93 scalar inputs in
+plain/commented/flow/link presentations. Known fields are rendered independently;
+unknown YAML is never serialized. Untouched metadata, including missing aliases,
+stays untouched. Rendering aliases adds the current ID only when aliases are
+changed. Changed timestamp equality ignores offset spelling but includes
+nanoseconds; rendered timestamps use UTC whole seconds.
+
+Go's line edits have coincident spans for flow-root mappings. The planner replays
+the same descending line order, retaining each original line's byte provenance,
+then derives ordered nonoverlapping byte patches for the kernel. The flow-root
+fixture captures these historical quirks, including edits that leave duplicate
+owned keys and thus do not reparse. Do not use output-byte parity as evidence
+that every such generated document is valid. Closing-fence-at-EOF normalization
+also remains an explicit compatibility question. Both need resolution before
+complete codec acceptance.
+
+A second 512-case property exercises the typed encoder directly, proving no-op
+byte equality and preservation of every byte outside a changed status field,
+including Unicode, comments, duplicate unknown keys and arbitrary bodies.
 
 Remaining codec gates include other note schemas, complete yaml.v3 syntax-error
-presentation and obscure Unicode error quoting, scalar/list rendering and inline
-comments, full-document encoding/splices and cross-language parse/encode/edit
-tests. Typed production encoders must use this real replacement
-path before WP3's full proof-coupling gate can be accepted. Primitive parity
+presentation and obscure Unicode error quoting, further YAML/comment variants,
+new-file construction and cross-language parse/encode/edit validity. The real
+issue encoder now reaches the verified helpers using parsed byte ranges; every
+other typed codec must do so before WP3's whole-package proof-coupling gate is
+accepted. Primitive parity
 alone does not establish issue/request or whole-hub compatibility.

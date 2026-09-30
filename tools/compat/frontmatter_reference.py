@@ -68,11 +68,11 @@ def capture():
             case["input"] = base64.b64decode(case.pop("input_b64")).decode("utf-8")
         return {"schema": "beans-frontmatter-primitives-v1",
                 "source_sha": baseline["source_sha"],
-                "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata and log entries; issue encoding and other note schemas remain WP3",
+                "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata/logs and existing-issue edit outputs; new files and other note schemas remain WP3",
                 "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest(),
                 "cases": captured, "links": captured_output["links"],
                 "log_cases": captured_output["log_cases"], "log_formats": captured_output["log_formats"],
-                "log_sections": captured_output["log_sections"]}
+                "log_sections": captured_output["log_sections"], "scalar_pairs": captured_output["scalar_pairs"]}
 
 
 if __name__ == "__main__":

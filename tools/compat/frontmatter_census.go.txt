@@ -41,6 +41,8 @@ type migrationField struct {
 }
 
 type migrationFrontmatterCase struct {
+	Encoded     string            `json:"encoded,omitempty"`
+	Edits       []map[string]any  `json:"edits,omitempty"`
 	IssueError  string            `json:"issue_error,omitempty"`
 	Mutations   []map[string]any  `json:"mutations,omitempty"`
 	LogEntries  []map[string]any  `json:"log_entries,omitempty"`
@@ -71,6 +73,58 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 		if parseErr != nil {
 			c.IssueError = parseErr.Error()
 		} else {
+			noop, err := Encode(iss)
+			if err != nil {
+				t.Fatal(err)
+			}
+			c.Encoded = string(noop)
+			values := map[string]any{"id": "new-id", "aliases": []string{"external"}, "title": "New title", "type": "bug", "status": "ready_for_review", "priority": -3, "labels": []string{"true", "space label"}, "assignee": " New Actor ", "parent": "[[new-parent#heading|alias]]", "blocked_by": []string{"[[new-blocker]]", "raw"}, "url": "https://example.test/path", "created": "2027-09-10T08:01:00+05:30", "updated": "2027-09-10T08:01:00.123Z"}
+			apply := func(changed *Issue, key string, value any) {
+				if key == "priority" {
+					changed.Priority = value.(int)
+					return
+				}
+				var node *yaml.Node
+				if list, ok := value.([]string); ok {
+					node = flowSeq(list)
+				} else {
+					node = strNode(value.(string))
+				}
+				if err := changed.readOwned(key, node); err != nil {
+					t.Fatal(err)
+				}
+			}
+			for _, key := range ownedKeys {
+				changed, _ := Parse(c.Path, c.Input)
+				apply(changed, key, values[key])
+				encoded, err := Encode(changed)
+				if err != nil {
+					t.Fatal(err)
+				}
+				c.Edits = append(c.Edits, map[string]any{"values": map[string]any{key: values[key]}, "encoded": string(encoded)})
+			}
+			for _, key := range []string{"labels", "assignee", "parent", "blocked_by", "url"} {
+				changed, _ := Parse(c.Path, c.Input)
+				var value any = ""
+				if key == "labels" || key == "blocked_by" {
+					value = []string{}
+				}
+				apply(changed, key, value)
+				encoded, err := Encode(changed)
+				if err != nil {
+					t.Fatal(err)
+				}
+				c.Edits = append(c.Edits, map[string]any{"values": map[string]any{key: value}, "encoded": string(encoded)})
+			}
+			changed, _ := Parse(c.Path, c.Input)
+			for _, key := range ownedKeys {
+				apply(changed, key, values[key])
+			}
+			encoded, err := Encode(changed)
+			if err != nil {
+				t.Fatal(err)
+			}
+			c.Edits = append(c.Edits, map[string]any{"values": values, "encoded": string(encoded)})
 			for _, entry := range iss.Log {
 				c.LogEntries = append(c.LogEntries, migrationLog(entry))
 			}
@@ -85,7 +139,7 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				c.Mutations = append(c.Mutations, map[string]any{"kind": "description", "input": description, "description": changed.Description, "body": body})
+				c.Mutations = append(c.Mutations, map[string]any{"kind": "description", "input": description, "description": changed.Description, "body": body, "encoded": string(encoded)})
 			}
 			for _, instant := range []time.Time{iss.Updated.Add(-time.Second), iss.Updated, iss.Updated.Add(time.Nanosecond), iss.Updated.Add(time.Hour).In(time.FixedZone("offset", 19800))} {
 				changed, _ := Parse(c.Path, c.Input)
@@ -99,7 +153,7 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				c.Mutations = append(c.Mutations, map[string]any{"kind": "append", "entry": migrationLog(entry), "updated": migrationLog(LogEntry{At: changed.Updated})["at"], "body": body})
+				c.Mutations = append(c.Mutations, map[string]any{"kind": "append", "entry": migrationLog(entry), "updated": migrationLog(LogEntry{At: changed.Updated})["at"], "body": body, "encoded": string(encoded)})
 			}
 			if len(iss.Log) > 0 {
 				changed, _ := Parse(c.Path, c.Input)
@@ -113,7 +167,7 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				c.Mutations = append(c.Mutations, map[string]any{"kind": "opaque-original", "body": body})
+				c.Mutations = append(c.Mutations, map[string]any{"kind": "opaque-original", "body": body, "encoded": string(encoded)})
 			}
 
 			timestamp := func(value time.Time) map[string]any {
@@ -247,7 +301,31 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 		}
 		appendCases = append(appendCases, map[string]any{"input": section, "entries": parsed, "append_entry": migrationLog(appendEntry), "appended": appendToLog(section, []LogEntry{appendEntry}), "unchanged": appendToLog(section, nil)})
 	}
-	result, err := json.MarshalIndent(map[string]any{"cases": cases, "links": links, "log_cases": logCases, "log_formats": formatCases, "log_sections": appendCases}, "", "  ")
+	var scalarPairs []map[string]any
+	for _, value := range []string{"", "plain", "snow 雪", "emoji ☃ 😀", "true", "TRUE", "false", "null", "~", "yes", "no", "on", "off", "NaN", ".nan", ".inf", "+.inf", "-.inf",
+		"0", "-0", "+004", "077", "09", "0x10", "0XFF", "0b10", "0o10", "-0xFF", "18446744073709551615", "18446744073709551616", "1e309", "1e308", ".5", ".1_0", ".1__0", "1__0", "1.0", "1:20", "2026-09-10", "2026-9-1", "2026-09-10T08:01:00Z", "2026-9-1t8:1:2Z", "2026-9-1 8:1:2", "2026-09-99", "2026-09-10 garbage",
+		" leading", "trailing ", "a: b", "a:b", "a,b", "a?b", "a#b", "a # b", "#hash", "?question", "? question", ":colon", ": colon", "-dash", "- dash", "---start", "...end", "[brackets]", "{map}", "@actor", "&anchor", "*alias", "!tag", "'quote", "\"double", "it's fine", "a\tb", "a\rb", "a\nb", "a\n", "a\n\n", "\n", "\n\n", " a\nb", "a \nb", "a\nb ", "a\n b", "a\n\tb", "a\u0085b", "a\u2028b", "a\u2029b", "a\u00a0b", "a\uFEFFb", "a\uFFFEb", "a\x00b", "a\x07b", "a\x1bb", "a\x7fb"} {
+		scalar := strNode(value)
+		rendered, err := encodePair("title", scalar)
+		if err != nil {
+			t.Fatal(err)
+		}
+		scalar.LineComment = "# retained"
+		commented, err := encodePair("title", scalar)
+		if err != nil {
+			t.Fatal(err)
+		}
+		flow, err := encodePair("labels", flowSeq([]string{value, "other"}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		link, err := encodePair("parent", linkNode(Link{Raw: value}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		scalarPairs = append(scalarPairs, map[string]any{"input": value, "pair": strings.Join(rendered, "\n") + "\n", "commented": strings.Join(commented, "\n") + "\n", "flow": strings.Join(flow, "\n") + "\n", "link": strings.Join(link, "\n") + "\n"})
+	}
+	result, err := json.MarshalIndent(map[string]any{"cases": cases, "links": links, "log_cases": logCases, "log_formats": formatCases, "log_sections": appendCases, "scalar_pairs": scalarPairs}, "", "  ")
 	if err != nil {
 		t.Fatal(err)
 	}
