@@ -67,6 +67,19 @@ pub fn preserved_interval(spans: &[Span], source_len: usize, index: usize)
     }
     let start = if index == 0 { 0 } else { spans[index - 1].end };
     let end = if index == spans.len() { source_len } else { spans[index].start };
+    proof {
+        if index > 0 {
+            assert(spans@[(index - 1) as int].start
+                <= spans@[(index - 1) as int].end <= source_len);
+        }
+        if index < spans.len() {
+            assert(spans@[index as int].start <= spans@[index as int].end <= source_len);
+        }
+        if 0 < index < spans.len() {
+            assert(spans@[(index - 1) as int].end <= spans@[index as int].start);
+        }
+        assert(start <= end <= source_len);
+    }
     Some(Span { start, end })
 }
 
