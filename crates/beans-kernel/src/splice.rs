@@ -13,9 +13,9 @@ pub struct Span {
 
 pub open spec fn ordered_in_bounds(spans: Seq<Span>, source_len: usize) -> bool {
     (forall|i: int| 0 <= i < spans.len() ==>
-        0 <= spans[i].start <= spans[i].end <= source_len)
+        #[trigger] spans[i].start <= spans[i].end <= source_len)
     && (forall|i: int, j: int| 0 <= i < j < spans.len() ==>
-        spans[i].end <= spans[j].start)
+        #[trigger] spans[i].end <= #[trigger] spans[j].start)
 }
 
 /// Validate all ranges before copying or replacing any bytes. The specification
@@ -32,10 +32,10 @@ pub fn valid_splices(spans: &[Span], source_len: usize) -> (valid: bool)
             i == 0 ==> previous_end == 0,
             i > 0 ==> previous_end == spans@[(i - 1) as int].end,
             forall|k: int| 0 <= k < i ==>
-                spans@[k].start <= spans@[k].end <= source_len,
-            forall|k: int| 0 <= k < i ==> spans@[k].end <= previous_end,
+                #[trigger] spans@[k].start <= spans@[k].end <= source_len,
+            forall|k: int| 0 <= k < i ==> #[trigger] spans@[k].end <= previous_end,
             forall|j: int, k: int| 0 <= j < k < i ==>
-                spans@[j].end <= spans@[k].start,
+                #[trigger] spans@[j].end <= #[trigger] spans@[k].start,
         decreases spans.len() - i,
     {
         let span = &spans[i];
