@@ -4,6 +4,9 @@ The migration branch is `feat/go-to-rust`. The immutable Go oracle is revision
 `718726a580c19becd5fb57513be9e76fda40ea26`; it is retained in Git history.
 Rust has not replaced any production behavior. The implementation scope is the
 WP1–WP9 plan in `.agents/plans/go-to-rust/`.
+The user narrowed CI qualification to Linux on 2026-09-30. Windows is
+unsupported; macOS is outside the requested CI validation scope. This supersedes
+the original plan’s Linux/macOS/Windows matrix requirements.
 
 ## Reproduce the current oracle
 
@@ -15,7 +18,7 @@ packages and instrumentation.
 ```sh
 make compat-reference
 diff -u tests/contract/commands.json .compat/reference/commands.json
-make compat-cli compat-http compat-test
+make compat-cli compat-http compat-signals compat-test
 make compat-journey
 python3 -S tools/compat/build_reference.py --output .compat/version-override --version contract-override
 ```
@@ -116,6 +119,37 @@ The journeys preserve uppercase request log `At` fields and uppercase plan
 detail struct fields. Those differences from the HTTP DTOs are part of the
 retained CLI interface.
 
+`http-journey.json` and `http-journey-pushed.json` add two 20-step real-server
+journeys. They cover successful create, update/claim, notes, dependencies,
+close/repeated close/reopen, changed descriptions/labels, detail/list/ready,
+graph/search and HEAD reads. Each step compares the response envelope/headers,
+file bytes, commit ancestry, nonce ownership and remote refs. Every response must
+be 200; a recorded error is not accepted as successful mutation coverage.
+Both journeys run through `make compat-http`.
+
+The HTTP fixture assigns the lowest three valid issue hashes to seed issues.
+Fresh generated IDs therefore sort after them. Actual ID ordering is asserted
+before normalization for graph nodes and issue lists; responses are never
+reordered to conceal a sorting defect. Content-Length is validated against the
+actual bytes before replacing dynamic fields, and HEAD lengths are checked
+against a real GET representation. Only the byte count after those substitutions
+is recorded in the normalized Content-Length.
+
+HTTP HTML normalization applies runtime log timestamps only within the rendered
+owned Log section, retaining the original JSON escaping. Identical dates in user
+prose before or after that section remain literal. Negative tests cover this
+boundary, bad lengths, HEAD bodies, reversed graph ordering and error envelopes.
+
+The CLI corpus also includes 36 read probes for custom hub/project workflows,
+partial explicit TOML/YAML overrides, missing explicit files, malformed hub/user
+config, unknown workflow keys and invalid defaults. Initial files and subprocess
+BN_CONFIG are recorded with the cases. Go's explicit config inherits built-in
+defaults without merging lower-precedence hub/project workflow values; the
+captures preserve that observed behavior. Custom fixture roots use a short ASCII
+name to keep an allocated path intact across Fang wrapping. Only that exact
+allocated root's title-cased presentation is additionally substituted when Fang
+title-cases a pathname diagnostic; the remaining case/spacing stays literal.
+
 ## Regression and storage evidence
 
 `tests/contract/regressions.json` inventories all 225 existing Go test functions
@@ -143,11 +177,20 @@ startup/version and an end-to-end 5,000-issue list/load. It records every sample
 median, p95 and range. Compare Rust on the same hardware/build conditions;
 investigate median regressions exceeding 20% beyond baseline noise.
 
+`make compat-signals` compares real SIGINT/SIGTERM shutdown against the immutable
+Go executable, including exit status, output, files and Git state. Variable request
+latency is validated as a right-justified Go field before substitution. This does
+not establish cancellation or recovery during a mutation.
+
+The `native-baseline` CI job runs only on Linux. It rebuilds the immutable Go
+revision, runs its regression suite and 68 retained executable help probes, and
+uploads the native evidence. The same harness passed locally on Linux arm64.
+Runner configuration alone does not establish CI success or Rust parity.
+
 WP1 is still in progress. Required work includes expanding mutation/error journeys
-to remaining flag/output scenarios and HTTP success writes;
-signals; custom/malformed configuration; additional
-flag grammar interactions and raw/stdin modes; full embedded assets; and a
-native Linux/macOS/Windows validation matrix. Initial SSE connection coverage
+to remaining flag/output scenarios; additional
+flag grammar interactions and raw/stdin modes; full embedded assets; and native
+Linux qualification, including mixed-client locking and recovery. Initial SSE connection coverage
 does not establish watcher/debounce/reload/reconnect parity. Framework/compiler/
 solver pins must be tested and recorded before WP2 begins.
 

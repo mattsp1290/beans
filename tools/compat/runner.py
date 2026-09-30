@@ -6,6 +6,7 @@ from contextlib import ExitStack
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -72,11 +73,18 @@ def git_state(root, env):
 
 
 def execute(binary, case):
-    with tempfile.TemporaryDirectory(prefix="beans-contract-") as directory, ExitStack() as resources:
+    with tempfile.TemporaryDirectory(prefix=case.get("root_prefix", "beans-contract-")) as directory, ExitStack() as resources:
         root = Path(directory)
         env = environment(root)
-        env.update(case.get("env", {}))
+        env.update({k: v.replace("${FIXTURE_ROOT}", str(root)) for k, v in case.get("env", {}).items()})
         fixture(root, case["fixture"], env)
+        for name, value in case.get("initial_files", {}).items():
+            path = Path(name)
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError("initial fixture path must stay within the temporary root")
+            target = root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(base64.b64decode(value, validate=True))
         if case.get("hold_lock", False):
             import fcntl
             (root / "beans/cache").mkdir(parents=True)
@@ -94,7 +102,12 @@ def execute(binary, case):
         # Only the explicitly allocated temporary root is variable; no general
         # stripping of whitespace, IDs, ANSI, timestamps or diagnostics.
         def output(data):
-            return encode(data.replace(os.fsencode(root), b"${FIXTURE_ROOT}"))
+            data = data.replace(os.fsencode(root), b"${FIXTURE_ROOT}")
+            # Fang title-cases diagnostics whose first word is a pathname.
+            # This is the exact presentation of our ASCII allocated root.
+            presented_root = re.sub(r"(^|[/-])([0-9]*)([a-z])", lambda m: m[1] + m[2] + m[3].upper(), str(root))
+            data = data.replace(os.fsencode(presented_root), b"${FIXTURE_ROOT_TITLE}")
+            return encode(data)
         after = snapshot(root)
         changes = {p: value for p, value in after.items() if before.get(p) != value}
         removed = sorted(set(before) - set(after))
@@ -157,6 +170,26 @@ def cases(census):
     result.append({"id": "exit-lock-timeout", "argv": ["update", "alpha-a1b2", "--title", "Locked", "--no-sync", "--json", "--project", "alpha"],
                    "fixture": "seeded", "hold_lock": True, "timeout": 40,
                    "stdin_b64": "", "cwd": "isolated-non-repository"})
+    custom = '[workflow]\nstatuses = ["todo", "waiting", "finished"]\ndefault = "todo"\nactive = ["todo"]\nterminal = ["finished"]\n'
+    configured = {
+        "custom-hub": ({"hub/beans.toml": custom}, {}),
+        "custom-project": ({"hub/beans.toml": custom, "hub/projects/alpha/beans.toml": '[workflow]\ndefault = "waiting"\n'}, {}),
+        "explicit-override": ({"hub/beans.toml": custom, "hub/projects/alpha/beans.toml": '[workflow]\ndefault = "waiting"\n',
+                               "explicit.toml": '[workflow]\ndefault = "in_progress"\n'}, {"BN_CONFIG": "${FIXTURE_ROOT}/explicit.toml"}),
+        "explicit-yaml": ({"explicit.yaml": 'workflow:\n  default: in_progress\n'}, {"BN_CONFIG": "${FIXTURE_ROOT}/explicit.yaml"}),
+        "explicit-missing": ({}, {"BN_CONFIG": "${FIXTURE_ROOT}/missing.toml"}),
+        "malformed-hub": ({"hub/beans.toml": '[workflow\n'}, {}),
+        "unknown-workflow-key": ({"hub/beans.toml": '[workflow]\nunexpected = true\n'}, {}),
+        "invalid-workflow": ({"hub/beans.toml": '[workflow]\ndefault = "not-a-status"\n'}, {}),
+        "malformed-user": ({"beans/config.toml": 'actor = [\n'}, {}),
+    }
+    for name, (files, env) in configured.items():
+        for command in (["list"], ["ready"], ["project", "show", "alpha"], ["show", "alpha-a1b2"]):
+            result.append({"id": "config:" + name + ":" + "-".join(command),
+                           "fixture": "seeded", "argv": command + ["--project", "alpha", "--json", "--no-fetch"],
+                           "initial_files": {k: encode(v.encode()) for k, v in files.items()}, "env": env,
+                           "root_prefix": "bn",
+                           "stdin_b64": "", "cwd": "isolated-non-repository"})
     return result
 
 

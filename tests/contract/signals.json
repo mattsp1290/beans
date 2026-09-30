@@ -1,0 +1,37 @@
+{
+  "schema": "beans-signal-contract-v1",
+  "cases": [
+    {
+      "signal": "SIGINT",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "Ym4gc2VydmU6ICR7U0VSVkVSX1VSTH0gKGh1YiAke0ZJWFRVUkVfUk9PVH0vaHViLCBwcm9qZWN0IGFscGhhKQo=",
+        "stderr_b64": "JHtSRVFVRVNUX1RJTUV9IDIwMCBHRVQgL2FwaS9oZWFsdGggJHtSRVFVRVNUX0xBVEVOQ1l9Cg==",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "signal": "SIGTERM",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "Ym4gc2VydmU6ICR7U0VSVkVSX1VSTH0gKGh1YiAke0ZJWFRVUkVfUk9PVH0vaHViLCBwcm9qZWN0IGFscGhhKQo=",
+        "stderr_b64": "JHtSRVFVRVNUX1RJTUV9IDIwMCBHRVQgL2FwaS9oZWFsdGggJHtSRVFVRVNUX0xBVEVOQ1l9Cg==",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    }
+  ]
+}

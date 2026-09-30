@@ -8219,6 +8219,1177 @@
           "staged": ""
         }
       }
+    },
+    {
+      "id": "config:custom-hub:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-hub:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "W10K",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-hub:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-hub:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJpZCI6ICJhbHBoYS1hMWIyIiwKICAidGl0bGUiOiAiQ29udHJhY3QgaXNzdWUiLAogICJ0eXBlIjogInRhc2siLAogICJzdGF0dXMiOiAib3BlbiIsCiAgInByaW9yaXR5IjogMiwKICAibGFiZWxzIjogWwogICAgImNvbnRyYWN0IgogIF0sCiAgImFzc2lnbmVlIjogIiIsCiAgInBhcmVudCI6ICIiLAogICJibG9ja2VkX2J5IjogW10sCiAgInVybCI6ICIiLAogICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAidXBkYXRlZCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsCiAgInByb2plY3QiOiAiYWxwaGEiLAogICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAiYXJjaGl2ZWQiOiBmYWxzZSwKICAiZGVzY3JpcHRpb24iOiAiIyBDb250cmFjdCBpc3N1ZVxuXG5EZXNjcmlwdGlvbiB3aXRoIFx1MDAzY0hUTUxcdTAwM2UgXHUwMDI2IFtbR3VpZGVdXS5cblxuIiwKICAibG9nIjogWwogICAgewogICAgICAiYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLAogICAgICAiYWN0b3IiOiAiY29udHJhY3QiLAogICAgICAicmVwbyI6ICJmaXh0dXJlIiwKICAgICAgInNoYSI6ICJhYmNkZWYwIiwKICAgICAgImJyYW5jaCI6ICJtYWluIiwKICAgICAgImV2ZW50IjogImNyZWF0ZWQiCiAgICB9CiAgXSwKICAiYmFja2xpbmtzIjogWwogICAgewogICAgICAiZnJvbSI6ICJHdWlkZSIsCiAgICAgICJraW5kIjogImJvZHkiLAogICAgICAicGF0aCI6ICJkb2NzL0d1aWRlLm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtZTVmNiIsCiAgICAgICJraW5kIjogImhhbmRvZmZfaXNzdWUiLAogICAgICAicGF0aCI6ICJwcm9qZWN0cy9hbHBoYS9oYW5kb2Zmcy9hbHBoYS1lNWY2LWNvbnRyYWN0LWhhbmRvZmYubWQiCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICJjb250cmFjdC1tZW1vcnkiLAogICAgICAia2luZCI6ICJib2R5IiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvbWVtb3JpZXMvY29udHJhY3QtbWVtb3J5Lm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QiLAogICAgICAia2luZCI6ICJyZXF1ZXN0X2lzc3VlIiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvcmVxdWVzdHMvYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QubWQiCiAgICB9CiAgXQp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-project:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-project:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "W10K",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-project:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:custom-project:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJpZCI6ICJhbHBoYS1hMWIyIiwKICAidGl0bGUiOiAiQ29udHJhY3QgaXNzdWUiLAogICJ0eXBlIjogInRhc2siLAogICJzdGF0dXMiOiAib3BlbiIsCiAgInByaW9yaXR5IjogMiwKICAibGFiZWxzIjogWwogICAgImNvbnRyYWN0IgogIF0sCiAgImFzc2lnbmVlIjogIiIsCiAgInBhcmVudCI6ICIiLAogICJibG9ja2VkX2J5IjogW10sCiAgInVybCI6ICIiLAogICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAidXBkYXRlZCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsCiAgInByb2plY3QiOiAiYWxwaGEiLAogICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAiYXJjaGl2ZWQiOiBmYWxzZSwKICAiZGVzY3JpcHRpb24iOiAiIyBDb250cmFjdCBpc3N1ZVxuXG5EZXNjcmlwdGlvbiB3aXRoIFx1MDAzY0hUTUxcdTAwM2UgXHUwMDI2IFtbR3VpZGVdXS5cblxuIiwKICAibG9nIjogWwogICAgewogICAgICAiYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLAogICAgICAiYWN0b3IiOiAiY29udHJhY3QiLAogICAgICAicmVwbyI6ICJmaXh0dXJlIiwKICAgICAgInNoYSI6ICJhYmNkZWYwIiwKICAgICAgImJyYW5jaCI6ICJtYWluIiwKICAgICAgImV2ZW50IjogImNyZWF0ZWQiCiAgICB9CiAgXSwKICAiYmFja2xpbmtzIjogWwogICAgewogICAgICAiZnJvbSI6ICJHdWlkZSIsCiAgICAgICJraW5kIjogImJvZHkiLAogICAgICAicGF0aCI6ICJkb2NzL0d1aWRlLm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtZTVmNiIsCiAgICAgICJraW5kIjogImhhbmRvZmZfaXNzdWUiLAogICAgICAicGF0aCI6ICJwcm9qZWN0cy9hbHBoYS9oYW5kb2Zmcy9hbHBoYS1lNWY2LWNvbnRyYWN0LWhhbmRvZmYubWQiCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICJjb250cmFjdC1tZW1vcnkiLAogICAgICAia2luZCI6ICJib2R5IiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvbWVtb3JpZXMvY29udHJhY3QtbWVtb3J5Lm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QiLAogICAgICAia2luZCI6ICJyZXF1ZXN0X2lzc3VlIiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvcmVxdWVzdHMvYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QubWQiCiAgICB9CiAgXQp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-override:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg==",
+        "explicit.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gImluX3Byb2dyZXNzIgo="
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-override:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg==",
+        "explicit.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gImluX3Byb2dyZXNzIgo="
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-override:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg==",
+        "explicit.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gImluX3Byb2dyZXNzIgo="
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-override:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpzdGF0dXNlcyA9IFsidG9kbyIsICJ3YWl0aW5nIiwgImZpbmlzaGVkIl0KZGVmYXVsdCA9ICJ0b2RvIgphY3RpdmUgPSBbInRvZG8iXQp0ZXJtaW5hbCA9IFsiZmluaXNoZWQiXQo=",
+        "hub/projects/alpha/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIndhaXRpbmciCg==",
+        "explicit.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gImluX3Byb2dyZXNzIgo="
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJpZCI6ICJhbHBoYS1hMWIyIiwKICAidGl0bGUiOiAiQ29udHJhY3QgaXNzdWUiLAogICJ0eXBlIjogInRhc2siLAogICJzdGF0dXMiOiAib3BlbiIsCiAgInByaW9yaXR5IjogMiwKICAibGFiZWxzIjogWwogICAgImNvbnRyYWN0IgogIF0sCiAgImFzc2lnbmVlIjogIiIsCiAgInBhcmVudCI6ICIiLAogICJibG9ja2VkX2J5IjogW10sCiAgInVybCI6ICIiLAogICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAidXBkYXRlZCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsCiAgInByb2plY3QiOiAiYWxwaGEiLAogICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAiYXJjaGl2ZWQiOiBmYWxzZSwKICAiZGVzY3JpcHRpb24iOiAiIyBDb250cmFjdCBpc3N1ZVxuXG5EZXNjcmlwdGlvbiB3aXRoIFx1MDAzY0hUTUxcdTAwM2UgXHUwMDI2IFtbR3VpZGVdXS5cblxuIiwKICAibG9nIjogWwogICAgewogICAgICAiYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLAogICAgICAiYWN0b3IiOiAiY29udHJhY3QiLAogICAgICAicmVwbyI6ICJmaXh0dXJlIiwKICAgICAgInNoYSI6ICJhYmNkZWYwIiwKICAgICAgImJyYW5jaCI6ICJtYWluIiwKICAgICAgImV2ZW50IjogImNyZWF0ZWQiCiAgICB9CiAgXSwKICAiYmFja2xpbmtzIjogWwogICAgewogICAgICAiZnJvbSI6ICJHdWlkZSIsCiAgICAgICJraW5kIjogImJvZHkiLAogICAgICAicGF0aCI6ICJkb2NzL0d1aWRlLm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtZTVmNiIsCiAgICAgICJraW5kIjogImhhbmRvZmZfaXNzdWUiLAogICAgICAicGF0aCI6ICJwcm9qZWN0cy9hbHBoYS9oYW5kb2Zmcy9hbHBoYS1lNWY2LWNvbnRyYWN0LWhhbmRvZmYubWQiCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICJjb250cmFjdC1tZW1vcnkiLAogICAgICAia2luZCI6ICJib2R5IiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvbWVtb3JpZXMvY29udHJhY3QtbWVtb3J5Lm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QiLAogICAgICAia2luZCI6ICJyZXF1ZXN0X2lzc3VlIiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvcmVxdWVzdHMvYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QubWQiCiAgICB9CiAgXQp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAogTSBwcm9qZWN0cy9hbHBoYS9iZWFucy50b21sCg==",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-yaml:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "explicit.yaml": "d29ya2Zsb3c6CiAgZGVmYXVsdDogaW5fcHJvZ3Jlc3MK"
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.yaml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-yaml:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "explicit.yaml": "d29ya2Zsb3c6CiAgZGVmYXVsdDogaW5fcHJvZ3Jlc3MK"
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.yaml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-yaml:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "explicit.yaml": "d29ya2Zsb3c6CiAgZGVmYXVsdDogaW5fcHJvZ3Jlc3MK"
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.yaml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-yaml:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "explicit.yaml": "d29ya2Zsb3c6CiAgZGVmYXVsdDogaW5fcHJvZ3Jlc3MK"
+      },
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/explicit.yaml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJpZCI6ICJhbHBoYS1hMWIyIiwKICAidGl0bGUiOiAiQ29udHJhY3QgaXNzdWUiLAogICJ0eXBlIjogInRhc2siLAogICJzdGF0dXMiOiAib3BlbiIsCiAgInByaW9yaXR5IjogMiwKICAibGFiZWxzIjogWwogICAgImNvbnRyYWN0IgogIF0sCiAgImFzc2lnbmVlIjogIiIsCiAgInBhcmVudCI6ICIiLAogICJibG9ja2VkX2J5IjogW10sCiAgInVybCI6ICIiLAogICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAidXBkYXRlZCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsCiAgInByb2plY3QiOiAiYWxwaGEiLAogICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAiYXJjaGl2ZWQiOiBmYWxzZSwKICAiZGVzY3JpcHRpb24iOiAiIyBDb250cmFjdCBpc3N1ZVxuXG5EZXNjcmlwdGlvbiB3aXRoIFx1MDAzY0hUTUxcdTAwM2UgXHUwMDI2IFtbR3VpZGVdXS5cblxuIiwKICAibG9nIjogWwogICAgewogICAgICAiYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLAogICAgICAiYWN0b3IiOiAiY29udHJhY3QiLAogICAgICAicmVwbyI6ICJmaXh0dXJlIiwKICAgICAgInNoYSI6ICJhYmNkZWYwIiwKICAgICAgImJyYW5jaCI6ICJtYWluIiwKICAgICAgImV2ZW50IjogImNyZWF0ZWQiCiAgICB9CiAgXSwKICAiYmFja2xpbmtzIjogWwogICAgewogICAgICAiZnJvbSI6ICJHdWlkZSIsCiAgICAgICJraW5kIjogImJvZHkiLAogICAgICAicGF0aCI6ICJkb2NzL0d1aWRlLm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtZTVmNiIsCiAgICAgICJraW5kIjogImhhbmRvZmZfaXNzdWUiLAogICAgICAicGF0aCI6ICJwcm9qZWN0cy9hbHBoYS9oYW5kb2Zmcy9hbHBoYS1lNWY2LWNvbnRyYWN0LWhhbmRvZmYubWQiCiAgICB9LAogICAgewogICAgICAiZnJvbSI6ICJjb250cmFjdC1tZW1vcnkiLAogICAgICAia2luZCI6ICJib2R5IiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvbWVtb3JpZXMvY29udHJhY3QtbWVtb3J5Lm1kIgogICAgfSwKICAgIHsKICAgICAgImZyb20iOiAiYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QiLAogICAgICAia2luZCI6ICJyZXF1ZXN0X2lzc3VlIiwKICAgICAgInBhdGgiOiAicHJvamVjdHMvYWxwaGEvcmVxdWVzdHMvYWxwaGEtci1jM2Q0LWNvbnRyYWN0LXJlcXVlc3QubWQiCiAgICB9CiAgXQp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-missing:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {},
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/missing.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiB3b3JrZmxvdyBjb25maWcgJHtGSVhUVVJFX1JPT1R9L21pc3NpbmcudG9tbDogb3BlbiAke0ZJWFRVUkVfUk9PVH0vbWlzc2luZy50b21sOiBubyBzdWNoIGZpbGUgIAogIG9yIGRpcmVjdG9yeS4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgo=",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-missing:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {},
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/missing.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiB3b3JrZmxvdyBjb25maWcgJHtGSVhUVVJFX1JPT1R9L21pc3NpbmcudG9tbDogb3BlbiAke0ZJWFRVUkVfUk9PVH0vbWlzc2luZy50b21sOiBubyBzdWNoIGZpbGUgIAogIG9yIGRpcmVjdG9yeS4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgo=",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-missing:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {},
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/missing.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:explicit-missing:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {},
+      "env": {
+        "BN_CONFIG": "${FIXTURE_ROOT}/missing.toml"
+      },
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiB3b3JrZmxvdyBjb25maWcgJHtGSVhUVVJFX1JPT1R9L21pc3NpbmcudG9tbDogb3BlbiAke0ZJWFRVUkVfUk9PVH0vbWlzc2luZy50b21sOiBubyBzdWNoIGZpbGUgIAogIG9yIGRpcmVjdG9yeS4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgo=",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-hub:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93Cg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogbG9hZCBodWIgY29uZmlnOiAke0ZJWFRVUkVfUk9PVH0vaHViL2JlYW5zLnRvbWw6IGxpbmUgMjogZXhwZWN0ZWQgJy4nIG9yICddJyB0byBlbmQgdGFibGUgbmFtZSwgYnV0IGdvdCAnXG4nIAogIGluc3RlYWQuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgo=",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-hub:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93Cg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogbG9hZCBodWIgY29uZmlnOiAke0ZJWFRVUkVfUk9PVH0vaHViL2JlYW5zLnRvbWw6IGxpbmUgMjogZXhwZWN0ZWQgJy4nIG9yICddJyB0byBlbmQgdGFibGUgbmFtZSwgYnV0IGdvdCAnXG4nIAogIGluc3RlYWQuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgo=",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-hub:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93Cg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-hub:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93Cg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogbG9hZCBodWIgY29uZmlnOiAke0ZJWFRVUkVfUk9PVH0vaHViL2JlYW5zLnRvbWw6IGxpbmUgMjogZXhwZWN0ZWQgJy4nIG9yICddJyB0byBlbmQgdGFibGUgbmFtZSwgYnV0IGdvdCAnXG4nIAogIGluc3RlYWQuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgo=",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:unknown-workflow-key:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQp1bmV4cGVjdGVkID0gdHJ1ZQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiBodWIgYmVhbnMudG9tbDogd29ya2Zsb3cgY29uZmlnIGJlYW5zLnRvbWw6IHVua25vd24ga2V5KHMpOiB3b3JrZmxvdy51bmV4cGVjdGVkLiAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:unknown-workflow-key:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQp1bmV4cGVjdGVkID0gdHJ1ZQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiBodWIgYmVhbnMudG9tbDogd29ya2Zsb3cgY29uZmlnIGJlYW5zLnRvbWw6IHVua25vd24ga2V5KHMpOiB3b3JrZmxvdy51bmV4cGVjdGVkLiAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:unknown-workflow-key:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQp1bmV4cGVjdGVkID0gdHJ1ZQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:unknown-workflow-key:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQp1bmV4cGVjdGVkID0gdHJ1ZQo="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiBodWIgYmVhbnMudG9tbDogd29ya2Zsb3cgY29uZmlnIGJlYW5zLnRvbWw6IHVua25vd24ga2V5KHMpOiB3b3JrZmxvdy51bmV4cGVjdGVkLiAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:invalid-workflow:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIm5vdC1hLXN0YXR1cyIK"
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiB3b3JrZmxvdzogZGVmYXVsdCBzdGF0dXMgIm5vdC1hLXN0YXR1cyIgaXMgbm90IGluIHN0YXR1c2VzLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:invalid-workflow:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIm5vdC1hLXN0YXR1cyIK"
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiB3b3JrZmxvdzogZGVmYXVsdCBzdGF0dXMgIm5vdC1hLXN0YXR1cyIgaXMgbm90IGluIHN0YXR1c2VzLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:invalid-workflow:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIm5vdC1hLXN0YXR1cyIK"
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "ewogICJuYW1lIjogIiIsCiAgInByZWZpeCI6ICIiLAogICJyZW1vdGVzIjogW10sCiAgImRpciI6ICIke0ZJWFRVUkVfUk9PVH0vaHViL3Byb2plY3RzL2FscGhhIgp9Cg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:invalid-workflow:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "hub/beans.toml": "W3dvcmtmbG93XQpkZWZhdWx0ID0gIm5vdC1hLXN0YXR1cyIK"
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBWYXVsdDogaHViIHdvcmtmbG93OiB3b3JrZmxvdzogZGVmYXVsdCBzdGF0dXMgIm5vdC1hLXN0YXR1cyIgaXMgbm90IGluIHN0YXR1c2VzLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "IE0gYmVhbnMudG9tbAo=",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-user:list",
+      "fixture": "seeded",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "beans/config.toml": "YWN0b3IgPSBbCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICAke0ZJWFRVUkVfUk9PVF9USVRMRX0vQmVhbnMvQ29uZmlnLnRvbWw6IGxpbmUgMTogdW5leHBlY3RlZCBFT0Y7IGV4cGVjdGVkIHZhbHVlLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-user:ready",
+      "fixture": "seeded",
+      "argv": [
+        "ready",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "beans/config.toml": "YWN0b3IgPSBbCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICAke0ZJWFRVUkVfUk9PVF9USVRMRX0vQmVhbnMvQ29uZmlnLnRvbWw6IGxpbmUgMTogdW5leHBlY3RlZCBFT0Y7IGV4cGVjdGVkIHZhbHVlLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-user:project-show-alpha",
+      "fixture": "seeded",
+      "argv": [
+        "project",
+        "show",
+        "alpha",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "beans/config.toml": "YWN0b3IgPSBbCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICAke0ZJWFRVUkVfUk9PVF9USVRMRX0vQmVhbnMvQ29uZmlnLnRvbWw6IGxpbmUgMTogdW5leHBlY3RlZCBFT0Y7IGV4cGVjdGVkIHZhbHVlLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "config:malformed-user:show-alpha-a1b2",
+      "fixture": "seeded",
+      "argv": [
+        "show",
+        "alpha-a1b2",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "initial_files": {
+        "beans/config.toml": "YWN0b3IgPSBbCg=="
+      },
+      "env": {},
+      "root_prefix": "bn",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICAke0ZJWFRVUkVfUk9PVF9USVRMRX0vQmVhbnMvQ29uZmlnLnRvbWw6IGxpbmUgMTogdW5leHBlY3RlZCBFT0Y7IGV4cGVjdGVkIHZhbHVlLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
     }
   ]
 }
