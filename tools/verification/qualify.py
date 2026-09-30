@@ -15,7 +15,8 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     tools = install(ROOT / ".compat/verus")
     env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"],
-               RUSTUP_TOOLCHAIN=pins["rust"], CARGO_TARGET_DIR=str(output / "target"))
+               RUSTUP_TOOLCHAIN=pins["rust"], VERUS_Z3_PATH=str(tools / "z3"),
+               CARGO_TARGET_DIR=str(output / "target"))
     probe = ROOT / "tools/verification/probe"
     observations = {}
     def run(name, argv, timeout=360):

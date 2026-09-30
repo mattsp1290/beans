@@ -151,7 +151,8 @@ owned Log section, retaining the original JSON escaping. Identical dates in user
 prose before or after that section remain literal. Negative tests cover this
 boundary, bad lengths, HEAD bodies, reversed graph ordering and error envelopes.
 
-The CLI corpus also includes 36 read probes for custom hub/project workflows,
+The CLI corpus has 467 cases, including 17 additional shorthand/flag grammar
+probes and 36 read probes for custom hub/project workflows,
 partial explicit TOML/YAML overrides, missing explicit files, malformed hub/user
 config, unknown workflow keys and invalid defaults. Initial files and subprocess
 BN_CONFIG are recorded with the cases. Go's explicit config inherits built-in
@@ -219,14 +220,19 @@ stderr. The captures preserve these observed differences. Each probe also
 compares filesystem/Git effects; it does not establish interruption during writes.
 
 Rust 1.98.1 with rustfmt/clippy installed successfully on Linux arm64. Verus
-remains unqualified on this host; the release provides Linux x86_64 binaries.
+prebuilt binaries cannot run on this host. Native Linux x86_64 CI qualified the
+pinned compiler/verifier/Z3/Cargo integration with the same-source probe and
+a deliberately rejected body mutation; see [verification tooling](verification.md).
+This does not establish the mandatory production kernel obligations.
 
 WP1 is still in progress. Required work includes expanding mutation/error journeys
 to remaining flag/output scenarios; additional
-flag grammar interactions and raw/stdin modes; and native
-Linux qualification, including mixed-client locking and recovery. Initial SSE connection coverage
-does not establish watcher/debounce/reload/reconnect parity. Framework/compiler/
-solver pins must be tested and recorded before WP2 begins.
+flag grammar interactions and raw/stdin modes; and broken-file/missing-reference
+fixtures. Native Linux command and lock-timeout coverage now passes CI.
+Mixed-client locking and recovery remain WP4 gates. Initial SSE connection
+coverage does not establish watcher/debounce/reload/reconnect parity. Compiler/
+verifier/solver integration is qualified by the separate probe; application
+framework selections must become tested workspace pins in WP2.
 
 The failure corpus covers every documented exit status (0–4), including an
 actual wrong-branch Git preflight failure and an exclusive POSIX lock held by

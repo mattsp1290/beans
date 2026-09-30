@@ -9390,6 +9390,470 @@
           "staged": ""
         }
       }
+    },
+    {
+      "id": "grammar:short-cluster-vh",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "-vh"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "CiAgR2l0LWJhY2tlZCBpc3N1ZSB0cmFja2VyIGFuZCB3aWtpIChibiA9IGJlYW5zKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAKICBVU0FHRSAgCiAgICAgICAgIAogICAgYm4gW2NvbW1hbmRdIFstLWZsYWdzXSAgCiAgICAgICAgICAgIAogIENPTU1BTkRTICAKICAgICAgICAgICAgCiAgICBhcmNoaXZlIFstLWZsYWdzXSAgICAgICAgICAgICAgICBNb3ZlIGNsb3NlZCBpc3N1ZXMgb2xkZXIgdGhhbiAtLW9sZGVyLXRoYW4gaW50byBhcmNoaXZlLzx5ZWFyPi8KICAgIGJsb2NrZWQgWy0tZmxhZ3NdICAgICAgICAgICAgICAgIElzc3VlcyB3YWl0aW5nIG9uIGF0IGxlYXN0IG9uZSBvcGVuIGJsb2NrZXIKICAgIGNhY2hlIFtjb21tYW5kXSAgICAgICAgICAgICAgICAgIE1hbmFnZSB+Ly5iZWFucy9jYWNoZQogICAgY2hpbGRyZW4gPGlkPiAgICAgICAgICAgICAgICAgICAgTGlzdCB0aGUgaXNzdWVzIHdob3NlIHBhcmVudCBpcyA8aWQ+CiAgICBjbG9zZSA8aWQuLi4+IFstLWZsYWdzXSAgICAgICAgICBDbG9zZSBpc3N1ZXMgd2l0aCBhIHJlYXNvbiAob25lIGNvbW1pdCBwZXIgaWQpCiAgICBjb21wbGV0aW9uIFtjb21tYW5kXSAgICAgICAgICAgICBHZW5lcmF0ZSB0aGUgYXV0b2NvbXBsZXRpb24gc2NyaXB0IGZvciB0aGUgc3BlY2lmaWVkIHNoZWxsCiAgICBjcmVhdGUgPHRpdGxlPiBbLS1mbGFnc10gICAgICAgICBDcmVhdGUgYW4gaXNzdWUgaW4gdGhlIGN1cnJlbnQgcHJvamVjdAogICAgZGVsZXRlIDxpZD4gWy0tZmxhZ3NdICAgICAgICAgICAgRGVsZXRlIGFuIGlzc3VlIGZpbGUgKHJlZnVzZXMgd2hlbiBvdGhlciBub3RlcyBsaW5rIHRvIGl0KQogICAgZGVwIFtjb21tYW5kXSAgICAgICAgICAgICAgICAgICAgTWFuYWdlIGRlcGVuZGVuY2llcyBiZXR3ZWVuIGlzc3VlcwogICAgZG9jIFtjb21tYW5kXSAgICAgICAgICAgICAgICAgICAgV2lraSBwYWdlcyB1bmRlciBkb2NzLwogICAgZG9jdG9yIFstLWZsYWdzXSAgICAgICAgICAgICAgICAgQ2hlY2sgdGhlIGh1YiBmb3IgcHJvYmxlbXMgKGV4aXQgMSB3aGVuIGFueSkKICAgIGZvcmdldCA8a2V5PiBbLS1mbGFnc10gICAgICAgICAgIERlbGV0ZSBhIG1lbW9yeQogICAgaGFuZG9mZiBbY29tbWFuZF0gICAgICAgICAgICAgICAgQ3JlYXRlIGFuZCBtYW5hZ2UgdmVyc2lvbmVkIHNlc3Npb24gaGFuZG9mZnMKICAgIGhlbHAgW2NvbW1hbmRdICAgICAgICAgICAgICAgICAgIEhlbHAgYWJvdXQgYW55IGNvbW1hbmQKICAgIGltcG9ydCBbY29tbWFuZF0gICAgICAgICAgICAgICAgIE9uZS1UaW1lIGltcG9ydHMgaW50byB0aGUgaHViCiAgICBpbml0IDxyZW1vdGU+ICAgICAgICAgICAgICAgICAgICBDbG9uZSB0aGUgaHViIHJlcG9zaXRvcnkgaW50byB+Ly5iZWFucy9odWIKICAgIGxpc3QgWy0tZmxhZ3NdICAgICAgICAgICAgICAgICAgIExpc3QgaXNzdWVzIChvcGVuIGJ5IGRlZmF1bHQpCiAgICBtZW1vcmllcyBba2V5d29yZC4uLl0gWy0tZmxhZ3NdICBMaXN0IG1lbW9yaWVzLCBvcHRpb25hbGx5IGZpbHRlcmVkIGJ5IGtleXdvcmQKICAgIG5vdGUgPGlkPiA8dGV4dC4uLj4gICAgICAgICAgICAgIEFwcGVuZCBhIG5vdGUgdG8gYW4gaXNzdWUncyBsb2cKICAgIHBsYW4gW2NvbW1hbmRdICAgICAgICAgICAgICAgICAgIENyZWF0ZSwgdmFsaWRhdGUsIHB1Ymxpc2gsIGFuZCBpbnNwZWN0IHByb2plY3QgcGxhbnMKICAgIHByaW1lICAgICAgICAgICAgICAgICAgICAgICAgICAgIFByaW50IHRoZSBydWxlcyBhbiBhZ2VudCBuZWVkcyB0byB1c2UgYm4KICAgIHByb2plY3QgW2NvbW1hbmRdICAgICAgICAgICAgICAgIExpc3QsIGluc3BlY3QsIGNyZWF0ZSwgYW5kIGxpbmsgcHJvamVjdHMgaW4gdGhlIGh1YgogICAgcmVhZHkgWy0tZmxhZ3NdICAgICAgICAgICAgICAgICAgSXNzdWVzIHdpdGggbm8gb3BlbiBibG9ja2VycywgaGlnaGVzdCBwcmlvcml0eSBmaXJzdAogICAgcmVtZW1iZXIgPHRleHQuLi4+IFstLWZsYWdzXSAgICAgU2F2ZSBhIG1lbW9yeSBhcyBtZW1vcmllcy88a2V5Pi5tZAogICAgcmVvcGVuIDxpZD4gICAgICAgICAgICAgICAgICAgICAgUmV0dXJuIGEgY2xvc2VkIGlzc3VlIHRvIHRoZSBkZWZhdWx0IHN0YXR1cwogICAgcmVxdWVzdCBbY29tbWFuZF0gICAgICAgICAgICAgICAgQ3JlYXRlIGFuZCBtYW5hZ2UgcHJvamVjdCByZXF1ZXN0cwogICAgc2VhcmNoIDxxdWVyeS4uLj4gWy0tZmxhZ3NdICAgICAgU2VhcmNoIGlzc3VlcywgcmVxdWVzdHMsIGRvY3MsIGFuZCBtZW1vcmllcwogICAgc2VydmUgWy0tZmxhZ3NdICAgICAgICAgICAgICAgICAgU2VydmUgdGhlIGlzc3VlcyBib2FyZCBhbmQgd2lraSBvdmVyIHRoZSBodWIKICAgIHNob3cgPGlkPiBbLS1mbGFnc10gICAgICAgICAgICAgIFNob3cgYW4gaXNzdWUgd2l0aCBpdHMgYmxvY2tlcnMsIGNoaWxkcmVuLCBiYWNrbGlua3MsIGFuZCBsb2cKICAgIHN0YXR1cyAgICAgICAgICAgICAgICAgICAgICAgICAgIFNob3cgdGhlIGh1YiBjbG9uZSBzdGF0ZSBhbmQgdGhlIHJlc29sdmVkIHByb2plY3QKICAgIHN5bmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFB1bGwgdGhlIGh1YiB3aXRoIHJlYmFzZSBhbmQgcHVzaCBsb2NhbCBjb21taXRzCiAgICB1cGRhdGUgPGlkPiBbLS1mbGFnc10gICAgICAgICAgICBDaGFuZ2UgZmllbGRzIG9mIGFuIGlzc3VlIChvbmUgY29tbWl0LCBvbmUgbG9nIGxpbmUgcGVyIGZpZWxkKQogICAgICAgICAKICBGTEFHUyAgCiAgICAgICAgIAogICAgLS1hY3RvciAgICAgICAgICAgICAgICAgICAgICAgICAgQXVkaXQgYWN0b3IgKG92ZXJyaWRlcyAkQk5fQUNUT1IpCiAgICAtaCAtLWhlbHAgICAgICAgICAgICAgICAgICAgICAgICBIZWxwIGZvciBibgogICAgLS1odWIgICAgICAgICAgICAgICAgICAgICAgICAgICAgSHViIGNsb25lIGRpcmVjdG9yeSAob3ZlcnJpZGVzICRCRUFOU19IVUIpCiAgICAtLWpzb24gICAgICAgICAgICAgICAgICAgICAgICAgICBNYWNoaW5lLVJlYWRhYmxlIEpTT04gb3V0cHV0CiAgICAtLW5vLWZldGNoICAgICAgICAgICAgICAgICAgICAgICBSZWFkczogc2tpcCB0aGUgdGhyb3R0bGVkIGZldGNoCiAgICAtLW5vLXN5bmMgICAgICAgICAgICAgICAgICAgICAgICBNdXRhdGlvbnM6IGNvbW1pdCBsb2NhbGx5IHdpdGhvdXQgZmV0Y2hpbmcgb3IgcHVzaGluZwogICAgLS1wcm9qZWN0ICAgICAgICAgICAgICAgICAgICAgICAgUHJvamVjdCBuYW1lIChvdmVycmlkZXMgJEJFQU5TX1BST0pFQ1QgYW5kIGdpdCBhdXRvLWRldGVjdGlvbikKICAgIC12IC0tdmVyc2lvbiAgICAgICAgICAgICAgICAgICAgIFZlcnNpb24gZm9yIGJuCgo=",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:short-cluster-hv",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "-hv"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "CiAgR2l0LWJhY2tlZCBpc3N1ZSB0cmFja2VyIGFuZCB3aWtpIChibiA9IGJlYW5zKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAKICBVU0FHRSAgCiAgICAgICAgIAogICAgYm4gW2NvbW1hbmRdIFstLWZsYWdzXSAgCiAgICAgICAgICAgIAogIENPTU1BTkRTICAKICAgICAgICAgICAgCiAgICBhcmNoaXZlIFstLWZsYWdzXSAgICAgICAgICAgICAgICBNb3ZlIGNsb3NlZCBpc3N1ZXMgb2xkZXIgdGhhbiAtLW9sZGVyLXRoYW4gaW50byBhcmNoaXZlLzx5ZWFyPi8KICAgIGJsb2NrZWQgWy0tZmxhZ3NdICAgICAgICAgICAgICAgIElzc3VlcyB3YWl0aW5nIG9uIGF0IGxlYXN0IG9uZSBvcGVuIGJsb2NrZXIKICAgIGNhY2hlIFtjb21tYW5kXSAgICAgICAgICAgICAgICAgIE1hbmFnZSB+Ly5iZWFucy9jYWNoZQogICAgY2hpbGRyZW4gPGlkPiAgICAgICAgICAgICAgICAgICAgTGlzdCB0aGUgaXNzdWVzIHdob3NlIHBhcmVudCBpcyA8aWQ+CiAgICBjbG9zZSA8aWQuLi4+IFstLWZsYWdzXSAgICAgICAgICBDbG9zZSBpc3N1ZXMgd2l0aCBhIHJlYXNvbiAob25lIGNvbW1pdCBwZXIgaWQpCiAgICBjb21wbGV0aW9uIFtjb21tYW5kXSAgICAgICAgICAgICBHZW5lcmF0ZSB0aGUgYXV0b2NvbXBsZXRpb24gc2NyaXB0IGZvciB0aGUgc3BlY2lmaWVkIHNoZWxsCiAgICBjcmVhdGUgPHRpdGxlPiBbLS1mbGFnc10gICAgICAgICBDcmVhdGUgYW4gaXNzdWUgaW4gdGhlIGN1cnJlbnQgcHJvamVjdAogICAgZGVsZXRlIDxpZD4gWy0tZmxhZ3NdICAgICAgICAgICAgRGVsZXRlIGFuIGlzc3VlIGZpbGUgKHJlZnVzZXMgd2hlbiBvdGhlciBub3RlcyBsaW5rIHRvIGl0KQogICAgZGVwIFtjb21tYW5kXSAgICAgICAgICAgICAgICAgICAgTWFuYWdlIGRlcGVuZGVuY2llcyBiZXR3ZWVuIGlzc3VlcwogICAgZG9jIFtjb21tYW5kXSAgICAgICAgICAgICAgICAgICAgV2lraSBwYWdlcyB1bmRlciBkb2NzLwogICAgZG9jdG9yIFstLWZsYWdzXSAgICAgICAgICAgICAgICAgQ2hlY2sgdGhlIGh1YiBmb3IgcHJvYmxlbXMgKGV4aXQgMSB3aGVuIGFueSkKICAgIGZvcmdldCA8a2V5PiBbLS1mbGFnc10gICAgICAgICAgIERlbGV0ZSBhIG1lbW9yeQogICAgaGFuZG9mZiBbY29tbWFuZF0gICAgICAgICAgICAgICAgQ3JlYXRlIGFuZCBtYW5hZ2UgdmVyc2lvbmVkIHNlc3Npb24gaGFuZG9mZnMKICAgIGhlbHAgW2NvbW1hbmRdICAgICAgICAgICAgICAgICAgIEhlbHAgYWJvdXQgYW55IGNvbW1hbmQKICAgIGltcG9ydCBbY29tbWFuZF0gICAgICAgICAgICAgICAgIE9uZS1UaW1lIGltcG9ydHMgaW50byB0aGUgaHViCiAgICBpbml0IDxyZW1vdGU+ICAgICAgICAgICAgICAgICAgICBDbG9uZSB0aGUgaHViIHJlcG9zaXRvcnkgaW50byB+Ly5iZWFucy9odWIKICAgIGxpc3QgWy0tZmxhZ3NdICAgICAgICAgICAgICAgICAgIExpc3QgaXNzdWVzIChvcGVuIGJ5IGRlZmF1bHQpCiAgICBtZW1vcmllcyBba2V5d29yZC4uLl0gWy0tZmxhZ3NdICBMaXN0IG1lbW9yaWVzLCBvcHRpb25hbGx5IGZpbHRlcmVkIGJ5IGtleXdvcmQKICAgIG5vdGUgPGlkPiA8dGV4dC4uLj4gICAgICAgICAgICAgIEFwcGVuZCBhIG5vdGUgdG8gYW4gaXNzdWUncyBsb2cKICAgIHBsYW4gW2NvbW1hbmRdICAgICAgICAgICAgICAgICAgIENyZWF0ZSwgdmFsaWRhdGUsIHB1Ymxpc2gsIGFuZCBpbnNwZWN0IHByb2plY3QgcGxhbnMKICAgIHByaW1lICAgICAgICAgICAgICAgICAgICAgICAgICAgIFByaW50IHRoZSBydWxlcyBhbiBhZ2VudCBuZWVkcyB0byB1c2UgYm4KICAgIHByb2plY3QgW2NvbW1hbmRdICAgICAgICAgICAgICAgIExpc3QsIGluc3BlY3QsIGNyZWF0ZSwgYW5kIGxpbmsgcHJvamVjdHMgaW4gdGhlIGh1YgogICAgcmVhZHkgWy0tZmxhZ3NdICAgICAgICAgICAgICAgICAgSXNzdWVzIHdpdGggbm8gb3BlbiBibG9ja2VycywgaGlnaGVzdCBwcmlvcml0eSBmaXJzdAogICAgcmVtZW1iZXIgPHRleHQuLi4+IFstLWZsYWdzXSAgICAgU2F2ZSBhIG1lbW9yeSBhcyBtZW1vcmllcy88a2V5Pi5tZAogICAgcmVvcGVuIDxpZD4gICAgICAgICAgICAgICAgICAgICAgUmV0dXJuIGEgY2xvc2VkIGlzc3VlIHRvIHRoZSBkZWZhdWx0IHN0YXR1cwogICAgcmVxdWVzdCBbY29tbWFuZF0gICAgICAgICAgICAgICAgQ3JlYXRlIGFuZCBtYW5hZ2UgcHJvamVjdCByZXF1ZXN0cwogICAgc2VhcmNoIDxxdWVyeS4uLj4gWy0tZmxhZ3NdICAgICAgU2VhcmNoIGlzc3VlcywgcmVxdWVzdHMsIGRvY3MsIGFuZCBtZW1vcmllcwogICAgc2VydmUgWy0tZmxhZ3NdICAgICAgICAgICAgICAgICAgU2VydmUgdGhlIGlzc3VlcyBib2FyZCBhbmQgd2lraSBvdmVyIHRoZSBodWIKICAgIHNob3cgPGlkPiBbLS1mbGFnc10gICAgICAgICAgICAgIFNob3cgYW4gaXNzdWUgd2l0aCBpdHMgYmxvY2tlcnMsIGNoaWxkcmVuLCBiYWNrbGlua3MsIGFuZCBsb2cKICAgIHN0YXR1cyAgICAgICAgICAgICAgICAgICAgICAgICAgIFNob3cgdGhlIGh1YiBjbG9uZSBzdGF0ZSBhbmQgdGhlIHJlc29sdmVkIHByb2plY3QKICAgIHN5bmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFB1bGwgdGhlIGh1YiB3aXRoIHJlYmFzZSBhbmQgcHVzaCBsb2NhbCBjb21taXRzCiAgICB1cGRhdGUgPGlkPiBbLS1mbGFnc10gICAgICAgICAgICBDaGFuZ2UgZmllbGRzIG9mIGFuIGlzc3VlIChvbmUgY29tbWl0LCBvbmUgbG9nIGxpbmUgcGVyIGZpZWxkKQogICAgICAgICAKICBGTEFHUyAgCiAgICAgICAgIAogICAgLS1hY3RvciAgICAgICAgICAgICAgICAgICAgICAgICAgQXVkaXQgYWN0b3IgKG92ZXJyaWRlcyAkQk5fQUNUT1IpCiAgICAtaCAtLWhlbHAgICAgICAgICAgICAgICAgICAgICAgICBIZWxwIGZvciBibgogICAgLS1odWIgICAgICAgICAgICAgICAgICAgICAgICAgICAgSHViIGNsb25lIGRpcmVjdG9yeSAob3ZlcnJpZGVzICRCRUFOU19IVUIpCiAgICAtLWpzb24gICAgICAgICAgICAgICAgICAgICAgICAgICBNYWNoaW5lLVJlYWRhYmxlIEpTT04gb3V0cHV0CiAgICAtLW5vLWZldGNoICAgICAgICAgICAgICAgICAgICAgICBSZWFkczogc2tpcCB0aGUgdGhyb3R0bGVkIGZldGNoCiAgICAtLW5vLXN5bmMgICAgICAgICAgICAgICAgICAgICAgICBNdXRhdGlvbnM6IGNvbW1pdCBsb2NhbGx5IHdpdGhvdXQgZmV0Y2hpbmcgb3IgcHVzaGluZwogICAgLS1wcm9qZWN0ICAgICAgICAgICAgICAgICAgICAgICAgUHJvamVjdCBuYW1lIChvdmVycmlkZXMgJEJFQU5TX1BST0pFQ1QgYW5kIGdpdCBhdXRvLWRldGVjdGlvbikKICAgIC12IC0tdmVyc2lvbiAgICAgICAgICAgICAgICAgICAgIFZlcnNpb24gZm9yIGJuCgo=",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:help-false-version",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "-h=false",
+        "-v"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "Ym4gdmVyc2lvbiBtaWdyYXRpb24tb3JhY2xlCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:bool-separated-false",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "--json",
+        "false"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBVbmtub3duIGNvbW1hbmQgImZhbHNlIiBmb3IgImJuIGxpc3QiLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoKICBUcnkgLS1oZWxwIGZvciB1c2FnZS4KCg==",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:bool-repeated",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "--json=true",
+        "--json=false"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "YWxwaGEtYTFiMiAgb3BlbiAgUDIgIHRhc2sgIENvbnRyYWN0IGlzc3VlCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:attached-short-int",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "-n1",
+        "--json"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:short-int-equals",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "-n=1",
+        "--json"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:short-int-negative",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "-n-1",
+        "--json"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:int-empty",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "--limit="
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBJbnZhbGlkIGFyZ3VtZW50ICIiIGZvciAiLW4sIC0tbGltaXQiIGZsYWc6IHN0cmNvbnYuUGFyc2VJbnQ6IHBhcnNpbmcgIiI6IGludmFsaWQgc3ludGF4LiAgICAgICAgICAgICAgICAgICAgICAgICAgIAoKICBUcnkgLS1oZWxwIGZvciB1c2FnZS4KCg==",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:int-overflow",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "--limit=9223372036854775808"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBJbnZhbGlkIGFyZ3VtZW50ICI5MjIzMzcyMDM2ODU0Nzc1ODA4IiBmb3IgIi1uLCAtLWxpbWl0IiBmbGFnOiBzdHJjb252LlBhcnNlSW50OiBwYXJzaW5nICI5MjIzMzcyMDM2ODU0Nzc1ODA4IjogICAgIAogIHZhbHVlIG91dCBvZiByYW5nZS4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgogIFRyeSAtLWhlbHAgZm9yIHVzYWdlLgoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:int-repeat",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "list",
+        "--limit=0",
+        "--limit=1",
+        "--json"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "WwogIHsKICAgICJpZCI6ICJhbHBoYS1hMWIyIiwKICAgICJ0aXRsZSI6ICJDb250cmFjdCBpc3N1ZSIsCiAgICAidHlwZSI6ICJ0YXNrIiwKICAgICJzdGF0dXMiOiAib3BlbiIsCiAgICAicHJpb3JpdHkiOiAyLAogICAgImxhYmVscyI6IFsKICAgICAgImNvbnRyYWN0IgogICAgXSwKICAgICJhc3NpZ25lZSI6ICIiLAogICAgInBhcmVudCI6ICIiLAogICAgImJsb2NrZWRfYnkiOiBbXSwKICAgICJ1cmwiOiAiIiwKICAgICJjcmVhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJ1cGRhdGVkIjogIjIwMjYtMDEtMDFUMDA6MDA6MDBaIiwKICAgICJwcm9qZWN0IjogImFscGhhIiwKICAgICJwYXRoIjogInByb2plY3RzL2FscGhhL2lzc3Vlcy9hbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlLm1kIiwKICAgICJhcmNoaXZlZCI6IGZhbHNlCiAgfQpdCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:end-flags-id",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "show",
+        "--",
+        "alpha-a1b2"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "YWxwaGEtYTFiMiAgQ29udHJhY3QgaXNzdWUKc3RhdHVzOiBvcGVuICBwcmlvcml0eTogUDIgIHR5cGU6IHRhc2sgIHByb2plY3Q6IGFscGhhCmxhYmVsczogY29udHJhY3QKcGF0aDogcHJvamVjdHMvYWxwaGEvaXNzdWVzL2FscGhhLWExYjItY29udHJhY3QtaXNzdWUubWQKCmJhY2tsaW5rczoKICBHdWlkZSAoYm9keSkKICBhbHBoYS1lNWY2IChoYW5kb2ZmX2lzc3VlKQogIGNvbnRyYWN0LW1lbW9yeSAoYm9keSkKICBhbHBoYS1yLWMzZDQtY29udHJhY3QtcmVxdWVzdCAocmVxdWVzdF9pc3N1ZSkKCiMgQ29udHJhY3QgaXNzdWUKCkRlc2NyaXB0aW9uIHdpdGggPEhUTUw+ICYgW1tHdWlkZV1dLgoKbG9nOgogIDIwMjYtMDEtMDEgMDA6MDAgY29udHJhY3Q6IGNyZWF0ZWQK",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:raw-json-issue",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "show",
+        "alpha-a1b2",
+        "--raw",
+        "--json"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 0,
+        "stdout_b64": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:raw-json-handoff",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "handoff",
+        "show",
+        "alpha-e5f6",
+        "--raw",
+        "--json"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICAtLVJhdyBjYW5ub3QgYmUgdXNlZCB3aXRoIC0tanNvbi4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:array-empty-title-validation",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "create",
+        "--label=",
+        "--label=one,two"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBBY2NlcHRzIDEgYXJnKHMpLCByZWNlaXZlZCAwLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:local-shadow-before",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "--project",
+        "unknown",
+        "import",
+        "bd",
+        "missing.jsonl",
+        "--project",
+        "alpha",
+        "--dry-run"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBPcGVuIG1pc3NpbmcuanNvbmw6IG5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "grammar:local-shadow-after",
+      "argv": [
+        "--project",
+        "alpha",
+        "--no-fetch",
+        "import",
+        "bd",
+        "missing.jsonl",
+        "--project",
+        "alpha",
+        "--dry-run"
+      ],
+      "fixture": "seeded",
+      "stdin_b64": "",
+      "cwd": "isolated-non-repository",
+      "expected": {
+        "exit": 1,
+        "stdout_b64": "",
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBPcGVuIG1pc3NpbmcuanNvbmw6IG5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
     }
   ]
 }

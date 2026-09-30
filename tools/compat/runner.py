@@ -148,6 +148,27 @@ def cases(census):
                        ("delimiter", ["show", "--no-fetch", "--", "--json"]),
                        ("interleaved", ["show", "alpha-a1b2", "--json", "--project", "alpha", "--no-fetch"])):
         result.append({"id": name, "argv": argv, "fixture": "seeded", "stdin_b64": "", "cwd": "isolated-non-repository"})
+    grammar = [
+        ("short-cluster-vh", ["-vh"]), ("short-cluster-hv", ["-hv"]),
+        ("help-false-version", ["-h=false", "-v"]),
+        ("bool-separated-false", ["list", "--json", "false"]),
+        ("bool-repeated", ["list", "--json=true", "--json=false"]),
+        ("attached-short-int", ["list", "-n1", "--json"]),
+        ("short-int-equals", ["list", "-n=1", "--json"]),
+        ("short-int-negative", ["list", "-n-1", "--json"]),
+        ("int-empty", ["list", "--limit="]),
+        ("int-overflow", ["list", "--limit=9223372036854775808"]),
+        ("int-repeat", ["list", "--limit=0", "--limit=1", "--json"]),
+        ("end-flags-id", ["show", "--", "alpha-a1b2"]),
+        ("raw-json-issue", ["show", "alpha-a1b2", "--raw", "--json"]),
+        ("raw-json-handoff", ["handoff", "show", "alpha-e5f6", "--raw", "--json"]),
+        ("array-empty-title-validation", ["create", "--label=", "--label=one,two"]),
+        ("local-shadow-before", ["--project", "unknown", "import", "bd", "missing.jsonl", "--project", "alpha", "--dry-run"]),
+        ("local-shadow-after", ["import", "bd", "missing.jsonl", "--project", "alpha", "--dry-run"]),
+    ]
+    for name, argv in grammar:
+        result.append({"id": "grammar:" + name, "argv": ["--project", "alpha", "--no-fetch"] + argv,
+                       "fixture": "seeded", "stdin_b64": "", "cwd": "isolated-non-repository"})
     reads = [["list"], ["ready"], ["blocked"], ["show", "alpha-a1b2"], ["show", "alpha-ffff"],
              ["children", "alpha-a1b2"], ["dep", "tree", "alpha-a1b2"], ["dep", "cycles"],
              ["project", "list"], ["project", "show", "alpha"], ["doc", "list"],

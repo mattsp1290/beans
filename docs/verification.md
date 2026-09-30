@@ -38,7 +38,11 @@ Missing tools or any unexpected result fail the target and required CI job.
 
 Logs and `.compat/verification/qualification.json` record commands, exit codes,
 pins and source/lock digests. CI uploads those records, including failures.
-Qualification remains pending until the actual native job passes. The probe's
+Native qualification [run 36760127737](https://github.com/mattsp1290/beans/actions/runs/36760127737)
+passed at `8019043dd47777bb545f96d3c206679ba8803b43`. The checked report and
+proof output are preserved in `tests/contract/verus-toolchain-linux-x86_64.json`.
+The probe verified once, its body mutation failed the increment postcondition
+with exit 101, and the restored proof passed. The probe's
 bounded integer test and proof do not satisfy either mandatory WP2 obligation.
 
 The upcoming kernel proofs must check the same executable retry/discard,
