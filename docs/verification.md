@@ -2,9 +2,11 @@
 
 The Rust workspace compiles with locked dependencies and the pinned compiler.
 `crates/beans-kernel/src/retry.rs` implements the discard decision and opaque
-three-attempt budget with same-source proof contracts. Native verification is
-pending; ordinary Cargo tests are not proof evidence. Splice helpers, bounded
-transaction exploration, and production callers are still pending. The Rust
+three-attempt budget with same-source proof contracts. `src/splice.rs` validates
+ordered, non-overlapping, in-bounds spans, enumerates unchanged intervals, and
+translates their byte offsets without overflow. Native verification of the full
+kernel and its guard mutations is pending; ordinary Cargo tests are not proof
+evidence. Production callers are still pending. The Rust
 entry point is a migration scaffold, not a usable replacement for `bn`.
 
 The separate development-only probe under `tools/verification/probe` established
@@ -48,11 +50,30 @@ and removes the budget decrement in turn. Every mutation must produce a proof
 error, and the restored source must verify again. Source restoration runs even
 after failure. `.compat/verification/kernel.json` records source/lock digests
 and each result; corresponding logs are uploaded by CI. A passing kernel target
-at this stage covers only retry/budget, not the still-pending splice obligation.
+includes the retry/budget and splice obligations. Neither the decision proof nor
+the arithmetic proof establishes correctness of the Git or YAML adapters.
 
 Normal compilation and tests run separately through `make rust-build rust-test
 rust-check`. They use the same kernel files with annotations erased. The default
 `make build` still builds Go, and no regression has been retired.
+
+`tests/model.rs` explores two clients performing the same idempotent operation,
+with three total pushes per client (including any post-restart attempts), zero or
+one offline commit and hand-edit commit per clone, and at most one injected
+interruption/restart per trace. It calls the actual retry helper and reconstructs
+the opaque budget by replaying actual grants. Initial exploration checked 61,856
+states. Its always properties check user-commit preservation, owned discard
+targets, at most one remote effect, and the push bound. Sometimes properties
+require witnesses for success, rejection, network failure, conflicting rebase,
+dropped and empty operations, exhaustion, and restart. Missing outcome coverage
+fails the test. This is a finite abstract decision model with injected Git
+outcomes; real Git, filesystem effects, and crash recovery are WP4 obligations.
+
+`tests/properties.rs` runs 512 generated cases for each of three checks:
+pairwise range validity, offset translation against wider integer arithmetic,
+and complete/source-ordered preservation of the complement of edited spans.
+These tests check geometry, not the future codec's YAML parsing or byte copying.
+Proptest persists shrunk failures for conversion into regression fixtures.
 
 Logs and `.compat/verification/qualification.json` record commands, exit codes,
 pins and source/lock digests. CI uploads those records, including failures.

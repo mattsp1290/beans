@@ -25,19 +25,30 @@ def main():
         text = (result.stdout + result.stderr).decode(errors="replace")
         log = "kernel-" + name + ".log"
         (output / log).write_text(text)
-        observations[name] = {"argv": argv, "exit": result.returncode, "log": log}
+        results = [
+            {"verified": int(verified), "errors": int(errors)}
+            for verified, errors in re.findall(
+                r"verification results::\s*(\d+) verified, (\d+) errors", text
+            )
+        ]
+        observations[name] = {"argv": argv, "exit": result.returncode,
+                              "log": log, "verification_results": results}
         print("kernel " + name + ": exit " + str(result.returncode), flush=True)
         return result, text
 
     originals = {path: path.read_bytes() for path in sorted(sources.glob("*.rs"))}
     try:
         for path, source in originals.items():
-            if re.search(rb"\b(?:assume|admit)\s*\(|verifier::(?:external_body|axiom)", source):
+            if re.search(rb"\b(?:assume|admit)\s*\(|assume_specification|"
+                         rb"verifier::(?:external(?:_body)?|axiom)", source):
                 raise RuntimeError("unapproved trusted proof boundary in " + str(path))
         result, text = verify("proof")
         if result.returncode != 0:
             raise RuntimeError("mandatory kernel proof failed:\n" + text)
-        if not re.search(r"verification results::\s*[1-9][0-9]* verified, 0 errors", text):
+        results = observations["proof"]["verification_results"]
+        # The final summary belongs to beans-kernel. vstd's separate 2059
+        # obligations cannot stand in for the eight mandatory functions/proof.
+        if not results or results[-1]["verified"] < 8 or results[-1]["errors"] != 0:
             raise RuntimeError("verifier did not report checked obligations:\n" + text)
 
         retry = sources / "retry.rs"
@@ -76,7 +87,9 @@ def main():
                 path.write_bytes(original)
 
         result, text = verify("restored-proof")
-        if result.returncode != 0:
+        results = observations["restored-proof"]["verification_results"]
+        if (result.returncode != 0 or not results
+                or results[-1]["verified"] < 8 or results[-1]["errors"] != 0):
             raise RuntimeError("restored kernel proof failed:\n" + text)
         observations["passed"] = True
     finally:

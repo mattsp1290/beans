@@ -12,10 +12,10 @@ pub struct Span {
 }
 
 pub open spec fn ordered_in_bounds(spans: Seq<Span>, source_len: usize) -> bool {
-    (forall|i: int| 0 <= i < spans.len() ==>
-        #[trigger] spans[i].start <= spans[i].end <= source_len)
-    && (forall|i: int, j: int| 0 <= i < j < spans.len() ==>
-        #[trigger] spans[i].end <= #[trigger] spans[j].start)
+    (forall|i: int| #![trigger spans[i]] 0 <= i < spans.len() ==>
+        spans[i].start <= spans[i].end <= source_len)
+    && (forall|i: int, j: int| #![trigger spans[i], spans[j]] 0 <= i < j < spans.len() ==>
+        spans[i].end <= spans[j].start)
 }
 
 /// Validate all ranges before copying or replacing any bytes. The specification
@@ -31,11 +31,11 @@ pub fn valid_splices(spans: &[Span], source_len: usize) -> (valid: bool)
             previous_end <= source_len,
             i == 0 ==> previous_end == 0,
             i > 0 ==> previous_end == spans@[(i - 1) as int].end,
-            forall|k: int| 0 <= k < i ==>
-                #[trigger] spans@[k].start <= spans@[k].end <= source_len,
-            forall|k: int| 0 <= k < i ==> #[trigger] spans@[k].end <= previous_end,
-            forall|j: int, k: int| 0 <= j < k < i ==>
-                #[trigger] spans@[j].end <= #[trigger] spans@[k].start,
+            forall|k: int| #![trigger spans@[k]] 0 <= k < i ==>
+                spans@[k].start <= spans@[k].end <= source_len,
+            forall|k: int| #![trigger spans@[k]] 0 <= k < i ==> spans@[k].end <= previous_end,
+            forall|j: int, k: int| #![trigger spans@[j], spans@[k]] 0 <= j < k < i ==>
+                spans@[j].end <= spans@[k].start,
         decreases spans.len() - i,
     {
         let span = &spans[i];
@@ -68,7 +68,10 @@ pub fn preserved_interval(spans: &[Span], source_len: usize, index: usize)
     let start = if index == 0 { 0 } else { spans[index - 1].end };
     let end = if index == spans.len() { source_len } else { spans[index].start };
     proof {
+        reveal(ordered_in_bounds);
+        assert(index <= spans@.len());
         if index > 0 {
+            assert(0 <= (index - 1) as int < spans@.len());
             assert(spans@[(index - 1) as int].start
                 <= spans@[(index - 1) as int].end <= source_len);
         }
