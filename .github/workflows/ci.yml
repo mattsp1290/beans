@@ -12,6 +12,29 @@ permissions:
   contents: read
 
 jobs:
+  toolchain:
+    name: Verus toolchain (Linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install the pinned compiler components
+        run: rustup toolchain install 1.98.1 --profile minimal --component rustc-dev --component llvm-tools
+      - name: Qualify Cargo erasure, verification and a rejected body mutation
+        run: make verify-toolchain
+      - name: Preserve toolchain evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verus-toolchain-linux
+          path: |
+            .compat/verification/*.json
+            .compat/verification/*.log
+          if-no-files-found: warn
+
   native-baseline:
     name: native-baseline (Linux)
     runs-on: ubuntu-latest

@@ -85,3 +85,7 @@ compat-io:
 
 compat-test:
 	BN_REFERENCE_BINARY='$(REFERENCE_BINARY)' python3 -S -m unittest discover -s tools/compat -p 'test_*.py' -v
+
+.PHONY: verify-toolchain
+verify-toolchain:
+	python3 -S tools/verification/qualify.py
