@@ -254,8 +254,10 @@ a deliberately rejected body mutation; see [verification tooling](verification.m
 This does not establish the mandatory production kernel obligations.
 
 The WP1 command, fixture, API, text/JSON/raw/file, process-failure and toolchain
-artifacts are present. The expanded corpus must pass the next native CI run
-before WP1 is closed. Every retained runnable command has a successful executable
+artifacts are present. The expanded corpus passed all five Linux jobs in
+[run 36764834571](https://github.com/mattsp1290/beans/actions/runs/36764834571)
+at `7fe72280895ce5cbf04fcb7a659958c0b0f9cfd8`. WP1 is accepted; the
+requirement/evidence record is `tests/contract/wp1-acceptance.json`. Every retained runnable command has a successful executable
 case beyond help; `serve` is exercised by real socket and signal cases. Native
 Linux command and Go lock-timeout coverage already passes CI. Mixed-client
 locking/recovery remain WP4 gates, and watcher/debounce/reload/reconnect parity
