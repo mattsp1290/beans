@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 	"testing"
- "time"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -41,9 +41,11 @@ type migrationField struct {
 }
 
 type migrationFrontmatterCase struct {
-	IssueError string `json:"issue_error,omitempty"`
- Metadata map[string]any `json:"metadata,omitempty"`
- Name        string            `json:"name"`
+	IssueError  string            `json:"issue_error,omitempty"`
+	Mutations   []map[string]any  `json:"mutations,omitempty"`
+	LogEntries  []map[string]any  `json:"log_entries,omitempty"`
+	Metadata    map[string]any    `json:"metadata,omitempty"`
+	Name        string            `json:"name"`
 	Path        string            `json:"path"`
 	Input       []byte            `json:"input_b64"`
 	Error       string            `json:"error,omitempty"`
@@ -65,23 +67,75 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 	}
 	for index := range cases {
 		c := &cases[index]
-        iss, parseErr := Parse(c.Path, c.Input)
-        if parseErr != nil {
-            c.IssueError = parseErr.Error()
-        } else {
-            timestamp := func(value time.Time) map[string]any {
-                _, offset := value.Zone()
-                return map[string]any{"seconds": value.Unix(), "nanoseconds": value.Nanosecond(), "offset_seconds": offset}
-            }
-            stringsOrEmpty := func(values []string) []string { if values == nil { return []string{} }; return values }
-            link := func(value Link) map[string]string { return map[string]string{"raw": value.Raw, "target": value.Target} }
-            links := []map[string]string{}
-            for _, value := range iss.BlockedBy { links = append(links, link(value)) }
-            c.Metadata = map[string]any{"id": iss.ID, "title": iss.Title, "type": iss.Type, "status": iss.Status,
-                "priority": iss.Priority, "labels": stringsOrEmpty(iss.Labels), "aliases": stringsOrEmpty(iss.Aliases),
-                "assignee": iss.Assignee, "parent": link(iss.Parent), "blocked_by": links, "url": iss.URL,
-                "created": timestamp(iss.Created), "updated": timestamp(iss.Updated), "project": iss.Project, "archived": iss.Archived}
-        }
+		iss, parseErr := Parse(c.Path, c.Input)
+		if parseErr != nil {
+			c.IssueError = parseErr.Error()
+		} else {
+			for _, entry := range iss.Log {
+				c.LogEntries = append(c.LogEntries, migrationLog(entry))
+			}
+			for _, description := range []string{"", "\n\n", "replacement", "replacement\n\n", " whitespace \r\n"} {
+				changed, _ := Parse(c.Path, c.Input)
+				SetDescription(changed, description)
+				encoded, err := Encode(changed)
+				if err != nil {
+					t.Fatal(err)
+				}
+				_, body, _, err := splitFrontmatter(c.Path, encoded)
+				if err != nil {
+					t.Fatal(err)
+				}
+				c.Mutations = append(c.Mutations, map[string]any{"kind": "description", "input": description, "description": changed.Description, "body": body})
+			}
+			for _, instant := range []time.Time{iss.Updated.Add(-time.Second), iss.Updated, iss.Updated.Add(time.Nanosecond), iss.Updated.Add(time.Hour).In(time.FixedZone("offset", 19800))} {
+				changed, _ := Parse(c.Path, c.Input)
+				entry := LogEntry{At: instant, Actor: "m", Repo: "beans", SHA: "abcd", Branch: "feature/x", Event: "note — appended\ncontinuation"}
+				AppendLog(changed, entry)
+				encoded, err := Encode(changed)
+				if err != nil {
+					t.Fatal(err)
+				}
+				_, body, _, err := splitFrontmatter(c.Path, encoded)
+				if err != nil {
+					t.Fatal(err)
+				}
+				c.Mutations = append(c.Mutations, map[string]any{"kind": "append", "entry": migrationLog(entry), "updated": migrationLog(LogEntry{At: changed.Updated})["at"], "body": body})
+			}
+			if len(iss.Log) > 0 {
+				changed, _ := Parse(c.Path, c.Input)
+				changed.Log[0].Event = "must not rewrite original"
+				changed.Log[0].Raw = "- replacement ignored"
+				encoded, err := Encode(changed)
+				if err != nil {
+					t.Fatal(err)
+				}
+				_, body, _, err := splitFrontmatter(c.Path, encoded)
+				if err != nil {
+					t.Fatal(err)
+				}
+				c.Mutations = append(c.Mutations, map[string]any{"kind": "opaque-original", "body": body})
+			}
+
+			timestamp := func(value time.Time) map[string]any {
+				_, offset := value.Zone()
+				return map[string]any{"seconds": value.Unix(), "nanoseconds": value.Nanosecond(), "offset_seconds": offset}
+			}
+			stringsOrEmpty := func(values []string) []string {
+				if values == nil {
+					return []string{}
+				}
+				return values
+			}
+			link := func(value Link) map[string]string { return map[string]string{"raw": value.Raw, "target": value.Target} }
+			links := []map[string]string{}
+			for _, value := range iss.BlockedBy {
+				links = append(links, link(value))
+			}
+			c.Metadata = map[string]any{"id": iss.ID, "title": iss.Title, "type": iss.Type, "status": iss.Status,
+				"priority": iss.Priority, "labels": stringsOrEmpty(iss.Labels), "aliases": stringsOrEmpty(iss.Aliases),
+				"assignee": iss.Assignee, "parent": link(iss.Parent), "blocked_by": links, "url": iss.URL,
+				"created": timestamp(iss.Created), "updated": timestamp(iss.Updated), "project": iss.Project, "archived": iss.Archived}
+		}
 		if strings.Contains(string(c.Input), "\r\n") {
 			c.Error = c.Path + ": has Windows line endings (\\r\\n); bn requires \\n"
 			continue
@@ -135,11 +189,75 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 		parsed, created := ParseLink(input), NewLink(input)
 		links = append(links, map[string]any{"input": input, "parsed": map[string]string{"raw": parsed.Raw, "target": parsed.Target}, "new": map[string]string{"raw": created.Raw, "target": created.Target}, "zero": parsed.IsZero()})
 	}
-	result, err := json.MarshalIndent(map[string]any{"cases": cases, "links": links}, "", "  ")
+	var logCases []map[string]any
+	for _, input := range []string{
+		"", "not a log line at all", "- missing colon and format", "- 2026-09-10T08:01:00Z noactorcolon",
+		"just some text: with a colon", "- 2026-09-10T08:01:00Z matt: created",
+		"- 2026-09-10T08:01Z matt: created", "- 2026-09-10T8:01+05:30 matt: minute",
+		"- 2026-09-10T08:01:00.123456789Z m: fractional", "- 2026-09-10T08:01:00,5Z m: comma",
+		"- 2026-09-10T08:01:00+24:00 m: zone", "- 2026-09-10T08:01:60Z m: invalid",
+		"- 2026-09-10T08:01:00Z m (repo@abcd branch)with)paren): event",
+		"- 2026-09-10T08:01:00Z m (repo@abcd): event",
+		"- 2026-09-10T08:01:00Z m (repo@ABCD): uppercase",
+		"- 2026-09-10T08:01:00Z m (repo@abc branch with spaces): invalid",
+		"- 2026-09-10T08:01:00Z m (repo@abc ): invalid",
+		"- 2026-09-10T08:01:00Z m (repo)@abc): invalid",
+		"- 2026-09-10T08:01:00Z actor: with: colons",
+		"- 2026-09-10T08:01:00Z actor:colon: event",
+		"- 2026-09-10T08:01:00Z actor\u2003name: unicode space",
+		"- 2026-09-10T08:01:00Z actor\vname: vertical tab",
+		"- 2026-09-10T08:01:00Z actor\tname: invalid",
+		"- 2026-09-10T08:01:00Z m: first\n  second\n  third",
+		"- 2026-09-10T08:01:00Z m: first\n unindented\n   three spaces\n",
+		"- 2026-09-10T08:01:00Z m: empty continuation\n",
+		"- 0000-01-01T00:00:00+24:00 m: negative UTC year",
+		"- 9999-12-31T23:59:59-24:00 m: UTC year ten thousand",
+	} {
+		entry, ok := ParseLogEntry(input)
+		c := map[string]any{"input": input, "ok": ok}
+		if ok {
+			c["entry"] = migrationLog(entry)
+			c["formatted"] = FormatLogEntry(entry)
+			c["line"] = logLine(entry)
+		}
+		logCases = append(logCases, c)
+	}
+	at := time.Date(2026, 9, 10, 8, 1, 2, 987654321, time.FixedZone("offset", 19800))
+	var formatCases []map[string]any
+	for _, entry := range []LogEntry{
+		{At: at, Actor: "matt", Repo: "exa", SHA: "a1b2c3d", Branch: "feature/x", Event: "status open → in_progress"},
+		{At: at, Actor: "claude", Event: "closed — parity gate passes"},
+		{At: at, Actor: "matt", Repo: "exa", SHA: "a1b2c3d", Event: "note — deployed"},
+		{At: at, Actor: "m", Event: "first\nsecond\nthird"},
+		{At: at, Actor: " \tMatt\u2003Spurlin ", Repo: " repo name ", SHA: "Ab Not Normalized", Branch: " feature x ", Event: "event\n"},
+		{At: at, Repo: "repo", SHA: "abc", Branch: "  ", Event: "empty actor"},
+		{At: at, Actor: "m", Repo: "repo", Event: "no sha"},
+		{At: at, Actor: "m", SHA: "abc", Event: "no repo"},
+		{Raw: "- opaque\n  literal"},
+		{},
+	} {
+		formatCases = append(formatCases, map[string]any{"entry": migrationLog(entry), "formatted": FormatLogEntry(entry), "line": logLine(entry)})
+	}
+	appendEntry := LogEntry{At: at, Actor: "m", Event: "note — append\ncontinuation"}
+	var appendCases []map[string]any
+	for _, section := range []string{"", "## Log", "## Log\n", "## Log\n\n", "## Log\n- opaque", "## Log\n- opaque\n\n \t\n", "## Log\n\nignored\n- opaque\n  cont\n  \n\n"} {
+		parsed := []map[string]any{}
+		for _, entry := range parseLogSection(section) {
+			parsed = append(parsed, migrationLog(entry))
+		}
+		appendCases = append(appendCases, map[string]any{"input": section, "entries": parsed, "append_entry": migrationLog(appendEntry), "appended": appendToLog(section, []LogEntry{appendEntry}), "unchanged": appendToLog(section, nil)})
+	}
+	result, err := json.MarshalIndent(map[string]any{"cases": cases, "links": links, "log_cases": logCases, "log_formats": formatCases, "log_sections": appendCases}, "", "  ")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err = os.WriteFile(os.Getenv("BN_DOMAIN_OUTPUT"), append(result, '\n'), 0600); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func migrationLog(e LogEntry) map[string]any {
+	_, offset := e.At.Zone()
+	return map[string]any{"at": map[string]any{"seconds": e.At.Unix(), "nanoseconds": e.At.Nanosecond(), "offset_seconds": offset},
+		"actor": e.Actor, "repo": e.Repo, "sha": e.SHA, "branch": e.Branch, "event": e.Event, "raw": e.Raw}
 }

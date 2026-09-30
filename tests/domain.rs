@@ -197,8 +197,113 @@ fn typed_issue_metadata_and_validation_match_fixed_go() {
             );
             assert_eq!(parsed.original(), input);
             assert_eq!(
+                serde_json::to_value(&parsed.log).unwrap(),
+                case.get("log_entries")
+                    .cloned()
+                    .unwrap_or_else(|| serde_json::json!([])),
+                "{}",
+                case["name"]
+            );
+            assert_eq!(
                 serde_json::to_value(parsed.body()).unwrap(),
                 case["issue_body"]
+            );
+        }
+    }
+}
+
+#[test]
+fn stored_logs_match_go_parsing_formatting_and_section_appending() {
+    use beans::domain::log::{LogEntry, append_to_section, parse_section};
+    let corpus: Value =
+        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    for case in corpus["log_cases"].as_array().unwrap() {
+        let parsed = LogEntry::parse(case["input"].as_str().unwrap());
+        assert_eq!(
+            parsed.is_some(),
+            case["ok"].as_bool().unwrap(),
+            "{}",
+            case["input"]
+        );
+        if let Some(parsed) = parsed {
+            assert_eq!(
+                serde_json::to_value(&parsed).unwrap(),
+                case["entry"],
+                "{}",
+                case["input"]
+            );
+            assert_eq!(
+                parsed.format().unwrap(),
+                case["formatted"].as_str().unwrap()
+            );
+            assert_eq!(parsed.line().unwrap(), case["line"].as_str().unwrap());
+        }
+    }
+    assert_eq!(
+        serde_json::to_value(LogEntry::default()).unwrap(),
+        corpus["log_formats"].as_array().unwrap().last().unwrap()["entry"]
+    );
+    for case in corpus["log_formats"].as_array().unwrap() {
+        let entry: LogEntry = serde_json::from_value(case["entry"].clone()).unwrap();
+        assert_eq!(entry.format().unwrap(), case["formatted"].as_str().unwrap());
+        assert_eq!(entry.line().unwrap(), case["line"].as_str().unwrap());
+    }
+    for case in corpus["log_sections"].as_array().unwrap() {
+        let raw = case["input"].as_str().unwrap();
+        let entry: LogEntry = serde_json::from_value(case["append_entry"].clone()).unwrap();
+        assert_eq!(
+            serde_json::to_value(parse_section(raw)).unwrap(),
+            case["entries"]
+        );
+        assert_eq!(
+            append_to_section(raw, &[entry]).unwrap(),
+            case["appended"].as_str().unwrap()
+        );
+        assert_eq!(append_to_section(raw, &[]).unwrap(), raw);
+    }
+}
+
+#[test]
+fn issue_body_mutations_match_go_without_rewriting_original_logs() {
+    use beans::domain::{issue::IssueDocument, log::LogEntry};
+    let corpus: Value =
+        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    for case in corpus["cases"].as_array().unwrap() {
+        let Some(mutations) = case.get("mutations") else {
+            continue;
+        };
+        for mutation in mutations.as_array().unwrap() {
+            let mut issue = IssueDocument::parse(
+                case["path"].as_str().unwrap(),
+                case["input"].as_str().unwrap(),
+            )
+            .unwrap();
+            match mutation["kind"].as_str().unwrap() {
+                "description" => {
+                    issue.set_description(mutation["input"].as_str().unwrap());
+                    assert_eq!(issue.description, mutation["description"].as_str().unwrap());
+                }
+                "append" => {
+                    issue.append_log(
+                        serde_json::from_value::<LogEntry>(mutation["entry"].clone()).unwrap(),
+                    );
+                    assert_eq!(
+                        serde_json::to_value(&issue.metadata.updated).unwrap(),
+                        mutation["updated"]
+                    );
+                }
+                "opaque-original" => {
+                    issue.log[0].event = "must not rewrite original".to_owned();
+                    issue.log[0].raw = "- replacement ignored".to_owned();
+                }
+                _ => panic!("unknown mutation"),
+            }
+            assert_eq!(
+                issue.render_body().unwrap(),
+                mutation["body"].as_str().unwrap(),
+                "{} {}",
+                case["name"],
+                mutation["kind"]
             );
         }
     }

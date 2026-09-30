@@ -2,7 +2,7 @@
 //! body/log mutation and field rendering are implemented separately.
 use super::frontmatter::{Error, Frontmatter, Node};
 use super::text::{IssueBody, Link, split_issue_body};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use time::{Date, Month, PrimitiveDateTime, Time};
 
@@ -25,11 +25,22 @@ const REQUIRED: &[&str] = &[
     "id", "title", "type", "status", "priority", "created", "updated",
 ];
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Timestamp {
     pub seconds: i64,
     pub nanoseconds: u32,
     pub offset_seconds: i32,
+}
+
+impl Default for Timestamp {
+    fn default() -> Self {
+        // Go time.Time's zero value is 0001-01-01T00:00:00Z.
+        Self {
+            seconds: -62_135_596_800,
+            nanoseconds: 0,
+            offset_seconds: 0,
+        }
+    }
 }
 
 impl Timestamp {
@@ -67,7 +78,11 @@ pub struct IssueMetadata {
 #[derive(Clone, Debug)]
 pub struct IssueDocument {
     pub metadata: IssueMetadata,
+    pub log: Vec<super::log::LogEntry>,
+    pub description: String,
+    pub body: String,
     document: Frontmatter,
+    original_log_len: usize,
 }
 
 impl IssueDocument {
@@ -108,7 +123,75 @@ impl IssueDocument {
             }
             metadata.archived |= *part == "archive";
         }
-        Ok(Self { metadata, document })
+        let sections = split_issue_body(document.body());
+        let description = sections.description.to_owned();
+        let body = sections.body.to_owned();
+        let log = super::log::parse_section(sections.log);
+        let original_log_len = log.len();
+        Ok(Self {
+            metadata,
+            log,
+            description,
+            body,
+            document,
+            original_log_len,
+        })
+    }
+
+    /// Append semantics compare instants, then store a later Updated in UTC.
+    pub fn append_log(&mut self, entry: super::log::LogEntry) {
+        if (entry.at.seconds, entry.at.nanoseconds)
+            > (
+                self.metadata.updated.seconds,
+                self.metadata.updated.nanoseconds,
+            )
+        {
+            self.metadata.updated = Timestamp {
+                offset_seconds: 0,
+                ..entry.at.clone()
+            };
+        }
+        self.log.push(entry);
+    }
+
+    pub fn set_description(&mut self, text: &str) {
+        let text = text.trim_end_matches('\n');
+        let followed = !self.body.is_empty() || !self.log.is_empty() || !self.body().log.is_empty();
+        self.description = if text.is_empty() {
+            if followed {
+                "\n".to_owned()
+            } else {
+                String::new()
+            }
+        } else {
+            format!("{text}{}", if followed { "\n\n" } else { "\n" })
+        };
+    }
+
+    /// Render the body only. Existing parsed log entries are deliberately not
+    /// reserialized: only entries beyond the original length are appended.
+    /// Frontmatter encoding and the full-document splice are separate gates.
+    pub fn render_body(&self) -> Result<String, Error> {
+        let original = self.body();
+        let mut output = self.description.clone() + &self.body;
+        let entries = self.log.get(self.original_log_len..).unwrap_or_default();
+        if !original.log.is_empty() {
+            output.push_str(&super::log::append_to_section(original.log, entries)?);
+        } else if !entries.is_empty() {
+            if !output.is_empty() && !output.ends_with("---\n") {
+                if !output.ends_with('\n') {
+                    output.push_str("\n\n");
+                } else if !output.ends_with("\n\n") {
+                    output.push('\n');
+                }
+            }
+            output.push_str("## Log\n");
+            for entry in entries {
+                output.push_str(&entry.line()?);
+            }
+        }
+        output.push_str(original.tail);
+        Ok(output)
     }
 
     pub fn original(&self) -> &str {
@@ -203,7 +286,7 @@ fn quoted(value: &str) -> String {
 // time.Parse(RFC3339) accepts a one-digit hour, comma fractions, and zone
 // hour 24/minute 60. Preserve those stored-format rules instead of relying on
 // a stricter RFC parser. All character indexing below is guarded ASCII input.
-fn parse_timestamp(value: &str) -> Option<Timestamp> {
+pub(crate) fn parse_timestamp(value: &str) -> Option<Timestamp> {
     if !value.is_ascii() {
         return None;
     }

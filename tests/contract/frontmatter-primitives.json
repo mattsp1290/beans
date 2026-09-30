@@ -1,10 +1,162 @@
 {
   "schema": "beans-frontmatter-primitives-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "scope": "YAML nodes, byte spans, literal body sections, links and issue metadata; encoding and other note schemas remain WP3",
-  "harness_sha256": "9a252754542e9c532efd90640e91f66c7f2ffe3893fdb829125b5736cef5f964",
+  "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata and log entries; issue encoding and other note schemas remain WP3",
+  "harness_sha256": "b711c2017e4cd5f2b632f3934098e2d8532bbe640105f48bad3a28575253627b",
   "cases": [
     {
+      "mutations": [
+        {
+          "body": "\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "matt",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          },
+          "branch": "feature/x",
+          "event": "status open → in_progress",
+          "raw": "",
+          "repo": "exampleA",
+          "sha": "a1b2c3d"
+        },
+        {
+          "actor": "claude",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789120800
+          },
+          "branch": "",
+          "event": "closed — parity gate passes",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [
           "exampleA-a3f2"
@@ -243,6 +395,158 @@
       "input": "---\nid: exampleA-a3f2\naliases: [exampleA-a3f2]\ntitle: Migrate the live infra-host deploy\ntype: task\nstatus: open\npriority: 2\nlabels: [deploy, infra]\nassignee: matt\nparent: \"[[exampleA-mkg1-deploy-bean-counter]]\"\nblocked_by:\n  - \"[[exampleA-ued1-schema-parity]]\"\nurl: https://example.invalid/ticket/1\ncreated: 2026-06-15T10:22:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n- 2026-01-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1769903999
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1769904000
+          }
+        },
+        {
+          "body": "Desc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n- 2026-02-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1769904000
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1769904000
+          }
+        },
+        {
+          "body": "Desc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n- 2026-02-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1769904000
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1769904000
+          }
+        },
+        {
+          "body": "Desc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n- 2026-02-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1769907600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1769907600
+          }
+        },
+        {
+          "body": "Desc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "matt",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          },
+          "branch": "",
+          "event": "created",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        },
+        {
+          "actor": "matt",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1769904000
+          },
+          "branch": "",
+          "event": "archived",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [
           "p-x1"
@@ -395,6 +699,145 @@
       "input": "---\nid: p-x1\naliases: [p-x1]\ntitle: Archived issue\ntype: task\nstatus: closed\npriority: 4\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-02-01T00:00:00Z\n---\nDesc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n- 2026-01-01T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767311999
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          }
+        },
+        {
+          "body": "Desc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n- 2026-01-02T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767312000
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          }
+        },
+        {
+          "body": "Desc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n- 2026-01-02T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767312000
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          }
+        },
+        {
+          "body": "Desc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n- 2026-01-02T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767315600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767315600
+          }
+        },
+        {
+          "body": "Desc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "matt",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          },
+          "branch": "",
+          "event": "created",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-b001"
@@ -583,6 +1026,126 @@
       "input": "---\ncustom_before: hello\nid: proj-b001\naliases: [proj-b001]\ntitle: Unknown keys everywhere\ntype: task\ncustom_between: world\nstatus: open\npriority: 3\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\ncustom_after: bye\n---\nDesc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n"
     },
     {
+      "mutations": [
+        {
+          "body": "",
+          "description": "",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "",
+          "description": "",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n",
+          "description": " whitespace \r\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-c001"
@@ -735,6 +1298,126 @@
       "input": "---\n# head comment about this issue\nid: proj-c001\naliases: [proj-c001]\ntitle: Comment test\ntype: task\nstatus: open  # inline comment on bn scalar\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n# comment block\n# before closing fence\n---\nDesc.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "",
+          "description": "",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "",
+          "description": "",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n",
+          "description": " whitespace \r\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-d001"
@@ -920,6 +1603,126 @@
       "input": "---\nid: proj-d001\naliases: [proj-d001]\ntitle: Flow style blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: [\"[[proj-d001-a]]\", \"[[proj-d001-b]]\"]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Notes\nLine\twith\ttabs.\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Notes\nLine\twith\ttabs.\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Notes\nLine\twith\ttabs.\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Notes\nLine\twith\ttabs.\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Notes\nLine\twith\ttabs.\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-e001"
@@ -1079,6 +1882,126 @@
       "input": "---\r\nid: err-w1nd\r\naliases: [err-w1nd]\r\ntitle: Windows line endings\r\ntype: task\r\nstatus: open\r\npriority: 1\r\ncreated: 2026-01-01T00:00:00Z\r\nupdated: 2026-01-01T00:00:00Z\r\n---\r\nDesc.\r\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Notes\nSome notes here, no log section at all.\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Notes\nSome notes here, no log section at all.\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Notes\nSome notes here, no log section at all.\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Notes\nSome notes here, no log section at all.\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Notes\nSome notes here, no log section at all.\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Notes\nSome notes here, no log section at all.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Notes\nSome notes here, no log section at all.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Notes\nSome notes here, no log section at all.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Notes\nSome notes here, no log section at all.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-f001"
@@ -1231,6 +2154,145 @@
       "input": "---\nid: proj-f001\naliases: [proj-f001]\ntitle: No log section\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Notes\nSome notes here, no log section at all.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n\n## Notes\nSome trailing notes after the log section.\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n\n## Notes\nSome trailing notes after the log section.\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n\n## Notes\nSome trailing notes after the log section.\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n\n## Notes\nSome trailing notes after the log section.\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        },
+        {
+          "body": "Desc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "matt",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          },
+          "branch": "",
+          "event": "created",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-g001"
@@ -1383,6 +2445,126 @@
       "input": "---\nid: proj-g001\naliases: [proj-g001]\ntitle: Log not last heading\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "",
+          "description": "",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "",
+          "description": "",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n",
+          "description": " whitespace \r\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-j001"
@@ -1571,6 +2753,126 @@
       "input": "---\nid: proj-j001\naliases: [proj-j001]\ntitle: Nested user key\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nextra_data:\n    nested_key: value\n    another: thing\n---\nDesc.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "",
+          "description": "",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "",
+          "description": "",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n",
+          "description": " whitespace \r\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-k001"
@@ -1756,6 +3058,126 @@
       "input": "---\nid: proj-k001\naliases: [proj-k001]\ntitle: Blocked by without indentation\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n- \"[[proj-k001-a]]\"\n- \"[[proj-k001-b]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "",
+          "description": "",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "",
+          "description": "",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n",
+          "description": " whitespace \r\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-l001"
@@ -1920,6 +3342,126 @@
       "input": "---\nid: proj-l001\naliases: [proj-l001]\ntitle: Literal block scalar\ntype: task\nstatus: open\npriority: 2\nnotes: |\n  First line of notes.\n  Second line of notes.\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "",
+          "description": "",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "",
+          "description": "",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n",
+          "description": "replacement\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n",
+          "description": " whitespace \r\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2025-12-31T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225599
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767225600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767229200
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767229200
+          }
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-m001"
@@ -2089,6 +3631,171 @@
       "input": "---\nid: proj-m001\naliases: [proj-m001]\ntitle: Single scalar blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: \"[[proj-m001-a]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n- 2026-01-01T23:59:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767311999
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n- 2026-01-02T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1767312000
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n- 2026-01-02T00:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1767312000
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n- 2026-01-02T01:00:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1767315600
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767315600
+          }
+        },
+        {
+          "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "matt",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767225600
+          },
+          "branch": "",
+          "event": "created",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        },
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- hand-written note without proper format",
+          "repo": "",
+          "sha": ""
+        },
+        {
+          "actor": "claude",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1767312000
+          },
+          "branch": "",
+          "event": "note — multi-line event\ncontinuation of the note\nanother continuation line",
+          "raw": "",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [
           "proj-n001"
@@ -5095,6 +6802,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 1.5\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -5332,6 +7178,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 9223372036854775808\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -5569,6 +7554,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: -9223372036854775809\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -5701,6 +7825,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: '+004'\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -5936,6 +8199,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: []\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -6276,6 +8678,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: []\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -6408,6 +8949,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00.123456789Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -6540,6 +9220,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00+05:30\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -6672,6 +9491,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T8:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -7014,6 +9972,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10t08:01:00z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -7263,6 +10360,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\ntitle: second\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -7419,6 +10655,145 @@
       "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\nextra: one\nextra: two\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [],
         "archived": true,
@@ -7551,6 +10926,145 @@
       "input": "---\nid: null\ntitle: ''\ntype: false\nstatus: null\npriority: 99\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
     },
     {
+      "mutations": [
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "",
+          "kind": "description"
+        },
+        {
+          "body": "\n## Log\n- opaque\n",
+          "description": "\n",
+          "input": "\n\n",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement",
+          "kind": "description"
+        },
+        {
+          "body": "replacement\n\n## Log\n- opaque\n",
+          "description": "replacement\n\n",
+          "input": "replacement\n\n",
+          "kind": "description"
+        },
+        {
+          "body": " whitespace \r\n\n## Log\n- opaque\n",
+          "description": " whitespace \r\n\n",
+          "input": " whitespace \r\n",
+          "kind": "description"
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:00:59Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027259
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T08:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 1,
+              "offset_seconds": 0,
+              "seconds": 1789027260
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 1,
+            "offset_seconds": 0,
+            "seconds": 1789027260
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n- 2026-09-10T09:01:00Z m (beans@abcd feature/x): note — appended\n  continuation\n",
+          "entry": {
+            "actor": "m",
+            "at": {
+              "nanoseconds": 0,
+              "offset_seconds": 19800,
+              "seconds": 1789030860
+            },
+            "branch": "feature/x",
+            "event": "note — appended\ncontinuation",
+            "raw": "",
+            "repo": "beans",
+            "sha": "abcd"
+          },
+          "kind": "append",
+          "updated": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": 1789030860
+          }
+        },
+        {
+          "body": "Description\n## Log\n- opaque\n",
+          "kind": "opaque-original"
+        }
+      ],
+      "log_entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
       "metadata": {
         "aliases": [
           "null",
@@ -8065,6 +11579,724 @@
         "target": "raw id"
       },
       "zero": false
+    }
+  ],
+  "log_cases": [
+    {
+      "input": "",
+      "ok": false
+    },
+    {
+      "input": "not a log line at all",
+      "ok": false
+    },
+    {
+      "input": "- missing colon and format",
+      "ok": false
+    },
+    {
+      "input": "- 2026-09-10T08:01:00Z noactorcolon",
+      "ok": false
+    },
+    {
+      "input": "just some text: with a colon",
+      "ok": false
+    },
+    {
+      "entry": {
+        "actor": "matt",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "created",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z matt: created",
+      "input": "- 2026-09-10T08:01:00Z matt: created",
+      "line": "- 2026-09-10T08:01:00Z matt: created\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "matt",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "created",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z matt: created",
+      "input": "- 2026-09-10T08:01Z matt: created",
+      "line": "- 2026-09-10T08:01:00Z matt: created\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "matt",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 19800,
+          "seconds": 1789007460
+        },
+        "branch": "",
+        "event": "minute",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T02:31:00Z matt: minute",
+      "input": "- 2026-09-10T8:01+05:30 matt: minute",
+      "line": "- 2026-09-10T02:31:00Z matt: minute\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "fractional",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m: fractional",
+      "input": "- 2026-09-10T08:01:00.123456789Z m: fractional",
+      "line": "- 2026-09-10T08:01:00Z m: fractional\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 500000000,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "comma",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m: comma",
+      "input": "- 2026-09-10T08:01:00,5Z m: comma",
+      "line": "- 2026-09-10T08:01:00Z m: comma\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 86400,
+          "seconds": 1788940860
+        },
+        "branch": "",
+        "event": "zone",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-09T08:01:00Z m: zone",
+      "input": "- 2026-09-10T08:01:00+24:00 m: zone",
+      "line": "- 2026-09-09T08:01:00Z m: zone\n",
+      "ok": true
+    },
+    {
+      "input": "- 2026-09-10T08:01:60Z m: invalid",
+      "ok": false
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "branch)with)paren",
+        "event": "event",
+        "raw": "",
+        "repo": "repo",
+        "sha": "abcd"
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m (repo@abcd branch)with)paren): event",
+      "input": "- 2026-09-10T08:01:00Z m (repo@abcd branch)with)paren): event",
+      "line": "- 2026-09-10T08:01:00Z m (repo@abcd branch)with)paren): event\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "event",
+        "raw": "",
+        "repo": "repo",
+        "sha": "abcd"
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m (repo@abcd): event",
+      "input": "- 2026-09-10T08:01:00Z m (repo@abcd): event",
+      "line": "- 2026-09-10T08:01:00Z m (repo@abcd): event\n",
+      "ok": true
+    },
+    {
+      "input": "- 2026-09-10T08:01:00Z m (repo@ABCD): uppercase",
+      "ok": false
+    },
+    {
+      "input": "- 2026-09-10T08:01:00Z m (repo@abc branch with spaces): invalid",
+      "ok": false
+    },
+    {
+      "input": "- 2026-09-10T08:01:00Z m (repo@abc ): invalid",
+      "ok": false
+    },
+    {
+      "input": "- 2026-09-10T08:01:00Z m (repo)@abc): invalid",
+      "ok": false
+    },
+    {
+      "entry": {
+        "actor": "actor",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "with: colons",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z actor: with: colons",
+      "input": "- 2026-09-10T08:01:00Z actor: with: colons",
+      "line": "- 2026-09-10T08:01:00Z actor: with: colons\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "actor:colon",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "event",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z actor:colon: event",
+      "input": "- 2026-09-10T08:01:00Z actor:colon: event",
+      "line": "- 2026-09-10T08:01:00Z actor:colon: event\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "actor name",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "unicode space",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z actor-name: unicode space",
+      "input": "- 2026-09-10T08:01:00Z actor name: unicode space",
+      "line": "- 2026-09-10T08:01:00Z actor-name: unicode space\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "actor\u000bname",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "vertical tab",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z actor-name: vertical tab",
+      "input": "- 2026-09-10T08:01:00Z actor\u000bname: vertical tab",
+      "line": "- 2026-09-10T08:01:00Z actor-name: vertical tab\n",
+      "ok": true
+    },
+    {
+      "input": "- 2026-09-10T08:01:00Z actor\tname: invalid",
+      "ok": false
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "first\nsecond\nthird",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m: first\n  second\n  third",
+      "input": "- 2026-09-10T08:01:00Z m: first\n  second\n  third",
+      "line": "- 2026-09-10T08:01:00Z m: first\n  second\n  third\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "first\n unindented\n three spaces\n",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m: first\n   unindented\n   three spaces\n  ",
+      "input": "- 2026-09-10T08:01:00Z m: first\n unindented\n   three spaces\n",
+      "line": "- 2026-09-10T08:01:00Z m: first\n   unindented\n   three spaces\n  \n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "branch": "",
+        "event": "empty continuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T08:01:00Z m: empty continuation",
+      "input": "- 2026-09-10T08:01:00Z m: empty continuation\n",
+      "line": "- 2026-09-10T08:01:00Z m: empty continuation\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 86400,
+          "seconds": -62167305600
+        },
+        "branch": "",
+        "event": "negative UTC year",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- -0001-12-31T00:00:00Z m: negative UTC year",
+      "input": "- 0000-01-01T00:00:00+24:00 m: negative UTC year",
+      "line": "- -0001-12-31T00:00:00Z m: negative UTC year\n",
+      "ok": true
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": -86400,
+          "seconds": 253402387199
+        },
+        "branch": "",
+        "event": "UTC year ten thousand",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 10000-01-01T23:59:59Z m: UTC year ten thousand",
+      "input": "- 9999-12-31T23:59:59-24:00 m: UTC year ten thousand",
+      "line": "- 10000-01-01T23:59:59Z m: UTC year ten thousand\n",
+      "ok": true
+    }
+  ],
+  "log_formats": [
+    {
+      "entry": {
+        "actor": "matt",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "feature/x",
+        "event": "status open → in_progress",
+        "raw": "",
+        "repo": "exa",
+        "sha": "a1b2c3d"
+      },
+      "formatted": "- 2026-09-10T02:31:02Z matt (exa@a1b2c3d feature/x): status open → in_progress",
+      "line": "- 2026-09-10T02:31:02Z matt (exa@a1b2c3d feature/x): status open → in_progress\n"
+    },
+    {
+      "entry": {
+        "actor": "claude",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "closed — parity gate passes",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T02:31:02Z claude: closed — parity gate passes",
+      "line": "- 2026-09-10T02:31:02Z claude: closed — parity gate passes\n"
+    },
+    {
+      "entry": {
+        "actor": "matt",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — deployed",
+        "raw": "",
+        "repo": "exa",
+        "sha": "a1b2c3d"
+      },
+      "formatted": "- 2026-09-10T02:31:02Z matt (exa@a1b2c3d): note — deployed",
+      "line": "- 2026-09-10T02:31:02Z matt (exa@a1b2c3d): note — deployed\n"
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "first\nsecond\nthird",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T02:31:02Z m: first\n  second\n  third",
+      "line": "- 2026-09-10T02:31:02Z m: first\n  second\n  third\n"
+    },
+    {
+      "entry": {
+        "actor": " \tMatt Spurlin ",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": " feature x ",
+        "event": "event\n",
+        "raw": "",
+        "repo": " repo name ",
+        "sha": "Ab Not Normalized"
+      },
+      "formatted": "- 2026-09-10T02:31:02Z Matt-Spurlin (repo-name@Ab Not Normalized feature-x): event\n  ",
+      "line": "- 2026-09-10T02:31:02Z Matt-Spurlin (repo-name@Ab Not Normalized feature-x): event\n  \n"
+    },
+    {
+      "entry": {
+        "actor": "",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "  ",
+        "event": "empty actor",
+        "raw": "",
+        "repo": "repo",
+        "sha": "abc"
+      },
+      "formatted": "- 2026-09-10T02:31:02Z - (repo@abc -): empty actor",
+      "line": "- 2026-09-10T02:31:02Z - (repo@abc -): empty actor\n"
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "no sha",
+        "raw": "",
+        "repo": "repo",
+        "sha": ""
+      },
+      "formatted": "- 2026-09-10T02:31:02Z m: no sha",
+      "line": "- 2026-09-10T02:31:02Z m: no sha\n"
+    },
+    {
+      "entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "no repo",
+        "raw": "",
+        "repo": "",
+        "sha": "abc"
+      },
+      "formatted": "- 2026-09-10T02:31:02Z m: no repo",
+      "line": "- 2026-09-10T02:31:02Z m: no repo\n"
+    },
+    {
+      "entry": {
+        "actor": "",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "branch": "",
+        "event": "",
+        "raw": "- opaque\n  literal",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 0001-01-01T00:00:00Z -: ",
+      "line": "- opaque\n  literal\n"
+    },
+    {
+      "entry": {
+        "actor": "",
+        "at": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "branch": "",
+        "event": "",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "formatted": "- 0001-01-01T00:00:00Z -: ",
+      "line": "- 0001-01-01T00:00:00Z -: \n"
+    }
+  ],
+  "log_sections": [
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n",
+      "entries": [],
+      "input": "",
+      "unchanged": ""
+    },
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "## Log\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n",
+      "entries": [],
+      "input": "## Log",
+      "unchanged": "## Log"
+    },
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "## Log\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n",
+      "entries": [],
+      "input": "## Log\n",
+      "unchanged": "## Log\n"
+    },
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "## Log\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n\n",
+      "entries": [],
+      "input": "## Log\n\n",
+      "unchanged": "## Log\n\n"
+    },
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "## Log\n- opaque\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n",
+      "entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
+      "input": "## Log\n- opaque",
+      "unchanged": "## Log\n- opaque"
+    },
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "## Log\n- opaque\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n\n \t\n",
+      "entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque",
+          "repo": "",
+          "sha": ""
+        }
+      ],
+      "input": "## Log\n- opaque\n\n \t\n",
+      "unchanged": "## Log\n- opaque\n\n \t\n"
+    },
+    {
+      "append_entry": {
+        "actor": "m",
+        "at": {
+          "nanoseconds": 987654321,
+          "offset_seconds": 19800,
+          "seconds": 1789007462
+        },
+        "branch": "",
+        "event": "note — append\ncontinuation",
+        "raw": "",
+        "repo": "",
+        "sha": ""
+      },
+      "appended": "## Log\n\nignored\n- opaque\n  cont\n- 2026-09-10T02:31:02Z m: note — append\n  continuation\n  \n\n",
+      "entries": [
+        {
+          "actor": "",
+          "at": {
+            "nanoseconds": 0,
+            "offset_seconds": 0,
+            "seconds": -62135596800
+          },
+          "branch": "",
+          "event": "",
+          "raw": "- opaque\n  cont\n  ",
+          "repo": "",
+          "sha": ""
+        }
+      ],
+      "input": "## Log\n\nignored\n- opaque\n  cont\n  \n\n",
+      "unchanged": "## Log\n\nignored\n- opaque\n  cont\n  \n\n"
     }
   ]
 }
