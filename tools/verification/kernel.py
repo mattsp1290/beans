@@ -2,7 +2,6 @@
 """Verify shipped helper bodies and demonstrate rejection of weakened guards."""
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 
@@ -44,11 +43,23 @@ def main():
         retry = sources / "retry.rs"
         mutations = [
             ("unowned-operation", retry, b"        && facts.owned_by_run\n    {", b"\n    {"),
-            ("stale-head", retry, b"        && facts.head_is_operation\n", b"\n"),
-            ("multiple-local-commits", retry, b"        && facts.local_commits == 1\n", b"\n"),
+            ("stale-head", retry,
+             b"} else if facts.operation_present\n        && facts.head_is_operation\n",
+             b"} else if facts.operation_present\n"),
+            ("multiple-local-commits", retry,
+             b"        && facts.local_commits == 1\n        && facts.owned_by_run\n    {",
+             b"        && facts.owned_by_run\n    {"),
             ("missing-operation", retry, b"} else if facts.operation_present\n", b"} else if true\n"),
             ("fourth-push", retry, b"if facts.push_attempts >= 3 {", b"if facts.push_attempts > 3 {"),
             ("unconsumed-budget", retry, b"budget.remaining -= 1;", b"budget.remaining -= 0;"),
+            ("overlap", sources / "splice.rs",
+             b" || span.start < previous_end", b""),
+            ("out-of-bounds", sources / "splice.rs",
+             b" || span.end > source_len", b""),
+            ("reversed-span", sources / "splice.rs",
+             b"span.start > span.end || ", b""),
+            ("translation-overflow", sources / "splice.rs",
+             b"if distance > usize::MAX - destination_start {", b"if false {"),
         ]
         for name, path, before, after in mutations:
             original = originals[path]

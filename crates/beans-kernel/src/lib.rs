@@ -3,3 +3,4 @@
 //! codec adapters must derive these inputs from real repository/file state.
 
 pub mod retry;
+pub mod splice;
