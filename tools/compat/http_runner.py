@@ -91,7 +91,7 @@ def execute(binary, corpus):
     with tempfile.TemporaryDirectory(prefix="beans-http-contract-") as directory:
         root = Path(directory)
         env = environment(root)
-        fixture(root, "seeded", env)
+        fixture(root, corpus.get("fixture", "seeded"), env)
         before = snapshot(root)
         with socket.socket() as sock:
             sock.bind(("127.0.0.1", 0))
@@ -136,11 +136,14 @@ def main():
     parser.add_argument("mode", choices=["capture", "check"])
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--corpus", type=Path, default=CONTRACT / "http.json")
+    parser.add_argument("--fixture", choices=["seeded", "broken-seeded"], default="seeded")
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)
     if args.mode == "capture":
         authenticate_capture(binary)
     corpus = {"schema": "beans-http-contract-v1", "cases": requests()} if args.mode == "capture" else json.loads(args.corpus.read_text())
+    if args.mode == "capture" and args.fixture != "seeded":
+        corpus["fixture"] = args.fixture
     results, state = execute(binary, corpus)
     if args.mode == "capture":
         for case, result in zip(corpus["cases"], results, strict=True):

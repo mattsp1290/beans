@@ -103,6 +103,65 @@ class Identities:
                        lambda m: m[1] + self.timestamp(m[2]) + m[3], value)
         return encode(self.text(value).encode())
 
+    def human_output(self, data, case, phase_start):
+        value = data.decode()
+        command = case["argv"][0]
+        summaries = {"update", "note", "close", "reopen", "delete", "remember", "forget"}
+        mutation_leaves = {("dep", "add"), ("dep", "remove"), ("doc", "new"),
+                          ("project", "create"), ("project", "link"),
+                          ("plan", "put"), ("plan", "link"), ("plan", "unlink"),
+                          ("request", "update"), ("request", "link"), ("request", "unlink"),
+                          ("handoff", "create"), ("handoff", "attach"), ("handoff", "detach"),
+                          ("handoff", "restore")}
+        if command in summaries or tuple(case["argv"][:2]) in mutation_leaves:
+            match = re.match(r"\A([^\n]* \()([0-9a-f]{7})(\)\n)", value)
+            if match:
+                owners = [token for sha, token in self.commits.items() if sha.startswith(match[2])]
+                if len(owners) != 1:
+                    raise ValueError("human commit summary does not identify one observed commit")
+                value = value[:match.start(2)] + owners[0][:-1] + "_SHORT}" + value[match.end(2):]
+        if case["argv"][:2] == ["import", "bd"]:
+            match = re.search(r"(?m)^imported into project [^\n]+ \(([0-9a-f]{7})\)\n", value)
+            if match:
+                owners = [token for sha, token in self.commits.items() if sha.startswith(match[1])]
+                if len(owners) != 1:
+                    raise ValueError("human import summary does not identify one observed commit")
+                value = value[:match.start(1)] + owners[0][:-1] + "_SHORT}" + value[match.end(1):]
+        if command == "show" and not case.get("raw"):
+            before, separator, log = value.rpartition("\nlog:\n")
+            if separator:
+                identity = self.argument(case["argv"][1])
+                paths = [p for p in (self.root / "hub").rglob("*.md")
+                         if re.search(r"(?m)^id: " + re.escape(identity) + r"$", p.read_text())]
+                if len(paths) != 1:
+                    raise ValueError("human log requires one persisted issue")
+                text = paths[0].read_text()
+                section = re.search(r"(?m)^## Log\n", text)
+                stored = text[section.end():] if section else ""
+                following = re.search(r"(?m)^## ", stored)
+                stored = stored[:following.start()] if following else stored
+                for entry in re.finditer(r"(?m)^- (\S+) (\S+?)(?: \([^\n]+\))?: (.*)$", stored):
+                    stamp, actor, event = entry.groups()
+                    display = datetime.fromisoformat(stamp).strftime("%Y-%m-%d %H:%M")
+                    expected = "  " + display + " " + actor + ": " + event + "\n"
+                    if expected not in log:
+                        raise ValueError("human log differs from persisted event/date")
+                    if self.timestamp(stamp).startswith("${"):
+                        normalized = "  ${NOW_MINUTE} " + actor + ": " + event + "\n"
+                        log = log.replace(expected, normalized, 1)
+                value = before + separator + log
+        if command == "status":
+            match = re.search(r"(?m)^last fetch: (?:(\d+)h)?(?:(\d+)m)?(\d+)s ago$", value)
+            if match:
+                fetched = datetime.fromisoformat((self.root / "beans/cache/last-fetch").read_text().strip())
+                age = int(match[1] or 0) * 3600 + int(match[2] or 0) * 60 + int(match[3])
+                lower = int((phase_start - fetched).total_seconds() + 0.5)
+                upper = int((self.end - fetched).total_seconds() + 0.5)
+                if not lower <= age <= upper:
+                    raise ValueError("human fetch age differs from persisted time/process interval")
+                value = value[:match.start()] + "last fetch: ${FETCH_AGE} ago" + value[match.end():]
+        return self.output(value.encode(), case.get("raw", False))
+
     def metadata(self):
         result = {}
         for path in (self.root / "hub").rglob("*.md"):
@@ -276,19 +335,45 @@ def steps():
     return result
 
 
+def file_steps():
+    cases = [
+        {"argv": ["create", "File inputs issue", "--actor", "File Author"], "bind": "ISSUE", "namespace": "alpha-"},
+        {"argv": ["request", "create", "File request", "--body-file", "request.md", "--issue", "${ISSUE}",
+                  "--requested-by", "File requester", "-l", "one,two", "-l", "three"], "bind": "REQUEST", "namespace": "alpha-r-"},
+        {"argv": ["request", "show", "${REQUEST}"]},
+        {"argv": ["request", "update", "${REQUEST}", "--body-file", "replacement.md", "--status", "accepted"]},
+        {"argv": ["request", "show", "${REQUEST}"]},
+        {"argv": ["handoff", "create", "--file", "handoff.md", "--issue", "${ISSUE}"], "bind": "HANDOFF", "namespace": "alpha-"},
+        {"argv": ["handoff", "show", "${HANDOFF}", "--raw"], "raw": True},
+        {"argv": ["show", "${ISSUE}", "--raw"], "raw": True},
+        {"argv": ["show", "${ISSUE}"]},
+    ]
+    for i, case in enumerate(cases):
+        case.update(id=f"file-journey-{i:02}:" + "-".join(case["argv"][:2]), stdin_b64="")
+    return cases
+
+
 def execute(binary, corpus):
     with tempfile.TemporaryDirectory(prefix="beans-journey-") as directory:
         root = Path(directory)
         env = environment(root)
         setup(root, env)
+        for name, value in corpus.get("initial_files", {}).items():
+            path = Path(name)
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError("journey initial file must stay within the temporary root")
+            target = root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(base64.b64decode(value, validate=True))
         identities = Identities(root)
         results = []
         for case in corpus["steps"]:
             argv = ["--project", "alpha", "--no-fetch"] + [identities.argument(a) for a in case["argv"]]
             if not case.get("online") and not corpus.get("push_each", False):
                 argv.append("--no-sync")
-            if not case.get("raw"):
+            if not case.get("raw") and corpus.get("output", "json") == "json":
                 argv.append("--json")
+            phase_start = datetime.now(timezone.utc)
             process = subprocess.run([str(binary), *argv], cwd=root / "cwd", env=env,
                                      input=base64.b64decode(case["stdin_b64"]),
                                      capture_output=True, timeout=20)
@@ -298,13 +383,31 @@ def execute(binary, corpus):
             if "bind" in case:
                 # Handoff's --silent wins over --json; issue/request JSON wins.
                 out = process.stdout.decode()
-                value = json.loads(out)["id"] if out.lstrip().startswith("{") else out.rstrip("\n")
+                if out.lstrip().startswith("{"):
+                    value = json.loads(out)["id"]
+                elif case["argv"][:2] == ["plan", "init"]:
+                    match = re.fullmatch(r"created draft \(([^\n]+)\)\nnext: bn plan validate draft\n", out)
+                    if match is None:
+                        raise ValueError("unexpected plan scaffold binding output")
+                    value = match[1]
+                elif case["argv"][0] == "create" or case["argv"][:2] == ["request", "create"]:
+                    title = case["argv"][1] if case["argv"][0] == "create" else case["argv"][2]
+                    match = re.fullmatch(r"created (\S+): " + re.escape(title) + r"\n", out)
+                    value = match[1] if match else out.rstrip("\n")
+                elif case["argv"][:2] == ["handoff", "create"] and "--silent" not in case["argv"]:
+                    match = re.fullmatch(r"created handoff (\S+) \([0-9a-f]{7}\)\n", out)
+                    if match is None:
+                        raise ValueError("unexpected handoff creation binding output")
+                    value = match[1]
+                else:
+                    value = out.rstrip("\n")
                 identities.bind(case["bind"], value, case["namespace"])
             history = identities.history(root, env)
             metadata = identities.metadata()
             if not case.get("raw"):
                 identities.validate_output(process.stdout, metadata)
-            results.append({"stdout_b64": identities.output(process.stdout, case.get("raw", False)),
+            stdout = identities.human_output(process.stdout, case, phase_start) if corpus.get("output") == "text" else identities.output(process.stdout, case.get("raw", False))
+            results.append({"stdout_b64": stdout,
                             "stderr_b64": identities.output(process.stderr), "exit": process.returncode,
                             "files": identities.files(root), "git": history})
         return results
@@ -316,10 +419,21 @@ def main():
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--corpus", type=Path, default=CONTRACT / "journey.json")
     parser.add_argument("--push-each", action="store_true", help="capture normal pushed mutations rather than offline mutations")
+    parser.add_argument("--text", action="store_true", help="capture successful human output instead of JSON")
+    parser.add_argument("--files", action="store_true", help="capture the focused file-input journey")
     args = parser.parse_args()
     if args.mode == "capture":
         authenticate_capture(args.binary.resolve(strict=True))
     corpus = {"schema": "beans-mutation-journey-v1", "push_each": args.push_each, "steps": steps()} if args.mode == "capture" else json.loads(args.corpus.read_text())
+    if args.mode == "capture" and args.text:
+        corpus["output"] = "text"
+    if args.mode == "capture" and args.files:
+        corpus["steps"] = file_steps()
+        corpus["initial_files"] = {"cwd/" + name: encode(body.encode()) for name, body in {
+            "request.md": "# File request\n\nKeep café & <HTML>, [[Guide]], and 2024-01-01T00:00:00Z.\n",
+            "replacement.md": "# Replacement\n\nExact replacement body.\n",
+            "handoff.md": "# File handoff\n\nKeep leading and trailing spaces.  \n",
+        }.items()}
     results = execute(args.binary.resolve(strict=True), corpus)
     if args.mode == "capture":
         for case, result in zip(corpus["steps"], results, strict=True):

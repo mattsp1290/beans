@@ -70,12 +70,17 @@ compat-cli:
 
 compat-http:
 	python3 -S tools/compat/http_runner.py check --binary '$(CANDIDATE_BINARY)'
+	python3 -S tools/compat/http_runner.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/http-broken.json
 	python3 -S tools/compat/http_journey.py check --binary '$(CANDIDATE_BINARY)'
 	python3 -S tools/compat/http_journey.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/http-journey-pushed.json
 
 compat-journey:
 	python3 -S tools/compat/journey.py check --binary '$(CANDIDATE_BINARY)'
 	python3 -S tools/compat/journey.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/journey-pushed.json
+	python3 -S tools/compat/journey.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/journey-text.json
+	python3 -S tools/compat/journey.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/journey-text-pushed.json
+	python3 -S tools/compat/journey.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/journey-files.json
+	python3 -S tools/compat/journey.py check --binary '$(CANDIDATE_BINARY)' --corpus tests/contract/journey-files-text.json
 
 compat-signals:
 	python3 -S tools/compat/signals.py check --binary '$(CANDIDATE_BINARY)'

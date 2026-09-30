@@ -66,6 +66,40 @@ class OracleMutationTests(unittest.TestCase):
     def test_exit_code_corpus_covers_all_documented_codes(self):
         self.assertEqual({c["expected"]["exit"] for c in self.corpus["cases"]}, {0, 1, 2, 3, 4})
 
+    def test_retained_runnable_commands_have_feature_success_cases(self):
+        commands = json.loads((CONTRACT / "commands.json").read_text())["commands"]
+        paths = [c["path"] for c in commands if c["runnable"] and not c["retired"]]
+        root = next(c for c in commands if c["path"] == [])
+        flags = {f["name"]: f for f in root["local_flags"]}
+        seen = set()
+        cases = list(self.corpus["cases"])
+        for name in ("journey.json", "journey-pushed.json", "journey-text.json", "journey-text-pushed.json",
+                     "journey-files.json", "journey-files-text.json"):
+            cases.extend(json.loads((CONTRACT / name).read_text())["steps"])
+        for case in cases:
+            argv = case["argv"]
+            if case["expected"]["exit"] != 0 or any(a in ("--help", "-h", "--version", "-v", "-vh", "-hv") for a in argv):
+                continue
+            i = 0
+            while i < len(argv) and argv[i].startswith("--"):
+                name = argv[i][2:]
+                flag = flags.get(name.split("=", 1)[0])
+                i += 1
+                if flag and flag["type"] != "bool" and "=" not in name:
+                    i += 1
+            matches = [p for p in paths if p and argv[i:i + len(p)] == p]
+            if matches:
+                seen.add(tuple(max(matches, key=len)))
+        # Serve success is a live socket contract, not a CLI help probe.
+        http = json.loads((CONTRACT / "http.json").read_text())
+        self.assertEqual(http["post_state"]["server_exit"], 0)
+        self.assertTrue(any(c["path"] == "/api/health" and c["method"] == "GET" and c["expected"]["status"] == 200
+                            for c in http["cases"]))
+        seen.add(("serve",))
+        for path in paths:
+            if path:
+                self.assertIn(tuple(path), seen, "help alone is not feature success")
+
     def test_http_corpus_covers_registered_routes(self):
         routes = json.loads((CONTRACT / "routes.json").read_text())["entries"]
         corpus = json.loads((CONTRACT / "http.json").read_text())["cases"]

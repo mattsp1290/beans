@@ -45,9 +45,13 @@ def fixture(root, name, env):
     (root / "cwd").mkdir()
     if name == "missing-hub":
         return
-    if name not in ("seeded", "wrong-branch"):
+    if name not in ("seeded", "wrong-branch", "broken-seeded", "scope-seeded"):
         raise ValueError(f"unknown fixture: {name}")
     shutil.copytree(ROOT / "tests/fixtures/hub", root / "hub")
+    if name == "broken-seeded":
+        shutil.copytree(ROOT / "tests/fixtures/broken-overlay", root / "hub", dirs_exist_ok=True)
+    if name == "scope-seeded":
+        shutil.copytree(ROOT / "tests/fixtures/scope-overlay", root / "hub", dirs_exist_ok=True)
     for args in (["init", "--initial-branch=main"], ["add", "."], ["commit", "-m", "contract seed"]):
         subprocess.run(["git", "-C", str(root / "hub"), *args], env=env,
                        capture_output=True, check=True, timeout=15)
@@ -215,6 +219,41 @@ def cases(census):
                            "initial_files": {k: encode(v.encode()) for k, v in files.items()}, "env": env,
                            "root_prefix": "bn",
                            "stdin_b64": "", "cwd": "isolated-non-repository"})
+    for argv in (["doctor"], ["list"], ["ready"], ["blocked"], ["show", "alpha-a1b2"],
+                 ["dep", "tree", "alpha-a1b2"], ["dep", "cycles"], ["search", "Missing"],
+                 ["doc", "list"], ["request", "list"], ["handoff", "list"], ["plan", "list"], ["memories"]):
+        for output in ([], ["--json"]):
+            result.append({"id": "broken:" + "-".join(argv) + (":json" if output else ":text"),
+                           "argv": argv + ["--project", "alpha", "--no-fetch"] + output,
+                           "fixture": "broken-seeded", "root_prefix": "bn", "stdin_b64": "",
+                           "cwd": "isolated-non-repository"})
+    sources = {"cwd/source.md": encode(b"# Source\n"),
+               "cwd/crlf.md": encode(b"# Windows bytes\r\n"),
+               "cwd/no-title.md": encode(b"No H1 here.\n")}
+    inputs = [
+        ("request-description-stdin", ["request", "create", "Bad inputs", "--description", "inline", "--stdin"]),
+        ("request-file-stdin", ["request", "create", "Bad inputs", "--body-file", "source.md", "--stdin"]),
+        ("request-update-conflict", ["request", "update", "alpha-r-c3d4", "--description", "inline", "--body-file", "source.md"]),
+        ("request-file-dash", ["request", "create", "Bad inputs", "--body-file", "-"]),
+        ("handoff-directory", ["handoff", "create", "--file", "."]),
+        ("handoff-missing-file", ["handoff", "create", "--file", "missing.md"]),
+        ("handoff-crlf", ["handoff", "create", "--file", "crlf.md"]),
+        ("handoff-missing-title", ["handoff", "create", "--file", "no-title.md"]),
+        ("handoff-empty-stdin", ["handoff", "create", "--file", "-"]),
+    ]
+    for name, argv in inputs:
+        result.append({"id": "input-error:" + name, "argv": argv + ["--project", "alpha", "--no-fetch", "--no-sync"],
+                       "fixture": "seeded", "root_prefix": "bn", "initial_files": sources,
+                       "stdin_b64": "", "cwd": "isolated-non-repository"})
+    searches = [["search", "contract", "--kind", kind] for kind in ("issue", "request", "doc", "memory", "plan", "handoff")]
+    searches += [["search", "contract"], ["search", "contract", "--all-projects"],
+                 ["search", "Old", "--include-archived-handoffs"], ["search", "Old"],
+                 ["search", "Contract", "issue"], ["search", "contract", "--kind", "invalid"]]
+    for argv in searches:
+        for output in ([], ["--json"]):
+            result.append({"id": "search-options:" + "-".join(argv[1:]) + (":json" if output else ":text"),
+                           "argv": argv + ["--project", "alpha", "--no-fetch"] + output,
+                           "fixture": "scope-seeded", "stdin_b64": "", "cwd": "isolated-non-repository"})
     return result
 
 

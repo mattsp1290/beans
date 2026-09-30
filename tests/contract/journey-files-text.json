@@ -1,0 +1,887 @@
+{
+  "schema": "beans-mutation-journey-v1",
+  "push_each": false,
+  "steps": [
+    {
+      "argv": [
+        "create",
+        "File inputs issue",
+        "--actor",
+        "File Author"
+      ],
+      "bind": "ISSUE",
+      "namespace": "alpha-",
+      "id": "file-journey-00:create-File inputs issue",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "Y3JlYXRlZCAke0lTU1VFfTogRmlsZSBpbnB1dHMgaXNzdWUK",
+        "stderr_b64": "Y29tbWl0dGVkIGxvY2FsbHkgKC0tbm8tc3luYykK",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_2} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "request",
+        "create",
+        "File request",
+        "--body-file",
+        "request.md",
+        "--issue",
+        "${ISSUE}",
+        "--requested-by",
+        "File requester",
+        "-l",
+        "one,two",
+        "-l",
+        "three"
+      ],
+      "bind": "REQUEST",
+      "namespace": "alpha-r-",
+      "id": "file-journey-01:request-create",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "Y3JlYXRlZCAke1JFUVVFU1R9OiBGaWxlIHJlcXVlc3QK",
+        "stderr_b64": "Y29tbWl0dGVkIGxvY2FsbHkgKC0tbm8tc3luYykK",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFsnb25lLHR3bycsIHRocmVlXQpyZXF1ZXN0ZWRfYnk6IEZpbGUgcmVxdWVzdGVyCmlzc3VlczoKICAtICJbWyR7SVNTVUV9XV0iCmNyZWF0ZWQ6ICR7Tk9XX1NFQ09ORH0KdXBkYXRlZDogJHtOT1dfU0VDT05EfQotLS0KIyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgoKIyMgTG9nCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IGNyZWF0ZWQK"
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_3} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "request",
+        "show",
+        "${REQUEST}"
+      ],
+      "id": "file-journey-02:request-show",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "JHtSRVFVRVNUfSAgRmlsZSByZXF1ZXN0CnN0YXR1czogb3BlbiAgcHJpb3JpdHk6IFAyICBwcm9qZWN0OiBhbHBoYQoKIyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgoKCmxpbmtlZCBpc3N1ZXM6CiAgJHtJU1NVRX0gW29wZW5dIEZpbGUgaW5wdXRzIGlzc3VlCg==",
+        "stderr_b64": "",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFsnb25lLHR3bycsIHRocmVlXQpyZXF1ZXN0ZWRfYnk6IEZpbGUgcmVxdWVzdGVyCmlzc3VlczoKICAtICJbWyR7SVNTVUV9XV0iCmNyZWF0ZWQ6ICR7Tk9XX1NFQ09ORH0KdXBkYXRlZDogJHtOT1dfU0VDT05EfQotLS0KIyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgoKIyMgTG9nCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IGNyZWF0ZWQK"
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_3} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "request",
+        "update",
+        "${REQUEST}",
+        "--body-file",
+        "replacement.md",
+        "--status",
+        "accepted"
+      ],
+      "id": "file-journey-03:request-update",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "dXBkYXRlZCAke1JFUVVFU1R9ICgke0NPTU1JVF80X1NIT1JUfSkK",
+        "stderr_b64": "Y29tbWl0dGVkIGxvY2FsbHkgKC0tbm8tc3luYykK",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQKcHJpb3JpdHk6IDIKbGFiZWxzOiBbJ29uZSx0d28nLCB0aHJlZV0KcmVxdWVzdGVkX2J5OiBGaWxlIHJlcXVlc3Rlcgppc3N1ZXM6CiAgLSAiW1ske0lTU1VFfV1dIgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCiMjIExvZwotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBjcmVhdGVkCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IHN0YXR1cyBvcGVuIOKGkiBhY2NlcHRlZAotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBmaWVsZCBib2R5OiB1cGRhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_4}",
+              "parents": [
+                "${COMMIT_3}"
+              ],
+              "message": "bn: request update ${REQUEST}\n\nBn-Run: ${NONCE_4}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_4} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "request",
+        "show",
+        "${REQUEST}"
+      ],
+      "id": "file-journey-04:request-show",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "JHtSRVFVRVNUfSAgRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQgIHByaW9yaXR5OiBQMiAgcHJvamVjdDogYWxwaGEKCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCgpsaW5rZWQgaXNzdWVzOgogICR7SVNTVUV9IFtvcGVuXSBGaWxlIGlucHV0cyBpc3N1ZQo=",
+        "stderr_b64": "",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQKcHJpb3JpdHk6IDIKbGFiZWxzOiBbJ29uZSx0d28nLCB0aHJlZV0KcmVxdWVzdGVkX2J5OiBGaWxlIHJlcXVlc3Rlcgppc3N1ZXM6CiAgLSAiW1ske0lTU1VFfV1dIgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCiMjIExvZwotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBjcmVhdGVkCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IHN0YXR1cyBvcGVuIOKGkiBhY2NlcHRlZAotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBmaWVsZCBib2R5OiB1cGRhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_4}",
+              "parents": [
+                "${COMMIT_3}"
+              ],
+              "message": "bn: request update ${REQUEST}\n\nBn-Run: ${NONCE_4}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_4} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "handoff",
+        "create",
+        "--file",
+        "handoff.md",
+        "--issue",
+        "${ISSUE}"
+      ],
+      "bind": "HANDOFF",
+      "namespace": "alpha-",
+      "id": "file-journey-05:handoff-create",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "Y3JlYXRlZCBoYW5kb2ZmICR7SEFORE9GRn0gKCR7Q09NTUlUXzVfU0hPUlR9KQo=",
+        "stderr_b64": "Y29tbWl0dGVkIGxvY2FsbHkgKC0tbm8tc3luYykK",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/${HANDOFF}-file-handoff.md": "LS0tCmlkOiAke0hBTkRPRkZ9CmFsaWFzZXM6IFske0hBTkRPRkZ9XQp0aXRsZTogRmlsZSBoYW5kb2ZmCmlzc3VlOiAnW1ske0lTU1VFfS1maWxlLWlucHV0cy1pc3N1ZV1dJwpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgRmlsZSBoYW5kb2ZmCgpLZWVwIGxlYWRpbmcgYW5kIHRyYWlsaW5nIHNwYWNlcy4gIAo=",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQKcHJpb3JpdHk6IDIKbGFiZWxzOiBbJ29uZSx0d28nLCB0aHJlZV0KcmVxdWVzdGVkX2J5OiBGaWxlIHJlcXVlc3Rlcgppc3N1ZXM6CiAgLSAiW1ske0lTU1VFfV1dIgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCiMjIExvZwotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBjcmVhdGVkCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IHN0YXR1cyBvcGVuIOKGkiBhY2NlcHRlZAotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBmaWVsZCBib2R5OiB1cGRhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_4}",
+              "parents": [
+                "${COMMIT_3}"
+              ],
+              "message": "bn: request update ${REQUEST}\n\nBn-Run: ${NONCE_4}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_5}",
+              "parents": [
+                "${COMMIT_4}"
+              ],
+              "message": "bn: handoff create ${HANDOFF} \u2014 File handoff\n\nBn-Run: ${NONCE_5}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_5} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "handoff",
+        "show",
+        "${HANDOFF}",
+        "--raw"
+      ],
+      "raw": true,
+      "id": "file-journey-06:handoff-show",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "LS0tCmlkOiAke0hBTkRPRkZ9CmFsaWFzZXM6IFske0hBTkRPRkZ9XQp0aXRsZTogRmlsZSBoYW5kb2ZmCmlzc3VlOiAnW1ske0lTU1VFfS1maWxlLWlucHV0cy1pc3N1ZV1dJwpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgRmlsZSBoYW5kb2ZmCgpLZWVwIGxlYWRpbmcgYW5kIHRyYWlsaW5nIHNwYWNlcy4gIAo=",
+        "stderr_b64": "",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/${HANDOFF}-file-handoff.md": "LS0tCmlkOiAke0hBTkRPRkZ9CmFsaWFzZXM6IFske0hBTkRPRkZ9XQp0aXRsZTogRmlsZSBoYW5kb2ZmCmlzc3VlOiAnW1ske0lTU1VFfS1maWxlLWlucHV0cy1pc3N1ZV1dJwpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgRmlsZSBoYW5kb2ZmCgpLZWVwIGxlYWRpbmcgYW5kIHRyYWlsaW5nIHNwYWNlcy4gIAo=",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQKcHJpb3JpdHk6IDIKbGFiZWxzOiBbJ29uZSx0d28nLCB0aHJlZV0KcmVxdWVzdGVkX2J5OiBGaWxlIHJlcXVlc3Rlcgppc3N1ZXM6CiAgLSAiW1ske0lTU1VFfV1dIgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCiMjIExvZwotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBjcmVhdGVkCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IHN0YXR1cyBvcGVuIOKGkiBhY2NlcHRlZAotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBmaWVsZCBib2R5OiB1cGRhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_4}",
+              "parents": [
+                "${COMMIT_3}"
+              ],
+              "message": "bn: request update ${REQUEST}\n\nBn-Run: ${NONCE_4}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_5}",
+              "parents": [
+                "${COMMIT_4}"
+              ],
+              "message": "bn: handoff create ${HANDOFF} \u2014 File handoff\n\nBn-Run: ${NONCE_5}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_5} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "show",
+        "${ISSUE}",
+        "--raw"
+      ],
+      "raw": true,
+      "id": "file-journey-07:show-${ISSUE}",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+        "stderr_b64": "",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/${HANDOFF}-file-handoff.md": "LS0tCmlkOiAke0hBTkRPRkZ9CmFsaWFzZXM6IFske0hBTkRPRkZ9XQp0aXRsZTogRmlsZSBoYW5kb2ZmCmlzc3VlOiAnW1ske0lTU1VFfS1maWxlLWlucHV0cy1pc3N1ZV1dJwpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgRmlsZSBoYW5kb2ZmCgpLZWVwIGxlYWRpbmcgYW5kIHRyYWlsaW5nIHNwYWNlcy4gIAo=",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQKcHJpb3JpdHk6IDIKbGFiZWxzOiBbJ29uZSx0d28nLCB0aHJlZV0KcmVxdWVzdGVkX2J5OiBGaWxlIHJlcXVlc3Rlcgppc3N1ZXM6CiAgLSAiW1ske0lTU1VFfV1dIgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCiMjIExvZwotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBjcmVhdGVkCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IHN0YXR1cyBvcGVuIOKGkiBhY2NlcHRlZAotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBmaWVsZCBib2R5OiB1cGRhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_4}",
+              "parents": [
+                "${COMMIT_3}"
+              ],
+              "message": "bn: request update ${REQUEST}\n\nBn-Run: ${NONCE_4}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_5}",
+              "parents": [
+                "${COMMIT_4}"
+              ],
+              "message": "bn: handoff create ${HANDOFF} \u2014 File handoff\n\nBn-Run: ${NONCE_5}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_5} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    },
+    {
+      "argv": [
+        "show",
+        "${ISSUE}"
+      ],
+      "id": "file-journey-08:show-${ISSUE}",
+      "stdin_b64": "",
+      "expected": {
+        "stdout_b64": "JHtJU1NVRX0gIEZpbGUgaW5wdXRzIGlzc3VlCnN0YXR1czogb3BlbiAgcHJpb3JpdHk6IFAyICB0eXBlOiB0YXNrICBwcm9qZWN0OiBhbHBoYQpwYXRoOiBwcm9qZWN0cy9hbHBoYS9pc3N1ZXMvJHtJU1NVRX0tZmlsZS1pbnB1dHMtaXNzdWUubWQKCmJhY2tsaW5rczoKICAke0hBTkRPRkZ9IChoYW5kb2ZmX2lzc3VlKQogICR7UkVRVUVTVH0tZmlsZS1yZXF1ZXN0IChyZXF1ZXN0X2lzc3VlKQoKbG9nOgogICR7Tk9XX01JTlVURX0gRmlsZS1BdXRob3I6IGNyZWF0ZWQK",
+        "stderr_b64": "",
+        "exit": 0,
+        "files": {
+          "beans/cache/hub.lock": "",
+          "cwd/README.md": "U3ludGhldGljIGNvZGUgcmVwb3NpdG9yeS4K",
+          "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg==",
+          "cwd/import.jsonl": "eyJpZCI6ICJhbHBoYS1pbXBvcnQxIiwgInRpdGxlIjogIkltcG9ydGVkIGpvdXJuZXkgaXNzdWUiLCAic3RhdHVzIjogIm9wZW4iLCAicHJpb3JpdHkiOiAyLCAiaXNzdWVfdHlwZSI6ICJ0YXNrIiwgImNyZWF0ZWRfYXQiOiAiMjAyNi0wMS0wMVQwMDowMDowMFoiLCAidXBkYXRlZF9hdCI6ICIyMDI2LTAxLTAxVDAwOjAwOjAwWiIsICJkZXBlbmRlbmNpZXMiOiBbXSwgImxhYmVscyI6IFsibGVnYWN5Il19Cg==",
+          "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+          "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+          "hub/beans.toml": "W2h1Yl0KbmFtZSA9ICJDb250cmFjdCBodWIiCg==",
+          "hub/docs/Guide.md": "LS0tCnRpdGxlOiBDb250cmFjdCBndWlkZQpjdXN0b206IHJldGFpbmVkCi0tLQojIENvbnRyYWN0IGd1aWRlCgpbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSBhbmQgKipzdHJvbmcgdGV4dCoqLgoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPT1oaWdobGlnaHQ9PQoKIyMgUmVwZWF0ZWQgaGVhZGluZwoKPiBbIU5PVEVdIENvbnRyYWN0IGNhbGxvdXQKPiBDb250ZW50Lgo=",
+          "hub/projects/alpha/archive/.gitkeep": "",
+          "hub/projects/alpha/archive/2025/alpha-789a-old-contract.md": "LS0tCmlkOiBhbHBoYS03ODlhCnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/beans.toml": "W3Byb2plY3RdCm5hbWUgPSAiYWxwaGEiCnByZWZpeCA9ICJhbHBoYSIK",
+          "hub/projects/alpha/docs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/.gitkeep": "",
+          "hub/projects/alpha/handoffs/alpha-e5f6-contract-handoff.md": "LS0tCmlkOiBhbHBoYS1lNWY2CnRpdGxlOiBDb250cmFjdCBoYW5kb2ZmCmlzc3VlOiAiW1thbHBoYS1hMWIyLWNvbnRyYWN0LWlzc3VlXV0iCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRleHQKCkNvbnRyYWN0IGNvbnRpbnVhdGlvbi4K",
+          "hub/projects/alpha/handoffs/${HANDOFF}-file-handoff.md": "LS0tCmlkOiAke0hBTkRPRkZ9CmFsaWFzZXM6IFske0hBTkRPRkZ9XQp0aXRsZTogRmlsZSBoYW5kb2ZmCmlzc3VlOiAnW1ske0lTU1VFfS1maWxlLWlucHV0cy1pc3N1ZV1dJwpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgRmlsZSBoYW5kb2ZmCgpLZWVwIGxlYWRpbmcgYW5kIHRyYWlsaW5nIHNwYWNlcy4gIAo=",
+          "hub/projects/alpha/handoffs/archive/.gitkeep": "",
+          "hub/projects/alpha/handoffs/archive/2025/alpha-5678-old-contract-handoff.md": "LS0tCmlkOiBhbHBoYS01Njc4CnRpdGxlOiBPbGQgY29udHJhY3QgaGFuZG9mZgppc3N1ZTogIltbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dIgpjcmVhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI1LTAxLTAxVDAwOjAwOjAwWgotLS0KQXJjaGl2ZWQgY29udHJhY3QgY29udGludWF0aW9uIGxpbmtpbmcgW1tHdWlkZV1dLgo=",
+          "hub/projects/alpha/issues/.gitkeep": "",
+          "hub/projects/alpha/issues/alpha-9999-aged.md": "LS0tCmlkOiBhbHBoYS05OTk5CnRpdGxlOiBPbGQgY29udHJhY3QgaXNzdWUKdHlwZTogdGFzawpzdGF0dXM6IGNsb3NlZApwcmlvcml0eTogMwpsYWJlbHM6IFtdCmJsb2NrZWRfYnk6IFtdCmNyZWF0ZWQ6IDIwMjUtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjUtMDItMDFUMDA6MDA6MDBaCi0tLQojIE9sZCBjb250cmFjdCBpc3N1ZQoKIyMgTG9nCi0gMjAyNS0wMi0wMVQwMDowMDowMFogY29udHJhY3Q6IGNsb3NlZAo=",
+          "hub/projects/alpha/issues/alpha-a1b2-contract-issue.md": "LS0tCmlkOiBhbHBoYS1hMWIyCnRpdGxlOiBDb250cmFjdCBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpsYWJlbHM6IFtjb250cmFjdF0KYmxvY2tlZF9ieTogW10KY3JlYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKdXBkYXRlZDogMjAyNi0wMS0wMVQwMDowMDowMFoKY3VzdG9tOiBwcmVzZXJ2ZSBtZQotLS0KIyBDb250cmFjdCBpc3N1ZQoKRGVzY3JpcHRpb24gd2l0aCA8SFRNTD4gJiBbW0d1aWRlXV0uCgojIyBMb2cKLSAyMDI2LTAxLTAxVDAwOjAwOjAwWiBjb250cmFjdCAoZml4dHVyZUBhYmNkZWYwIG1haW4pOiBjcmVhdGVkCg==",
+          "hub/projects/alpha/issues/${ISSUE}-file-inputs-issue.md": "LS0tCmlkOiAke0lTU1VFfQphbGlhc2VzOiBbJHtJU1NVRX1dCnRpdGxlOiBGaWxlIGlucHV0cyBpc3N1ZQp0eXBlOiB0YXNrCnN0YXR1czogb3Blbgpwcmlvcml0eTogMgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMjIEFjY2VwdGFuY2UKLSBbIF0gCgojIyBMb2cKLSAke05PV19TRUNPTkR9IEZpbGUtQXV0aG9yIChjd2RANGZjOWEwYiBtYWluKTogY3JlYXRlZAo=",
+          "hub/projects/alpha/memories/.gitkeep": "",
+          "hub/projects/alpha/memories/contract-memory.md": "LS0tCmtleTogY29udHJhY3QtbWVtb3J5CnR5cGU6IHByb2plY3QKdGFnczogW2NvbnRyYWN0XQpjcmVhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgp1cGRhdGVkOiAyMDI2LTAxLTAxVDAwOjAwOjAwWgotLS0KQ29udHJhY3QgbWVtb3J5IHJlZmVyZW5jaW5nIFtbYWxwaGEtYTFiMi1jb250cmFjdC1pc3N1ZV1dLgo=",
+          "hub/projects/alpha/plans/alpha-plan-1234-contract-plan/plan.md": "LS0tCmlkOiBhbHBoYS1wbGFuLTEyMzQKYWxpYXNlczogW2FscGhhLXBsYW4tMTIzNF0KdGl0bGU6IENvbnRyYWN0IHBsYW4Kc2x1ZzogY29udHJhY3QtcGxhbgpzdGF0dXM6IGRyYWZ0CmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQoKIyMgU3VtbWFyeQoKIyMjIE91dGNvbWUKCkNvbnRyYWN0IHBsYW4gZm9yIHRoZSBtaWdyYXRpb24gY29ycHVzLgoKIyMjIEFmZmVjdGVkIGFyZWFzCgotIENMSQoKIyMjIEV4ZWN1dGlvbiBvcmRlcgoKMS4gQ2FwdHVyZSBiZWhhdmlvci4KCiMjIyBSaXNrcwoKLSBQcmVzZXJ2aW5nIGJ5dGUtbGV2ZWwgY29udHJhY3RzLgoKIyMjIENoYW5nZSBncmFwaAoKYGBgYm4tY2hhbmdlLWdyYXBoCnZlcnNpb246IDEKbm9kZXM6CiAgLSBpZDogb3JhY2xlCiAgICBsYWJlbDogQ2FwdHVyZSBvcmFjbGUKICAgIGtpbmQ6IGNvbXBvbmVudAplZGdlczogW10KYGBgCg==",
+          "hub/projects/alpha/requests/.gitkeep": "",
+          "hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md": "LS0tCmlkOiBhbHBoYS1yLWMzZDQKYWxpYXNlczogW2FscGhhLXItYzNkNF0KdGl0bGU6IENvbnRyYWN0IHJlcXVlc3QKc3RhdHVzOiBvcGVuCnByaW9yaXR5OiAyCmxhYmVsczogW2NvbnRyYWN0XQpyZXF1ZXN0ZWRfYnk6IGNvbnRyYWN0Cmlzc3VlczogWyJbW2FscGhhLWExYjItY29udHJhY3QtaXNzdWVdXSJdCmNyZWF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCnVwZGF0ZWQ6IDIwMjYtMDEtMDFUMDA6MDA6MDBaCi0tLQojIENvbnRyYWN0IHJlcXVlc3QKCiMjIExvZwotIDIwMjYtMDEtMDFUMDA6MDA6MDBaIGNvbnRyYWN0OiBjcmVhdGVkCg==",
+          "hub/projects/alpha/requests/${REQUEST}-file-request.md": "LS0tCmlkOiAke1JFUVVFU1R9CmFsaWFzZXM6IFske1JFUVVFU1R9XQp0aXRsZTogRmlsZSByZXF1ZXN0CnN0YXR1czogYWNjZXB0ZWQKcHJpb3JpdHk6IDIKbGFiZWxzOiBbJ29uZSx0d28nLCB0aHJlZV0KcmVxdWVzdGVkX2J5OiBGaWxlIHJlcXVlc3Rlcgppc3N1ZXM6CiAgLSAiW1ske0lTU1VFfV1dIgpjcmVhdGVkOiAke05PV19TRUNPTkR9CnVwZGF0ZWQ6ICR7Tk9XX1NFQ09ORH0KLS0tCiMgUmVwbGFjZW1lbnQKCkV4YWN0IHJlcGxhY2VtZW50IGJvZHkuCiMjIExvZwotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBjcmVhdGVkCi0gJHtOT1dfU0VDT05EfSBjb250cmFjdCAoY3dkQDRmYzlhMGIgbWFpbik6IHN0YXR1cyBvcGVuIOKGkiBhY2NlcHRlZAotICR7Tk9XX1NFQ09ORH0gY29udHJhY3QgKGN3ZEA0ZmM5YTBiIG1haW4pOiBmaWVsZCBib2R5OiB1cGRhdGVkCg=="
+        },
+        "git": {
+          "commits": [
+            {
+              "sha": "${COMMIT_0}",
+              "parents": [],
+              "message": "contract seed\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_1}",
+              "parents": [
+                "${COMMIT_0}"
+              ],
+              "message": "aged fixture\n",
+              "author": "Contract",
+              "email": "contract@example.invalid"
+            },
+            {
+              "sha": "${COMMIT_2}",
+              "parents": [
+                "${COMMIT_1}"
+              ],
+              "message": "bn: create ${ISSUE} \u2014 File inputs issue\n\nBn-Run: ${NONCE_2}\n",
+              "author": "File Author",
+              "email": "File-Author@bn.local"
+            },
+            {
+              "sha": "${COMMIT_3}",
+              "parents": [
+                "${COMMIT_2}"
+              ],
+              "message": "bn: request create ${REQUEST} \u2014 File request\n\nBn-Run: ${NONCE_3}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_4}",
+              "parents": [
+                "${COMMIT_3}"
+              ],
+              "message": "bn: request update ${REQUEST}\n\nBn-Run: ${NONCE_4}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            },
+            {
+              "sha": "${COMMIT_5}",
+              "parents": [
+                "${COMMIT_4}"
+              ],
+              "message": "bn: handoff create ${HANDOFF} \u2014 File handoff\n\nBn-Run: ${NONCE_5}\n",
+              "author": "contract",
+              "email": "contract@bn.local"
+            }
+          ],
+          "refs": "${COMMIT_5} refs/heads/main\n${COMMIT_1} refs/remotes/origin/main\n",
+          "remote_refs": "${COMMIT_1} refs/heads/main\n",
+          "status": "",
+          "staged": "",
+          "clone_refs": null
+        }
+      }
+    }
+  ],
+  "output": "text",
+  "initial_files": {
+    "cwd/request.md": "IyBGaWxlIHJlcXVlc3QKCktlZXAgY2Fmw6kgJiA8SFRNTD4sIFtbR3VpZGVdXSwgYW5kIDIwMjQtMDEtMDFUMDA6MDA6MDBaLgo=",
+    "cwd/replacement.md": "IyBSZXBsYWNlbWVudAoKRXhhY3QgcmVwbGFjZW1lbnQgYm9keS4K",
+    "cwd/handoff.md": "IyBGaWxlIGhhbmRvZmYKCktlZXAgbGVhZGluZyBhbmQgdHJhaWxpbmcgc3BhY2VzLiAgCg=="
+  }
+}

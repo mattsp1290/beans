@@ -88,6 +88,23 @@ modified executable cannot accidentally replace the oracle snapshots.
 
 ## Successful mutation journeys
 
+`journey-text.json` and `journey-text-pushed.json` add the same 50-step journeys
+with human output. Seven-character commit identities are substituted only in
+command-specific mutation summaries, after resolving exactly one observed
+commit. Import summaries have their own report-line rule. Read titles and prose
+are not treated as summaries. Displayed log dates are checked against persisted
+events before binding minute precision, only within the CLI's final owned log
+section. Status fetch age is checked against the persisted timestamp and the
+process interval before substitution. Negative tests reject wrong dates, unknown
+or ambiguous short commits, and false fetch ages, and preserve user prose.
+
+`journey-files.json` and `journey-files-text.json` add nine successful steps each
+for normal issue/request/handoff creation, request body-file creation and update,
+explicit actor/requester, repeated labels, exact file contents, and raw issue/
+handoff output. Source files are recorded as fixture bytes and retain Unicode,
+HTML characters, references, dates and trailing spaces. All six CLI journeys
+run through `make compat-journey`.
+
 `tests/contract/journey.json` and `journey-pushed.json` record the same 50-step
 journey with offline commits (plus mandatory fresh-base plan operations) and
 normal pushed mutations respectively. Each step compares stdout/stderr bytes,
@@ -151,8 +168,9 @@ owned Log section, retaining the original JSON escaping. Identical dates in user
 prose before or after that section remain literal. Negative tests cover this
 boundary, bad lengths, HEAD bodies, reversed graph ordering and error envelopes.
 
-The CLI corpus has 467 cases, including 17 additional shorthand/flag grammar
-probes and 36 read probes for custom hub/project workflows,
+The CLI corpus has 526 cases, including 17 shorthand/flag grammar probes,
+26 broken-data probes, nine file/stdin error probes, 24 search-option probes
+and 36 configuration read probes for custom hub/project workflows,
 partial explicit TOML/YAML overrides, missing explicit files, malformed hub/user
 config, unknown workflow keys and invalid defaults. Initial files and subprocess
 BN_CONFIG are recorded with the cases. Go's explicit config inherits built-in
@@ -170,6 +188,16 @@ match the recorded build manifest. HEAD bodies and invalid response lengths are
 rejected independently. Response digests avoid checking compiled JavaScript/CSS
 into the repository. Use `ASSETS_BINARY=/path/to/full-ui-bn` for a candidate;
 the placeholder oracle cannot satisfy this distinct contract.
+
+`tests/fixtures/broken-overlay` adds malformed issue/request/handoff/memory/plan
+frontmatter and broken wiki links to the seeded hub, plus missing blockers and a
+missing parent. Its 26 CLI probes cover doctor/read/search warnings and shapes;
+`http-broken.json` repeats the 106 HTTP boundary probes against this fixture.
+`make compat-http` includes it. The scope overlay supplies another project's
+issue so `search --all-projects` has an observable effect. Search captures also
+exercise every kind, historical handoffs, multiple query words and invalid kinds.
+File/stdin error cases retain conflicting source modes, a literal request
+body-file `-`, directory/missing files, CRLF rejection, and missing titles.
 
 ## Regression and storage evidence
 
@@ -225,13 +253,14 @@ pinned compiler/verifier/Z3/Cargo integration with the same-source probe and
 a deliberately rejected body mutation; see [verification tooling](verification.md).
 This does not establish the mandatory production kernel obligations.
 
-WP1 is still in progress. Required work includes expanding mutation/error journeys
-to remaining flag/output scenarios; additional
-flag grammar interactions and raw/stdin modes; and broken-file/missing-reference
-fixtures. Native Linux command and lock-timeout coverage now passes CI.
-Mixed-client locking and recovery remain WP4 gates. Initial SSE connection
-coverage does not establish watcher/debounce/reload/reconnect parity. Compiler/
-verifier/solver integration is qualified by the separate probe; application
+The WP1 command, fixture, API, text/JSON/raw/file, process-failure and toolchain
+artifacts are present. The expanded corpus must pass the next native CI run
+before WP1 is closed. Every retained runnable command has a successful executable
+case beyond help; `serve` is exercised by real socket and signal cases. Native
+Linux command and Go lock-timeout coverage already passes CI. Mixed-client
+locking/recovery remain WP4 gates, and watcher/debounce/reload/reconnect parity
+remains WP7 work. The kernel obligations remain WP2 work; the passing toolchain
+probe only qualifies compilation and verification integration. Application
 framework selections must become tested workspace pins in WP2.
 
 The failure corpus covers every documented exit status (0–4), including an
