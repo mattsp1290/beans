@@ -1,0 +1,2 @@
+{"id":"myapp-aaaa","title":"target","status":"open","issue_type":"task","created_at":"2026-09-10T12:00:00Z","updated_at":"2026-09-10T12:00:00Z"}
+{"id":"myapp-bbbb","title":"child","status":"open","issue_type":"task","created_at":"2026-09-10T12:00:00Z","updated_at":"2026-09-10T12:00:00Z","dependencies":[{"issue_id":"myapp-bbbb","depends_on_id":"myapp-aaaa","type":"blocks"},{"issue_id":"myapp-bbbb","depends_on_id":"myapp-aaaa","type":"discovered-from"}]}

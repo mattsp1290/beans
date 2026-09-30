@@ -1,0 +1,4 @@
+# Migration contracts are bytes, including intentionally invalid CRLF input.
+tests/fixtures/** -text
+tests/fixtures/go-baseline/issue/testdata/roundtrip/err_windows.md -diff
+tests/fixtures/**/*.png -diff

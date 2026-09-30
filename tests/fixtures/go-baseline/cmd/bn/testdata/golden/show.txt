@@ -1,0 +1,9 @@
+IDB  Second thing
+status: open  priority: P2  type: task  project: myapp
+path: projects/myapp/issues/IDB-second-thing.md
+
+blocked by:
+  IDA [open] myapp: First thing
+
+log:
+  <time> tester: created

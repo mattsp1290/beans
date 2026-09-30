@@ -1,0 +1,53 @@
+package main
+
+// Injected only into the immutable oracle checkout by build_reference.py.
+import (
+	"context"
+	"encoding/json"
+	"io"
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/charmbracelet/fang"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+)
+
+func TestMigrationCensus(t *testing.T) {
+	root := newRootCmd(&appState{})
+	root.SetOut(io.Discard)
+	root.SetErr(io.Discard)
+	root.SetArgs([]string{"--help"})
+	if err := fang.Execute(context.Background(), root, fang.WithVersion("migration-oracle")); err != nil {
+		t.Fatal(err)
+	}
+	var commands []map[string]any
+	var walk func(*cobra.Command)
+	walk = func(c *cobra.Command) {
+		c.InitDefaultHelpFlag()
+		local, inherited := []map[string]any{}, []map[string]any{}
+		flag := func(f *pflag.Flag) map[string]any {
+			return map[string]any{"name": f.Name, "shorthand": f.Shorthand, "type": f.Value.Type(), "default": f.DefValue, "no_option_default": f.NoOptDefVal, "usage": f.Usage, "hidden": f.Hidden, "deprecated": f.Deprecated, "annotations": f.Annotations}
+		}
+		c.LocalFlags().VisitAll(func(f *pflag.Flag) { local = append(local, flag(f)) })
+		c.InheritedFlags().VisitAll(func(f *pflag.Flag) { inherited = append(inherited, flag(f)) })
+		args := []map[string]any{}
+		for n := 0; n <= 8; n++ {
+			values := make([]string, n)
+			for i := range values { values[i] = "operand" }
+			msg := ""
+			if c.Args != nil {
+				if err := c.Args(c, values); err != nil { msg = err.Error() }
+			}
+			args = append(args, map[string]any{"count": n, "error": msg})
+		}
+		path := strings.Fields(c.CommandPath())[1:]
+		commands = append(commands, map[string]any{"path": path, "use": c.Use, "aliases": c.Aliases, "hidden": c.Hidden, "runnable": c.Runnable(), "short": c.Short, "long": c.Long, "args_validator_present": c.Args != nil, "argument_probes": args, "local_flags": local, "inherited_flags": inherited, "retired": len(path) > 0 && path[0] == "completion"})
+		for _, child := range c.Commands() { walk(child) }
+	}
+	walk(root)
+	data, err := json.MarshalIndent(map[string]any{"schema": "beans-command-census-v1", "commands": commands, "retired_protocols": []string{"__complete", "__completeNoDesc"}}, "", "  ")
+	if err != nil { t.Fatal(err) }
+	if err := os.WriteFile(os.Getenv("BN_CENSUS_OUTPUT"), append(data, '\n'), 0600); err != nil { t.Fatal(err) }
+}

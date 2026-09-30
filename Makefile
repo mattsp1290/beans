@@ -49,3 +49,20 @@ clean:
 	rm -rf $(BIN_DIR)
 	cd ui && rm -rf node_modules
 	find ui/dist -mindepth 1 ! -name index.html -delete
+
+# Transitional immutable Go oracle. Candidate binaries must use the recorded
+# VERSION=migration-oracle and placeholder UI until asset contracts are added.
+REFERENCE_BINARY ?= .compat/reference/bn-go
+CANDIDATE_BINARY ?= $(REFERENCE_BINARY)
+.PHONY: compat-reference compat-cli compat-http compat-test
+compat-reference:
+	python3 -S tools/compat/build_reference.py
+
+compat-cli:
+	python3 -S tools/compat/runner.py check --binary '$(CANDIDATE_BINARY)'
+
+compat-http:
+	python3 -S tools/compat/http_runner.py check --binary '$(CANDIDATE_BINARY)'
+
+compat-test:
+	BN_REFERENCE_BINARY='$(REFERENCE_BINARY)' python3 -S -m unittest discover -s tools/compat -p 'test_*.py' -v

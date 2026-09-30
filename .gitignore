@@ -3,6 +3,9 @@
 #
 # Binaries for programs and plugins
 bin/
+.compat/
+/target/
+__pycache__/
 # Anchored to the repository root so it cannot shadow a `bn` file or directory
 # inside a module. A stray root-level `go build -o bn` used to leave a 27 MB
 # untracked binary here that no pattern matched.
@@ -43,4 +46,3 @@ ui/node_modules/
 .agents/plans/
 .agents/reviews/
 .agents/bead-swarm/history/
-
