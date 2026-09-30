@@ -44,6 +44,7 @@ impl IssueDocument {
                 output.push_str(&field);
             }
         }
+        output.push_str(&super::extra_encode::mapping_fields(&self.new_extra)?);
         output.push_str("---\n");
         output.push_str(&self.render_body()?);
         Ok(EditResult {

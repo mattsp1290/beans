@@ -10,8 +10,9 @@ fn scalar_null(value: &str, style: TScalarStyle, tag: Option<&Tag>) -> bool {
 }
 
 pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
-    let mut parser = Parser::new_from_str(text);
-    let mut positions = SourcePositions::scan(text);
+    let adapted = adapt_quote_indentation(text);
+    let mut parser = Parser::new_from_str(&adapted);
+    let mut positions = SourcePositions::scan(&adapted);
     let mut stack: Vec<Node> = Vec::new();
     let mut root = None;
     loop {
@@ -52,9 +53,19 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
                 // from the scanner token interval; do not guess by subtracting
                 // one line, since leading blank lines and split values exist.
                 let line = if matches!(style, TScalarStyle::Literal | TScalarStyle::Folded) {
-                    positions.block_headers.pop_front().ok_or_else(|| {
+                    let header = positions.block_headers.pop_front().ok_or_else(|| {
                         Error(format!("{path}: could not locate block scalar header"))
-                    })?
+                    })?;
+                    // The scanner supplies a virtual LF at EOF for an empty
+                    // keep-chomp block. yaml.v3 retains only physical blank
+                    // content lines; a header alone has an empty value.
+                    if !value.is_empty()
+                        && value.chars().all(|ch| ch == '\n')
+                        && text.split_inclusive('\n').nth(header).is_none()
+                    {
+                        value.pop();
+                    }
+                    header
                 } else {
                     marker.line()
                 };
@@ -93,6 +104,78 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
         }
     }
     root.ok_or_else(|| Error(format!("{path}: line 2: frontmatter is empty")))
+}
+
+// yaml.v3 allows a multiline quoted scalar's closing quote at column zero.
+// yaml-rust2 rejects it before emitting the scalar token. Normalize only this
+// parser representation, guided by the scanner's opening marker and a complete
+// quoted lexeme; physical line numbers and retained document bytes stay intact.
+fn adapt_quote_indentation(text: &str) -> String {
+    let mut adapted = text.to_owned();
+    loop {
+        let mut scanner = Scanner::new(adapted.chars());
+        for _ in scanner.by_ref() {}
+        let Some(error) = scanner.get_error() else {
+            break;
+        };
+        if error.info() != "invalid indentation in quoted scalar" {
+            break;
+        }
+        let marker = error.marker();
+        let Some(line) = adapted.split_inclusive('\n').nth(marker.line() - 1) else {
+            break;
+        };
+        let before: usize = adapted
+            .split_inclusive('\n')
+            .take(marker.line() - 1)
+            .map(str::len)
+            .sum();
+        let Some((column, _)) = line.char_indices().nth(marker.col()) else {
+            break;
+        };
+        let start = before + column;
+        let Some(end) = quoted_end(&adapted[start..]) else {
+            break;
+        };
+        let closing = start + end - 1;
+        let line_start = adapted[..closing].rfind('\n').map_or(0, |index| index + 1);
+        if line_start <= start
+            || !adapted[line_start..closing]
+                .chars()
+                .all(|ch| matches!(ch, ' ' | '\t'))
+        {
+            break;
+        }
+        let required = marker.col().max(1);
+        if closing - line_start >= required {
+            break;
+        }
+        adapted.insert_str(line_start, &" ".repeat(required - (closing - line_start)));
+    }
+    adapted
+}
+
+fn quoted_end(source: &str) -> Option<usize> {
+    let quote = source.chars().next()?;
+    if !matches!(quote, '\'' | '"') {
+        return None;
+    }
+    let mut chars = source.char_indices().peekable();
+    chars.next();
+    while let Some((byte, ch)) = chars.next() {
+        if quote == '"' && ch == '\\' {
+            chars.next();
+            continue;
+        }
+        if ch == quote {
+            if quote == '\'' && chars.peek().is_some_and(|(_, next)| *next == '\'') {
+                chars.next();
+            } else {
+                return Some(byte + ch.len_utf8());
+            }
+        }
+    }
+    None
 }
 
 struct SourcePositions {

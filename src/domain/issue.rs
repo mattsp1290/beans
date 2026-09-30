@@ -81,6 +81,9 @@ pub struct IssueDocument {
     pub log: Vec<super::log::LogEntry>,
     pub description: String,
     pub body: String,
+    /// Authored unknown fields for a new issue. Parsed documents retain their
+    /// original unknown bytes and ignore changes to this tree, as Go does.
+    pub new_extra: super::authored_yaml::Node,
     pub(super) document: Option<Frontmatter>,
     pub(super) original_metadata: IssueMetadata,
     original_log_len: usize,
@@ -96,6 +99,7 @@ impl IssueDocument {
             log: Vec::new(),
             description: String::new(),
             body: String::new(),
+            new_extra: super::authored_yaml::Node::default(),
             original_log_len: 0,
         }
     }
@@ -151,9 +155,18 @@ impl IssueDocument {
             log,
             description,
             body,
+            new_extra: super::authored_yaml::Node::default(),
             document: Some(document),
             original_log_len,
         })
+    }
+
+    /// Semantic values and source spans for parsed user-owned fields, in order.
+    pub fn unknown_fields(&self) -> impl Iterator<Item = &super::frontmatter::Field> {
+        self.document
+            .iter()
+            .flat_map(|document| document.fields())
+            .filter(|field| !OWNED.contains(&field.key.as_str()))
     }
 
     /// Append semantics compare instants, then store a later Updated in UTC.

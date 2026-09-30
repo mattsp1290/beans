@@ -77,7 +77,7 @@ def capture(rust_input=None, rust_output=None):
             case["input"] = base64.b64decode(case.pop("input_b64")).decode("utf-8")
         return {"schema": "beans-frontmatter-primitives-v1",
                 "source_sha": baseline["source_sha"],
-                "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata/logs, existing edits and new owned-field issues; Extra and other note schemas remain WP3",
+                "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata/logs, existing edits, new owned fields and authored Extra trees; full error/style boundaries and other note schemas remain WP3",
                 "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest(),
                 "new_harness_sha256": hashlib.sha256(new_harness.read_bytes()).hexdigest(),
                 "cases": captured, "links": captured_output["links"],

@@ -822,8 +822,11 @@
       "test": "TestEncodeNewWithExtraAndRawLog",
       "line": 145,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "creation::encode_new_with_extra_and_raw_log",
+      "rust_source": "tests/domain/creation.rs",
+      "validation": "cargo test --locked --test domain creation::encode_new_with_extra_and_raw_log; original Go regression retained until cutover"
     },
     {
       "source": "issue/coverage_test.go",

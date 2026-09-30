@@ -50,7 +50,7 @@ fn break_char(ch: char) -> bool {
     matches!(ch, '\n' | '\r' | '\u{85}' | '\u{2028}' | '\u{2029}')
 }
 
-fn double_quoted(value: &str) -> String {
+pub(crate) fn double_quoted(value: &str) -> String {
     let mut output = String::from("\"");
     for ch in value.chars() {
         let escape = match ch {
@@ -90,6 +90,15 @@ fn double_quoted(value: &str) -> String {
 }
 
 fn scalar(value: &str, flow: bool, force_double: bool) -> String {
+    scalar_value(value, flow, force_double, true)
+}
+
+pub(crate) fn scalar_value(
+    value: &str,
+    flow: bool,
+    force_double: bool,
+    string_tag: bool,
+) -> String {
     let chars: Vec<_> = value.chars().collect();
     let special = chars.iter().any(|&ch| ch != '\t' && !printable(ch));
     let space_break = chars
@@ -127,7 +136,7 @@ fn scalar(value: &str, flow: bool, force_double: bool) -> String {
         return output;
     }
     if force_double
-        || resolved_non_string(value)
+        || string_tag && resolved_non_string(value)
         || special
         || value.contains(['\t', '\n'])
         || space_break
@@ -196,41 +205,25 @@ fn scalar(value: &str, flow: bool, force_double: bool) -> String {
 }
 
 fn resolved_non_string(value: &str) -> bool {
-    if matches!(
-        value,
-        "" | "~"
-            | "null"
-            | "Null"
-            | "NULL"
-            | "true"
-            | "True"
-            | "TRUE"
-            | "false"
-            | "False"
-            | "FALSE"
-            | ".nan"
-            | ".NaN"
-            | ".NAN"
-            | ".inf"
-            | ".Inf"
-            | ".INF"
-            | "+.inf"
-            | "+.Inf"
-            | "+.INF"
-            | "-.inf"
-            | "-.Inf"
-            | "-.INF"
-    ) {
-        return true;
+    implicit_tag(value) != "!!str"
+}
+
+pub(crate) fn implicit_tag(value: &str) -> &'static str {
+    match value {
+        "" | "~" | "null" | "Null" | "NULL" => return "!!null",
+        "true" | "True" | "TRUE" | "false" | "False" | "FALSE" => return "!!bool",
+        ".nan" | ".NaN" | ".NAN" | ".inf" | ".Inf" | ".INF" | "+.inf" | "+.Inf" | "+.INF"
+        | "-.inf" | "-.Inf" | "-.INF" => return "!!float",
+        _ => (),
     }
     let Some(first) = value.chars().next() else {
-        return true;
+        return "!!null";
     };
     if !(first.is_ascii_digit() || matches!(first, '.' | '+' | '-')) {
-        return false;
+        return "!!str";
     }
     if yaml_date(value) {
-        return true;
+        return "!!timestamp";
     }
     if first == '.' {
         let bytes = value.as_bytes();
@@ -240,7 +233,7 @@ fn resolved_non_string(value: &str) -> bool {
                     || !bytes[index - 1].is_ascii_digit()
                     || !bytes.get(index + 1).is_some_and(u8::is_ascii_digit))
         }) {
-            return false;
+            return "!!str";
         }
     }
     let number = value.replace('_', "");
@@ -268,16 +261,20 @@ fn resolved_non_string(value: &str) -> bool {
     if let Ok(integer) = u64::from_str_radix(digits, radix)
         && (!number.starts_with('-') || integer <= i64::MAX as u64 + 1)
     {
-        return true;
+        return "!!int";
     }
     // Go's numeric resolver only accepts decimal float syntax here.
     if !number
         .chars()
         .all(|ch| ch.is_ascii_digit() || matches!(ch, '+' | '-' | '.' | 'e' | 'E'))
     {
-        return false;
+        return "!!str";
     }
-    number.parse::<f64>().is_ok_and(f64::is_finite)
+    if number.parse::<f64>().is_ok_and(f64::is_finite) {
+        "!!float"
+    } else {
+        "!!str"
+    }
 }
 
 fn yaml_date(value: &str) -> bool {

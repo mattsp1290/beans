@@ -1,4 +1,6 @@
 //! Lossless domain documents and their semantic views.
+pub mod authored_yaml;
+mod extra_encode;
 pub mod frontmatter;
 pub mod id;
 pub mod issue;

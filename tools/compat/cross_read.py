@@ -13,7 +13,7 @@ def expected_read(case):
     if "read_error" in case:
         result["error"] = case["read_error"]
     else:
-        for key in ("metadata", "description", "body", "log"):
+        for key in ("metadata", "description", "body", "log", "extra"):
             result[key] = case["read_" + key]
     return result
 
@@ -32,7 +32,7 @@ def main():
     corpus = json.loads((ROOT / "tests/contract/frontmatter-primitives.json").read_text())
     if result != corpus:
         raise SystemExit("fixed Go domain corpus changed during cross-reading")
-    expected = [expected_read(case) for case in corpus["new_issues"]]
+    expected = [expected_read(case) for case in corpus["new_issues"] if "encode_error" not in case]
     actual = json.loads(reads.read_text())
     if actual != expected:
         raise SystemExit(f"Go reading actual Rust issue bytes differs; inspect {reads}")
