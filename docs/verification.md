@@ -4,9 +4,14 @@ The Rust workspace compiles with locked dependencies and the pinned compiler.
 `crates/beans-kernel/src/retry.rs` implements the discard decision and opaque
 three-attempt budget with same-source proof contracts. `src/splice.rs` validates
 ordered, non-overlapping, in-bounds spans, enumerates unchanged intervals, and
-translates their byte offsets without overflow. Native verification of the full
-kernel and its guard mutations is pending; ordinary Cargo tests are not proof
-evidence. Production callers are still pending. The Rust
+translates their byte offsets without overflow. Native Linux x86_64 verification
+passed in [run 36772355158](https://github.com/mattsp1290/beans/actions/runs/36772355158)
+at `5af204fa3244840ddde484d0cfa2b7a701471a21`: 12 kernel obligations verified,
+all ten guard mutations failed a proof, and the restored source verified again.
+The report, diagnostics and source/lock digests are preserved in
+`tests/contract/verus-kernel-linux-x86_64.json`; the requirement audit is in
+`tests/contract/wp2-acceptance.json`. WP2 is accepted. Production callers are
+still pending. The Rust
 entry point is a migration scaffold, not a usable replacement for `bn`.
 
 The separate development-only probe under `tools/verification/probe` established
@@ -84,13 +89,16 @@ The probe verified once, its body mutation failed the increment postcondition
 with exit 101, and the restored proof passed. The probe's
 bounded integer test and proof do not satisfy either mandatory WP2 obligation.
 
-The upcoming kernel proofs must check the same executable retry/discard,
+The kernel proofs check the same executable retry/discard,
 attempt-budget and splice helpers used by production callers. No copied
 proof-only implementation, admitted proof, `assume`, unconditional axiom or
 `external_body` on those helper bodies is allowed. Proofs cover their specified
 pure decisions; Git parsing, OS locks, filesystem effects, clocks, YAML syntax,
 compiler/solver correctness and process boundaries remain trusted assumptions.
-The production callers and these effect boundaries need independent tests.
+Verus builtins and vstd's standard-library specifications also form part of the
+trusted proof boundary. The bounded model assumes its abstract Git outcomes and
+idempotent Apply semantics; it does not establish those real effects. Production
+callers and these effect boundaries need independent tests in WP3–WP5.
 
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
