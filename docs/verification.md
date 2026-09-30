@@ -1,10 +1,15 @@
 # Verification tooling
 
-The production Rust kernel has not been implemented or verified. The current
-artifact is a development-only toolchain probe under `tools/verification/probe`.
-It establishes whether ordinary Cargo compiles the same annotated executable
-body that the pinned verifier checks. It does not establish retry/discard or
-splice correctness, and it has no production caller.
+The Rust workspace compiles with locked dependencies and the pinned compiler.
+`crates/beans-kernel/src/retry.rs` implements the discard decision and opaque
+three-attempt budget with same-source proof contracts. Native verification is
+pending; ordinary Cargo tests are not proof evidence. Splice helpers, bounded
+transaction exploration, and production callers are still pending. The Rust
+entry point is a migration scaffold, not a usable replacement for `bn`.
+
+The separate development-only probe under `tools/verification/probe` established
+that ordinary Cargo compiles the same annotated executable body checked by the
+pinned verifier. That probe does not establish either mandatory kernel obligation.
 
 `tools/verification/pins.json` pins Verus release
 `release/0.2026.09.27.3cf1832`, source commit
@@ -25,6 +30,7 @@ On a supported native host:
 ```sh
 rustup toolchain install 1.98.1 --profile minimal --component rustc-dev --component llvm-tools
 make verify-toolchain
+make verify-kernel
 ```
 
 The target downloads the fixed release into ignored `.compat/verus`, verifies
@@ -35,6 +41,18 @@ then deliberately changes its executable body. The mutated proof must fail
 with a verifier error; a compile or setup failure is not accepted as a detected
 proof violation. The original source is restored and must verify again.
 Missing tools or any unexpected result fail the target and required CI job.
+
+`make verify-kernel` checks `cargo verus verify -p beans-kernel --locked` from
+the application workspace. It removes each discard guard, weakens exhaustion,
+and removes the budget decrement in turn. Every mutation must produce a proof
+error, and the restored source must verify again. Source restoration runs even
+after failure. `.compat/verification/kernel.json` records source/lock digests
+and each result; corresponding logs are uploaded by CI. A passing kernel target
+at this stage covers only retry/budget, not the still-pending splice obligation.
+
+Normal compilation and tests run separately through `make rust-build rust-test
+rust-check`. They use the same kernel files with annotations erased. The default
+`make build` still builds Go, and no regression has been retired.
 
 Logs and `.compat/verification/qualification.json` record commands, exit codes,
 pins and source/lock digests. CI uploads those records, including failures.

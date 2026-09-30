@@ -91,6 +91,20 @@ compat-io:
 compat-test:
 	BN_REFERENCE_BINARY='$(REFERENCE_BINARY)' python3 -S -m unittest discover -s tools/compat -p 'test_*.py' -v
 
-.PHONY: verify-toolchain
+.PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py
+
+verify-kernel:
+	python3 -S tools/verification/kernel.py
+
+.PHONY: rust-build rust-test rust-check
+rust-build:
+	cargo build --workspace --locked
+
+rust-test:
+	cargo test --workspace --locked
+
+rust-check:
+	cargo fmt --all --check
+	cargo clippy --workspace --all-targets --locked -- -D warnings
