@@ -15,7 +15,7 @@ import time
 from http_runner import response
 from journey import Identities, git, setup
 from reference import authenticate_capture
-from runner import CONTRACT, encode, environment
+from runner import CONTRACT, ROOT, encode, environment
 
 
 def steps():
@@ -195,7 +195,13 @@ def main():
         if code != corpus["server_exit"]:
             failures.append("server exit")
         if failures:
-            parser.exit(1, "HTTP mutation mismatches:\n" + "\n".join(failures) + "\n")
+            report = ROOT / ".compat/failures" / args.corpus.name
+            report.parent.mkdir(parents=True, exist_ok=True)
+            report.write_text(json.dumps({"server_exit": code, "expected_server_exit": corpus["server_exit"],
+                "steps": [{"id": case["id"], "expected": case["expected"], "actual": result}
+                          for case, result in zip(corpus["steps"], results, strict=True)
+                          if case["expected"] != result]}, indent=2) + "\n")
+            parser.exit(1, "HTTP mutation mismatches:\n" + "\n".join(failures) + "\nReport: " + str(report) + "\n")
         print(f"Passed {len(results)} HTTP mutation steps")
 
 
