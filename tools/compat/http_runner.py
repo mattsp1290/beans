@@ -11,6 +11,7 @@ import tempfile
 import time
 
 from runner import CONTRACT, encode, environment, fixture, git_state, snapshot
+from reference import authenticate_capture
 
 
 def requests():
@@ -136,6 +137,8 @@ def main():
     parser.add_argument("--corpus", type=Path, default=CONTRACT / "http.json")
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)
+    if args.mode == "capture":
+        authenticate_capture(binary)
     corpus = {"schema": "beans-http-contract-v1", "cases": requests()} if args.mode == "capture" else json.loads(args.corpus.read_text())
     results, state = execute(binary, corpus)
     if args.mode == "capture":

@@ -16,6 +16,7 @@ packages and instrumentation.
 make compat-reference
 diff -u tests/contract/commands.json .compat/reference/commands.json
 make compat-cli compat-http compat-test
+make compat-journey
 python3 -S tools/compat/build_reference.py --output .compat/version-override --version contract-override
 ```
 
@@ -67,6 +68,53 @@ selects a candidate for Make's comparison targets; this is a development control
 not a product flag. Candidates must use the recorded version/UI when compared.
 Capture is explicit and must run against the immutable Go executable, never
 against Rust to bless a mismatch.
+Capture commands require adjacent reference build metadata, the recorded source
+revision/version, and a matching binary SHA256, so an unrecorded candidate or
+modified executable cannot accidentally replace the oracle snapshots.
+
+## Successful mutation journeys
+
+`tests/contract/journey.json` and `journey-pushed.json` record the same 50-step
+journey with offline commits (plus mandatory fresh-base plan operations) and
+normal pushed mutations respectively. Each step compares stdout/stderr bytes,
+all fixture files, local commit ancestry/messages/authors, staged/worktree state,
+remote branch refs and the clone created by `bn init`. The source fixture is
+a synthetic code repository, a seeded hub, and a bare remote at a temporary
+local path; no network remote is contacted.
+
+The journey exercises init, doctor, issue creation/claim/note/close/reopen/delete,
+dependency and parent changes, requests, raw handoffs and archive/restore,
+memories, docs, projects, plan scaffold/validation/publication/retrieval/linking,
+issue archival, import flag shadowing, sync/status and cache clearing. It records
+repeated close and handoff archive operations, stdin bodies, repeated array flags
+with literal commas, and the distinct `--silent`/`--json` precedence of issues,
+requests and handoffs. Plan writes use a fresh remote as required by Go.
+
+Only these additional runtime variables are normalized in the journeys:
+
+- Generated IDs are bound from creation output after verifying namespace,
+  four-character alphabet/length, uniqueness, and absence from seeded IDs.
+  Their exact occurrences in filenames, bytes and responses share one binding.
+- Git hashes are bound from actual ancestry. Parents must resolve to observed
+  commits. Operation commits require one 16-hex-digit Bn-Run trailer and distinct
+  commits cannot reuse its nonce. Subjects, parent graph and remaining trailers
+  stay literal.
+- Runtime timestamps in owned frontmatter, Log sections, designated JSON DTO
+  fields and two cache timestamp files are validated as UTC and checked against
+  the journey interval before replacing their value. Historical values stay
+  literal. Seconds and fractional-second output remain distinct. Creation time
+  is immutable, updated fields cannot go backwards, logs remain chronological,
+  and DTO revisions must match persisted seconds. Go's optimistic plan writes
+  can expose fractional times while persisting seconds. Body prose is retained.
+
+These bindings apply only to the separate mutation corpus; the original CLI and
+HTTP captures retain their narrower rules. Negative candidates verify rejection
+of malformed/colliding IDs, a mismatched DTO revision, altered user bytes and
+nonce reuse. They complement the existing exit/JSON/file/whitespace tests.
+
+The journeys preserve uppercase request log `At` fields and uppercase plan
+detail struct fields. Those differences from the HTTP DTOs are part of the
+retained CLI interface.
 
 ## Regression and storage evidence
 
@@ -95,9 +143,9 @@ startup/version and an end-to-end 5,000-issue list/load. It records every sample
 median, p95 and range. Compare Rust on the same hardware/build conditions;
 investigate median regressions exceeding 20% beyond baseline noise.
 
-WP1 is still in progress. Required work includes successful mutation journeys
-for every command family with validated ID/time/nonce relationships and remote
-post-state; signals; custom/malformed configuration; additional
+WP1 is still in progress. Required work includes expanding mutation/error journeys
+to remaining flag/output scenarios and HTTP success writes;
+signals; custom/malformed configuration; additional
 flag grammar interactions and raw/stdin modes; full embedded assets; and a
 native Linux/macOS/Windows validation matrix. Initial SSE connection coverage
 does not establish watcher/debounce/reload/reconnect parity. Framework/compiler/

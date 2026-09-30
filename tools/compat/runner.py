@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 
 from terminal import capture
+from reference import authenticate_capture
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = ROOT / "tests/contract"
@@ -178,6 +179,7 @@ def main():
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)
     if args.mode == "capture":
+        authenticate_capture(binary)
         corpus = {"schema": "beans-cli-contract-v1", "baseline": json.loads((CONTRACT / "baseline.json").read_text()),
                   "cases": cases(json.loads(args.census.read_text()))}
         for case in corpus["cases"]:

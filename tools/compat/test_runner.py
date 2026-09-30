@@ -4,11 +4,13 @@ import hashlib
 import os
 from pathlib import Path
 import re
+import shutil
 import sys
 import tempfile
 import unittest
 
 from runner import CONTRACT, check, execute
+from reference import authenticate_capture
 
 
 class OracleMutationTests(unittest.TestCase):
@@ -79,6 +81,27 @@ class OracleMutationTests(unittest.TestCase):
         for entry in manifest["entries"]:
             data = (CONTRACT.parents[1] / entry["destination"]).read_bytes()
             self.assertEqual(hashlib.sha256(data).hexdigest(), entry["sha256"], entry["source"])
+
+    def test_capture_rejects_modified_reference_binary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copyfile(self.binary.parent / "build.json", root / "build.json")
+            binary = root / "bn-go"
+            binary.write_bytes(self.binary.read_bytes() + b"modified")
+            with self.assertRaisesRegex(ValueError, "reference digest"):
+                authenticate_capture(binary)
+
+    def test_capture_accepts_the_immutable_go_reference(self):
+        authenticate_capture(self.binary)
+
+    def test_capture_rejects_different_source_revision(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            metadata = json.loads((self.binary.parent / "build.json").read_text())
+            metadata["source_sha"] = "0" * 40
+            (root / "build.json").write_text(json.dumps(metadata))
+            with self.assertRaisesRegex(ValueError, "recorded source revision"):
+                authenticate_capture(root / "bn-go")
 
 
 if __name__ == "__main__":
