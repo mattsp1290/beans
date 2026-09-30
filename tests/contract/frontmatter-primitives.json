@@ -1,8 +1,8 @@
 {
   "schema": "beans-frontmatter-primitives-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "scope": "YAML nodes and byte spans only; typed note validation/encoding remains WP3",
-  "harness_sha256": "47418219380f2148057ce9e5c30943b0865916b3e0f4f1b10ba9739ea40d60e1",
+  "scope": "YAML nodes, byte spans, literal body sections and links; typed note validation/encoding remains WP3",
+  "harness_sha256": "d36ad479bd9b80f5505b6c8f874183a5fad8b9f68aa672c92b5dc825b951febb",
   "cases": [
     {
       "name": "roundtrip/a_canonical.md",
@@ -191,6 +191,17 @@
           "end": 360
         }
       ],
+      "issue_body": {
+        "body": "## Acceptance\n- [ ] parity gate passes\n\n",
+        "description": "Description paragraphs. Free markdown.\n\n",
+        "log": "## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n",
+        "log": "## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+        "tail": ""
+      },
       "input": "---\nid: exampleA-a3f2\naliases: [exampleA-a3f2]\ntitle: Migrate the live infra-host deploy\ntype: task\nstatus: open\npriority: 2\nlabels: [deploy, infra]\nassignee: matt\nparent: \"[[exampleA-mkg1-deploy-bean-counter]]\"\nblocked_by:\n  - \"[[exampleA-ued1-schema-parity]]\"\nurl: https://example.invalid/ticket/1\ncreated: 2026-06-15T10:22:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n"
     },
     {
@@ -302,6 +313,17 @@
           "end": 149
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc for an archived issue.\n\n",
+        "log": "## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc for an archived issue.\n\n",
+        "log": "## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+        "tail": ""
+      },
       "input": "---\nid: p-x1\naliases: [p-x1]\ntitle: Archived issue\ntype: task\nstatus: closed\npriority: 4\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-02-01T00:00:00Z\n---\nDesc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n"
     },
     {
@@ -449,6 +471,17 @@
           "end": 227
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc with unknown keys around.\n\n",
+        "log": "## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc with unknown keys around.\n\n",
+        "log": "## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+        "tail": ""
+      },
       "input": "---\ncustom_before: hello\nid: proj-b001\naliases: [proj-b001]\ntitle: Unknown keys everywhere\ntype: task\ncustom_between: world\nstatus: open\npriority: 3\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\ncustom_after: bye\n---\nDesc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n"
     },
     {
@@ -560,6 +593,17 @@
           "end": 218
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\n# head comment about this issue\nid: proj-c001\naliases: [proj-c001]\ntitle: Comment test\ntype: task\nstatus: open  # inline comment on bn scalar\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n# comment block\n# before closing fence\n---\nDesc.\n"
     },
     {
@@ -695,6 +739,17 @@
           "end": 215
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-d001\naliases: [proj-d001]\ntitle: Flow style blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: [\"[[proj-d001-a]]\", \"[[proj-d001-b]]\"]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
@@ -806,6 +861,17 @@
           "end": 155
         }
       ],
+      "issue_body": {
+        "body": "## Notes\nLine\twith\ttabs.\n",
+        "description": "Desc with a tab\there.\n\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-e001\naliases: [proj-e001]\ntitle: Tabs in body\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n"
     },
     {
@@ -923,6 +989,17 @@
           "end": 157
         }
       ],
+      "issue_body": {
+        "body": "## Notes\nSome notes here, no log section at all.\n",
+        "description": "Desc.\n\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n\n## Notes\nSome notes here, no log section at all.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-f001\naliases: [proj-f001]\ntitle: No log section\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Notes\nSome notes here, no log section at all.\n"
     },
     {
@@ -1034,6 +1111,17 @@
           "end": 163
         }
       ],
+      "issue_body": {
+        "body": "## Acceptance\n- [ ] thing\n\n",
+        "description": "Desc.\n\n",
+        "log": "## Log\n- 2026-01-01T00:00:00Z matt: created\n\n",
+        "tail": "## Notes\nSome trailing notes after the log section.\n"
+      },
+      "request_body": {
+        "before_log": "Desc.\n\n## Acceptance\n- [ ] thing\n\n",
+        "log": "## Log\n- 2026-01-01T00:00:00Z matt: created\n\n",
+        "tail": "## Notes\nSome trailing notes after the log section.\n"
+      },
       "input": "---\nid: proj-g001\naliases: [proj-g001]\ntitle: Log not last heading\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n"
     },
     {
@@ -1181,6 +1269,17 @@
           "end": 211
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-j001\naliases: [proj-j001]\ntitle: Nested user key\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nextra_data:\n    nested_key: value\n    another: thing\n---\nDesc.\n"
     },
     {
@@ -1316,6 +1415,17 @@
           "end": 225
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-k001\naliases: [proj-k001]\ntitle: Blocked by without indentation\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n- \"[[proj-k001-a]]\"\n- \"[[proj-k001-b]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
@@ -1439,6 +1549,17 @@
           "end": 219
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-l001\naliases: [proj-l001]\ntitle: Literal block scalar\ntype: task\nstatus: open\npriority: 2\nnotes: |\n  First line of notes.\n  Second line of notes.\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
@@ -1562,6 +1683,17 @@
           "end": 197
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: proj-m001\naliases: [proj-m001]\ntitle: Single scalar blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: \"[[proj-m001-a]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
@@ -1673,6 +1805,17 @@
           "end": 160
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Desc.\n\n",
+        "log": "## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Desc.\n\n",
+        "log": "## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+        "tail": ""
+      },
       "input": "---\nid: proj-n001\naliases: [proj-n001]\ntitle: Mixed log entries\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\n---\nDesc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n"
     },
     {
@@ -1820,6 +1963,17 @@
           "end": 216
         }
       ],
+      "issue_body": {
+        "body": "## Request\nDo it.\n\n## Acceptance\n- [ ] done\n\n",
+        "description": "",
+        "log": "## Log\n- 2026-09-11T15:51:49Z matt: created\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "## Request\nDo it.\n\n## Acceptance\n- [ ] done\n\n",
+        "log": "## Log\n- 2026-09-11T15:51:49Z matt: created\n",
+        "tail": ""
+      },
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Canonical request\nstatus: open\npriority: 2\nlabels: [ui]\nrequested_by: matt\nissues:\n  - \"[[beans-a1b2]]\"\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n## Request\nDo it.\n\n## Acceptance\n- [ ] done\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n"
     },
     {
@@ -1918,6 +2072,17 @@
           "end": 147
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Invalid\nstatus: queued\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n"
     },
     {
@@ -2004,6 +2169,17 @@
           "end": 130
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\nstatus: open\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n"
     },
     {
@@ -2103,6 +2279,17 @@
           "end": 159
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "```markdown\n## Log\nnot a log\n```\n\n",
+        "log": "## Log\n- 2026-09-11T15:51:49Z matt: created\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "```markdown\n## Log\nnot a log\n```\n\n",
+        "log": "## Log\n- 2026-09-11T15:51:49Z matt: created\n",
+        "tail": ""
+      },
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Fenced heading\nstatus: in_progress\npriority: 1\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n```markdown\n## Log\nnot a log\n```\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n"
     },
     {
@@ -2226,6 +2413,17 @@
           "end": 191
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Body.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Body.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Flow links\nstatus: accepted\npriority: 4\nissues: [\"[[beans-a1b2]]\", beans-c3d4]\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\nBody.\n"
     },
     {
@@ -2325,6 +2523,17 @@
           "end": 155
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "",
+        "log": "## Log\n- 2026-09-11T15:51:49Z matt: created\n\n",
+        "tail": "## Notes\nRetained.\n"
+      },
+      "request_body": {
+        "before_log": "",
+        "log": "## Log\n- 2026-09-11T15:51:49Z matt: created\n\n",
+        "tail": "## Notes\nRetained.\n"
+      },
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Later heading\nstatus: resolved\npriority: 3\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n## Log\n- 2026-09-11T15:51:49Z matt: created\n\n## Notes\nRetained.\n"
     },
     {
@@ -2436,6 +2645,17 @@
           "end": 190
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Context stays byte-identical.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Context stays byte-identical.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\n# retained comment\nid: beans-r-a3f2\naliases: [beans-r-a3f2] # retained\ntitle: A request\nstatus: open\npriority: 0\ncustom: keep\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\nContext stays byte-identical.\n"
     },
     {
@@ -2513,6 +2733,17 @@
           "end": 104
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Opaque alias-bearing metadata.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Opaque alias-bearing metadata.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nextra: &shared\n  nested: [one, two]\ncopy: *shared\ntitle: &title Anchored scalar\nalias_title: *title\n---\nOpaque alias-bearing metadata.\n"
     },
     {
@@ -2606,6 +2837,17 @@
           "end": 256
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Body.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Body.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nleading_blanks: |+\n\n\n  text after blank lines\nown_line:\n  |\n  text with header on a separate line\nempty: |\nnext_empty: >-\nsequence:\n  - |\n    first item\n  - >\n    second item\nheader_comment: | # indicator in comment: |\n  content | that is not a header\n---\nBody.\n"
     },
     {
@@ -2663,7 +2905,114 @@
           "end": 112
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Body remains unchanged.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Body remains unchanged.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nliteral: |+\n  α\n  β\n\nfolded: >-\n  first line\n  second line\nescaped: \"x\\ny\\t\\u2603\"\nsingle: 'it''s a test'\n---\nBody remains unchanged.\n"
+    },
+    {
+      "name": "syntax/body-fences.md",
+      "path": "syntax/body-fences.md",
+      "yaml": "id: body-fences\n",
+      "body": "Description.\n```md\n## Log\nfake log\n~~~\n## Acceptance\nBody section.\n## Log \t\n- opaque item\n\n## Tail\nTail remains separate.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "body-fences",
+            "null": false
+          },
+          "start": 4,
+          "end": 20
+        }
+      ],
+      "issue_body": {
+        "body": "## Acceptance\nBody section.\n",
+        "description": "Description.\n```md\n## Log\nfake log\n~~~\n",
+        "log": "## Log \t\n- opaque item\n\n",
+        "tail": "## Tail\nTail remains separate.\n"
+      },
+      "request_body": {
+        "before_log": "Description.\n```md\n## Log\nfake log\n~~~\n## Acceptance\nBody section.\n",
+        "log": "## Log \t\n- opaque item\n\n",
+        "tail": "## Tail\nTail remains separate.\n"
+      },
+      "input": "---\nid: body-fences\n---\nDescription.\n```md\n## Log\nfake log\n~~~\n## Acceptance\nBody section.\n## Log \t\n- opaque item\n\n## Tail\nTail remains separate.\n"
+    },
+    {
+      "name": "syntax/body-indented-fence.md",
+      "path": "syntax/body-indented-fence.md",
+      "yaml": "id: body-indent\n",
+      "body": "Description.\n    ```md\n## Log\n- four-space fence is inert\n    ```\n## After\nTail.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "body-indent",
+            "null": false
+          },
+          "start": 4,
+          "end": 20
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description.\n    ```md\n",
+        "log": "## Log\n- four-space fence is inert\n    ```\n",
+        "tail": "## After\nTail.\n"
+      },
+      "request_body": {
+        "before_log": "Description.\n    ```md\n",
+        "log": "## Log\n- four-space fence is inert\n    ```\n",
+        "tail": "## After\nTail.\n"
+      },
+      "input": "---\nid: body-indent\n---\nDescription.\n    ```md\n## Log\n- four-space fence is inert\n    ```\n## After\nTail.\n"
+    },
+    {
+      "name": "syntax/body-unterminated-fence.md",
+      "path": "syntax/body-unterminated-fence.md",
+      "yaml": "id: body-unterminated\n",
+      "body": "Description.\n   ```md\n## Acceptance\nHeading inside an unterminated fence becomes literal section syntax.\n## Log\n- opaque entry\n## After\nTail.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "body-unterminated",
+            "null": false
+          },
+          "start": 4,
+          "end": 26
+        }
+      ],
+      "issue_body": {
+        "body": "## Acceptance\nHeading inside an unterminated fence becomes literal section syntax.\n",
+        "description": "Description.\n   ```md\n",
+        "log": "## Log\n- opaque entry\n",
+        "tail": "## After\nTail.\n"
+      },
+      "request_body": {
+        "before_log": "Description.\n   ```md\n## Acceptance\nHeading inside an unterminated fence becomes literal section syntax.\n",
+        "log": "## Log\n- opaque entry\n",
+        "tail": "## After\nTail.\n"
+      },
+      "input": "---\nid: body-unterminated\n---\nDescription.\n   ```md\n## Acceptance\nHeading inside an unterminated fence becomes literal section syntax.\n## Log\n- opaque entry\n## After\nTail.\n"
     },
     {
       "name": "syntax/complex-key.md",
@@ -2714,6 +3063,17 @@
           "end": 46
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Duplicate unknown keys remain ordered.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Duplicate unknown keys remain ordered.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nextra: first\nextra: second\ntitle: Example\n---\nDuplicate unknown keys remain ordered.\n"
     },
     {
@@ -2789,6 +3149,17 @@
           "end": 58
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "One-line mapping.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "One-line mapping.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\n{title: Flow root, status: open, nested: {a: [1, 2]}}\n---\nOne-line mapping.\n"
     },
     {
@@ -2870,6 +3241,17 @@
           "end": 130
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Unicode body: Привет.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Unicode body: Привет.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\ntitle: \"雪 ☃ café\"\ncustom: [\"é\", \"λ\"]\n# сохранять комментарий\nstatus: open\nother:\n  text: 日本語\n---\nUnicode body: Привет.\n"
     },
     {
@@ -3041,6 +3423,17 @@
           "end": 210
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Scalar spellings stay distinct.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Scalar spellings stay distinct.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nnumber: 0012\nboolean: TRUE\nnull_value: null\nnull_tilde: ~\nnull_empty:\nquoted_null: \"null\"\nforced_string: !!str null\nforced_null: !!null \"null\"\ntagged: !custom null\nsequence: [null, ~, true, \"true\", 12, \"\"]\n---\nScalar spellings stay distinct.\n"
     },
     {
@@ -3174,7 +3567,176 @@
           "end": 182
         }
       ],
+      "issue_body": {
+        "body": "",
+        "description": "Body.\n",
+        "log": "",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Body.\n",
+        "log": "",
+        "tail": ""
+      },
       "input": "---\nmap: !!map &map\n  key: value\nsequence: !!seq\n  - one\nvalue: &value\n  !!str\n  text\nliteral: &lit\n  !!str |\n\n  content\nalias: *map\ntagged_empty: !!str\nflow: {empty: , value: null}\n---\nBody.\n"
+    }
+  ],
+  "links": [
+    {
+      "input": "",
+      "new": {
+        "raw": "[[]]",
+        "target": ""
+      },
+      "parsed": {
+        "raw": "",
+        "target": ""
+      },
+      "zero": true
+    },
+    {
+      "input": "  ",
+      "new": {
+        "raw": "[[  ]]",
+        "target": "  "
+      },
+      "parsed": {
+        "raw": "",
+        "target": ""
+      },
+      "zero": true
+    },
+    {
+      "input": "bare#heading|alias",
+      "new": {
+        "raw": "[[bare#heading|alias]]",
+        "target": "bare#heading|alias"
+      },
+      "parsed": {
+        "raw": "bare#heading|alias",
+        "target": "bare#heading|alias"
+      },
+      "zero": false
+    },
+    {
+      "input": "[[id]]",
+      "new": {
+        "raw": "[[[[id]]]]",
+        "target": "[[id]]"
+      },
+      "parsed": {
+        "raw": "[[id]]",
+        "target": "id"
+      },
+      "zero": false
+    },
+    {
+      "input": "[[id|alias]]",
+      "new": {
+        "raw": "[[[[id|alias]]]]",
+        "target": "[[id|alias]]"
+      },
+      "parsed": {
+        "raw": "[[id|alias]]",
+        "target": "id"
+      },
+      "zero": false
+    },
+    {
+      "input": "[[id#heading|alias]]",
+      "new": {
+        "raw": "[[[[id#heading|alias]]]]",
+        "target": "[[id#heading|alias]]"
+      },
+      "parsed": {
+        "raw": "[[id#heading|alias]]",
+        "target": "id"
+      },
+      "zero": false
+    },
+    {
+      "input": " [[ id | alias ]] ",
+      "new": {
+        "raw": "[[ [[ id | alias ]] ]]",
+        "target": " [[ id | alias ]] "
+      },
+      "parsed": {
+        "raw": "[[ id | alias ]]",
+        "target": "id"
+      },
+      "zero": false
+    },
+    {
+      "input": "[[]]",
+      "new": {
+        "raw": "[[[[]]]]",
+        "target": "[[]]"
+      },
+      "parsed": {
+        "raw": "[[]]",
+        "target": ""
+      },
+      "zero": false
+    },
+    {
+      "input": "[[id]",
+      "new": {
+        "raw": "[[[[id]]]",
+        "target": "[[id]"
+      },
+      "parsed": {
+        "raw": "[[id]",
+        "target": "[[id]"
+      },
+      "zero": false
+    },
+    {
+      "input": "[id]]",
+      "new": {
+        "raw": "[[[id]]]]",
+        "target": "[id]]"
+      },
+      "parsed": {
+        "raw": "[id]]",
+        "target": "[id]]"
+      },
+      "zero": false
+    },
+    {
+      "input": " [[雪#節]] ",
+      "new": {
+        "raw": "[[ [[雪#節]] ]]",
+        "target": " [[雪#節]] "
+      },
+      "parsed": {
+        "raw": "[[雪#節]]",
+        "target": "雪"
+      },
+      "zero": false
+    },
+    {
+      "input": "[[a|b#c]]",
+      "new": {
+        "raw": "[[[[a|b#c]]]]",
+        "target": "[[a|b#c]]"
+      },
+      "parsed": {
+        "raw": "[[a|b#c]]",
+        "target": "a"
+      },
+      "zero": false
+    },
+    {
+      "input": "raw id",
+      "new": {
+        "raw": "[[raw id]]",
+        "target": "raw id"
+      },
+      "parsed": {
+        "raw": "raw id",
+        "target": "raw id"
+      },
+      "zero": false
     }
   ]
 }

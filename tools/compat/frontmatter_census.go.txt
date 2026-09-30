@@ -40,13 +40,15 @@ type migrationField struct {
 }
 
 type migrationFrontmatterCase struct {
-	Name   string           `json:"name"`
-	Path   string           `json:"path"`
-	Input  []byte           `json:"input_b64"`
-	Error  string           `json:"error,omitempty"`
-	YAML   string           `json:"yaml,omitempty"`
-	Body   string           `json:"body,omitempty"`
-	Fields []migrationField `json:"fields,omitempty"`
+	Name        string            `json:"name"`
+	Path        string            `json:"path"`
+	Input       []byte            `json:"input_b64"`
+	Error       string            `json:"error,omitempty"`
+	YAML        string            `json:"yaml,omitempty"`
+	Body        string            `json:"body,omitempty"`
+	Fields      []migrationField  `json:"fields,omitempty"`
+	IssueBody   map[string]string `json:"issue_body,omitempty"`
+	RequestBody map[string]string `json:"request_body,omitempty"`
 }
 
 func TestMigrationFrontmatterCensus(t *testing.T) {
@@ -100,11 +102,20 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 			offsets = append(offsets, pos)
 		}
 		c.YAML, c.Body = fm, body
+		description, middle, log, tail := splitBody(body)
+		c.IssueBody = map[string]string{"description": description, "body": middle, "log": log, "tail": tail}
+		before, requestLog, requestTail := splitRequestBody(body)
+		c.RequestBody = map[string]string{"before_log": before, "log": requestLog, "tail": requestTail}
 		for i, sp := range spans {
 			c.Fields = append(c.Fields, migrationField{Key: sp.key, KeyLine: sp.start + 1, Value: migrationNodeValue(values[i]), Start: offsets[sp.start], End: offsets[sp.end]})
 		}
 	}
-	result, err := json.MarshalIndent(cases, "", "  ")
+	var links []map[string]any
+	for _, input := range []string{"", "  ", "bare#heading|alias", "[[id]]", "[[id|alias]]", "[[id#heading|alias]]", " [[ id | alias ]] ", "[[]]", "[[id]", "[id]]", "\u2003[[雪#節]]\u2003", "[[a|b#c]]", "raw id"} {
+		parsed, created := ParseLink(input), NewLink(input)
+		links = append(links, map[string]any{"input": input, "parsed": map[string]string{"raw": parsed.Raw, "target": parsed.Target}, "new": map[string]string{"raw": created.Raw, "target": created.Target}, "zero": parsed.IsZero()})
+	}
+	result, err := json.MarshalIndent(map[string]any{"cases": cases, "links": links}, "", "  ")
 	if err != nil {
 		t.Fatal(err)
 	}

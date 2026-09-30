@@ -14,17 +14,21 @@ aliases are separate nodes and fail scalar/list coercion. This is not yet full
 owned-key validation or typed timestamp decoding.
 
 The pinned yaml-rust2 low-level event API passed the prototype gate across all
-21 original issue/request roundtrip inputs plus 11 added syntax inputs. Node
+21 original issue/request roundtrip inputs plus 14 added syntax inputs. Node
 positions need adaptation: nonempty block scalars report content positions,
 anchored/tagged nodes can report positions after their prefixes, and implicit
 empty values can report the next key's line. The adapter reconstructs these
 positions from scanner tokens and original lines. It never treats a marker's
 index as an authoritative byte offset. The additional inputs include Unicode,
 anchors, tags, null coercion, nested/flow maps, block-header variants and
-structural errors.
+structural errors and body-fence variants. `src/domain/text.rs` ports literal
+link parsing/creation and the distinct issue/request body splits. Closed fences
+hide headings; unterminated fences become inert; four-space fences stay inert.
+Raw log sections and trailing sections remain separate byte slices. Thirteen
+Go-derived link cases preserve bare IDs and original link spelling.
 
 `tests/contract/frontmatter-primitives.json` records nodes, original body and
-YAML text, byte ranges and errors from the immutable Go revision
+YAML text, byte ranges, body sections, links and errors from the immutable Go revision
 `718726a580c19becd5fb57513be9e76fda40ea26`. Capture uses a development-only Go
 test injected into an archived tree. `make compat-frontmatter` independently
 recreates that record and compares it without changing the committed corpus.
@@ -40,7 +44,7 @@ checks actual non-ASCII edits and source/destination copy geometry.
 
 Remaining codec gates include typed required/duplicate-key validation, complete
 yaml.v3 syntax-error presentation, Go timestamp behavior, scalar/list rendering
-and inline comments, note-specific body/log handling, and cross-language
+and inline comments, note-specific body/log mutation and log entries, and cross-language
 parse/encode/edit tests. Typed production encoders must use this real replacement
 path before WP3's full proof-coupling gate can be accepted. Primitive parity
 alone does not establish issue/request or whole-hub compatibility.

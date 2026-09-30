@@ -1,4 +1,5 @@
 use beans::domain::frontmatter::Frontmatter;
+use beans::domain::text::{Link, split_issue_body, split_request_body};
 use proptest::prelude::*;
 use serde_json::Value;
 
@@ -7,7 +8,7 @@ fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture()
     let corpus: Value = serde_json::from_str(include_str!("contract/frontmatter-primitives.json"))
         .expect("committed Go corpus");
     let cases = corpus["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 32);
+    assert_eq!(cases.len(), 35);
     for case in cases {
         let name = case["name"].as_str().unwrap();
         let input = case["input"].as_str().unwrap();
@@ -32,6 +33,16 @@ fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture()
             "{name}"
         );
         assert_eq!(
+            serde_json::to_value(split_issue_body(parsed.body())).unwrap(),
+            case["issue_body"],
+            "{name}"
+        );
+        assert_eq!(
+            serde_json::to_value(split_request_body(parsed.body())).unwrap(),
+            case["request_body"],
+            "{name}"
+        );
+        assert_eq!(
             serde_json::to_value(parsed.fields()).unwrap(),
             case["fields"],
             "{name}"
@@ -40,6 +51,31 @@ fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture()
             parsed.replace_fields(&[]).unwrap().bytes,
             input.as_bytes(),
             "{name}"
+        );
+    }
+}
+
+#[test]
+fn link_parsing_and_creation_match_go_without_normalizing_bare_ids() {
+    let corpus: Value =
+        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    for case in corpus["links"].as_array().unwrap() {
+        let input = case["input"].as_str().unwrap();
+        let parsed = Link::parse(input);
+        assert_eq!(
+            serde_json::to_value(&parsed).unwrap(),
+            case["parsed"],
+            "{input:?}"
+        );
+        assert_eq!(
+            parsed.is_zero(),
+            case["zero"].as_bool().unwrap(),
+            "{input:?}"
+        );
+        assert_eq!(
+            serde_json::to_value(Link::new(input)).unwrap(),
+            case["new"],
+            "{input:?}"
         );
     }
 }

@@ -40,14 +40,15 @@ def capture():
         env = dict(os.environ, BN_DOMAIN_INPUT=str(inputs), BN_DOMAIN_OUTPUT=str(output))
         subprocess.run(["go", "test", "./issue", "-run", "^TestMigrationFrontmatterCensus$",
                         "-count=1"], cwd=source, env=env, check=True, capture_output=True)
-        captured = json.loads(output.read_text())
+        captured_output = json.loads(output.read_text())
+        captured = captured_output["cases"]
         for case in captured:
             case["input"] = base64.b64decode(case.pop("input_b64")).decode("utf-8")
         return {"schema": "beans-frontmatter-primitives-v1",
                 "source_sha": baseline["source_sha"],
-                "scope": "YAML nodes and byte spans only; typed note validation/encoding remains WP3",
+                "scope": "YAML nodes, byte spans, literal body sections and links; typed note validation/encoding remains WP3",
                 "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest(),
-                "cases": captured}
+                "cases": captured, "links": captured_output["links"]}
 
 
 if __name__ == "__main__":
