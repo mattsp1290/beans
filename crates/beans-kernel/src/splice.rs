@@ -71,7 +71,7 @@ pub fn preserved_interval(spans: &[Span], source_len: usize, index: usize)
         reveal(ordered_in_bounds);
         assert(index <= spans@.len());
         if index > 0 {
-            assert(0 <= (index - 1) as int < spans@.len());
+            assert(0 <= ((index - 1) as int) < spans@.len());
             assert(spans@[(index - 1) as int].start
                 <= spans@[(index - 1) as int].end <= source_len);
         }
