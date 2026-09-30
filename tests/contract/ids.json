@@ -1,0 +1,2181 @@
+{
+  "schema": "beans-ids-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "harness_sha256": "b53073775a86f82054a5126a4916ccdd073473fc1e5c73b58fa0cd0a7416ff78",
+  "slugs": [
+    {
+      "title": "Héllo Wörld",
+      "slug": "h-llo-w-rld"
+    },
+    {
+      "title": "Hello, World!!!",
+      "slug": "hello-world"
+    },
+    {
+      "title": "simple-title",
+      "slug": "simple-title"
+    },
+    {
+      "title": "---Trim Me---",
+      "slug": "trim-me"
+    },
+    {
+      "title": "!!! --- ???",
+      "slug": ""
+    },
+    {
+      "title": "Release 1.2.3",
+      "slug": "release-1-2-3"
+    },
+    {
+      "title": "",
+      "slug": ""
+    },
+    {
+      "title": "İX",
+      "slug": "ix"
+    },
+    {
+      "title": "KX",
+      "slug": "kx"
+    },
+    {
+      "title": "İstanbul",
+      "slug": "istanbul"
+    },
+    {
+      "title": "AİB",
+      "slug": "aib"
+    },
+    {
+      "title": "AKB",
+      "slug": "akb"
+    },
+    {
+      "title": "ΟΣ Σς",
+      "slug": ""
+    },
+    {
+      "title": "emoji 🚀 title",
+      "slug": "emoji-title"
+    },
+    {
+      "title": "中文",
+      "slug": ""
+    },
+    {
+      "title": "a\u0000B",
+      "slug": "a-b"
+    },
+    {
+      "title": "a\r\nb",
+      "slug": "a-b"
+    },
+    {
+      "title": "a b",
+      "slug": "a-b"
+    },
+    {
+      "title": "a b",
+      "slug": "a-b"
+    },
+    {
+      "title": "ab",
+      "slug": "a-b"
+    },
+    {
+      "title": "this is a very long issue title that keeps going and going and going and going past the limit for sure",
+      "slug": "this-is-a-very-long-issue-title-that-keeps-going-and-going"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-b"
+    },
+    {
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a"
+    },
+    {
+      "title": "aİb",
+      "slug": "aib"
+    },
+    {
+      "title": "aKb",
+      "slug": "akb"
+    }
+  ],
+  "ids": [
+    {
+      "id": "beans-a3f2",
+      "valid": true
+    },
+    {
+      "id": "bean-counter-x1",
+      "valid": true
+    },
+    {
+      "id": "beans-ceh.15",
+      "valid": true
+    },
+    {
+      "id": "Beans-A3",
+      "valid": false
+    },
+    {
+      "id": "beans",
+      "valid": false
+    },
+    {
+      "id": "-x",
+      "valid": false
+    },
+    {
+      "id": "a-",
+      "valid": false
+    },
+    {
+      "id": "a-b.0.001",
+      "valid": true
+    },
+    {
+      "id": "a--b",
+      "valid": true
+    },
+    {
+      "id": "a---b",
+      "valid": true
+    },
+    {
+      "id": "1-2",
+      "valid": true
+    },
+    {
+      "id": "a--",
+      "valid": false
+    },
+    {
+      "id": "a-b.c",
+      "valid": false
+    },
+    {
+      "id": "a-b.",
+      "valid": false
+    },
+    {
+      "id": "a-b..1",
+      "valid": false
+    },
+    {
+      "id": "a-b.-1",
+      "valid": false
+    },
+    {
+      "id": "a-b.1-2",
+      "valid": false
+    },
+    {
+      "id": "a-b\n",
+      "valid": false
+    },
+    {
+      "id": "a-b\u0000",
+      "valid": false
+    },
+    {
+      "id": "a-b.١",
+      "valid": false
+    },
+    {
+      "id": "é-b",
+      "valid": false
+    },
+    {
+      "id": "a-Ｂ",
+      "valid": false
+    },
+    {
+      "id": "a/b-c",
+      "valid": false
+    },
+    {
+      "id": "a_b-c",
+      "valid": false
+    },
+    {
+      "id": "a-b.1.2.3",
+      "valid": true
+    },
+    {
+      "id": "a.b-c",
+      "valid": false
+    },
+    {
+      "id": "a-b-.2",
+      "valid": false
+    }
+  ],
+  "filenames": [
+    {
+      "id": "proj-a1b2",
+      "slug": "my-title",
+      "filename": "proj-a1b2-my-title.md"
+    },
+    {
+      "id": "proj-a1b2",
+      "slug": "",
+      "filename": "proj-a1b2.md"
+    },
+    {
+      "id": "proj-a1b2",
+      "slug": "already-frozen",
+      "filename": "proj-a1b2-already-frozen.md"
+    },
+    {
+      "id": "proj-a1b2",
+      "slug": "中文",
+      "filename": "proj-a1b2-中文.md"
+    },
+    {
+      "id": "proj-a1b2",
+      "slug": "has space",
+      "filename": "proj-a1b2-has space.md"
+    },
+    {
+      "id": "proj-a1b2",
+      "slug": "../outside",
+      "filename": "proj-a1b2-../outside.md"
+    },
+    {
+      "id": "beans-ceh.15",
+      "slug": "my-title",
+      "filename": "beans-ceh.15-my-title.md"
+    },
+    {
+      "id": "beans-ceh.15",
+      "slug": "",
+      "filename": "beans-ceh.15.md"
+    },
+    {
+      "id": "beans-ceh.15",
+      "slug": "already-frozen",
+      "filename": "beans-ceh.15-already-frozen.md"
+    },
+    {
+      "id": "beans-ceh.15",
+      "slug": "中文",
+      "filename": "beans-ceh.15-中文.md"
+    },
+    {
+      "id": "beans-ceh.15",
+      "slug": "has space",
+      "filename": "beans-ceh.15-has space.md"
+    },
+    {
+      "id": "beans-ceh.15",
+      "slug": "../outside",
+      "filename": "beans-ceh.15-../outside.md"
+    },
+    {
+      "id": "foreign-project-id.1",
+      "slug": "my-title",
+      "filename": "foreign-project-id.1-my-title.md"
+    },
+    {
+      "id": "foreign-project-id.1",
+      "slug": "",
+      "filename": "foreign-project-id.1.md"
+    },
+    {
+      "id": "foreign-project-id.1",
+      "slug": "already-frozen",
+      "filename": "foreign-project-id.1-already-frozen.md"
+    },
+    {
+      "id": "foreign-project-id.1",
+      "slug": "中文",
+      "filename": "foreign-project-id.1-中文.md"
+    },
+    {
+      "id": "foreign-project-id.1",
+      "slug": "has space",
+      "filename": "foreign-project-id.1-has space.md"
+    },
+    {
+      "id": "foreign-project-id.1",
+      "slug": "../outside",
+      "filename": "foreign-project-id.1-../outside.md"
+    },
+    {
+      "id": "",
+      "slug": "my-title",
+      "filename": "-my-title.md"
+    },
+    {
+      "id": "",
+      "slug": "",
+      "filename": ".md"
+    },
+    {
+      "id": "",
+      "slug": "already-frozen",
+      "filename": "-already-frozen.md"
+    },
+    {
+      "id": "",
+      "slug": "中文",
+      "filename": "-中文.md"
+    },
+    {
+      "id": "",
+      "slug": "has space",
+      "filename": "-has space.md"
+    },
+    {
+      "id": "",
+      "slug": "../outside",
+      "filename": "-../outside.md"
+    },
+    {
+      "id": "a/b",
+      "slug": "my-title",
+      "filename": "a/b-my-title.md"
+    },
+    {
+      "id": "a/b",
+      "slug": "",
+      "filename": "a/b.md"
+    },
+    {
+      "id": "a/b",
+      "slug": "already-frozen",
+      "filename": "a/b-already-frozen.md"
+    },
+    {
+      "id": "a/b",
+      "slug": "中文",
+      "filename": "a/b-中文.md"
+    },
+    {
+      "id": "a/b",
+      "slug": "has space",
+      "filename": "a/b-has space.md"
+    },
+    {
+      "id": "a/b",
+      "slug": "../outside",
+      "filename": "a/b-../outside.md"
+    }
+  ],
+  "ascii_lowercase": [
+    {
+      "rune": 48,
+      "lower": 48
+    },
+    {
+      "rune": 49,
+      "lower": 49
+    },
+    {
+      "rune": 50,
+      "lower": 50
+    },
+    {
+      "rune": 51,
+      "lower": 51
+    },
+    {
+      "rune": 52,
+      "lower": 52
+    },
+    {
+      "rune": 53,
+      "lower": 53
+    },
+    {
+      "rune": 54,
+      "lower": 54
+    },
+    {
+      "rune": 55,
+      "lower": 55
+    },
+    {
+      "rune": 56,
+      "lower": 56
+    },
+    {
+      "rune": 57,
+      "lower": 57
+    },
+    {
+      "rune": 65,
+      "lower": 97
+    },
+    {
+      "rune": 66,
+      "lower": 98
+    },
+    {
+      "rune": 67,
+      "lower": 99
+    },
+    {
+      "rune": 68,
+      "lower": 100
+    },
+    {
+      "rune": 69,
+      "lower": 101
+    },
+    {
+      "rune": 70,
+      "lower": 102
+    },
+    {
+      "rune": 71,
+      "lower": 103
+    },
+    {
+      "rune": 72,
+      "lower": 104
+    },
+    {
+      "rune": 73,
+      "lower": 105
+    },
+    {
+      "rune": 74,
+      "lower": 106
+    },
+    {
+      "rune": 75,
+      "lower": 107
+    },
+    {
+      "rune": 76,
+      "lower": 108
+    },
+    {
+      "rune": 77,
+      "lower": 109
+    },
+    {
+      "rune": 78,
+      "lower": 110
+    },
+    {
+      "rune": 79,
+      "lower": 111
+    },
+    {
+      "rune": 80,
+      "lower": 112
+    },
+    {
+      "rune": 81,
+      "lower": 113
+    },
+    {
+      "rune": 82,
+      "lower": 114
+    },
+    {
+      "rune": 83,
+      "lower": 115
+    },
+    {
+      "rune": 84,
+      "lower": 116
+    },
+    {
+      "rune": 85,
+      "lower": 117
+    },
+    {
+      "rune": 86,
+      "lower": 118
+    },
+    {
+      "rune": 87,
+      "lower": 119
+    },
+    {
+      "rune": 88,
+      "lower": 120
+    },
+    {
+      "rune": 89,
+      "lower": 121
+    },
+    {
+      "rune": 90,
+      "lower": 122
+    },
+    {
+      "rune": 97,
+      "lower": 97
+    },
+    {
+      "rune": 98,
+      "lower": 98
+    },
+    {
+      "rune": 99,
+      "lower": 99
+    },
+    {
+      "rune": 100,
+      "lower": 100
+    },
+    {
+      "rune": 101,
+      "lower": 101
+    },
+    {
+      "rune": 102,
+      "lower": 102
+    },
+    {
+      "rune": 103,
+      "lower": 103
+    },
+    {
+      "rune": 104,
+      "lower": 104
+    },
+    {
+      "rune": 105,
+      "lower": 105
+    },
+    {
+      "rune": 106,
+      "lower": 106
+    },
+    {
+      "rune": 107,
+      "lower": 107
+    },
+    {
+      "rune": 108,
+      "lower": 108
+    },
+    {
+      "rune": 109,
+      "lower": 109
+    },
+    {
+      "rune": 110,
+      "lower": 110
+    },
+    {
+      "rune": 111,
+      "lower": 111
+    },
+    {
+      "rune": 112,
+      "lower": 112
+    },
+    {
+      "rune": 113,
+      "lower": 113
+    },
+    {
+      "rune": 114,
+      "lower": 114
+    },
+    {
+      "rune": 115,
+      "lower": 115
+    },
+    {
+      "rune": 116,
+      "lower": 116
+    },
+    {
+      "rune": 117,
+      "lower": 117
+    },
+    {
+      "rune": 118,
+      "lower": 118
+    },
+    {
+      "rune": 119,
+      "lower": 119
+    },
+    {
+      "rune": 120,
+      "lower": 120
+    },
+    {
+      "rune": 121,
+      "lower": 121
+    },
+    {
+      "rune": 122,
+      "lower": 122
+    },
+    {
+      "rune": 304,
+      "lower": 105
+    },
+    {
+      "rune": 8490,
+      "lower": 107
+    }
+  ],
+  "generation": [
+    {
+      "prefix": "beans",
+      "length": -5,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": -5,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": -5,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": -5,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": -5,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 0,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 0,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 0,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 0,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 0,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 1,
+      "collisions": 0,
+      "attempts": [
+        1
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 1,
+      "collisions": 7,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 1,
+      "collisions": 8,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 1,
+      "collisions": 16,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 1,
+      "collisions": 24,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 4,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 4,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 4,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 4,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 4,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 8,
+      "collisions": 0,
+      "attempts": [
+        8
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 8,
+      "collisions": 7,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 8,
+      "collisions": 8,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 8,
+      "collisions": 16,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "beans",
+      "length": 8,
+      "collisions": 24,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        11
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": -5,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": -5,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": -5,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": -5,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": -5,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 0,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 0,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 0,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 0,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 0,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 1,
+      "collisions": 0,
+      "attempts": [
+        1
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 1,
+      "collisions": 7,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 1,
+      "collisions": 8,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 1,
+      "collisions": 16,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 1,
+      "collisions": 24,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 4,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 4,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 4,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 4,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 4,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 8,
+      "collisions": 0,
+      "attempts": [
+        8
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 8,
+      "collisions": 7,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 8,
+      "collisions": 8,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 8,
+      "collisions": 16,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "foreign-project",
+      "length": 8,
+      "collisions": 24,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        11
+      ],
+      "valid": true
+    },
+    {
+      "prefix": "",
+      "length": -5,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": -5,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": -5,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": -5,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": -5,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 0,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 0,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 0,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 0,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 0,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 1,
+      "collisions": 0,
+      "attempts": [
+        1
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 1,
+      "collisions": 7,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 1,
+      "collisions": 8,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 1,
+      "collisions": 16,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 1,
+      "collisions": 24,
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 4,
+      "collisions": 0,
+      "attempts": [
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 4,
+      "collisions": 7,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 4,
+      "collisions": 8,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 4,
+      "collisions": 16,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 4,
+      "collisions": 24,
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 8,
+      "collisions": 0,
+      "attempts": [
+        8
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 8,
+      "collisions": 7,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 8,
+      "collisions": 8,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 8,
+      "collisions": 16,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "valid": false
+    },
+    {
+      "prefix": "",
+      "length": 8,
+      "collisions": 24,
+      "attempts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        11
+      ],
+      "valid": false
+    }
+  ]
+}

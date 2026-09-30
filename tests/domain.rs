@@ -1,5 +1,7 @@
 #[path = "domain/creation.rs"]
 mod creation;
+#[path = "domain/ids.rs"]
+mod ids;
 #[path = "domain/templates.rs"]
 mod templates;
 

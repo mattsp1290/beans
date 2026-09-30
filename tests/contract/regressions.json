@@ -862,64 +862,88 @@
       "test": "TestSlug",
       "line": 8,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::slug_examples",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestSlugLongTitleCutsAtWordBoundary",
       "line": 31,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::slug_long_title_cuts_at_word_boundary",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestSlugEmptyFilenameFallback",
       "line": 60,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::slug_empty_filename_fallback",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestFilename",
       "line": 71,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::filenames",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestValidID",
       "line": 99,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::valid_ids",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestNewID",
       "line": 115,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::new_id_eight_collisions",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestNewIDAllGeneratedAreValid",
       "line": 138,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::new_id_all_generated_are_valid",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/id_test.go",
       "test": "TestNewIDDefaultLength",
       "line": 147,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::new_id_default_length",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
     },
     {
       "source": "issue/log_test.go",
