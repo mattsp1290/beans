@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BASELINE = ROOT / "tests/contract/baseline.json"
 
 
-def capture():
+def capture(rust_input=None, rust_output=None):
     baseline = json.loads(BASELINE.read_text())
     archive = subprocess.check_output(["git", "archive", baseline["source_sha"]], cwd=ROOT)
     with tempfile.TemporaryDirectory(prefix="beans-domain-oracle-") as work:
@@ -57,10 +57,19 @@ def capture():
                           "input_b64": base64.b64encode(text.encode()).decode()})
         harness = ROOT / "tools/compat/frontmatter_census.go.txt"
         (source / "issue/migration_frontmatter_test.go").write_bytes(harness.read_bytes())
+        new_harness = ROOT / "tools/compat/new_issue_census.go.txt"
+        (source / "issue/migration_new_issue_test.go").write_bytes(new_harness.read_bytes())
         inputs, output = source / "input.json", source / "output.json"
         inputs.write_text(json.dumps(cases))
-        env = dict(os.environ, BN_DOMAIN_INPUT=str(inputs), BN_DOMAIN_OUTPUT=str(output))
-        subprocess.run(["go", "test", "./issue", "-run", "^TestMigrationFrontmatterCensus$",
+        new_output = source / "new-issue-output.json"
+        env = dict(os.environ, BN_DOMAIN_INPUT=str(inputs), BN_DOMAIN_OUTPUT=str(output), BN_NEW_ISSUE_OUTPUT=str(new_output))
+        env.pop("BN_RUST_ISSUE_INPUT", None)
+        env.pop("BN_RUST_ISSUE_OUTPUT", None)
+        if rust_input is not None:
+            if rust_output is None:
+                raise ValueError("Rust read input requires an output path")
+            env.update(BN_RUST_ISSUE_INPUT=str(rust_input), BN_RUST_ISSUE_OUTPUT=str(rust_output))
+        subprocess.run(["go", "test", "./issue", "-run", "^TestMigration(Frontmatter|NewIssue)Census$",
                         "-count=1"], cwd=source, env=env, check=True, capture_output=True)
         captured_output = json.loads(output.read_text())
         captured = captured_output["cases"]
@@ -68,11 +77,13 @@ def capture():
             case["input"] = base64.b64decode(case.pop("input_b64")).decode("utf-8")
         return {"schema": "beans-frontmatter-primitives-v1",
                 "source_sha": baseline["source_sha"],
-                "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata/logs and existing-issue edit outputs; new files and other note schemas remain WP3",
+                "scope": "YAML nodes, byte spans, literal body sections, links, issue metadata/logs, existing edits and new owned-field issues; Extra and other note schemas remain WP3",
                 "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest(),
+                "new_harness_sha256": hashlib.sha256(new_harness.read_bytes()).hexdigest(),
                 "cases": captured, "links": captured_output["links"],
                 "log_cases": captured_output["log_cases"], "log_formats": captured_output["log_formats"],
-                "log_sections": captured_output["log_sections"], "scalar_pairs": captured_output["scalar_pairs"]}
+                "log_sections": captured_output["log_sections"], "scalar_pairs": captured_output["scalar_pairs"],
+                "new_issues": json.loads(new_output.read_text())["cases"]}
 
 
 if __name__ == "__main__":

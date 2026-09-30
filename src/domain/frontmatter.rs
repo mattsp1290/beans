@@ -215,6 +215,19 @@ impl Frontmatter {
         &self.source[self.fm_start..self.fm_end]
     }
 
+    /// Diagnostic lines follow yaml.v3's raw Unicode line-break counting.
+    /// Physical LF byte ranges remain separate for preservation/splicing.
+    pub(crate) fn diagnostic_line(&self, yaml_line: usize) -> usize {
+        let extra = self
+            .yaml_text()
+            .split_inclusive('\n')
+            .take(yaml_line.saturating_sub(1))
+            .flat_map(str::chars)
+            .filter(|ch| matches!(ch, '\u{85}' | '\u{2028}' | '\u{2029}'))
+            .count();
+        yaml_line + 1 + extra
+    }
+
     pub fn body(&self) -> &str {
         &self.source[self.body_start..]
     }

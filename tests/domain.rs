@@ -1,3 +1,6 @@
+#[path = "domain/creation.rs"]
+mod creation;
+
 use beans::domain::frontmatter::Frontmatter;
 use beans::domain::text::{Link, split_issue_body, split_request_body};
 use proptest::prelude::*;

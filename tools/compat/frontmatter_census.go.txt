@@ -170,25 +170,7 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 				c.Mutations = append(c.Mutations, map[string]any{"kind": "opaque-original", "body": body, "encoded": string(encoded)})
 			}
 
-			timestamp := func(value time.Time) map[string]any {
-				_, offset := value.Zone()
-				return map[string]any{"seconds": value.Unix(), "nanoseconds": value.Nanosecond(), "offset_seconds": offset}
-			}
-			stringsOrEmpty := func(values []string) []string {
-				if values == nil {
-					return []string{}
-				}
-				return values
-			}
-			link := func(value Link) map[string]string { return map[string]string{"raw": value.Raw, "target": value.Target} }
-			links := []map[string]string{}
-			for _, value := range iss.BlockedBy {
-				links = append(links, link(value))
-			}
-			c.Metadata = map[string]any{"id": iss.ID, "title": iss.Title, "type": iss.Type, "status": iss.Status,
-				"priority": iss.Priority, "labels": stringsOrEmpty(iss.Labels), "aliases": stringsOrEmpty(iss.Aliases),
-				"assignee": iss.Assignee, "parent": link(iss.Parent), "blocked_by": links, "url": iss.URL,
-				"created": timestamp(iss.Created), "updated": timestamp(iss.Updated), "project": iss.Project, "archived": iss.Archived}
+			c.Metadata = migrationMetadata(iss)
 		}
 		if strings.Contains(string(c.Input), "\r\n") {
 			c.Error = c.Path + ": has Windows line endings (\\r\\n); bn requires \\n"
@@ -302,9 +284,7 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 		appendCases = append(appendCases, map[string]any{"input": section, "entries": parsed, "append_entry": migrationLog(appendEntry), "appended": appendToLog(section, []LogEntry{appendEntry}), "unchanged": appendToLog(section, nil)})
 	}
 	var scalarPairs []map[string]any
-	for _, value := range []string{"", "plain", "snow 雪", "emoji ☃ 😀", "true", "TRUE", "false", "null", "~", "yes", "no", "on", "off", "NaN", ".nan", ".inf", "+.inf", "-.inf",
-		"0", "-0", "+004", "077", "09", "0x10", "0XFF", "0b10", "0o10", "-0xFF", "18446744073709551615", "18446744073709551616", "1e309", "1e308", ".5", ".1_0", ".1__0", "1__0", "1.0", "1:20", "2026-09-10", "2026-9-1", "2026-09-10T08:01:00Z", "2026-9-1t8:1:2Z", "2026-9-1 8:1:2", "2026-09-99", "2026-09-10 garbage",
-		" leading", "trailing ", "a: b", "a:b", "a,b", "a?b", "a#b", "a # b", "#hash", "?question", "? question", ":colon", ": colon", "-dash", "- dash", "---start", "...end", "[brackets]", "{map}", "@actor", "&anchor", "*alias", "!tag", "'quote", "\"double", "it's fine", "a\tb", "a\rb", "a\nb", "a\n", "a\n\n", "\n", "\n\n", " a\nb", "a \nb", "a\nb ", "a\n b", "a\n\tb", "a\u0085b", "a\u2028b", "a\u2029b", "a\u00a0b", "a\uFEFFb", "a\uFFFEb", "a\x00b", "a\x07b", "a\x1bb", "a\x7fb"} {
+	for _, value := range migrationScalarInputs() {
 		scalar := strNode(value)
 		rendered, err := encodePair("title", scalar)
 		if err != nil {
@@ -338,4 +318,32 @@ func migrationLog(e LogEntry) map[string]any {
 	_, offset := e.At.Zone()
 	return map[string]any{"at": map[string]any{"seconds": e.At.Unix(), "nanoseconds": e.At.Nanosecond(), "offset_seconds": offset},
 		"actor": e.Actor, "repo": e.Repo, "sha": e.SHA, "branch": e.Branch, "event": e.Event, "raw": e.Raw}
+}
+
+func migrationMetadata(iss *Issue) map[string]any {
+	timestamp := func(value time.Time) map[string]any {
+		_, offset := value.Zone()
+		return map[string]any{"seconds": value.Unix(), "nanoseconds": value.Nanosecond(), "offset_seconds": offset}
+	}
+	stringsOrEmpty := func(values []string) []string {
+		if values == nil {
+			return []string{}
+		}
+		return values
+	}
+	link := func(value Link) map[string]string { return map[string]string{"raw": value.Raw, "target": value.Target} }
+	links := []map[string]string{}
+	for _, value := range iss.BlockedBy {
+		links = append(links, link(value))
+	}
+	return map[string]any{"id": iss.ID, "title": iss.Title, "type": iss.Type, "status": iss.Status,
+		"priority": iss.Priority, "labels": stringsOrEmpty(iss.Labels), "aliases": stringsOrEmpty(iss.Aliases),
+		"assignee": iss.Assignee, "parent": link(iss.Parent), "blocked_by": links, "url": iss.URL,
+		"created": timestamp(iss.Created), "updated": timestamp(iss.Updated), "project": iss.Project, "archived": iss.Archived}
+}
+
+func migrationScalarInputs() []string {
+	return []string{"", "plain", "snow 雪", "emoji ☃ 😀", "true", "TRUE", "false", "null", "~", "yes", "no", "on", "off", "NaN", ".nan", ".inf", "+.inf", "-.inf",
+		"0", "-0", "+004", "077", "09", "0x10", "0XFF", "0b10", "0o10", "-0xFF", "18446744073709551615", "18446744073709551616", "1e309", "1e308", ".5", ".1_0", ".1__0", "1__0", "1.0", "1:20", "2026-09-10", "2026-9-1", "2026-09-10T08:01:00Z", "2026-9-1t8:1:2Z", "2026-9-1 8:1:2", "2026-09-99", "2026-09-10 garbage",
+		" leading", "trailing ", "a: b", "a:b", "a,b", "a?b", "a#b", "a # b", "#hash", "?question", "? question", ":colon", ": colon", "-dash", "- dash", "---start", "...end", "[brackets]", "{map}", "@actor", "&anchor", "*alias", "!tag", "'quote", "\"double", "it's fine", "a\tb", "a\rb", "a\nb", "a\n", "a\n\n", "\n", "\n\n", " a\nb", "a \nb", "a\nb ", "a\n b", "a\n\tb", "a\u0085b", "a\u2028b", "a\u2029b", "a\u00a0b", "a\uFEFFb", "a\uFFFEb", "a\x00b", "a\x07b", "a\x1bb", "a\x7fb"}
 }

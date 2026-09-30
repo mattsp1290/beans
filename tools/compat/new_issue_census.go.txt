@@ -1,0 +1,134 @@
+package issue
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"testing"
+	"time"
+)
+
+func TestMigrationNewIssueCensus(t *testing.T) {
+	at := time.Date(2026, 9, 10, 8, 1, 2, 987654321, time.FixedZone("offset", 19800))
+	baseline := func() *Issue {
+		return &Issue{ID: "issue-new", Title: "New issue", Type: "task", Status: "open", Priority: 2,
+			Labels: []string{"first", "true"}, Assignee: "Matt Spurlin", Parent: Link{Target: "parent"}, BlockedBy: []Link{{Raw: "[[blocker|alias]]", Target: "blocker"}, {Target: "bare"}},
+			URL: "https://example.test/path", Created: at, Updated: at, Aliases: []string{"external"}}
+	}
+	var cases []map[string]any
+	capture := func(name string, iss *Issue) {
+		inputLog := []map[string]any{}
+		for _, entry := range iss.Log {
+			inputLog = append(inputLog, migrationLog(entry))
+		}
+		result, err := Encode(iss)
+		if err != nil {
+			t.Fatal(err)
+		}
+		c := map[string]any{"name": name, "path": "projects/proj/issues/new.md", "metadata": migrationMetadata(iss), "description": iss.Description, "body": iss.Body, "log": inputLog, "encoded": string(result)}
+		parsed, err := Parse(c["path"].(string), result)
+		if err != nil {
+			c["read_error"] = err.Error()
+		} else {
+			c["read_metadata"] = migrationMetadata(parsed)
+			c["read_description"], c["read_body"] = parsed.Description, parsed.Body
+			entries := []map[string]any{}
+			for _, entry := range parsed.Log {
+				entries = append(entries, migrationLog(entry))
+			}
+			c["read_log"] = entries
+		}
+		cases = append(cases, c)
+	}
+	capture("zero-value", &Issue{})
+	capture("canonical", baseline())
+	for index, title := range migrationScalarInputs() {
+		iss := baseline()
+		iss.Title = title
+		capture(fmt.Sprintf("title-%03d", index), iss)
+	}
+	for index, title := range []string{"a\u2028  b", "a\u2029  b", "a\u0085  b", "a\\Lb", "a\u2028b 'quoted'", "a\u2028b\u2029c"} {
+		iss := baseline()
+		iss.Title = title
+		capture(fmt.Sprintf("unicode-quote-%02d", index), iss)
+	}
+	for index, aliases := range [][]string{nil, {}, {"issue-new"}, {"external", "issue-new", "external"}, {"", "true", "a,b", "a\u2028b", "\n"}} {
+		iss := baseline()
+		iss.Aliases = aliases
+		iss.Labels = aliases
+		capture(fmt.Sprintf("lists-%02d", index), iss)
+	}
+	for index, description := range []string{"", "description", "description\n", "description\n\n", "---\n"} {
+		for _, withLog := range []bool{false, true} {
+			iss := baseline()
+			iss.Description = description
+			if withLog {
+				iss.Log = []LogEntry{{At: at, Actor: " actor name ", Repo: "beans", SHA: "abcd", Branch: "feature/x", Event: "created\ncontinuation"}, {Raw: "- custom log\n  opaque"}}
+			}
+			capture(fmt.Sprintf("description-%02d-%v", index, withLog), iss)
+		}
+	}
+	for index, body := range []string{"", "## Details", "## Details\n", "## Details\n\n", "## Details\nbody\n", "---\n"} {
+		iss := baseline()
+		iss.Description = "description\n\n"
+		iss.Body = body
+		iss.Log = []LogEntry{{At: at, Actor: "m", Event: "created"}}
+		capture(fmt.Sprintf("body-%02d", index), iss)
+	}
+	for index, at := range []time.Time{time.Time{}, time.Date(0, 1, 1, 0, 0, 0, 0, time.FixedZone("offset", 86400)), time.Date(9999, 12, 31, 23, 59, 59, 0, time.FixedZone("offset", -86400))} {
+		iss := baseline()
+		iss.Created = at
+		iss.Updated = at
+		capture(fmt.Sprintf("timestamp-%02d", index), iss)
+		if index > 0 {
+			iss.Title = "a\u2028b"
+			capture(fmt.Sprintf("timestamp-unicode-%02d", index), iss)
+		}
+	}
+	// The zero-value optional fields and missing aliases follow ownedNode's
+	// omission/default behavior rather than issue reader validation policy.
+	minimal := &Issue{ID: "issue-minimal", Title: "Minimal", Type: "task", Status: "open", Created: at, Updated: at}
+	capture("minimal", minimal)
+	output, err := json.MarshalIndent(map[string]any{"cases": cases}, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(os.Getenv("BN_NEW_ISSUE_OUTPUT"), append(output, '\n'), 0600); err != nil {
+		t.Fatal(err)
+	}
+	// Optional candidate files are compared only with the fixed Go reader.
+	if input := os.Getenv("BN_RUST_ISSUE_INPUT"); input != "" {
+		raw, err := os.ReadFile(input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var candidates []map[string]string
+		if err = json.Unmarshal(raw, &candidates); err != nil {
+			t.Fatal(err)
+		}
+		var reads []map[string]any
+		for _, candidate := range candidates {
+			c := map[string]any{"name": candidate["name"]}
+			parsed, err := Parse(candidate["path"], []byte(candidate["input"]))
+			if err != nil {
+				c["error"] = err.Error()
+			} else {
+				c["metadata"] = migrationMetadata(parsed)
+				c["description"], c["body"] = parsed.Description, parsed.Body
+				entries := []map[string]any{}
+				for _, entry := range parsed.Log {
+					entries = append(entries, migrationLog(entry))
+				}
+				c["log"] = entries
+			}
+			reads = append(reads, c)
+		}
+		output, err := json.MarshalIndent(reads, "", "  ")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = os.WriteFile(os.Getenv("BN_RUST_ISSUE_OUTPUT"), append(output, '\n'), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+}

@@ -8,18 +8,20 @@ use time::OffsetDateTime;
 
 impl IssueDocument {
     pub fn encode(&self) -> Result<EditResult, Error> {
+        let Some(document) = &self.document else {
+            return self.encode_new();
+        };
         let mut rendered = Vec::new();
         for &key in OWNED {
             if self.metadata.changed(&self.original_metadata, key) {
-                let comment = self
-                    .document
+                let comment = document
                     .fields()
                     .iter()
                     .find(|field| field.key == key)
                     .filter(|field| field.value.kind == NodeKind::Scalar)
                     .map_or(String::new(), |field| {
                         scalar_comment(
-                            self.document.original(),
+                            document.original(),
                             field.start,
                             field.end,
                             field.value.line,
@@ -33,8 +35,21 @@ impl IssueDocument {
             .iter()
             .map(|(key, value)| (*key, value.as_ref().map(|value| value.as_bytes())))
             .collect();
-        self.document
-            .splice_owned(OWNED, &changes, self.render_body()?.as_bytes())
+        document.splice_owned(OWNED, &changes, self.render_body()?.as_bytes())
+    }
+    fn encode_new(&self) -> Result<EditResult, Error> {
+        let mut output = String::from("---\n");
+        for &key in OWNED {
+            if let Some(field) = self.metadata.render(key, "")? {
+                output.push_str(&field);
+            }
+        }
+        output.push_str("---\n");
+        output.push_str(&self.render_body()?);
+        Ok(EditResult {
+            bytes: output.into_bytes(),
+            copies: Vec::new(),
+        })
     }
 }
 

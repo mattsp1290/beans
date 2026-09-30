@@ -38,7 +38,14 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
             Event::MappingEnd | Event::SequenceEnd => stack
                 .pop()
                 .ok_or_else(|| Error(format!("{path}: invalid YAML container")))?,
-            Event::Scalar(value, style, anchor, tag) => {
+            Event::Scalar(mut value, style, anchor, tag) => {
+                if matches!(
+                    style,
+                    TScalarStyle::SingleQuoted | TScalarStyle::DoubleQuoted
+                ) && let Some(Some(adapted)) = positions.quoted_values.pop_front()
+                {
+                    value = adapted;
+                }
                 let null = scalar_null(&value, style, tag.as_ref());
                 // This release marks nonempty block scalars at their first
                 // content character rather than at |/>. Recover the header
@@ -90,6 +97,7 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
 
 struct SourcePositions {
     block_headers: std::collections::VecDeque<usize>,
+    quoted_values: std::collections::VecDeque<Option<String>>,
     anchors: Vec<usize>,
     tags: std::collections::VecDeque<usize>,
     empty_values: std::collections::VecDeque<usize>,
@@ -112,6 +120,7 @@ impl SourcePositions {
     fn scan(text: &str) -> Self {
         let lines: Vec<_> = text.lines().collect();
         let mut headers = Vec::new();
+        let mut quoted_values = Vec::new();
         let mut anchors = Vec::new();
         let mut tags = Vec::new();
         let mut empty_values = Vec::new();
@@ -138,6 +147,15 @@ impl SourcePositions {
                 | TokenType::BlockSequenceStart
                 | TokenType::FlowSequenceStart => pending_value = None,
                 _ => {}
+            }
+            if let TokenType::Scalar(TScalarStyle::SingleQuoted | TScalarStyle::DoubleQuoted, _) =
+                &token.1
+            {
+                quoted_values.push(adapt_quoted_unicode_breaks(
+                    text,
+                    token.0.line(),
+                    token.0.col(),
+                ));
             }
             match &token.1 {
                 TokenType::Anchor(_) => anchors.push(token.0.line()),
@@ -188,9 +206,77 @@ impl SourcePositions {
         }
         Self {
             block_headers: headers.into(),
+            quoted_values: quoted_values.into(),
             anchors,
             tags: tags.into(),
             empty_values: empty_values.into(),
+        }
+    }
+}
+
+// yaml.v3 treats raw NEL/LS/PS as quoted-scalar line breaks; yaml-rust2's
+// YAML 1.2 scanner treats them as content. Adapt only the raw quoted lexeme,
+// then decode it with the same parser. Escaped \L/\P/\N remain untouched.
+fn adapt_quoted_unicode_breaks(text: &str, line: usize, column: usize) -> Option<String> {
+    let lines: Vec<_> = text.split_inclusive('\n').collect();
+    let before: usize = lines
+        .iter()
+        .take(line.checked_sub(1)?)
+        .map(|line| line.len())
+        .sum();
+    let start = before + lines.get(line - 1)?.char_indices().nth(column)?.0;
+    let source = text.get(start..)?;
+    let quote = source.chars().next()?;
+    if !matches!(quote, '\'' | '"') {
+        return None;
+    }
+    let mut chars = source.char_indices().peekable();
+    chars.next();
+    let mut end = None;
+    while let Some((byte, ch)) = chars.next() {
+        if quote == '"' && ch == '\\' {
+            chars.next();
+            continue;
+        }
+        if ch == quote {
+            if quote == '\'' && chars.peek().is_some_and(|(_, next)| *next == '\'') {
+                chars.next();
+            } else {
+                end = Some(byte + ch.len_utf8());
+                break;
+            }
+        }
+    }
+    let raw = &source[..end?];
+    if !raw.contains(['\u{85}', '\u{2028}', '\u{2029}']) {
+        return None;
+    }
+    let mut normalized = String::new();
+    let mut chars = raw.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '\\' && quote == '"' {
+            normalized.push(ch);
+            if let Some(next) = chars.next() {
+                normalized.push(next);
+            }
+        } else if matches!(ch, '\u{85}' | '\u{2028}' | '\u{2029}') {
+            while normalized.ends_with([' ', '\t']) {
+                normalized.pop();
+            }
+            normalized.push(if ch == '\u{85}' { '\n' } else { ch });
+            while chars.peek().is_some_and(|ch| matches!(ch, ' ' | '\t')) {
+                chars.next();
+            }
+        } else {
+            normalized.push(ch);
+        }
+    }
+    let mut parser = Parser::new_from_str(&normalized);
+    loop {
+        match parser.next_token().ok()?.0 {
+            Event::Scalar(value, ..) => return Some(value),
+            Event::StreamEnd => return None,
+            _ => {}
         }
     }
 }

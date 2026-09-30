@@ -55,7 +55,7 @@ impl Timestamp {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IssueMetadata {
     pub id: String,
     pub title: String,
@@ -81,12 +81,25 @@ pub struct IssueDocument {
     pub log: Vec<super::log::LogEntry>,
     pub description: String,
     pub body: String,
-    pub(super) document: Frontmatter,
+    pub(super) document: Option<Frontmatter>,
     pub(super) original_metadata: IssueMetadata,
     original_log_len: usize,
 }
 
 impl IssueDocument {
+    /// Construct a new issue without retained source or parsed log history.
+    pub fn new(metadata: IssueMetadata) -> Self {
+        Self {
+            original_metadata: metadata.clone(),
+            metadata,
+            document: None,
+            log: Vec::new(),
+            description: String::new(),
+            body: String::new(),
+            original_log_len: 0,
+        }
+    }
+
     pub fn parse(path: &str, source: &str) -> Result<Self, Error> {
         let document = Frontmatter::parse(path, source)?;
         let mut metadata = IssueMetadata::default();
@@ -99,12 +112,15 @@ impl IssueDocument {
             if !seen.insert(key) {
                 return Err(Error(format!(
                     "{path}: line {}: duplicate frontmatter key {}",
-                    field.key_line + 1,
+                    document.diagnostic_line(field.key_line),
                     quoted(key)
                 )));
             }
             metadata.read(key, &field.value).map_err(|error| {
-                Error(format!("{path}: line {}: {error}", field.value.line + 1))
+                Error(format!(
+                    "{path}: line {}: {error}",
+                    document.diagnostic_line(field.value.line)
+                ))
             })?;
         }
         for key in REQUIRED {
@@ -135,7 +151,7 @@ impl IssueDocument {
             log,
             description,
             body,
-            document,
+            document: Some(document),
             original_log_len,
         })
     }
@@ -172,7 +188,7 @@ impl IssueDocument {
 
     /// Render the body only. Existing parsed log entries are deliberately not
     /// reserialized: only entries beyond the original length are appended.
-    /// Frontmatter encoding and the full-document splice are separate gates.
+    /// Full-document encoding combines this with rendered owned frontmatter.
     pub fn render_body(&self) -> Result<String, Error> {
         let original = self.body();
         let mut output = self.description.clone() + &self.body;
@@ -197,15 +213,15 @@ impl IssueDocument {
     }
 
     pub fn original(&self) -> &str {
-        self.document.original()
+        self.document.as_ref().map_or("", Frontmatter::original)
     }
 
     pub fn body(&self) -> IssueBody<'_> {
-        split_issue_body(self.document.body())
+        split_issue_body(self.document.as_ref().map_or("", Frontmatter::body))
     }
 
-    pub fn frontmatter(&self) -> &Frontmatter {
-        &self.document
+    pub fn frontmatter(&self) -> Option<&Frontmatter> {
+        self.document.as_ref()
     }
 }
 

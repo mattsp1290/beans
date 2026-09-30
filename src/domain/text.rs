@@ -1,8 +1,8 @@
 //! Literal link and section rules shared by note codecs. These intentionally
 //! follow the stored-format rules rather than a Markdown renderer's AST.
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Link {
     pub raw: String,
     pub target: String,

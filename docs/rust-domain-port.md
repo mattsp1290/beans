@@ -5,8 +5,9 @@ WP3 is in progress. The current parser/editing primitives are implemented in
 `src/domain/yaml.rs`. Issue reading and body mutation semantics are in
 `src/domain/issue.rs`; stored log rules are in `src/domain/log.rs`. Existing-issue encoding is in `src/domain/issue_encode.rs`, with owned YAML
 presentation in `src/domain/yaml_render.rs` and source-provenance planning in
-`src/domain/splicing.rs`. New-file construction, request codecs, other note
-kinds, plans, configuration, resolution and indexing remain to be ported. Go is still the
+`src/domain/splicing.rs`. New-file construction uses the same owned-field renderer. New unknown Extra
+node construction, request codecs, other note kinds, plans, configuration,
+resolution and indexing remain to be ported. Go is still the
 default implementation, and no Go regression has been retired.
 
 The parser retains original UTF-8 text and derives absolute byte ranges from
@@ -90,8 +91,33 @@ including Unicode, comments, duplicate unknown keys and arbitrary bodies.
 
 Remaining codec gates include other note schemas, complete yaml.v3 syntax-error
 presentation and obscure Unicode error quoting, further YAML/comment variants,
-new-file construction and cross-language parse/encode/edit validity. The real
+new-file Extra handling and expanded cross-language parse/encode/edit validity. The real
 issue encoder now reaches the verified helpers using parsed byte ranges; every
 other typed codec must do so before WP3's whole-package proof-coupling gate is
 accepted. Primitive parity
 alone does not establish issue/request or whole-hub compatibility.
+
+
+`IssueDocument::new` constructs an issue without original text or parsed log
+history. Encoding writes owned fields in canonical order, applies aliases and
+optional-field rules, emits UTC whole-second timestamps, and adds authored
+body/log text. `frontmatter()` returns None for a new issue. Parsed documents
+retain the original byte-preserving encoder path.
+
+The new-file corpus has 128 Go-derived cases covering default/minimal/canonical
+metadata, all 93 string presentations in titles, list/alias variations,
+description/body/log separators and timestamp boundaries. Rust encoding equals
+Go byte-for-byte, and the Rust reader matches Go's metadata, body and log views.
+`make compat-domain-read` exports actual Rust-generated files from the tests and
+reads those bytes with the archived fixed Go reader. Linux CI requires this
+check; failure artifacts retain the files and reader results. The gate proves
+124 accepted reads and four Go-matching timestamp boundary rejections, not
+unconditional validity of every possible programmer-supplied timestamp.
+
+The cross-read tests exposed YAML-version differences for raw Unicode quoted
+line separators. The adapter locates the original quoted lexeme, trims adjacent
+indentation around raw NEL/LS/PS and decodes that adapted lexeme independently.
+Escaped \N/\L/\P keep their authored spaces. Diagnostic line accounting counts
+raw Unicode separators separately from physical LF byte offsets. More Unicode,
+quote/escape interactions and byte-span behavior still need differential cases
+before broad vault use; this gate does not establish complete YAML compatibility.
