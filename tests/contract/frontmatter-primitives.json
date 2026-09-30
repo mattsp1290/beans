@@ -1,0 +1,3180 @@
+{
+  "schema": "beans-frontmatter-primitives-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "scope": "YAML nodes and byte spans only; typed note validation/encoding remains WP3",
+  "harness_sha256": "47418219380f2148057ce9e5c30943b0865916b3e0f4f1b10ba9739ea40d60e1",
+  "cases": [
+    {
+      "name": "roundtrip/a_canonical.md",
+      "path": "projects/proj/issues/a_canonical.md",
+      "yaml": "id: exampleA-a3f2\naliases: [exampleA-a3f2]\ntitle: Migrate the live infra-host deploy\ntype: task\nstatus: open\npriority: 2\nlabels: [deploy, infra]\nassignee: matt\nparent: \"[[exampleA-mkg1-deploy-bean-counter]]\"\nblocked_by:\n  - \"[[exampleA-ued1-schema-parity]]\"\nurl: https://example.invalid/ticket/1\ncreated: 2026-06-15T10:22:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "exampleA-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 22
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "exampleA-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 22,
+          "end": 47
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Migrate the live infra-host deploy",
+            "null": false
+          },
+          "start": 47,
+          "end": 89
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 89,
+          "end": 100
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 100,
+          "end": 113
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 113,
+          "end": 125
+        },
+        {
+          "key": "labels",
+          "key_line": 7,
+          "value": {
+            "kind": "sequence",
+            "line": 7,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 7,
+                "value": "deploy",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 7,
+                "value": "infra",
+                "null": false
+              }
+            ]
+          },
+          "start": 125,
+          "end": 149
+        },
+        {
+          "key": "assignee",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "matt",
+            "null": false
+          },
+          "start": 149,
+          "end": 164
+        },
+        {
+          "key": "parent",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "[[exampleA-mkg1-deploy-bean-counter]]",
+            "null": false
+          },
+          "start": 164,
+          "end": 212
+        },
+        {
+          "key": "blocked_by",
+          "key_line": 10,
+          "value": {
+            "kind": "sequence",
+            "line": 11,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "[[exampleA-ued1-schema-parity]]",
+                "null": false
+              }
+            ]
+          },
+          "start": 212,
+          "end": 262
+        },
+        {
+          "key": "url",
+          "key_line": 12,
+          "value": {
+            "kind": "scalar",
+            "line": 12,
+            "value": "https://example.invalid/ticket/1",
+            "null": false
+          },
+          "start": 262,
+          "end": 300
+        },
+        {
+          "key": "created",
+          "key_line": 13,
+          "value": {
+            "kind": "scalar",
+            "line": 13,
+            "value": "2026-06-15T10:22:00Z",
+            "null": false
+          },
+          "start": 300,
+          "end": 330
+        },
+        {
+          "key": "updated",
+          "key_line": 14,
+          "value": {
+            "kind": "scalar",
+            "line": 14,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 330,
+          "end": 360
+        }
+      ],
+      "input": "---\nid: exampleA-a3f2\naliases: [exampleA-a3f2]\ntitle: Migrate the live infra-host deploy\ntype: task\nstatus: open\npriority: 2\nlabels: [deploy, infra]\nassignee: matt\nparent: \"[[exampleA-mkg1-deploy-bean-counter]]\"\nblocked_by:\n  - \"[[exampleA-ued1-schema-parity]]\"\nurl: https://example.invalid/ticket/1\ncreated: 2026-06-15T10:22:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n"
+    },
+    {
+      "name": "roundtrip/archived.md",
+      "path": "projects/proj/issues/archived.md",
+      "yaml": "id: p-x1\naliases: [p-x1]\ntitle: Archived issue\ntype: task\nstatus: closed\npriority: 4\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-02-01T00:00:00Z\n",
+      "body": "Desc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "p-x1",
+            "null": false
+          },
+          "start": 4,
+          "end": 13
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "p-x1",
+                "null": false
+              }
+            ]
+          },
+          "start": 13,
+          "end": 29
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Archived issue",
+            "null": false
+          },
+          "start": 29,
+          "end": 51
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 51,
+          "end": 62
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "closed",
+            "null": false
+          },
+          "start": 62,
+          "end": 77
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "4",
+            "null": false
+          },
+          "start": 77,
+          "end": 89
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 89,
+          "end": 119
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-02-01T00:00:00Z",
+            "null": false
+          },
+          "start": 119,
+          "end": 149
+        }
+      ],
+      "input": "---\nid: p-x1\naliases: [p-x1]\ntitle: Archived issue\ntype: task\nstatus: closed\npriority: 4\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-02-01T00:00:00Z\n---\nDesc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n"
+    },
+    {
+      "name": "roundtrip/b_unknown_keys.md",
+      "path": "projects/proj/issues/b_unknown_keys.md",
+      "yaml": "custom_before: hello\nid: proj-b001\naliases: [proj-b001]\ntitle: Unknown keys everywhere\ntype: task\ncustom_between: world\nstatus: open\npriority: 3\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\ncustom_after: bye\n",
+      "body": "Desc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n",
+      "fields": [
+        {
+          "key": "custom_before",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "hello",
+            "null": false
+          },
+          "start": 4,
+          "end": 25
+        },
+        {
+          "key": "id",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "proj-b001",
+            "null": false
+          },
+          "start": 25,
+          "end": 39
+        },
+        {
+          "key": "aliases",
+          "key_line": 3,
+          "value": {
+            "kind": "sequence",
+            "line": 3,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 3,
+                "value": "proj-b001",
+                "null": false
+              }
+            ]
+          },
+          "start": 39,
+          "end": 60
+        },
+        {
+          "key": "title",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "Unknown keys everywhere",
+            "null": false
+          },
+          "start": 60,
+          "end": 91
+        },
+        {
+          "key": "type",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "task",
+            "null": false
+          },
+          "start": 91,
+          "end": 102
+        },
+        {
+          "key": "custom_between",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "world",
+            "null": false
+          },
+          "start": 102,
+          "end": 124
+        },
+        {
+          "key": "status",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "open",
+            "null": false
+          },
+          "start": 124,
+          "end": 137
+        },
+        {
+          "key": "priority",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "3",
+            "null": false
+          },
+          "start": 137,
+          "end": 149
+        },
+        {
+          "key": "created",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 149,
+          "end": 179
+        },
+        {
+          "key": "updated",
+          "key_line": 10,
+          "value": {
+            "kind": "scalar",
+            "line": 10,
+            "value": "2026-01-02T00:00:00Z",
+            "null": false
+          },
+          "start": 179,
+          "end": 209
+        },
+        {
+          "key": "custom_after",
+          "key_line": 11,
+          "value": {
+            "kind": "scalar",
+            "line": 11,
+            "value": "bye",
+            "null": false
+          },
+          "start": 209,
+          "end": 227
+        }
+      ],
+      "input": "---\ncustom_before: hello\nid: proj-b001\naliases: [proj-b001]\ntitle: Unknown keys everywhere\ntype: task\ncustom_between: world\nstatus: open\npriority: 3\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\ncustom_after: bye\n---\nDesc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n"
+    },
+    {
+      "name": "roundtrip/c_comments.md",
+      "path": "projects/proj/issues/c_comments.md",
+      "yaml": "# head comment about this issue\nid: proj-c001\naliases: [proj-c001]\ntitle: Comment test\ntype: task\nstatus: open  # inline comment on bn scalar\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n# comment block\n# before closing fence\n",
+      "body": "Desc.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "proj-c001",
+            "null": false
+          },
+          "start": 36,
+          "end": 50
+        },
+        {
+          "key": "aliases",
+          "key_line": 3,
+          "value": {
+            "kind": "sequence",
+            "line": 3,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 3,
+                "value": "proj-c001",
+                "null": false
+              }
+            ]
+          },
+          "start": 50,
+          "end": 71
+        },
+        {
+          "key": "title",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "Comment test",
+            "null": false
+          },
+          "start": 71,
+          "end": 91
+        },
+        {
+          "key": "type",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "task",
+            "null": false
+          },
+          "start": 91,
+          "end": 102
+        },
+        {
+          "key": "status",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "open",
+            "null": false
+          },
+          "start": 102,
+          "end": 146
+        },
+        {
+          "key": "priority",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "1",
+            "null": false
+          },
+          "start": 146,
+          "end": 158
+        },
+        {
+          "key": "created",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 158,
+          "end": 188
+        },
+        {
+          "key": "updated",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 188,
+          "end": 218
+        }
+      ],
+      "input": "---\n# head comment about this issue\nid: proj-c001\naliases: [proj-c001]\ntitle: Comment test\ntype: task\nstatus: open  # inline comment on bn scalar\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n# comment block\n# before closing fence\n---\nDesc.\n"
+    },
+    {
+      "name": "roundtrip/d_flow_blocked_by.md",
+      "path": "projects/proj/issues/d_flow_blocked_by.md",
+      "yaml": "id: proj-d001\naliases: [proj-d001]\ntitle: Flow style blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: [\"[[proj-d001-a]]\", \"[[proj-d001-b]]\"]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-d001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-d001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Flow style blocked by",
+            "null": false
+          },
+          "start": 39,
+          "end": 68
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 68,
+          "end": 79
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 79,
+          "end": 92
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 92,
+          "end": 104
+        },
+        {
+          "key": "blocked_by",
+          "key_line": 7,
+          "value": {
+            "kind": "sequence",
+            "line": 7,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 7,
+                "value": "[[proj-d001-a]]",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 7,
+                "value": "[[proj-d001-b]]",
+                "null": false
+              }
+            ]
+          },
+          "start": 104,
+          "end": 155
+        },
+        {
+          "key": "created",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 155,
+          "end": 185
+        },
+        {
+          "key": "updated",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 185,
+          "end": 215
+        }
+      ],
+      "input": "---\nid: proj-d001\naliases: [proj-d001]\ntitle: Flow style blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: [\"[[proj-d001-a]]\", \"[[proj-d001-b]]\"]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
+    },
+    {
+      "name": "roundtrip/e_tabs_in_body.md",
+      "path": "projects/proj/issues/e_tabs_in_body.md",
+      "yaml": "id: proj-e001\naliases: [proj-e001]\ntitle: Tabs in body\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-e001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-e001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Tabs in body",
+            "null": false
+          },
+          "start": 39,
+          "end": 59
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 59,
+          "end": 70
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 70,
+          "end": 83
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 83,
+          "end": 95
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 95,
+          "end": 125
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 125,
+          "end": 155
+        }
+      ],
+      "input": "---\nid: proj-e001\naliases: [proj-e001]\ntitle: Tabs in body\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n"
+    },
+    {
+      "name": "roundtrip/err_windows.md",
+      "path": "projects/proj/issues/err_windows.md",
+      "error": "projects/proj/issues/err_windows.md: has Windows line endings (\\r\\n); bn requires \\n",
+      "input": "---\r\nid: err-w1nd\r\naliases: [err-w1nd]\r\ntitle: Windows line endings\r\ntype: task\r\nstatus: open\r\npriority: 1\r\ncreated: 2026-01-01T00:00:00Z\r\nupdated: 2026-01-01T00:00:00Z\r\n---\r\nDesc.\r\n"
+    },
+    {
+      "name": "roundtrip/f_no_log.md",
+      "path": "projects/proj/issues/f_no_log.md",
+      "yaml": "id: proj-f001\naliases: [proj-f001]\ntitle: No log section\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc.\n\n## Notes\nSome notes here, no log section at all.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-f001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-f001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "No log section",
+            "null": false
+          },
+          "start": 39,
+          "end": 61
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 61,
+          "end": 72
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 72,
+          "end": 85
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 85,
+          "end": 97
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 127,
+          "end": 157
+        }
+      ],
+      "input": "---\nid: proj-f001\naliases: [proj-f001]\ntitle: No log section\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Notes\nSome notes here, no log section at all.\n"
+    },
+    {
+      "name": "roundtrip/g_log_not_last.md",
+      "path": "projects/proj/issues/g_log_not_last.md",
+      "yaml": "id: proj-g001\naliases: [proj-g001]\ntitle: Log not last heading\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-g001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-g001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Log not last heading",
+            "null": false
+          },
+          "start": 39,
+          "end": 67
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 67,
+          "end": 78
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 78,
+          "end": 91
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 91,
+          "end": 103
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 103,
+          "end": 133
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 133,
+          "end": 163
+        }
+      ],
+      "input": "---\nid: proj-g001\naliases: [proj-g001]\ntitle: Log not last heading\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n"
+    },
+    {
+      "name": "roundtrip/j_nested_indent.md",
+      "path": "projects/proj/issues/j_nested_indent.md",
+      "yaml": "id: proj-j001\naliases: [proj-j001]\ntitle: Nested user key\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nextra_data:\n    nested_key: value\n    another: thing\n",
+      "body": "Desc.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-j001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-j001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Nested user key",
+            "null": false
+          },
+          "start": 39,
+          "end": 62
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 62,
+          "end": 73
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 73,
+          "end": 86
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 86,
+          "end": 98
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 98,
+          "end": 128
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 128,
+          "end": 158
+        },
+        {
+          "key": "extra_data",
+          "key_line": 9,
+          "value": {
+            "kind": "mapping",
+            "line": 10,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "nested_key",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "value",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "another",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "thing",
+                "null": false
+              }
+            ]
+          },
+          "start": 158,
+          "end": 211
+        }
+      ],
+      "input": "---\nid: proj-j001\naliases: [proj-j001]\ntitle: Nested user key\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nextra_data:\n    nested_key: value\n    another: thing\n---\nDesc.\n"
+    },
+    {
+      "name": "roundtrip/k_blocked_by_no_indent.md",
+      "path": "projects/proj/issues/k_blocked_by_no_indent.md",
+      "yaml": "id: proj-k001\naliases: [proj-k001]\ntitle: Blocked by without indentation\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n- \"[[proj-k001-a]]\"\n- \"[[proj-k001-b]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-k001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-k001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Blocked by without indentation",
+            "null": false
+          },
+          "start": 39,
+          "end": 77
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 77,
+          "end": 88
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 88,
+          "end": 101
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 101,
+          "end": 113
+        },
+        {
+          "key": "blocked_by",
+          "key_line": 7,
+          "value": {
+            "kind": "sequence",
+            "line": 8,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 8,
+                "value": "[[proj-k001-a]]",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 9,
+                "value": "[[proj-k001-b]]",
+                "null": false
+              }
+            ]
+          },
+          "start": 113,
+          "end": 165
+        },
+        {
+          "key": "created",
+          "key_line": 10,
+          "value": {
+            "kind": "scalar",
+            "line": 10,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 165,
+          "end": 195
+        },
+        {
+          "key": "updated",
+          "key_line": 11,
+          "value": {
+            "kind": "scalar",
+            "line": 11,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 195,
+          "end": 225
+        }
+      ],
+      "input": "---\nid: proj-k001\naliases: [proj-k001]\ntitle: Blocked by without indentation\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n- \"[[proj-k001-a]]\"\n- \"[[proj-k001-b]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
+    },
+    {
+      "name": "roundtrip/l_literal_block.md",
+      "path": "projects/proj/issues/l_literal_block.md",
+      "yaml": "id: proj-l001\naliases: [proj-l001]\ntitle: Literal block scalar\ntype: task\nstatus: open\npriority: 2\nnotes: |\n  First line of notes.\n  Second line of notes.\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-l001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-l001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Literal block scalar",
+            "null": false
+          },
+          "start": 39,
+          "end": 67
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 67,
+          "end": 78
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 78,
+          "end": 91
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 91,
+          "end": 103
+        },
+        {
+          "key": "notes",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "First line of notes.\nSecond line of notes.\n",
+            "null": false
+          },
+          "start": 103,
+          "end": 159
+        },
+        {
+          "key": "created",
+          "key_line": 10,
+          "value": {
+            "kind": "scalar",
+            "line": 10,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 159,
+          "end": 189
+        },
+        {
+          "key": "updated",
+          "key_line": 11,
+          "value": {
+            "kind": "scalar",
+            "line": 11,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 189,
+          "end": 219
+        }
+      ],
+      "input": "---\nid: proj-l001\naliases: [proj-l001]\ntitle: Literal block scalar\ntype: task\nstatus: open\npriority: 2\nnotes: |\n  First line of notes.\n  Second line of notes.\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
+    },
+    {
+      "name": "roundtrip/m_single_scalar_blocked_by.md",
+      "path": "projects/proj/issues/m_single_scalar_blocked_by.md",
+      "yaml": "id: proj-m001\naliases: [proj-m001]\ntitle: Single scalar blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: \"[[proj-m001-a]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
+      "body": "Desc.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-m001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-m001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Single scalar blocked by",
+            "null": false
+          },
+          "start": 39,
+          "end": 71
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 71,
+          "end": 82
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 82,
+          "end": 95
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 95,
+          "end": 107
+        },
+        {
+          "key": "blocked_by",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "[[proj-m001-a]]",
+            "null": false
+          },
+          "start": 107,
+          "end": 137
+        },
+        {
+          "key": "created",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 137,
+          "end": 167
+        },
+        {
+          "key": "updated",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 167,
+          "end": 197
+        }
+      ],
+      "input": "---\nid: proj-m001\naliases: [proj-m001]\ntitle: Single scalar blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: \"[[proj-m001-a]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
+    },
+    {
+      "name": "roundtrip/n_log_mixed.md",
+      "path": "projects/proj/issues/n_log_mixed.md",
+      "yaml": "id: proj-n001\naliases: [proj-n001]\ntitle: Mixed log entries\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\n",
+      "body": "Desc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "proj-n001",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "proj-n001",
+                "null": false
+              }
+            ]
+          },
+          "start": 18,
+          "end": 39
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Mixed log entries",
+            "null": false
+          },
+          "start": 39,
+          "end": 64
+        },
+        {
+          "key": "type",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "task",
+            "null": false
+          },
+          "start": 64,
+          "end": 75
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 75,
+          "end": 88
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2",
+            "null": false
+          },
+          "start": 88,
+          "end": 100
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-01-01T00:00:00Z",
+            "null": false
+          },
+          "start": 100,
+          "end": 130
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-01-02T00:00:00Z",
+            "null": false
+          },
+          "start": 130,
+          "end": 160
+        }
+      ],
+      "input": "---\nid: proj-n001\naliases: [proj-n001]\ntitle: Mixed log entries\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\n---\nDesc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n"
+    },
+    {
+      "name": "request-roundtrip/canonical.md",
+      "path": "projects/proj/requests/canonical.md",
+      "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Canonical request\nstatus: open\npriority: 2\nlabels: [ui]\nrequested_by: matt\nissues:\n  - \"[[beans-a1b2]]\"\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "body": "## Request\nDo it.\n\n## Acceptance\n- [ ] done\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 21
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 21,
+          "end": 45
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Canonical request",
+            "null": false
+          },
+          "start": 45,
+          "end": 70
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 70,
+          "end": 83
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 83,
+          "end": 95
+        },
+        {
+          "key": "labels",
+          "key_line": 6,
+          "value": {
+            "kind": "sequence",
+            "line": 6,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 6,
+                "value": "ui",
+                "null": false
+              }
+            ]
+          },
+          "start": 95,
+          "end": 108
+        },
+        {
+          "key": "requested_by",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "matt",
+            "null": false
+          },
+          "start": 108,
+          "end": 127
+        },
+        {
+          "key": "issues",
+          "key_line": 8,
+          "value": {
+            "kind": "sequence",
+            "line": 9,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 9,
+                "value": "[[beans-a1b2]]",
+                "null": false
+              }
+            ]
+          },
+          "start": 127,
+          "end": 156
+        },
+        {
+          "key": "created",
+          "key_line": 10,
+          "value": {
+            "kind": "scalar",
+            "line": 10,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 156,
+          "end": 186
+        },
+        {
+          "key": "updated",
+          "key_line": 11,
+          "value": {
+            "kind": "scalar",
+            "line": 11,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 186,
+          "end": 216
+        }
+      ],
+      "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Canonical request\nstatus: open\npriority: 2\nlabels: [ui]\nrequested_by: matt\nissues:\n  - \"[[beans-a1b2]]\"\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n## Request\nDo it.\n\n## Acceptance\n- [ ] done\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n"
+    },
+    {
+      "name": "request-roundtrip/err_invalid-status.md",
+      "path": "projects/proj/requests/err_invalid-status.md",
+      "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Invalid\nstatus: queued\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 21
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 21,
+          "end": 45
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Invalid",
+            "null": false
+          },
+          "start": 45,
+          "end": 60
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "queued",
+            "null": false
+          },
+          "start": 60,
+          "end": 75
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 75,
+          "end": 87
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 87,
+          "end": 117
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 117,
+          "end": 147
+        }
+      ],
+      "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Invalid\nstatus: queued\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n"
+    },
+    {
+      "name": "request-roundtrip/err_missing-title.md",
+      "path": "projects/proj/requests/err_missing-title.md",
+      "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\nstatus: open\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 21
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 21,
+          "end": 45
+        },
+        {
+          "key": "status",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "open",
+            "null": false
+          },
+          "start": 45,
+          "end": 58
+        },
+        {
+          "key": "priority",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "2",
+            "null": false
+          },
+          "start": 58,
+          "end": 70
+        },
+        {
+          "key": "created",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 70,
+          "end": 100
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 100,
+          "end": 130
+        }
+      ],
+      "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\nstatus: open\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n"
+    },
+    {
+      "name": "request-roundtrip/fenced-heading.md",
+      "path": "projects/proj/requests/fenced-heading.md",
+      "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Fenced heading\nstatus: in_progress\npriority: 1\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "body": "```markdown\n## Log\nnot a log\n```\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 21
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 21,
+          "end": 45
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Fenced heading",
+            "null": false
+          },
+          "start": 45,
+          "end": 67
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "in_progress",
+            "null": false
+          },
+          "start": 67,
+          "end": 87
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "1",
+            "null": false
+          },
+          "start": 87,
+          "end": 99
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 99,
+          "end": 129
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 129,
+          "end": 159
+        }
+      ],
+      "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Fenced heading\nstatus: in_progress\npriority: 1\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n```markdown\n## Log\nnot a log\n```\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n"
+    },
+    {
+      "name": "request-roundtrip/flow-issues.md",
+      "path": "projects/proj/requests/flow-issues.md",
+      "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Flow links\nstatus: accepted\npriority: 4\nissues: [\"[[beans-a1b2]]\", beans-c3d4]\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "body": "Body.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 21
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 21,
+          "end": 45
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Flow links",
+            "null": false
+          },
+          "start": 45,
+          "end": 63
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "accepted",
+            "null": false
+          },
+          "start": 63,
+          "end": 80
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "4",
+            "null": false
+          },
+          "start": 80,
+          "end": 92
+        },
+        {
+          "key": "issues",
+          "key_line": 6,
+          "value": {
+            "kind": "sequence",
+            "line": 6,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 6,
+                "value": "[[beans-a1b2]]",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 6,
+                "value": "beans-c3d4",
+                "null": false
+              }
+            ]
+          },
+          "start": 92,
+          "end": 131
+        },
+        {
+          "key": "created",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 131,
+          "end": 161
+        },
+        {
+          "key": "updated",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 161,
+          "end": 191
+        }
+      ],
+      "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Flow links\nstatus: accepted\npriority: 4\nissues: [\"[[beans-a1b2]]\", beans-c3d4]\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\nBody.\n"
+    },
+    {
+      "name": "request-roundtrip/log-not-last.md",
+      "path": "projects/proj/requests/log-not-last.md",
+      "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Later heading\nstatus: resolved\npriority: 3\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "body": "## Log\n- 2026-09-11T15:51:49Z matt: created\n\n## Notes\nRetained.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 4,
+          "end": 21
+        },
+        {
+          "key": "aliases",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 21,
+          "end": 45
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Later heading",
+            "null": false
+          },
+          "start": 45,
+          "end": 66
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "resolved",
+            "null": false
+          },
+          "start": 66,
+          "end": 83
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "3",
+            "null": false
+          },
+          "start": 83,
+          "end": 95
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 95,
+          "end": 125
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 125,
+          "end": 155
+        }
+      ],
+      "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Later heading\nstatus: resolved\npriority: 3\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n## Log\n- 2026-09-11T15:51:49Z matt: created\n\n## Notes\nRetained.\n"
+    },
+    {
+      "name": "request-roundtrip/unknown-comments.md",
+      "path": "projects/proj/requests/unknown-comments.md",
+      "yaml": "# retained comment\nid: beans-r-a3f2\naliases: [beans-r-a3f2] # retained\ntitle: A request\nstatus: open\npriority: 0\ncustom: keep\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
+      "body": "Context stays byte-identical.\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "beans-r-a3f2",
+            "null": false
+          },
+          "start": 23,
+          "end": 40
+        },
+        {
+          "key": "aliases",
+          "key_line": 3,
+          "value": {
+            "kind": "sequence",
+            "line": 3,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 3,
+                "value": "beans-r-a3f2",
+                "null": false
+              }
+            ]
+          },
+          "start": 40,
+          "end": 75
+        },
+        {
+          "key": "title",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "A request",
+            "null": false
+          },
+          "start": 75,
+          "end": 92
+        },
+        {
+          "key": "status",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "open",
+            "null": false
+          },
+          "start": 92,
+          "end": 105
+        },
+        {
+          "key": "priority",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "0",
+            "null": false
+          },
+          "start": 105,
+          "end": 117
+        },
+        {
+          "key": "custom",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "keep",
+            "null": false
+          },
+          "start": 117,
+          "end": 130
+        },
+        {
+          "key": "created",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 130,
+          "end": 160
+        },
+        {
+          "key": "updated",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "2026-09-11T15:51:49Z",
+            "null": false
+          },
+          "start": 160,
+          "end": 190
+        }
+      ],
+      "input": "---\n# retained comment\nid: beans-r-a3f2\naliases: [beans-r-a3f2] # retained\ntitle: A request\nstatus: open\npriority: 0\ncustom: keep\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\nContext stays byte-identical.\n"
+    },
+    {
+      "name": "syntax/anchors.md",
+      "path": "syntax/anchors.md",
+      "yaml": "extra: &shared\n  nested: [one, two]\ncopy: *shared\ntitle: &title Anchored scalar\nalias_title: *title\n",
+      "body": "Opaque alias-bearing metadata.\n",
+      "fields": [
+        {
+          "key": "extra",
+          "key_line": 1,
+          "value": {
+            "kind": "mapping",
+            "line": 1,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "nested",
+                "null": false
+              },
+              {
+                "kind": "sequence",
+                "line": 2,
+                "children": [
+                  {
+                    "kind": "scalar",
+                    "line": 2,
+                    "value": "one",
+                    "null": false
+                  },
+                  {
+                    "kind": "scalar",
+                    "line": 2,
+                    "value": "two",
+                    "null": false
+                  }
+                ]
+              }
+            ]
+          },
+          "start": 4,
+          "end": 40
+        },
+        {
+          "key": "copy",
+          "key_line": 3,
+          "value": {
+            "kind": "alias",
+            "line": 3
+          },
+          "start": 40,
+          "end": 54
+        },
+        {
+          "key": "title",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "Anchored scalar",
+            "null": false
+          },
+          "start": 54,
+          "end": 84
+        },
+        {
+          "key": "alias_title",
+          "key_line": 5,
+          "value": {
+            "kind": "alias",
+            "line": 5
+          },
+          "start": 84,
+          "end": 104
+        }
+      ],
+      "input": "---\nextra: &shared\n  nested: [one, two]\ncopy: *shared\ntitle: &title Anchored scalar\nalias_title: *title\n---\nOpaque alias-bearing metadata.\n"
+    },
+    {
+      "name": "syntax/block-header-positions.md",
+      "path": "syntax/block-header-positions.md",
+      "yaml": "leading_blanks: |+\n\n\n  text after blank lines\nown_line:\n  |\n  text with header on a separate line\nempty: |\nnext_empty: >-\nsequence:\n  - |\n    first item\n  - >\n    second item\nheader_comment: | # indicator in comment: |\n  content | that is not a header\n",
+      "body": "Body.\n",
+      "fields": [
+        {
+          "key": "leading_blanks",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "\n\ntext after blank lines\n",
+            "null": false
+          },
+          "start": 4,
+          "end": 50
+        },
+        {
+          "key": "own_line",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "text with header on a separate line\n",
+            "null": false
+          },
+          "start": 50,
+          "end": 102
+        },
+        {
+          "key": "empty",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "",
+            "null": false
+          },
+          "start": 102,
+          "end": 111
+        },
+        {
+          "key": "next_empty",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "",
+            "null": false
+          },
+          "start": 111,
+          "end": 126
+        },
+        {
+          "key": "sequence",
+          "key_line": 10,
+          "value": {
+            "kind": "sequence",
+            "line": 11,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "first item\n",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 13,
+                "value": "second item\n",
+                "null": false
+              }
+            ]
+          },
+          "start": 126,
+          "end": 179
+        },
+        {
+          "key": "header_comment",
+          "key_line": 15,
+          "value": {
+            "kind": "scalar",
+            "line": 15,
+            "value": "content | that is not a header\n",
+            "null": false
+          },
+          "start": 179,
+          "end": 256
+        }
+      ],
+      "input": "---\nleading_blanks: |+\n\n\n  text after blank lines\nown_line:\n  |\n  text with header on a separate line\nempty: |\nnext_empty: >-\nsequence:\n  - |\n    first item\n  - >\n    second item\nheader_comment: | # indicator in comment: |\n  content | that is not a header\n---\nBody.\n"
+    },
+    {
+      "name": "syntax/block-scalars.md",
+      "path": "syntax/block-scalars.md",
+      "yaml": "literal: |+\n  α\n  β\n\nfolded: >-\n  first line\n  second line\nescaped: \"x\\ny\\t\\u2603\"\nsingle: 'it''s a test'\n",
+      "body": "Body remains unchanged.\n",
+      "fields": [
+        {
+          "key": "literal",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "α\nβ\n\n",
+            "null": false
+          },
+          "start": 4,
+          "end": 26
+        },
+        {
+          "key": "folded",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "first line second line",
+            "null": false
+          },
+          "start": 27,
+          "end": 65
+        },
+        {
+          "key": "escaped",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "x\ny\t☃",
+            "null": false
+          },
+          "start": 65,
+          "end": 89
+        },
+        {
+          "key": "single",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "it's a test",
+            "null": false
+          },
+          "start": 89,
+          "end": 112
+        }
+      ],
+      "input": "---\nliteral: |+\n  α\n  β\n\nfolded: >-\n  first line\n  second line\nescaped: \"x\\ny\\t\\u2603\"\nsingle: 'it''s a test'\n---\nBody remains unchanged.\n"
+    },
+    {
+      "name": "syntax/complex-key.md",
+      "path": "syntax/complex-key.md",
+      "error": "syntax/complex-key.md: line 2: frontmatter keys must be strings",
+      "input": "---\n? [one, two]\n: value\n---\nBody.\n"
+    },
+    {
+      "name": "syntax/duplicate-unknown.md",
+      "path": "syntax/duplicate-unknown.md",
+      "yaml": "extra: first\nextra: second\ntitle: Example\n",
+      "body": "Duplicate unknown keys remain ordered.\n",
+      "fields": [
+        {
+          "key": "extra",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "first",
+            "null": false
+          },
+          "start": 4,
+          "end": 17
+        },
+        {
+          "key": "extra",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "second",
+            "null": false
+          },
+          "start": 17,
+          "end": 31
+        },
+        {
+          "key": "title",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "Example",
+            "null": false
+          },
+          "start": 31,
+          "end": 46
+        }
+      ],
+      "input": "---\nextra: first\nextra: second\ntitle: Example\n---\nDuplicate unknown keys remain ordered.\n"
+    },
+    {
+      "name": "syntax/empty-frontmatter.md",
+      "path": "syntax/empty-frontmatter.md",
+      "error": "syntax/empty-frontmatter.md: line 2: frontmatter is empty",
+      "input": "---\n---\n"
+    },
+    {
+      "name": "syntax/flow-root.md",
+      "path": "syntax/flow-root.md",
+      "yaml": "{title: Flow root, status: open, nested: {a: [1, 2]}}\n",
+      "body": "One-line mapping.\n",
+      "fields": [
+        {
+          "key": "title",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "Flow root",
+            "null": false
+          },
+          "start": 4,
+          "end": 4
+        },
+        {
+          "key": "status",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "open",
+            "null": false
+          },
+          "start": 4,
+          "end": 4
+        },
+        {
+          "key": "nested",
+          "key_line": 1,
+          "value": {
+            "kind": "mapping",
+            "line": 1,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 1,
+                "value": "a",
+                "null": false
+              },
+              {
+                "kind": "sequence",
+                "line": 1,
+                "children": [
+                  {
+                    "kind": "scalar",
+                    "line": 1,
+                    "value": "1",
+                    "null": false
+                  },
+                  {
+                    "kind": "scalar",
+                    "line": 1,
+                    "value": "2",
+                    "null": false
+                  }
+                ]
+              }
+            ]
+          },
+          "start": 4,
+          "end": 58
+        }
+      ],
+      "input": "---\n{title: Flow root, status: open, nested: {a: [1, 2]}}\n---\nOne-line mapping.\n"
+    },
+    {
+      "name": "syntax/non-ascii.md",
+      "path": "syntax/non-ascii.md",
+      "yaml": "title: \"雪 ☃ café\"\ncustom: [\"é\", \"λ\"]\n# сохранять комментарий\nstatus: open\nother:\n  text: 日本語\n",
+      "body": "Unicode body: Привет.\n",
+      "fields": [
+        {
+          "key": "title",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "雪 ☃ café",
+            "null": false
+          },
+          "start": 4,
+          "end": 27
+        },
+        {
+          "key": "custom",
+          "key_line": 2,
+          "value": {
+            "kind": "sequence",
+            "line": 2,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "é",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "λ",
+                "null": false
+              }
+            ]
+          },
+          "start": 27,
+          "end": 48
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 92,
+          "end": 105
+        },
+        {
+          "key": "other",
+          "key_line": 5,
+          "value": {
+            "kind": "mapping",
+            "line": 6,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 6,
+                "value": "text",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 6,
+                "value": "日本語",
+                "null": false
+              }
+            ]
+          },
+          "start": 105,
+          "end": 130
+        }
+      ],
+      "input": "---\ntitle: \"雪 ☃ café\"\ncustom: [\"é\", \"λ\"]\n# сохранять комментарий\nstatus: open\nother:\n  text: 日本語\n---\nUnicode body: Привет.\n"
+    },
+    {
+      "name": "syntax/non-mapping.md",
+      "path": "syntax/non-mapping.md",
+      "error": "syntax/non-mapping.md: line 2: frontmatter must be a mapping",
+      "input": "---\n- one\n- two\n---\n"
+    },
+    {
+      "name": "syntax/scalar-coercion.md",
+      "path": "syntax/scalar-coercion.md",
+      "yaml": "number: 0012\nboolean: TRUE\nnull_value: null\nnull_tilde: ~\nnull_empty:\nquoted_null: \"null\"\nforced_string: !!str null\nforced_null: !!null \"null\"\ntagged: !custom null\nsequence: [null, ~, true, \"true\", 12, \"\"]\n",
+      "body": "Scalar spellings stay distinct.\n",
+      "fields": [
+        {
+          "key": "number",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "0012",
+            "null": false
+          },
+          "start": 4,
+          "end": 17
+        },
+        {
+          "key": "boolean",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "TRUE",
+            "null": false
+          },
+          "start": 17,
+          "end": 31
+        },
+        {
+          "key": "null_value",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "null",
+            "null": true
+          },
+          "start": 31,
+          "end": 48
+        },
+        {
+          "key": "null_tilde",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "~",
+            "null": true
+          },
+          "start": 48,
+          "end": 62
+        },
+        {
+          "key": "null_empty",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "",
+            "null": true
+          },
+          "start": 62,
+          "end": 74
+        },
+        {
+          "key": "quoted_null",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "null",
+            "null": false
+          },
+          "start": 74,
+          "end": 94
+        },
+        {
+          "key": "forced_string",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "null",
+            "null": false
+          },
+          "start": 94,
+          "end": 120
+        },
+        {
+          "key": "forced_null",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "null",
+            "null": true
+          },
+          "start": 120,
+          "end": 147
+        },
+        {
+          "key": "tagged",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "null",
+            "null": false
+          },
+          "start": 147,
+          "end": 168
+        },
+        {
+          "key": "sequence",
+          "key_line": 10,
+          "value": {
+            "kind": "sequence",
+            "line": 10,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "null",
+                "null": true
+              },
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "~",
+                "null": true
+              },
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "true",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "true",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "12",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 10,
+                "value": "",
+                "null": false
+              }
+            ]
+          },
+          "start": 168,
+          "end": 210
+        }
+      ],
+      "input": "---\nnumber: 0012\nboolean: TRUE\nnull_value: null\nnull_tilde: ~\nnull_empty:\nquoted_null: \"null\"\nforced_string: !!str null\nforced_null: !!null \"null\"\ntagged: !custom null\nsequence: [null, ~, true, \"true\", 12, \"\"]\n---\nScalar spellings stay distinct.\n"
+    },
+    {
+      "name": "syntax/tagged-positions.md",
+      "path": "syntax/tagged-positions.md",
+      "yaml": "map: !!map &map\n  key: value\nsequence: !!seq\n  - one\nvalue: &value\n  !!str\n  text\nliteral: &lit\n  !!str |\n\n  content\nalias: *map\ntagged_empty: !!str\nflow: {empty: , value: null}\n",
+      "body": "Body.\n",
+      "fields": [
+        {
+          "key": "map",
+          "key_line": 1,
+          "value": {
+            "kind": "mapping",
+            "line": 1,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "key",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 2,
+                "value": "value",
+                "null": false
+              }
+            ]
+          },
+          "start": 4,
+          "end": 33
+        },
+        {
+          "key": "sequence",
+          "key_line": 3,
+          "value": {
+            "kind": "sequence",
+            "line": 3,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 4,
+                "value": "one",
+                "null": false
+              }
+            ]
+          },
+          "start": 33,
+          "end": 57
+        },
+        {
+          "key": "value",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "text",
+            "null": false
+          },
+          "start": 57,
+          "end": 86
+        },
+        {
+          "key": "literal",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "\ncontent\n",
+            "null": false
+          },
+          "start": 86,
+          "end": 121
+        },
+        {
+          "key": "alias",
+          "key_line": 12,
+          "value": {
+            "kind": "alias",
+            "line": 12
+          },
+          "start": 121,
+          "end": 133
+        },
+        {
+          "key": "tagged_empty",
+          "key_line": 13,
+          "value": {
+            "kind": "scalar",
+            "line": 13,
+            "value": "",
+            "null": false
+          },
+          "start": 133,
+          "end": 153
+        },
+        {
+          "key": "flow",
+          "key_line": 14,
+          "value": {
+            "kind": "mapping",
+            "line": 14,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 14,
+                "value": "empty",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 14,
+                "value": "",
+                "null": true
+              },
+              {
+                "kind": "scalar",
+                "line": 14,
+                "value": "value",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 14,
+                "value": "null",
+                "null": true
+              }
+            ]
+          },
+          "start": 153,
+          "end": 182
+        }
+      ],
+      "input": "---\nmap: !!map &map\n  key: value\nsequence: !!seq\n  - one\nvalue: &value\n  !!str\n  text\nliteral: &lit\n  !!str |\n\n  content\nalias: *map\ntagged_empty: !!str\nflow: {empty: , value: null}\n---\nBody.\n"
+    }
+  ]
+}

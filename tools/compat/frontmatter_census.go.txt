@@ -1,0 +1,114 @@
+package issue
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+
+	"gopkg.in/yaml.v3"
+)
+
+type migrationNode struct {
+	Kind     string          `json:"kind"`
+	Line     int             `json:"line"`
+	Value    *string         `json:"value,omitempty"`
+	Null     *bool           `json:"null,omitempty"`
+	Children []migrationNode `json:"children,omitempty"`
+}
+
+func migrationNodeValue(n *yaml.Node) migrationNode {
+	kinds := map[yaml.Kind]string{yaml.ScalarNode: "scalar", yaml.SequenceNode: "sequence", yaml.MappingNode: "mapping", yaml.AliasNode: "alias"}
+	result := migrationNode{Kind: kinds[n.Kind], Line: n.Line}
+	if n.Kind == yaml.ScalarNode {
+		value, null := n.Value, n.Tag == "!!null"
+		result.Value, result.Null = &value, &null
+	}
+	for _, child := range n.Content {
+		result.Children = append(result.Children, migrationNodeValue(child))
+	}
+	return result
+}
+
+type migrationField struct {
+	Key     string        `json:"key"`
+	KeyLine int           `json:"key_line"`
+	Value   migrationNode `json:"value"`
+	Start   int           `json:"start"`
+	End     int           `json:"end"`
+}
+
+type migrationFrontmatterCase struct {
+	Name   string           `json:"name"`
+	Path   string           `json:"path"`
+	Input  []byte           `json:"input_b64"`
+	Error  string           `json:"error,omitempty"`
+	YAML   string           `json:"yaml,omitempty"`
+	Body   string           `json:"body,omitempty"`
+	Fields []migrationField `json:"fields,omitempty"`
+}
+
+func TestMigrationFrontmatterCensus(t *testing.T) {
+	raw, err := os.ReadFile(os.Getenv("BN_DOMAIN_INPUT"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []migrationFrontmatterCase
+	if err = json.Unmarshal(raw, &cases); err != nil {
+		t.Fatal(err)
+	}
+	for index := range cases {
+		c := &cases[index]
+		if strings.Contains(string(c.Input), "\r\n") {
+			c.Error = c.Path + ": has Windows line endings (\\r\\n); bn requires \\n"
+			continue
+		}
+		fm, body, line, err := splitFrontmatter(c.Path, c.Input)
+		if err != nil {
+			c.Error = err.Error()
+			continue
+		}
+		root, err := parseMapping(c.Path, fm, line)
+		if err != nil {
+			c.Error = err.Error()
+			continue
+		}
+		var spans []keySpan
+		var values []*yaml.Node
+		for i := 0; i+1 < len(root.Content); i += 2 {
+			k, v := root.Content[i], root.Content[i+1]
+			if k.Kind != yaml.ScalarNode {
+				c.Error = fmt.Sprintf("%s: line %d: frontmatter keys must be strings", c.Path, line+k.Line-1)
+				break
+			}
+			spans = append(spans, keySpan{key: k.Value, start: k.Line - 1})
+			values = append(values, v)
+		}
+		if c.Error != "" {
+			continue
+		}
+		fmLines := strings.Split(strings.TrimSuffix(fm, "\n"), "\n")
+		if fm == "" {
+			fmLines = nil
+		}
+		closeSpans(spans, fmLines)
+		offsets := []int{4}
+		pos := 4
+		for _, l := range fmLines {
+			pos += len(l) + 1
+			offsets = append(offsets, pos)
+		}
+		c.YAML, c.Body = fm, body
+		for i, sp := range spans {
+			c.Fields = append(c.Fields, migrationField{Key: sp.key, KeyLine: sp.start + 1, Value: migrationNodeValue(values[i]), Start: offsets[sp.start], End: offsets[sp.end]})
+		}
+	}
+	result, err := json.MarshalIndent(cases, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(os.Getenv("BN_DOMAIN_OUTPUT"), append(result, '\n'), 0600); err != nil {
+		t.Fatal(err)
+	}
+}
