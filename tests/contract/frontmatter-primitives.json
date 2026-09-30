@@ -1,10 +1,48 @@
 {
   "schema": "beans-frontmatter-primitives-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "scope": "YAML nodes, byte spans, literal body sections and links; typed note validation/encoding remains WP3",
-  "harness_sha256": "d36ad479bd9b80f5505b6c8f874183a5fad8b9f68aa672c92b5dc825b951febb",
+  "scope": "YAML nodes, byte spans, literal body sections, links and issue metadata; encoding and other note schemas remain WP3",
+  "harness_sha256": "9a252754542e9c532efd90640e91f66c7f2ffe3893fdb829125b5736cef5f964",
   "cases": [
     {
+      "metadata": {
+        "aliases": [
+          "exampleA-a3f2"
+        ],
+        "archived": false,
+        "assignee": "matt",
+        "blocked_by": [
+          {
+            "raw": "[[exampleA-ued1-schema-parity]]",
+            "target": "exampleA-ued1-schema-parity"
+          }
+        ],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781518920
+        },
+        "id": "exampleA-a3f2",
+        "labels": [
+          "deploy",
+          "infra"
+        ],
+        "parent": {
+          "raw": "[[exampleA-mkg1-deploy-bean-counter]]",
+          "target": "exampleA-mkg1-deploy-bean-counter"
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Migrate the live infra-host deploy",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": "https://example.invalid/ticket/1"
+      },
       "name": "roundtrip/a_canonical.md",
       "path": "projects/proj/issues/a_canonical.md",
       "yaml": "id: exampleA-a3f2\naliases: [exampleA-a3f2]\ntitle: Migrate the live infra-host deploy\ntype: task\nstatus: open\npriority: 2\nlabels: [deploy, infra]\nassignee: matt\nparent: \"[[exampleA-mkg1-deploy-bean-counter]]\"\nblocked_by:\n  - \"[[exampleA-ued1-schema-parity]]\"\nurl: https://example.invalid/ticket/1\ncreated: 2026-06-15T10:22:00Z\nupdated: 2026-09-10T08:01:00Z\n",
@@ -205,6 +243,36 @@
       "input": "---\nid: exampleA-a3f2\naliases: [exampleA-a3f2]\ntitle: Migrate the live infra-host deploy\ntype: task\nstatus: open\npriority: 2\nlabels: [deploy, infra]\nassignee: matt\nparent: \"[[exampleA-mkg1-deploy-bean-counter]]\"\nblocked_by:\n  - \"[[exampleA-ued1-schema-parity]]\"\nurl: https://example.invalid/ticket/1\ncreated: 2026-06-15T10:22:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription paragraphs. Free markdown.\n\n## Acceptance\n- [ ] parity gate passes\n\n## Log\n- 2026-09-10T08:01:00Z matt (exampleA@a1b2c3d feature/x): status open → in_progress\n- 2026-09-11T10:00:00Z claude: closed — parity gate passes\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "p-x1"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "p-x1",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 4,
+        "project": "proj",
+        "status": "closed",
+        "title": "Archived issue",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1769904000
+        },
+        "url": ""
+      },
       "name": "roundtrip/archived.md",
       "path": "projects/proj/issues/archived.md",
       "yaml": "id: p-x1\naliases: [p-x1]\ntitle: Archived issue\ntype: task\nstatus: closed\npriority: 4\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-02-01T00:00:00Z\n",
@@ -327,6 +395,36 @@
       "input": "---\nid: p-x1\naliases: [p-x1]\ntitle: Archived issue\ntype: task\nstatus: closed\npriority: 4\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-02-01T00:00:00Z\n---\nDesc for an archived issue.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- 2026-02-01T00:00:00Z matt: archived\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-b001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-b001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 3,
+        "project": "proj",
+        "status": "open",
+        "title": "Unknown keys everywhere",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767312000
+        },
+        "url": ""
+      },
       "name": "roundtrip/b_unknown_keys.md",
       "path": "projects/proj/issues/b_unknown_keys.md",
       "yaml": "custom_before: hello\nid: proj-b001\naliases: [proj-b001]\ntitle: Unknown keys everywhere\ntype: task\ncustom_between: world\nstatus: open\npriority: 3\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\ncustom_after: bye\n",
@@ -485,6 +583,36 @@
       "input": "---\ncustom_before: hello\nid: proj-b001\naliases: [proj-b001]\ntitle: Unknown keys everywhere\ntype: task\ncustom_between: world\nstatus: open\npriority: 3\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\ncustom_after: bye\n---\nDesc with unknown keys around.\n\n## Log\n- 2026-01-02T00:00:00Z matt: created\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-c001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-c001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 1,
+        "project": "proj",
+        "status": "open",
+        "title": "Comment test",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/c_comments.md",
       "path": "projects/proj/issues/c_comments.md",
       "yaml": "# head comment about this issue\nid: proj-c001\naliases: [proj-c001]\ntitle: Comment test\ntype: task\nstatus: open  # inline comment on bn scalar\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n# comment block\n# before closing fence\n",
@@ -607,6 +735,45 @@
       "input": "---\n# head comment about this issue\nid: proj-c001\naliases: [proj-c001]\ntitle: Comment test\ntype: task\nstatus: open  # inline comment on bn scalar\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n# comment block\n# before closing fence\n---\nDesc.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-d001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [
+          {
+            "raw": "[[proj-d001-a]]",
+            "target": "proj-d001-a"
+          },
+          {
+            "raw": "[[proj-d001-b]]",
+            "target": "proj-d001-b"
+          }
+        ],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-d001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Flow style blocked by",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/d_flow_blocked_by.md",
       "path": "projects/proj/issues/d_flow_blocked_by.md",
       "yaml": "id: proj-d001\naliases: [proj-d001]\ntitle: Flow style blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: [\"[[proj-d001-a]]\", \"[[proj-d001-b]]\"]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -753,6 +920,36 @@
       "input": "---\nid: proj-d001\naliases: [proj-d001]\ntitle: Flow style blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: [\"[[proj-d001-a]]\", \"[[proj-d001-b]]\"]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-e001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-e001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Tabs in body",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/e_tabs_in_body.md",
       "path": "projects/proj/issues/e_tabs_in_body.md",
       "yaml": "id: proj-e001\naliases: [proj-e001]\ntitle: Tabs in body\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -875,12 +1072,43 @@
       "input": "---\nid: proj-e001\naliases: [proj-e001]\ntitle: Tabs in body\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc with a tab\there.\n\n## Notes\nLine\twith\ttabs.\n"
     },
     {
+      "issue_error": "projects/proj/issues/err_windows.md: has Windows line endings (\\r\\n); bn requires \\n",
       "name": "roundtrip/err_windows.md",
       "path": "projects/proj/issues/err_windows.md",
       "error": "projects/proj/issues/err_windows.md: has Windows line endings (\\r\\n); bn requires \\n",
       "input": "---\r\nid: err-w1nd\r\naliases: [err-w1nd]\r\ntitle: Windows line endings\r\ntype: task\r\nstatus: open\r\npriority: 1\r\ncreated: 2026-01-01T00:00:00Z\r\nupdated: 2026-01-01T00:00:00Z\r\n---\r\nDesc.\r\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-f001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-f001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "No log section",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/f_no_log.md",
       "path": "projects/proj/issues/f_no_log.md",
       "yaml": "id: proj-f001\naliases: [proj-f001]\ntitle: No log section\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -1003,6 +1231,36 @@
       "input": "---\nid: proj-f001\naliases: [proj-f001]\ntitle: No log section\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Notes\nSome notes here, no log section at all.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-g001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-g001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Log not last heading",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/g_log_not_last.md",
       "path": "projects/proj/issues/g_log_not_last.md",
       "yaml": "id: proj-g001\naliases: [proj-g001]\ntitle: Log not last heading\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -1125,6 +1383,36 @@
       "input": "---\nid: proj-g001\naliases: [proj-g001]\ntitle: Log not last heading\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n\n## Acceptance\n- [ ] thing\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n\n## Notes\nSome trailing notes after the log section.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-j001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-j001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Nested user key",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/j_nested_indent.md",
       "path": "projects/proj/issues/j_nested_indent.md",
       "yaml": "id: proj-j001\naliases: [proj-j001]\ntitle: Nested user key\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nextra_data:\n    nested_key: value\n    another: thing\n",
@@ -1283,6 +1571,45 @@
       "input": "---\nid: proj-j001\naliases: [proj-j001]\ntitle: Nested user key\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nextra_data:\n    nested_key: value\n    another: thing\n---\nDesc.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-k001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [
+          {
+            "raw": "[[proj-k001-a]]",
+            "target": "proj-k001-a"
+          },
+          {
+            "raw": "[[proj-k001-b]]",
+            "target": "proj-k001-b"
+          }
+        ],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-k001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Blocked by without indentation",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/k_blocked_by_no_indent.md",
       "path": "projects/proj/issues/k_blocked_by_no_indent.md",
       "yaml": "id: proj-k001\naliases: [proj-k001]\ntitle: Blocked by without indentation\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n- \"[[proj-k001-a]]\"\n- \"[[proj-k001-b]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -1429,6 +1756,36 @@
       "input": "---\nid: proj-k001\naliases: [proj-k001]\ntitle: Blocked by without indentation\ntype: task\nstatus: open\npriority: 2\nblocked_by:\n- \"[[proj-k001-a]]\"\n- \"[[proj-k001-b]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-l001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-l001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Literal block scalar",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/l_literal_block.md",
       "path": "projects/proj/issues/l_literal_block.md",
       "yaml": "id: proj-l001\naliases: [proj-l001]\ntitle: Literal block scalar\ntype: task\nstatus: open\npriority: 2\nnotes: |\n  First line of notes.\n  Second line of notes.\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -1563,6 +1920,41 @@
       "input": "---\nid: proj-l001\naliases: [proj-l001]\ntitle: Literal block scalar\ntype: task\nstatus: open\npriority: 2\nnotes: |\n  First line of notes.\n  Second line of notes.\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-m001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [
+          {
+            "raw": "[[proj-m001-a]]",
+            "target": "proj-m001-a"
+          }
+        ],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-m001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Single scalar blocked by",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "url": ""
+      },
       "name": "roundtrip/m_single_scalar_blocked_by.md",
       "path": "projects/proj/issues/m_single_scalar_blocked_by.md",
       "yaml": "id: proj-m001\naliases: [proj-m001]\ntitle: Single scalar blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: \"[[proj-m001-a]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n",
@@ -1697,6 +2089,36 @@
       "input": "---\nid: proj-m001\naliases: [proj-m001]\ntitle: Single scalar blocked by\ntype: task\nstatus: open\npriority: 2\nblocked_by: \"[[proj-m001-a]]\"\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nDesc.\n"
     },
     {
+      "metadata": {
+        "aliases": [
+          "proj-n001"
+        ],
+        "archived": false,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767225600
+        },
+        "id": "proj-n001",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Mixed log entries",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1767312000
+        },
+        "url": ""
+      },
       "name": "roundtrip/n_log_mixed.md",
       "path": "projects/proj/issues/n_log_mixed.md",
       "yaml": "id: proj-n001\naliases: [proj-n001]\ntitle: Mixed log entries\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\n",
@@ -1819,6 +2241,7 @@
       "input": "---\nid: proj-n001\naliases: [proj-n001]\ntitle: Mixed log entries\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-02T00:00:00Z\n---\nDesc.\n\n## Log\n- 2026-01-01T00:00:00Z matt: created\n- hand-written note without proper format\n- 2026-01-02T00:00:00Z claude: note — multi-line event\n  continuation of the note\n  another continuation line\n"
     },
     {
+      "issue_error": "projects/proj/requests/canonical.md: frontmatter is missing required key \"type\"",
       "name": "request-roundtrip/canonical.md",
       "path": "projects/proj/requests/canonical.md",
       "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Canonical request\nstatus: open\npriority: 2\nlabels: [ui]\nrequested_by: matt\nissues:\n  - \"[[beans-a1b2]]\"\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -1977,6 +2400,7 @@
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Canonical request\nstatus: open\npriority: 2\nlabels: [ui]\nrequested_by: matt\nissues:\n  - \"[[beans-a1b2]]\"\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n## Request\nDo it.\n\n## Acceptance\n- [ ] done\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n"
     },
     {
+      "issue_error": "projects/proj/requests/err_invalid-status.md: frontmatter is missing required key \"type\"",
       "name": "request-roundtrip/err_invalid-status.md",
       "path": "projects/proj/requests/err_invalid-status.md",
       "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Invalid\nstatus: queued\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -2086,6 +2510,7 @@
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Invalid\nstatus: queued\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n"
     },
     {
+      "issue_error": "projects/proj/requests/err_missing-title.md: frontmatter is missing required key \"title\"",
       "name": "request-roundtrip/err_missing-title.md",
       "path": "projects/proj/requests/err_missing-title.md",
       "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\nstatus: open\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -2183,6 +2608,7 @@
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\nstatus: open\npriority: 2\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n"
     },
     {
+      "issue_error": "projects/proj/requests/fenced-heading.md: frontmatter is missing required key \"type\"",
       "name": "request-roundtrip/fenced-heading.md",
       "path": "projects/proj/requests/fenced-heading.md",
       "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Fenced heading\nstatus: in_progress\npriority: 1\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -2293,6 +2719,7 @@
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Fenced heading\nstatus: in_progress\npriority: 1\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n```markdown\n## Log\nnot a log\n```\n\n## Log\n- 2026-09-11T15:51:49Z matt: created\n"
     },
     {
+      "issue_error": "projects/proj/requests/flow-issues.md: frontmatter is missing required key \"type\"",
       "name": "request-roundtrip/flow-issues.md",
       "path": "projects/proj/requests/flow-issues.md",
       "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Flow links\nstatus: accepted\npriority: 4\nissues: [\"[[beans-a1b2]]\", beans-c3d4]\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -2427,6 +2854,7 @@
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Flow links\nstatus: accepted\npriority: 4\nissues: [\"[[beans-a1b2]]\", beans-c3d4]\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\nBody.\n"
     },
     {
+      "issue_error": "projects/proj/requests/log-not-last.md: frontmatter is missing required key \"type\"",
       "name": "request-roundtrip/log-not-last.md",
       "path": "projects/proj/requests/log-not-last.md",
       "yaml": "id: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Later heading\nstatus: resolved\npriority: 3\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -2537,6 +2965,7 @@
       "input": "---\nid: beans-r-a3f2\naliases: [beans-r-a3f2]\ntitle: Later heading\nstatus: resolved\npriority: 3\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n## Log\n- 2026-09-11T15:51:49Z matt: created\n\n## Notes\nRetained.\n"
     },
     {
+      "issue_error": "projects/proj/requests/unknown-comments.md: frontmatter is missing required key \"type\"",
       "name": "request-roundtrip/unknown-comments.md",
       "path": "projects/proj/requests/unknown-comments.md",
       "yaml": "# retained comment\nid: beans-r-a3f2\naliases: [beans-r-a3f2] # retained\ntitle: A request\nstatus: open\npriority: 0\ncustom: keep\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n",
@@ -2659,6 +3088,7 @@
       "input": "---\n# retained comment\nid: beans-r-a3f2\naliases: [beans-r-a3f2] # retained\ntitle: A request\nstatus: open\npriority: 0\ncustom: keep\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\nContext stays byte-identical.\n"
     },
     {
+      "issue_error": "syntax/anchors.md: frontmatter is missing required key \"id\"",
       "name": "syntax/anchors.md",
       "path": "syntax/anchors.md",
       "yaml": "extra: &shared\n  nested: [one, two]\ncopy: *shared\ntitle: &title Anchored scalar\nalias_title: *title\n",
@@ -2747,6 +3177,7 @@
       "input": "---\nextra: &shared\n  nested: [one, two]\ncopy: *shared\ntitle: &title Anchored scalar\nalias_title: *title\n---\nOpaque alias-bearing metadata.\n"
     },
     {
+      "issue_error": "syntax/block-header-positions.md: frontmatter is missing required key \"id\"",
       "name": "syntax/block-header-positions.md",
       "path": "syntax/block-header-positions.md",
       "yaml": "leading_blanks: |+\n\n\n  text after blank lines\nown_line:\n  |\n  text with header on a separate line\nempty: |\nnext_empty: >-\nsequence:\n  - |\n    first item\n  - >\n    second item\nheader_comment: | # indicator in comment: |\n  content | that is not a header\n",
@@ -2851,6 +3282,7 @@
       "input": "---\nleading_blanks: |+\n\n\n  text after blank lines\nown_line:\n  |\n  text with header on a separate line\nempty: |\nnext_empty: >-\nsequence:\n  - |\n    first item\n  - >\n    second item\nheader_comment: | # indicator in comment: |\n  content | that is not a header\n---\nBody.\n"
     },
     {
+      "issue_error": "syntax/block-scalars.md: frontmatter is missing required key \"id\"",
       "name": "syntax/block-scalars.md",
       "path": "syntax/block-scalars.md",
       "yaml": "literal: |+\n  α\n  β\n\nfolded: >-\n  first line\n  second line\nescaped: \"x\\ny\\t\\u2603\"\nsingle: 'it''s a test'\n",
@@ -2919,6 +3351,7 @@
       "input": "---\nliteral: |+\n  α\n  β\n\nfolded: >-\n  first line\n  second line\nescaped: \"x\\ny\\t\\u2603\"\nsingle: 'it''s a test'\n---\nBody remains unchanged.\n"
     },
     {
+      "issue_error": "syntax/body-fences.md: frontmatter is missing required key \"title\"",
       "name": "syntax/body-fences.md",
       "path": "syntax/body-fences.md",
       "yaml": "id: body-fences\n",
@@ -2951,6 +3384,7 @@
       "input": "---\nid: body-fences\n---\nDescription.\n```md\n## Log\nfake log\n~~~\n## Acceptance\nBody section.\n## Log \t\n- opaque item\n\n## Tail\nTail remains separate.\n"
     },
     {
+      "issue_error": "syntax/body-indented-fence.md: frontmatter is missing required key \"title\"",
       "name": "syntax/body-indented-fence.md",
       "path": "syntax/body-indented-fence.md",
       "yaml": "id: body-indent\n",
@@ -2983,6 +3417,7 @@
       "input": "---\nid: body-indent\n---\nDescription.\n    ```md\n## Log\n- four-space fence is inert\n    ```\n## After\nTail.\n"
     },
     {
+      "issue_error": "syntax/body-unterminated-fence.md: frontmatter is missing required key \"title\"",
       "name": "syntax/body-unterminated-fence.md",
       "path": "syntax/body-unterminated-fence.md",
       "yaml": "id: body-unterminated\n",
@@ -3015,12 +3450,14 @@
       "input": "---\nid: body-unterminated\n---\nDescription.\n   ```md\n## Acceptance\nHeading inside an unterminated fence becomes literal section syntax.\n## Log\n- opaque entry\n## After\nTail.\n"
     },
     {
+      "issue_error": "syntax/complex-key.md: line 2: frontmatter keys must be strings",
       "name": "syntax/complex-key.md",
       "path": "syntax/complex-key.md",
       "error": "syntax/complex-key.md: line 2: frontmatter keys must be strings",
       "input": "---\n? [one, two]\n: value\n---\nBody.\n"
     },
     {
+      "issue_error": "syntax/duplicate-unknown.md: frontmatter is missing required key \"id\"",
       "name": "syntax/duplicate-unknown.md",
       "path": "syntax/duplicate-unknown.md",
       "yaml": "extra: first\nextra: second\ntitle: Example\n",
@@ -3077,12 +3514,14 @@
       "input": "---\nextra: first\nextra: second\ntitle: Example\n---\nDuplicate unknown keys remain ordered.\n"
     },
     {
+      "issue_error": "syntax/empty-frontmatter.md: line 2: frontmatter is empty",
       "name": "syntax/empty-frontmatter.md",
       "path": "syntax/empty-frontmatter.md",
       "error": "syntax/empty-frontmatter.md: line 2: frontmatter is empty",
       "input": "---\n---\n"
     },
     {
+      "issue_error": "syntax/flow-root.md: frontmatter is missing required key \"id\"",
       "name": "syntax/flow-root.md",
       "path": "syntax/flow-root.md",
       "yaml": "{title: Flow root, status: open, nested: {a: [1, 2]}}\n",
@@ -3163,6 +3602,7 @@
       "input": "---\n{title: Flow root, status: open, nested: {a: [1, 2]}}\n---\nOne-line mapping.\n"
     },
     {
+      "issue_error": "syntax/non-ascii.md: frontmatter is missing required key \"id\"",
       "name": "syntax/non-ascii.md",
       "path": "syntax/non-ascii.md",
       "yaml": "title: \"雪 ☃ café\"\ncustom: [\"é\", \"λ\"]\n# сохранять комментарий\nstatus: open\nother:\n  text: 日本語\n",
@@ -3255,12 +3695,14 @@
       "input": "---\ntitle: \"雪 ☃ café\"\ncustom: [\"é\", \"λ\"]\n# сохранять комментарий\nstatus: open\nother:\n  text: 日本語\n---\nUnicode body: Привет.\n"
     },
     {
+      "issue_error": "syntax/non-mapping.md: line 2: frontmatter must be a mapping",
       "name": "syntax/non-mapping.md",
       "path": "syntax/non-mapping.md",
       "error": "syntax/non-mapping.md: line 2: frontmatter must be a mapping",
       "input": "---\n- one\n- two\n---\n"
     },
     {
+      "issue_error": "syntax/scalar-coercion.md: frontmatter is missing required key \"id\"",
       "name": "syntax/scalar-coercion.md",
       "path": "syntax/scalar-coercion.md",
       "yaml": "number: 0012\nboolean: TRUE\nnull_value: null\nnull_tilde: ~\nnull_empty:\nquoted_null: \"null\"\nforced_string: !!str null\nforced_null: !!null \"null\"\ntagged: !custom null\nsequence: [null, ~, true, \"true\", 12, \"\"]\n",
@@ -3437,6 +3879,7 @@
       "input": "---\nnumber: 0012\nboolean: TRUE\nnull_value: null\nnull_tilde: ~\nnull_empty:\nquoted_null: \"null\"\nforced_string: !!str null\nforced_null: !!null \"null\"\ntagged: !custom null\nsequence: [null, ~, true, \"true\", 12, \"\"]\n---\nScalar spellings stay distinct.\n"
     },
     {
+      "issue_error": "syntax/tagged-positions.md: frontmatter is missing required key \"id\"",
       "name": "syntax/tagged-positions.md",
       "path": "syntax/tagged-positions.md",
       "yaml": "map: !!map &map\n  key: value\nsequence: !!seq\n  - one\nvalue: &value\n  !!str\n  text\nliteral: &lit\n  !!str |\n\n  content\nalias: *map\ntagged_empty: !!str\nflow: {empty: , value: null}\n",
@@ -3579,6 +4022,3891 @@
         "tail": ""
       },
       "input": "---\nmap: !!map &map\n  key: value\nsequence: !!seq\n  - one\nvalue: &value\n  !!str\n  text\nliteral: &lit\n  !!str |\n\n  content\nalias: *map\ntagged_empty: !!str\nflow: {empty: , value: null}\n---\nBody.\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-id.md: frontmatter is missing required key \"id\"",
+      "name": "metadata/missing-id",
+      "path": "projects/proj/archive/issues/missing-id.md",
+      "yaml": "title: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "title",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "Title",
+            "null": false
+          },
+          "start": 4,
+          "end": 17
+        },
+        {
+          "key": "type",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "task",
+            "null": false
+          },
+          "start": 17,
+          "end": 28
+        },
+        {
+          "key": "status",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "open",
+            "null": false
+          },
+          "start": 28,
+          "end": 41
+        },
+        {
+          "key": "priority",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "2",
+            "null": false
+          },
+          "start": 41,
+          "end": 53
+        },
+        {
+          "key": "created",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 53,
+          "end": 83
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 83,
+          "end": 113
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-title.md: frontmatter is missing required key \"title\"",
+      "name": "metadata/missing-title",
+      "path": "projects/proj/archive/issues/missing-title.md",
+      "yaml": "id: issue-abc\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "type",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "task",
+            "null": false
+          },
+          "start": 18,
+          "end": 29
+        },
+        {
+          "key": "status",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "open",
+            "null": false
+          },
+          "start": 29,
+          "end": 42
+        },
+        {
+          "key": "priority",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "2",
+            "null": false
+          },
+          "start": 42,
+          "end": 54
+        },
+        {
+          "key": "created",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 54,
+          "end": 84
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 84,
+          "end": 114
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-type.md: frontmatter is missing required key \"type\"",
+      "name": "metadata/missing-type",
+      "path": "projects/proj/archive/issues/missing-type.md",
+      "yaml": "id: issue-abc\ntitle: Title\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "status",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "open",
+            "null": false
+          },
+          "start": 31,
+          "end": 44
+        },
+        {
+          "key": "priority",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "2",
+            "null": false
+          },
+          "start": 44,
+          "end": 56
+        },
+        {
+          "key": "created",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 56,
+          "end": 86
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 86,
+          "end": 116
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-status.md: frontmatter is missing required key \"status\"",
+      "name": "metadata/missing-status",
+      "path": "projects/proj/archive/issues/missing-status.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "priority",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "2",
+            "null": false
+          },
+          "start": 42,
+          "end": 54
+        },
+        {
+          "key": "created",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 54,
+          "end": 84
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 84,
+          "end": 114
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-priority.md: frontmatter is missing required key \"priority\"",
+      "name": "metadata/missing-priority",
+      "path": "projects/proj/archive/issues/missing-priority.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "created",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 55,
+          "end": 85
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 85,
+          "end": 115
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-created.md: frontmatter is missing required key \"created\"",
+      "name": "metadata/missing-created",
+      "path": "projects/proj/archive/issues/missing-created.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "updated",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/missing-updated.md: frontmatter is missing required key \"updated\"",
+      "name": "metadata/missing-updated",
+      "path": "projects/proj/archive/issues/missing-updated.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-7.md: line 6: priority must be an integer, got \"\"",
+      "name": "metadata/priority-7",
+      "path": "projects/proj/archive/issues/priority-7.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: null\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "null",
+            "null": true
+          },
+          "start": 55,
+          "end": 70
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 70,
+          "end": 100
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 100,
+          "end": 130
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: null\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-8.md: line 6: priority must be an integer, got \"true\"",
+      "name": "metadata/priority-8",
+      "path": "projects/proj/archive/issues/priority-8.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: true\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "true",
+            "null": false
+          },
+          "start": 55,
+          "end": 70
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 70,
+          "end": 100
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 100,
+          "end": 130
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: true\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-9.md: line 6: priority must be an integer, got \"0x10\"",
+      "name": "metadata/priority-9",
+      "path": "projects/proj/archive/issues/priority-9.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 0x10\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "0x10",
+            "null": false
+          },
+          "start": 55,
+          "end": 70
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 70,
+          "end": 100
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 100,
+          "end": 130
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 0x10\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-10.md: line 6: priority must be an integer, got \"1.5\"",
+      "name": "metadata/priority-10",
+      "path": "projects/proj/archive/issues/priority-10.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 1.5\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "1.5",
+            "null": false
+          },
+          "start": 55,
+          "end": 69
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 69,
+          "end": 99
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 99,
+          "end": 129
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 1.5\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 9223372036854775807,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/priority-11",
+      "path": "projects/proj/archive/issues/priority-11.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 9223372036854775807\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "9223372036854775807",
+            "null": false
+          },
+          "start": 55,
+          "end": 85
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 85,
+          "end": 115
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 115,
+          "end": 145
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 9223372036854775807\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-12.md: line 6: priority must be an integer, got \"9223372036854775808\"",
+      "name": "metadata/priority-12",
+      "path": "projects/proj/archive/issues/priority-12.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 9223372036854775808\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "9223372036854775808",
+            "null": false
+          },
+          "start": 55,
+          "end": 85
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 85,
+          "end": 115
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 115,
+          "end": 145
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 9223372036854775808\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": -9223372036854775808,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/priority-13",
+      "path": "projects/proj/archive/issues/priority-13.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: -9223372036854775808\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "-9223372036854775808",
+            "null": false
+          },
+          "start": 55,
+          "end": 86
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 86,
+          "end": 116
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 116,
+          "end": 146
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: -9223372036854775808\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-14.md: line 6: priority must be an integer, got \"-9223372036854775809\"",
+      "name": "metadata/priority-14",
+      "path": "projects/proj/archive/issues/priority-14.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: -9223372036854775809\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "-9223372036854775809",
+            "null": false
+          },
+          "start": 55,
+          "end": 86
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 86,
+          "end": 116
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 116,
+          "end": 146
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: -9223372036854775809\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 4,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/priority-15",
+      "path": "projects/proj/archive/issues/priority-15.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: '+004'\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "+004",
+            "null": false
+          },
+          "start": 55,
+          "end": 72
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 72,
+          "end": 102
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 102,
+          "end": 132
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: '+004'\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": -8,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/priority-16",
+      "path": "projects/proj/archive/issues/priority-16.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: '-8'\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "-8",
+            "null": false
+          },
+          "start": 55,
+          "end": 70
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 70,
+          "end": 100
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 100,
+          "end": 130
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: '-8'\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/priority-17.md: line 6: priority must be a string",
+      "name": "metadata/priority-17",
+      "path": "projects/proj/archive/issues/priority-17.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: []\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "sequence",
+            "line": 5
+          },
+          "start": 55,
+          "end": 68
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 68,
+          "end": 98
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 98,
+          "end": 128
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: []\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 3,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/priority-18",
+      "path": "projects/proj/archive/issues/priority-18.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: ' 3 '\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": " 3 ",
+            "null": false
+          },
+          "start": 55,
+          "end": 71
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 71,
+          "end": 101
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 101,
+          "end": 131
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: ' 3 '\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/timestamp-19.md: line 7: created must be an RFC3339 timestamp, got \"\"",
+      "name": "metadata/timestamp-19",
+      "path": "projects/proj/archive/issues/timestamp-19.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: null\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "null",
+            "null": true
+          },
+          "start": 67,
+          "end": 81
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 81,
+          "end": 111
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: null\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/timestamp-20.md: line 7: created must be a string",
+      "name": "metadata/timestamp-20",
+      "path": "projects/proj/archive/issues/timestamp-20.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: []\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "sequence",
+            "line": 6
+          },
+          "start": 67,
+          "end": 79
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 79,
+          "end": 109
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: []\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/timestamp-21",
+      "path": "projects/proj/archive/issues/timestamp-21.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00.123456789Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00.123456789Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 107
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 107,
+          "end": 137
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00.123456789Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 19800,
+          "seconds": 1789007460
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/timestamp-22",
+      "path": "projects/proj/archive/issues/timestamp-22.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00+05:30\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00+05:30",
+            "null": false
+          },
+          "start": 67,
+          "end": 102
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 102,
+          "end": 132
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00+05:30\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/timestamp-23",
+      "path": "projects/proj/archive/issues/timestamp-23.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T8:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T8:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 96
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 96,
+          "end": 126
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T8:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 500000000,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/timestamp-24",
+      "path": "projects/proj/archive/issues/timestamp-24.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00,5Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00,5Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 99
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 99,
+          "end": 129
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00,5Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/timestamp-25.md: line 7: created must be an RFC3339 timestamp, got \"2026-09-10T08:01:60Z\"",
+      "name": "metadata/timestamp-25",
+      "path": "projects/proj/archive/issues/timestamp-25.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:60Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:60Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:60Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/timestamp-26.md: line 7: created must be an RFC3339 timestamp, got \"2026-09-10t08:01:00z\"",
+      "name": "metadata/timestamp-26",
+      "path": "projects/proj/archive/issues/timestamp-26.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10t08:01:00z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10t08:01:00z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10t08:01:00z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 86400,
+          "seconds": 1788940860
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/timestamp-27",
+      "path": "projects/proj/archive/issues/timestamp-27.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00+24:00\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00+24:00",
+            "null": false
+          },
+          "start": 67,
+          "end": 102
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 102,
+          "end": 132
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00+24:00\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/duplicate-owned.md: line 9: duplicate frontmatter key \"title\"",
+      "name": "metadata/duplicate-owned",
+      "path": "projects/proj/archive/issues/duplicate-owned.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\ntitle: second\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        },
+        {
+          "key": "title",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "second",
+            "null": false
+          },
+          "start": 127,
+          "end": 141
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\ntitle: second\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/duplicate-unknown",
+      "path": "projects/proj/archive/issues/duplicate-unknown.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\nextra: one\nextra: two\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        },
+        {
+          "key": "extra",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "one",
+            "null": false
+          },
+          "start": 127,
+          "end": 138
+        },
+        {
+          "key": "extra",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "two",
+            "null": false
+          },
+          "start": 138,
+          "end": 149
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\nextra: one\nextra: two\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "",
+        "labels": [],
+        "parent": {
+          "raw": "",
+          "target": ""
+        },
+        "priority": 99,
+        "project": "proj",
+        "status": "",
+        "title": "",
+        "type": "false",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/permissive-required",
+      "path": "projects/proj/archive/issues/permissive-required.md",
+      "yaml": "id: null\ntitle: ''\ntype: false\nstatus: null\npriority: 99\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "null",
+            "null": true
+          },
+          "start": 4,
+          "end": 13
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "",
+            "null": false
+          },
+          "start": 13,
+          "end": 23
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "false",
+            "null": false
+          },
+          "start": 23,
+          "end": 35
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "null",
+            "null": true
+          },
+          "start": 35,
+          "end": 48
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "99",
+            "null": false
+          },
+          "start": 48,
+          "end": 61
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 61,
+          "end": 91
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 91,
+          "end": 121
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: null\ntitle: ''\ntype: false\nstatus: null\npriority: 99\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "metadata": {
+        "aliases": [
+          "null",
+          "~",
+          "42"
+        ],
+        "archived": true,
+        "assignee": "",
+        "blocked_by": [
+          {
+            "raw": "null",
+            "target": "null"
+          },
+          {
+            "raw": "[[q|a]]",
+            "target": "q"
+          }
+        ],
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "id": "issue-abc",
+        "labels": [
+          "true"
+        ],
+        "parent": {
+          "raw": "[[ p#h|a ]]",
+          "target": "p"
+        },
+        "priority": 2,
+        "project": "proj",
+        "status": "open",
+        "title": "Title",
+        "type": "task",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789027260
+        },
+        "url": ""
+      },
+      "name": "metadata/links-and-lists",
+      "path": "projects/proj/archive/issues/links-and-lists.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\naliases: [null, '~', 42]\nlabels: true\nparent: '[[ p#h|a ]]'\nblocked_by: ['', null, '[[q|a]]']\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        },
+        {
+          "key": "aliases",
+          "key_line": 8,
+          "value": {
+            "kind": "sequence",
+            "line": 8,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 8,
+                "value": "null",
+                "null": true
+              },
+              {
+                "kind": "scalar",
+                "line": 8,
+                "value": "~",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 8,
+                "value": "42",
+                "null": false
+              }
+            ]
+          },
+          "start": 127,
+          "end": 152
+        },
+        {
+          "key": "labels",
+          "key_line": 9,
+          "value": {
+            "kind": "scalar",
+            "line": 9,
+            "value": "true",
+            "null": false
+          },
+          "start": 152,
+          "end": 165
+        },
+        {
+          "key": "parent",
+          "key_line": 10,
+          "value": {
+            "kind": "scalar",
+            "line": 10,
+            "value": "[[ p#h|a ]]",
+            "null": false
+          },
+          "start": 165,
+          "end": 187
+        },
+        {
+          "key": "blocked_by",
+          "key_line": 11,
+          "value": {
+            "kind": "sequence",
+            "line": 11,
+            "children": [
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "",
+                "null": false
+              },
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "null",
+                "null": true
+              },
+              {
+                "kind": "scalar",
+                "line": 11,
+                "value": "[[q|a]]",
+                "null": false
+              }
+            ]
+          },
+          "start": 187,
+          "end": 221
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\naliases: [null, '~', 42]\nlabels: true\nparent: '[[ p#h|a ]]'\nblocked_by: ['', null, '[[q|a]]']\n---\nDescription\n## Log\n- opaque\n"
+    },
+    {
+      "issue_error": "projects/proj/archive/issues/owned-alias.md: line 10: labels must be a list of strings",
+      "name": "metadata/owned-alias",
+      "path": "projects/proj/archive/issues/owned-alias.md",
+      "yaml": "id: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\nextra: &label foo\nlabels: *label\n",
+      "body": "Description\n## Log\n- opaque\n",
+      "fields": [
+        {
+          "key": "id",
+          "key_line": 1,
+          "value": {
+            "kind": "scalar",
+            "line": 1,
+            "value": "issue-abc",
+            "null": false
+          },
+          "start": 4,
+          "end": 18
+        },
+        {
+          "key": "title",
+          "key_line": 2,
+          "value": {
+            "kind": "scalar",
+            "line": 2,
+            "value": "Title",
+            "null": false
+          },
+          "start": 18,
+          "end": 31
+        },
+        {
+          "key": "type",
+          "key_line": 3,
+          "value": {
+            "kind": "scalar",
+            "line": 3,
+            "value": "task",
+            "null": false
+          },
+          "start": 31,
+          "end": 42
+        },
+        {
+          "key": "status",
+          "key_line": 4,
+          "value": {
+            "kind": "scalar",
+            "line": 4,
+            "value": "open",
+            "null": false
+          },
+          "start": 42,
+          "end": 55
+        },
+        {
+          "key": "priority",
+          "key_line": 5,
+          "value": {
+            "kind": "scalar",
+            "line": 5,
+            "value": "2",
+            "null": false
+          },
+          "start": 55,
+          "end": 67
+        },
+        {
+          "key": "created",
+          "key_line": 6,
+          "value": {
+            "kind": "scalar",
+            "line": 6,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 67,
+          "end": 97
+        },
+        {
+          "key": "updated",
+          "key_line": 7,
+          "value": {
+            "kind": "scalar",
+            "line": 7,
+            "value": "2026-09-10T08:01:00Z",
+            "null": false
+          },
+          "start": 97,
+          "end": 127
+        },
+        {
+          "key": "extra",
+          "key_line": 8,
+          "value": {
+            "kind": "scalar",
+            "line": 8,
+            "value": "foo",
+            "null": false
+          },
+          "start": 127,
+          "end": 145
+        },
+        {
+          "key": "labels",
+          "key_line": 9,
+          "value": {
+            "kind": "alias",
+            "line": 9
+          },
+          "start": 145,
+          "end": 160
+        }
+      ],
+      "issue_body": {
+        "body": "",
+        "description": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "request_body": {
+        "before_log": "Description\n",
+        "log": "## Log\n- opaque\n",
+        "tail": ""
+      },
+      "input": "---\nid: issue-abc\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-09-10T08:01:00Z\nupdated: 2026-09-10T08:01:00Z\nextra: &label foo\nlabels: *label\n---\nDescription\n## Log\n- opaque\n"
     }
   ],
   "links": [

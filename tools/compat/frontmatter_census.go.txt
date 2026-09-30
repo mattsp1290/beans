@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+ "time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -40,7 +41,9 @@ type migrationField struct {
 }
 
 type migrationFrontmatterCase struct {
-	Name        string            `json:"name"`
+	IssueError string `json:"issue_error,omitempty"`
+ Metadata map[string]any `json:"metadata,omitempty"`
+ Name        string            `json:"name"`
 	Path        string            `json:"path"`
 	Input       []byte            `json:"input_b64"`
 	Error       string            `json:"error,omitempty"`
@@ -62,6 +65,23 @@ func TestMigrationFrontmatterCensus(t *testing.T) {
 	}
 	for index := range cases {
 		c := &cases[index]
+        iss, parseErr := Parse(c.Path, c.Input)
+        if parseErr != nil {
+            c.IssueError = parseErr.Error()
+        } else {
+            timestamp := func(value time.Time) map[string]any {
+                _, offset := value.Zone()
+                return map[string]any{"seconds": value.Unix(), "nanoseconds": value.Nanosecond(), "offset_seconds": offset}
+            }
+            stringsOrEmpty := func(values []string) []string { if values == nil { return []string{} }; return values }
+            link := func(value Link) map[string]string { return map[string]string{"raw": value.Raw, "target": value.Target} }
+            links := []map[string]string{}
+            for _, value := range iss.BlockedBy { links = append(links, link(value)) }
+            c.Metadata = map[string]any{"id": iss.ID, "title": iss.Title, "type": iss.Type, "status": iss.Status,
+                "priority": iss.Priority, "labels": stringsOrEmpty(iss.Labels), "aliases": stringsOrEmpty(iss.Aliases),
+                "assignee": iss.Assignee, "parent": link(iss.Parent), "blocked_by": links, "url": iss.URL,
+                "created": timestamp(iss.Created), "updated": timestamp(iss.Updated), "project": iss.Project, "archived": iss.Archived}
+        }
 		if strings.Contains(string(c.Input), "\r\n") {
 			c.Error = c.Path + ": has Windows line endings (\\r\\n); bn requires \\n"
 			continue

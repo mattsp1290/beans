@@ -33,6 +33,28 @@ def capture():
         for fixture in sorted((ROOT / "tests/fixtures/domain-syntax").glob("*.md")):
             cases.append({"name": "syntax/" + fixture.name, "path": "syntax/" + fixture.name,
                           "input_b64": base64.b64encode(fixture.read_bytes()).decode()})
+        required = {"id": "issue-abc", "title": "Title", "type": "task", "status": "open",
+                    "priority": "2", "created": "2026-09-10T08:01:00Z", "updated": "2026-09-10T08:01:00Z"}
+        variants = [("missing-" + key, {k: v for k, v in required.items() if k != key}, "")
+                    for key in required]
+        for value in ["null", "true", "0x10", "1.5", "9223372036854775807", "9223372036854775808",
+                      "-9223372036854775808", "-9223372036854775809", "'+004'", "'-8'", "[]", "' 3 '"]:
+            variants.append(("priority-" + str(len(variants)), dict(required, priority=value), ""))
+        for value in ["null", "[]", "2026-09-10T08:01:00.123456789Z", "2026-09-10T08:01:00+05:30",
+                      "2026-09-10T8:01:00Z", "2026-09-10T08:01:00,5Z", "2026-09-10T08:01:60Z",
+                      "2026-09-10t08:01:00z", "2026-09-10T08:01:00+24:00"]:
+            variants.append(("timestamp-" + str(len(variants)), dict(required, created=value), ""))
+        variants.extend([
+            ("duplicate-owned", required, "title: second\n"),
+            ("duplicate-unknown", required, "extra: one\nextra: two\n"),
+            ("permissive-required", dict(required, id="null", title="''", type="false", status="null", priority="99"), ""),
+            ("links-and-lists", required, "aliases: [null, '~', 42]\nlabels: true\nparent: '[[ p#h|a ]]'\nblocked_by: ['', null, '[[q|a]]']\n"),
+            ("owned-alias", required, "extra: &label foo\nlabels: *label\n"),
+        ])
+        for name, fields, suffix in variants:
+            text = "---\n" + "".join(f"{key}: {value}\n" for key, value in fields.items()) + suffix + "---\nDescription\n## Log\n- opaque\n"
+            cases.append({"name": "metadata/" + name, "path": "projects/proj/archive/issues/" + name + ".md",
+                          "input_b64": base64.b64encode(text.encode()).decode()})
         harness = ROOT / "tools/compat/frontmatter_census.go.txt"
         (source / "issue/migration_frontmatter_test.go").write_bytes(harness.read_bytes())
         inputs, output = source / "input.json", source / "output.json"
@@ -46,7 +68,7 @@ def capture():
             case["input"] = base64.b64decode(case.pop("input_b64")).decode("utf-8")
         return {"schema": "beans-frontmatter-primitives-v1",
                 "source_sha": baseline["source_sha"],
-                "scope": "YAML nodes, byte spans, literal body sections and links; typed note validation/encoding remains WP3",
+                "scope": "YAML nodes, byte spans, literal body sections, links and issue metadata; encoding and other note schemas remain WP3",
                 "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest(),
                 "cases": captured, "links": captured_output["links"]}
 

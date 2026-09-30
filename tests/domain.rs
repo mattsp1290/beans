@@ -8,7 +8,7 @@ fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture()
     let corpus: Value = serde_json::from_str(include_str!("contract/frontmatter-primitives.json"))
         .expect("committed Go corpus");
     let cases = corpus["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 35);
+    assert_eq!(cases.len(), 68);
     for case in cases {
         let name = case["name"].as_str().unwrap();
         let input = case["input"].as_str().unwrap();
@@ -169,5 +169,37 @@ proptest! {
             prop_assert_eq!(&source.as_bytes()[copy.source], &output.bytes[copy.destination]);
         }
         prop_assert_eq!(parsed.replace_fields(&[]).unwrap().bytes, source.as_bytes());
+    }
+}
+
+#[test]
+fn typed_issue_metadata_and_validation_match_fixed_go() {
+    use beans::domain::issue::IssueDocument;
+    let corpus: Value =
+        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    for case in corpus["cases"].as_array().unwrap() {
+        let input = case["input"].as_str().unwrap();
+        let result = IssueDocument::parse(case["path"].as_str().unwrap(), input);
+        if let Some(error) = case.get("issue_error") {
+            assert_eq!(
+                result.unwrap_err().to_string(),
+                error.as_str().unwrap(),
+                "{}",
+                case["name"]
+            );
+        } else {
+            let parsed = result.unwrap();
+            assert_eq!(
+                serde_json::to_value(&parsed.metadata).unwrap(),
+                case["metadata"],
+                "{}",
+                case["name"]
+            );
+            assert_eq!(parsed.original(), input);
+            assert_eq!(
+                serde_json::to_value(parsed.body()).unwrap(),
+                case["issue_body"]
+            );
+        }
     }
 }
