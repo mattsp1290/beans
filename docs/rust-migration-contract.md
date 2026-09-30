@@ -18,7 +18,7 @@ packages and instrumentation.
 ```sh
 make compat-reference
 diff -u tests/contract/commands.json .compat/reference/commands.json
-make compat-cli compat-http compat-signals compat-test
+make compat-cli compat-http compat-signals compat-io compat-test
 make compat-journey
 make compat-assets-reference compat-assets  # Node 24.12.0 / npm 11.6.2
 python3 -S tools/compat/build_reference.py --output .compat/version-override --version contract-override
@@ -205,7 +205,21 @@ not establish cancellation or recovery during a mutation.
 The `native-baseline` CI job runs only on Linux. It rebuilds the immutable Go
 revision, runs its regression suite and 68 retained executable help probes, and
 uploads the native evidence. The same harness passed locally on Linux arm64.
-Runner configuration alone does not establish CI success or Rust parity.
+Linux x86_64 CI run [36758279377](https://github.com/mattsp1290/beans/actions/runs/36758279377)
+passed all four jobs at commit `a37f9a147745d48273018180f01a902b6886a685`,
+including the full UI asset contract and both CLI/HTTP mutation journeys.
+This is Go baseline/harness evidence; Rust parity remains unproven.
+
+`make compat-io` captures eight Linux stdout failure cases using real file
+descriptors: prime, help, version and JSON listing each write to a pipe whose
+reader was closed before launch, and to `/dev/full`. Closed pipes terminate with
+SIGPIPE (Python return code -13), with no stderr. Full-device writes produce
+exit 1 and command-specific diagnostics except help, which exits 0 without
+stderr. The captures preserve these observed differences. Each probe also
+compares filesystem/Git effects; it does not establish interruption during writes.
+
+Rust 1.98.1 with rustfmt/clippy installed successfully on Linux arm64. Verus
+remains unqualified on this host; the release provides Linux x86_64 binaries.
 
 WP1 is still in progress. Required work includes expanding mutation/error journeys
 to remaining flag/output scenarios; additional

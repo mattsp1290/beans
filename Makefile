@@ -54,7 +54,7 @@ clean:
 # VERSION=migration-oracle and placeholder UI until asset contracts are added.
 REFERENCE_BINARY ?= .compat/reference/bn-go
 CANDIDATE_BINARY ?= $(REFERENCE_BINARY)
-.PHONY: compat-reference compat-assets-reference compat-assets compat-cli compat-http compat-journey compat-signals compat-test
+.PHONY: compat-reference compat-assets-reference compat-assets compat-cli compat-http compat-journey compat-signals compat-io compat-test
 compat-reference:
 	python3 -S tools/compat/build_reference.py
 
@@ -79,6 +79,9 @@ compat-journey:
 
 compat-signals:
 	python3 -S tools/compat/signals.py check --binary '$(CANDIDATE_BINARY)'
+
+compat-io:
+	python3 -S tools/compat/io_failures.py check --binary '$(CANDIDATE_BINARY)'
 
 compat-test:
 	BN_REFERENCE_BINARY='$(REFERENCE_BINARY)' python3 -S -m unittest discover -s tools/compat -p 'test_*.py' -v

@@ -56,7 +56,7 @@ jobs:
           diff -u tests/contract/commands.json .compat/reference/commands.json
           python3 -S tools/compat/build_reference.py --output .compat/version-override --version contract-override
       - name: Replay the oracle and reject deliberately broken candidates
-        run: make compat-cli compat-http compat-journey compat-signals compat-test
+        run: make compat-cli compat-http compat-journey compat-signals compat-io compat-test
       - uses: actions/setup-node@v7
         with:
           node-version: '24.12.0'
