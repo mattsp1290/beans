@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
 import subprocess
 import tarfile
 import tempfile
@@ -23,7 +24,7 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def build(output, version=None):
+def build(output, version=None, ui_build=False):
     spec = json.loads(BASELINE.read_text())
     if version is not None:
         spec["version"] = version
@@ -34,6 +35,22 @@ def build(output, version=None):
         source = Path(work)
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             tar.extractall(source, filter="data")
+        ui_metadata = {}
+        if ui_build:
+            node = run(["node", "--version"]).decode().strip()
+            npm = run(["npm", "--version"]).decode().strip()
+            if (node, npm) != ("v24.12.0", "11.6.2"):
+                raise RuntimeError("UI oracle requires Node v24.12.0 and npm 11.6.2")
+            env = {k: v for k, v in os.environ.items() if not k.startswith("VITE_")}
+            env.update(LANG="C", LC_ALL="C", TZ="UTC")
+            run(["npm", "ci", "--no-audit", "--no-fund"], cwd=source / "ui", env=env, timeout=180)
+            run(["npm", "run", "build"], cwd=source / "ui", env=env, timeout=120)
+            assets = {p.relative_to(source / "ui/dist").as_posix(): digest(p.read_bytes())
+                      for p in sorted((source / "ui/dist").rglob("*")) if p.is_file()}
+            shutil.copytree(source / "ui/dist", output / "ui", dirs_exist_ok=True)
+            spec["ui"] = "built"
+            ui_metadata = {"node_version": node, "npm_version": npm, "ui_assets": assets,
+                           "ui_lock_sha256": digest((source / "ui/package-lock.json").read_bytes())}
         binary = output / ("bn-go.exe" if os.name == "nt" else "bn-go")
         run(["go", "build", "-trimpath", "-buildvcs=false", "-ldflags",
              f'-X github.com/mattsp1290/beans/version.Version={spec["version"]}',
@@ -53,6 +70,7 @@ def build(output, version=None):
                         go_version=run(["go", "version"]).decode().strip(),
                         git_version=run(["git", "--version"]).decode().strip(),
                         ui_sha256=digest((source / "ui/dist/index.html").read_bytes()))
+        metadata.update(ui_metadata)
         (output / "build.json").write_text(json.dumps(metadata, indent=2) + "\n")
     print(binary)
 
@@ -61,5 +79,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / ".compat/reference")
     parser.add_argument("--version", help="explicit version override for link verification")
+    parser.add_argument("--ui-build", action="store_true", help="embed the pinned full UI build")
     args = parser.parse_args()
-    build(args.output, args.version)
+    build(args.output, args.version, args.ui_build)

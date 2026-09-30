@@ -20,12 +20,17 @@ make compat-reference
 diff -u tests/contract/commands.json .compat/reference/commands.json
 make compat-cli compat-http compat-signals compat-test
 make compat-journey
+make compat-assets-reference compat-assets  # Node 24.12.0 / npm 11.6.2
 python3 -S tools/compat/build_reference.py --output .compat/version-override --version contract-override
 ```
 
 `make compat-reference` archives the recorded revision into a temporary
 directory and builds it with VERSION `migration-oracle`, without VCS stamping.
-It embeds that revision's committed UI placeholder. `.compat/reference/build.json`
+It embeds that revision's committed UI placeholder.
+`make compat-assets-reference` instead builds the full UI from that revision's
+lockfile using Node 24.12.0 and npm 11.6.2, then embeds it in a separate oracle.
+The UI compiler/tool versions, lockfile digest and every generated file digest
+are recorded in adjacent metadata; no compiled assets are committed. `.compat/reference/build.json`
 records source SHA, linked version, binary digest, Go/Git versions, OS/architecture,
 and UI digest. Binaries stay ignored. This target does not use the current
 working tree as application source, does not install the reference binary, and
@@ -47,7 +52,13 @@ user directory and BEANS_HOME/BEANS_HUB per case, disables global/system Git
 configuration and prompts, and uses no remote credentials. Seed commits have
 fixed author/committer metadata. Reads skip fetch. PTY cases use separate
 stdout/stderr terminals at 80 columns and 24 rows and preserve ANSI/CRLF bytes.
-PTY capture currently requires POSIX.
+PTY capture currently requires POSIX. The disposable Git environment explicitly
+sets `remote.origin.followRemoteHEAD=never`; newer Git otherwise creates
+`origin/HEAD` during fetch while Git 2.43 does not. This pins fixture inputs
+without removing refs from comparisons. CI failures from the initial matrix
+were exactly this extra symbolic ref. The control is recorded in baseline
+metadata and applies only to isolated child processes. See
+[Git configuration](https://git-scm.com/docs/git-config/2.51.2.html).
 
 The real-server HTTP corpus covers all 22 registered routes, with success or
 validation/not-found cases. GET cases include HEAD, trailing slash, and uppercase
@@ -150,6 +161,15 @@ name to keep an allocated path intact across Fang wrapping. Only that exact
 allocated root's title-cased presentation is additionally substituted when Fang
 title-cases a pathname diagnostic; the remaining case/spacing stays literal.
 
+The separate `assets.json` corpus covers every file in the full pinned UI build,
+with direct/query/case/trailing-slash requests, GET/HEAD, range requests, missing
+files/API routes and SPA fallback. `make compat-assets` compares status, ordered
+headers, body lengths and SHA256 of every response byte. Direct asset reads must
+match the recorded build manifest. HEAD bodies and invalid response lengths are
+rejected independently. Response digests avoid checking compiled JavaScript/CSS
+into the repository. Use `ASSETS_BINARY=/path/to/full-ui-bn` for a candidate;
+the placeholder oracle cannot satisfy this distinct contract.
+
 ## Regression and storage evidence
 
 `tests/contract/regressions.json` inventories all 225 existing Go test functions
@@ -189,7 +209,7 @@ Runner configuration alone does not establish CI success or Rust parity.
 
 WP1 is still in progress. Required work includes expanding mutation/error journeys
 to remaining flag/output scenarios; additional
-flag grammar interactions and raw/stdin modes; full embedded assets; and native
+flag grammar interactions and raw/stdin modes; and native
 Linux qualification, including mixed-client locking and recovery. Initial SSE connection coverage
 does not establish watcher/debounce/reload/reconnect parity. Framework/compiler/
 solver pins must be tested and recorded before WP2 begins.

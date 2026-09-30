@@ -3,5 +3,8 @@
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
   "version": "migration-oracle",
   "ui": "committed-placeholder",
-  "runtime": "Python >= 3.12 (development harness only)"
+  "runtime": "Python >= 3.12 (development harness only)",
+  "fixture_git_config": {
+    "remote.origin.followRemoteHEAD": "never"
+  }
 }

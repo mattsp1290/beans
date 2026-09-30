@@ -30,6 +30,10 @@ def environment(root):
             "BEANS_HOME": str(root / "beans"), "BEANS_HUB": str(root / "hub"),
             "BN_ACTOR": "contract", "GIT_CONFIG_NOSYSTEM": "1",
             "GIT_CONFIG_GLOBAL": str(root / "user/gitconfig"),
+            # Newer Git fetch defaults create origin/HEAD; pin fixture behavior
+            # explicitly instead of dropping that ref from state comparisons.
+            "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.followRemoteHEAD",
+            "GIT_CONFIG_VALUE_0": "never",
             "GIT_TERMINAL_PROMPT": "0", "GIT_AUTHOR_NAME": "Contract",
             "GIT_AUTHOR_EMAIL": "contract@example.invalid",
             "GIT_COMMITTER_NAME": "Contract", "GIT_COMMITTER_EMAIL": "contract@example.invalid",

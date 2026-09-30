@@ -58,8 +58,9 @@ def requests():
 def response(port, case, root):
     connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
     try:
-        connection.request(case["method"], case["path"], body=case["body"],
-                           headers={"Content-Type": "application/json"} if case["body"] is not None else {})
+        headers = {"Content-Type": "application/json"} if case["body"] is not None else {}
+        headers.update(case.get("headers", {}))
+        connection.request(case["method"], case["path"], body=case["body"], headers=headers)
         res = connection.getresponse()
         data = res.read(13) if case["path"] == "/api/events" else res.read()
         health = case["path"].lower().rstrip("/") == "/api/health"
