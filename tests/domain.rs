@@ -1,5 +1,7 @@
 #[path = "domain/creation.rs"]
 mod creation;
+#[path = "domain/templates.rs"]
+mod templates;
 
 use beans::domain::frontmatter::Frontmatter;
 use beans::domain::text::{Link, split_issue_body, split_request_body};

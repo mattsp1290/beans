@@ -1190,24 +1190,33 @@
       "test": "TestDefaultTemplateBuiltins",
       "line": 9,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "templates::default_template_builtins",
+      "rust_source": "tests/domain/templates.rs",
+      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
     },
     {
       "source": "issue/template_test.go",
       "test": "TestDefaultTemplateUnknownTypeFallsBackToTask",
       "line": 24,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "templates::default_template_unknown_type_falls_back_to_task",
+      "rust_source": "tests/domain/templates.rs",
+      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
     },
     {
       "source": "issue/template_test.go",
       "test": "TestLoadTemplatePrefersProjectThenHubThenBuiltin",
       "line": 32,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "templates::load_template_prefers_project_then_hub_then_builtin",
+      "rust_source": "tests/domain/templates.rs",
+      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
     },
     {
       "source": "issue/types_test.go",

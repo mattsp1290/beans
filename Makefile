@@ -97,6 +97,10 @@ compat-domain-read:
 compat-frontmatter:
 	python3 -S tools/compat/frontmatter_reference.py --check tests/contract/frontmatter-primitives.json
 
+.PHONY: compat-templates
+compat-templates:
+	python3 -S tools/compat/template_reference.py --check tests/contract/templates.json
+
 .PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py

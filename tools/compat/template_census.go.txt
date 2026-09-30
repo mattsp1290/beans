@@ -1,0 +1,120 @@
+package issue
+
+import (
+    "encoding/json"
+    "os"
+    "path/filepath"
+    "testing"
+)
+
+type migrationTemplateEntry struct {
+    Path string `json:"path"`
+    Kind string `json:"kind"`
+    Data []int `json:"data"`
+    Target string `json:"target"`
+}
+type migrationTemplateCase struct {
+    Name string `json:"name"`
+    Type string `json:"type"`
+    Default bool `json:"default"`
+    Request bool `json:"request"`
+    Project string `json:"project"`
+    Hub string `json:"hub"`
+    Entries []migrationTemplateEntry `json:"entries"`
+    Expected []int `json:"expected"`
+}
+func migrationTemplateBytes(value string) []int {
+    out := make([]int, len(value))
+    for i := range value { out[i] = int(value[i]) }
+    return out
+}
+func TestMigrationTemplateCensus(t *testing.T) {
+    cases := []migrationTemplateCase{}
+    for _, typ := range []string{"task", "bug", "feature", "epic", "chore", "request", "unknown", "", "../task", "/task", "./task", "nested/task", "task/", "TASK", "task\x00", "タスク"} {
+        cases = append(cases, migrationTemplateCase{Name:"default-"+typ, Type:typ, Default:true})
+    }
+    cases = append(cases, migrationTemplateCase{Name:"default-request", Default:true, Request:true})
+    file := func(path, data string) migrationTemplateEntry {
+        return migrationTemplateEntry{Path:path, Kind:"file", Data:migrationTemplateBytes(data)}
+    }
+    base := []migrationTemplateEntry{
+        file("project/templates/task.md", "## Project Template\n"),
+        file("hub/templates/task.md", "## Hub Template\n"),
+        file("hub/templates/bug.md", "## Hub Template\n"),
+        file("project/templates/request.md", "## Project Request\n"),
+        file("hub/templates/request.md", "## Hub Request\n"),
+    }
+    for _, spec := range []migrationTemplateCase{
+        {Name:"project-first", Type:"task", Project:"project", Hub:"hub"},
+        {Name:"hub-only", Type:"task", Hub:"hub"},
+        {Name:"per-type-hub", Type:"bug", Project:"project", Hub:"hub"},
+        {Name:"no-directories", Type:"task"},
+        {Name:"missing-override", Type:"epic", Project:"project", Hub:"hub"},
+        {Name:"request-project", Request:true, Project:"project", Hub:"hub"},
+        {Name:"request-hub", Request:true, Hub:"hub"},
+        {Name:"request-default", Request:true},
+        {Name:"clean-missing-component", Type:"task", Project:"absent/../project", Hub:"hub"},
+        {Name:"leading-slash-type", Type:"/task", Project:"project", Hub:"hub"},
+        {Name:"dot-type", Type:"./task", Project:"project", Hub:"hub"},
+        {Name:"type-missing-component", Type:"absent/../task", Project:"project", Hub:"hub"},
+        {Name:"nul-type-falls-back", Type:"task\x00", Project:"project", Hub:"hub"},
+    } {
+        spec.Entries = base
+        cases = append(cases, spec)
+    }
+    for _, spec := range []migrationTemplateCase{
+        {Name:"empty-project-wins", Type:"task", Entries:[]migrationTemplateEntry{file("project/templates/task.md", "")}},
+        {Name:"raw-project-bytes", Type:"task", Entries:[]migrationTemplateEntry{file("project/templates/task.md", "\xff\x00\xfe\r\n---\n")}},
+        {Name:"raw-request-bytes", Request:true, Entries:[]migrationTemplateEntry{file("project/templates/request.md", "\xff\x00\xfe\r\n")}},
+        {Name:"directory-read-error", Type:"task", Entries:[]migrationTemplateEntry{{Path:"project/templates/task.md", Kind:"directory"}}},
+        {Name:"non-directory-parent", Type:"task", Entries:[]migrationTemplateEntry{file("project/templates", "not a directory")}},
+        {Name:"symlink-override", Type:"task", Entries:[]migrationTemplateEntry{file("body.md", "Linked\n"), {Path:"project/templates/task.md", Kind:"symlink", Target:"../../body.md"}}},
+        {Name:"dangling-symlink", Type:"task", Entries:[]migrationTemplateEntry{{Path:"project/templates/task.md", Kind:"symlink", Target:"missing.md"}}},
+        {Name:"custom-type", Type:"custom", Entries:[]migrationTemplateEntry{file("hub/templates/custom.md", "Custom\n")}},
+        {Name:"nested-type", Type:"nested/task", Entries:[]migrationTemplateEntry{file("project/templates/nested/task.md", "Nested\n")}},
+        {Name:"parent-type", Type:"../outside", Entries:[]migrationTemplateEntry{file("project/outside.md", "Outside\n")}},
+        {Name:"unicode-type", Type:"タスク", Entries:[]migrationTemplateEntry{file("project/templates/タスク.md", "本文\n")}},
+        {Name:"backslash-is-literal", Type:"nested\\task", Entries:[]migrationTemplateEntry{file("project/templates/nested\\task.md", "Literal slash\n")}},
+    } {
+        spec.Project = "project"
+        spec.Hub = "hub"
+        spec.Entries = append(spec.Entries, file("hub/templates/task.md", "Hub fallback\n"), file("hub/templates/request.md", "Hub request fallback\n"))
+        cases = append(cases, spec)
+    }
+    for i := range cases {
+        c := &cases[i]
+        root := t.TempDir()
+        for _, entry := range c.Entries {
+            path := filepath.Join(root, entry.Path)
+            if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil { t.Fatal(err) }
+            var err error
+            switch entry.Kind {
+            case "directory": err = os.Mkdir(path, 0755)
+            case "symlink": err = os.Symlink(entry.Target, path)
+            case "file":
+                data := make([]byte, len(entry.Data))
+                for i, b := range entry.Data { data[i] = byte(b) }
+                err = os.WriteFile(path, data, 0644)
+            default: t.Fatalf("unknown fixture kind %q", entry.Kind)
+            }
+            if err != nil { t.Fatal(err) }
+        }
+        resolve := func(dir string) string {
+            if dir == "" { return "" }
+            // Deliberately leave this uncleaned: LoadTemplate owns Join behavior.
+            return root + "/" + dir
+        }
+        var got string
+        if c.Default {
+            if c.Request { got = DefaultRequestTemplate() } else { got = DefaultTemplate(c.Type) }
+        } else if c.Request {
+            got = LoadRequestTemplate(resolve(c.Project), resolve(c.Hub))
+        } else {
+            got = LoadTemplate(c.Type, resolve(c.Project), resolve(c.Hub))
+        }
+        c.Expected = migrationTemplateBytes(got)
+    }
+    encoded, err := json.Marshal(cases)
+    if err != nil { t.Fatal(err) }
+    if err := os.WriteFile(os.Getenv("BN_TEMPLATE_OUTPUT"), encoded, 0644); err != nil { t.Fatal(err) }
+}

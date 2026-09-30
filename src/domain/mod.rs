@@ -4,6 +4,7 @@ pub mod issue;
 mod issue_encode;
 pub mod log;
 mod splicing;
+pub mod template;
 pub mod text;
 mod yaml;
 mod yaml_render;
