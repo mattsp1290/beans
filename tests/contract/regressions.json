@@ -1822,16 +1822,16 @@
       "source": "vault/resolve_test.go",
       "test": "TestProjectName",
       "line": 156,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/paths.rs::project_name_matches_fixed_go_without_collapsing_hyphens",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestDefaultPaths",
       "line": 164,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/paths.rs::default_paths_original_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

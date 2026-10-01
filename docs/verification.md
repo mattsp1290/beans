@@ -158,6 +158,17 @@ corpus. Broader YAML syntax, alias grammar/expansion limits, raw-byte reader
 boundaries and multiple-fault ordering still require qualification; `opsEnv`
 fallback and end-to-end environment wiring remain later migration work.
 
+Linux hub paths now match 240 immutable Go environment/flag cases, four
+raw-byte filename cases and 144 lexical clean/join cases. Only relative hub
+paths are made absolute; overridden home, cache and config retain their Go
+representation. Missing HOME and missing-hub diagnostics are preserved.
+Filesystem tests cover absent `.git`, a worktree file, directories and directory
+symlinks. Project-name conversion matches the fixed Go mapping for every Unicode
+scalar and 14 named/raw-byte cases; internal hyphens are not collapsed. Two
+original Go regressions are independently ported. The Linux contract job
+recaptures the corpus. Project resolution, remote normalization, actor wiring,
+filesystem races and wider path-fault behavior remain migration work.
+
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),

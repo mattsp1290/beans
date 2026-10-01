@@ -23,7 +23,7 @@ pub mod workflow;
 mod yaml;
 mod yaml_decode;
 mod yaml_render;
-mod yaml_string;
+pub(crate) mod yaml_string;
 
 mod yaml_reader;
 

@@ -1,0 +1,7890 @@
+{
+  "schema": "beans-paths-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "harness_sha256": "d66c8fb04fc82cd08240250a767b17770f08446dfc330abb8d7c732a7f79798a",
+  "ascii_lower": [
+    [
+      65,
+      97
+    ],
+    [
+      66,
+      98
+    ],
+    [
+      67,
+      99
+    ],
+    [
+      68,
+      100
+    ],
+    [
+      69,
+      101
+    ],
+    [
+      70,
+      102
+    ],
+    [
+      71,
+      103
+    ],
+    [
+      72,
+      104
+    ],
+    [
+      73,
+      105
+    ],
+    [
+      74,
+      106
+    ],
+    [
+      75,
+      107
+    ],
+    [
+      76,
+      108
+    ],
+    [
+      77,
+      109
+    ],
+    [
+      78,
+      110
+    ],
+    [
+      79,
+      111
+    ],
+    [
+      80,
+      112
+    ],
+    [
+      81,
+      113
+    ],
+    [
+      82,
+      114
+    ],
+    [
+      83,
+      115
+    ],
+    [
+      84,
+      116
+    ],
+    [
+      85,
+      117
+    ],
+    [
+      86,
+      118
+    ],
+    [
+      87,
+      119
+    ],
+    [
+      88,
+      120
+    ],
+    [
+      89,
+      121
+    ],
+    [
+      90,
+      122
+    ],
+    [
+      97,
+      97
+    ],
+    [
+      98,
+      98
+    ],
+    [
+      99,
+      99
+    ],
+    [
+      100,
+      100
+    ],
+    [
+      101,
+      101
+    ],
+    [
+      102,
+      102
+    ],
+    [
+      103,
+      103
+    ],
+    [
+      104,
+      104
+    ],
+    [
+      105,
+      105
+    ],
+    [
+      106,
+      106
+    ],
+    [
+      107,
+      107
+    ],
+    [
+      108,
+      108
+    ],
+    [
+      109,
+      109
+    ],
+    [
+      110,
+      110
+    ],
+    [
+      111,
+      111
+    ],
+    [
+      112,
+      112
+    ],
+    [
+      113,
+      113
+    ],
+    [
+      114,
+      114
+    ],
+    [
+      115,
+      115
+    ],
+    [
+      116,
+      116
+    ],
+    [
+      117,
+      117
+    ],
+    [
+      118,
+      118
+    ],
+    [
+      119,
+      119
+    ],
+    [
+      120,
+      120
+    ],
+    [
+      121,
+      121
+    ],
+    [
+      122,
+      122
+    ],
+    [
+      304,
+      105
+    ],
+    [
+      8490,
+      107
+    ]
+  ],
+  "cases": [
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/user/.beans/hub",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/cwd/ relative-user /.beans/hub",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/flag",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/user/.beans/hub",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/cwd/ relative-user /.beans/hub",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/hub/../raw/",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/flag",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/hub/../raw/",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/flag",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/user/.beans/hub",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/cwd/ relative-user /.beans/hub",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/flag/../raw/",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/flag",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "",
+        "Hub": "",
+        "Cache": "",
+        "Config": ""
+      },
+      "Error": "resolve home directory: $HOME is not defined"
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/user/.beans",
+        "Hub": "/user/.beans/hub",
+        "Cache": "/user/.beans/cache",
+        "Config": "/user/.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": " relative-user /.beans",
+        "Hub": "/oracle/cwd/ relative-user /.beans/hub",
+        "Cache": " relative-user /.beans/cache",
+        "Config": " relative-user /.beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/hub/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/flag/../raw/",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/oracle/flag",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": "/beans",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/beans",
+        "Hub": "/beans/hub",
+        "Cache": "/beans/cache",
+        "Config": "/beans/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/hub/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/hub/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/hub/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/hub/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/hub/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/hub/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/flag/../raw/",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/flag",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " relative/../home ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "relative/../home",
+        "Hub": "/oracle/cwd/home/hub",
+        "Cache": "home/cache",
+        "Config": "home/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/hub/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/hub/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/hub/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/hub/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/hub/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/hub/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/flag/../raw/",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/flag",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " rel ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "rel",
+        "Hub": "/oracle/cwd/rel/hub",
+        "Cache": "rel/cache",
+        "Config": "rel/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/hub/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/hub/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/hub/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/hub/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/hub/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "/hub/../raw/",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/hub/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "relative/../hub",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/cwd/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "/flag/../raw/",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/flag/../raw/",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": "../flag",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/oracle/flag",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": ""
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": "/user"
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    },
+    {
+      "Input": {
+        "Home": " /keep/../raw/ ",
+        "Hub": "  ",
+        "Flag": " ",
+        "UserHome": " relative-user "
+      },
+      "Paths": {
+        "Home": "/keep/../raw/",
+        "Hub": "/raw/hub",
+        "Cache": "/raw/cache",
+        "Config": "/raw/config.toml"
+      },
+      "Error": ""
+    }
+  ],
+  "lexical": [
+    {
+      "Parts": [
+        [],
+        []
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": []
+    },
+    {
+      "Parts": [
+        [],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        []
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46,
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        46
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        []
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46,
+        47,
+        46,
+        46,
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          46,
+          46
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        []
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        []
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          47
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        []
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        47,
+        120
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        []
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46,
+        47,
+        46,
+        46,
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        46,
+        46
+      ],
+      "Joined": [
+        46,
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        []
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        47,
+        98
+      ],
+      "Joined": [
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        []
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          92,
+          98
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        92,
+        98
+      ],
+      "Joined": [
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        []
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          97,
+          0,
+          98
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        97,
+        0,
+        98
+      ],
+      "Joined": [
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        []
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        46,
+        46,
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        46
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254,
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254,
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254,
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254,
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        254
+      ],
+      "Joined": [
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        []
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          47,
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          47,
+          46,
+          46,
+          47,
+          46,
+          46,
+          47,
+          120
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        120
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          97,
+          47,
+          46,
+          46,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          97,
+          47,
+          47,
+          98,
+          47,
+          46,
+          47,
+          99,
+          47,
+          46,
+          46
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        47,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          97,
+          92,
+          98
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        92,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          97,
+          0,
+          98
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        97,
+        0,
+        98
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          255,
+          47,
+          46,
+          46,
+          47,
+          254
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47,
+        254
+      ]
+    },
+    {
+      "Parts": [
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ],
+        [
+          47,
+          120,
+          47,
+          46,
+          46,
+          47
+        ]
+      ],
+      "Clean": [
+        47
+      ],
+      "Joined": [
+        47
+      ]
+    }
+  ],
+  "names": [
+    {
+      "Input": [
+        66,
+        101,
+        97,
+        110,
+        115
+      ],
+      "Name": "beans",
+      "Valid": false
+    },
+    {
+      "Input": [
+        77,
+        121,
+        32,
+        82,
+        101,
+        112,
+        111
+      ],
+      "Name": "my-repo",
+      "Valid": false
+    },
+    {
+      "Input": [
+        97,
+        95,
+        98,
+        46,
+        99
+      ],
+      "Name": "a-b-c",
+      "Valid": false
+    },
+    {
+      "Input": [
+        45,
+        45,
+        120,
+        45,
+        45
+      ],
+      "Name": "x",
+      "Valid": false
+    },
+    {
+      "Input": [
+        111,
+        107,
+        45,
+        110,
+        97,
+        109,
+        101
+      ],
+      "Name": "ok-name",
+      "Valid": true
+    },
+    {
+      "Input": [
+        65,
+        32,
+        32,
+        66
+      ],
+      "Name": "a--b",
+      "Valid": false
+    },
+    {
+      "Input": [],
+      "Name": "",
+      "Valid": false
+    },
+    {
+      "Input": [
+        49,
+        50,
+        51,
+        45
+      ],
+      "Name": "123",
+      "Valid": true
+    },
+    {
+      "Input": [
+        45,
+        98,
+        97,
+        100
+      ],
+      "Name": "bad",
+      "Valid": false
+    },
+    {
+      "Input": [
+        196,
+        176,
+        88
+      ],
+      "Name": "ix",
+      "Valid": false
+    },
+    {
+      "Input": [
+        226,
+        132,
+        170,
+        101,
+        108,
+        118,
+        105,
+        110
+      ],
+      "Name": "kelvin",
+      "Valid": false
+    },
+    {
+      "Input": [
+        195,
+        169,
+        95,
+        120
+      ],
+      "Name": "x",
+      "Valid": false
+    },
+    {
+      "Input": [
+        120,
+        255,
+        254,
+        122
+      ],
+      "Name": "x--z",
+      "Valid": false
+    },
+    {
+      "Input": [
+        120,
+        226,
+        130,
+        122
+      ],
+      "Name": "x--z",
+      "Valid": false
+    }
+  ],
+  "raw": [
+    {
+      "Home": [
+        255
+      ],
+      "Hub": [
+        32,
+        114,
+        101,
+        108,
+        47,
+        255,
+        32
+      ],
+      "Flag": [],
+      "UserHome": [
+        47,
+        117,
+        115,
+        101,
+        114,
+        47,
+        254
+      ],
+      "Paths": [
+        [
+          255
+        ],
+        [
+          47,
+          111,
+          114,
+          97,
+          99,
+          108,
+          101,
+          47,
+          99,
+          119,
+          100,
+          47,
+          114,
+          101,
+          108,
+          47,
+          255
+        ],
+        [
+          255,
+          47,
+          99,
+          97,
+          99,
+          104,
+          101
+        ],
+        [
+          255,
+          47,
+          99,
+          111,
+          110,
+          102,
+          105,
+          103,
+          46,
+          116,
+          111,
+          109,
+          108
+        ]
+      ],
+      "Error": ""
+    },
+    {
+      "Home": [
+        32,
+        255,
+        32
+      ],
+      "Hub": [
+        32,
+        114,
+        101,
+        108,
+        47,
+        255,
+        32
+      ],
+      "Flag": [],
+      "UserHome": [
+        47,
+        117,
+        115,
+        101,
+        114,
+        47,
+        254
+      ],
+      "Paths": [
+        [
+          255
+        ],
+        [
+          47,
+          111,
+          114,
+          97,
+          99,
+          108,
+          101,
+          47,
+          99,
+          119,
+          100,
+          47,
+          114,
+          101,
+          108,
+          47,
+          255
+        ],
+        [
+          255,
+          47,
+          99,
+          97,
+          99,
+          104,
+          101
+        ],
+        [
+          255,
+          47,
+          99,
+          111,
+          110,
+          102,
+          105,
+          103,
+          46,
+          116,
+          111,
+          109,
+          108
+        ]
+      ],
+      "Error": ""
+    },
+    {
+      "Home": [
+        226,
+        130
+      ],
+      "Hub": [
+        32,
+        114,
+        101,
+        108,
+        47,
+        255,
+        32
+      ],
+      "Flag": [],
+      "UserHome": [
+        47,
+        117,
+        115,
+        101,
+        114,
+        47,
+        254
+      ],
+      "Paths": [
+        [
+          226,
+          130
+        ],
+        [
+          47,
+          111,
+          114,
+          97,
+          99,
+          108,
+          101,
+          47,
+          99,
+          119,
+          100,
+          47,
+          114,
+          101,
+          108,
+          47,
+          255
+        ],
+        [
+          226,
+          130,
+          47,
+          99,
+          97,
+          99,
+          104,
+          101
+        ],
+        [
+          226,
+          130,
+          47,
+          99,
+          111,
+          110,
+          102,
+          105,
+          103,
+          46,
+          116,
+          111,
+          109,
+          108
+        ]
+      ],
+      "Error": ""
+    },
+    {
+      "Home": [],
+      "Hub": [
+        32,
+        114,
+        101,
+        108,
+        47,
+        255,
+        32
+      ],
+      "Flag": [],
+      "UserHome": [
+        47,
+        117,
+        115,
+        101,
+        114,
+        47,
+        254
+      ],
+      "Paths": [
+        [
+          47,
+          117,
+          115,
+          101,
+          114,
+          47,
+          254,
+          47,
+          46,
+          98,
+          101,
+          97,
+          110,
+          115
+        ],
+        [
+          47,
+          111,
+          114,
+          97,
+          99,
+          108,
+          101,
+          47,
+          99,
+          119,
+          100,
+          47,
+          114,
+          101,
+          108,
+          47,
+          255
+        ],
+        [
+          47,
+          117,
+          115,
+          101,
+          114,
+          47,
+          254,
+          47,
+          46,
+          98,
+          101,
+          97,
+          110,
+          115,
+          47,
+          99,
+          97,
+          99,
+          104,
+          101
+        ],
+        [
+          47,
+          117,
+          115,
+          101,
+          114,
+          47,
+          254,
+          47,
+          46,
+          98,
+          101,
+          97,
+          110,
+          115,
+          47,
+          99,
+          111,
+          110,
+          102,
+          105,
+          103,
+          46,
+          116,
+          111,
+          109,
+          108
+        ]
+      ],
+      "Error": ""
+    }
+  ]
+}

@@ -197,3 +197,7 @@ compat-workflow-file:
 	python3 -S tools/compat/workflow_file_reference.py --check tests/contract/workflow-file.json
 compat-workflow-file-read:
 	python3 -S tools/compat/workflow_file_read.py
+
+.PHONY: compat-paths
+compat-paths:
+	python3 -S tools/compat/paths_reference.py --check tests/contract/paths.json
