@@ -173,3 +173,57 @@ proptest::proptest! {
         proptest::prop_assert_eq!(load_workflow(None,toml.as_bytes(),&[]).unwrap(),WorkflowConfig::built_in().merge(&b));
     }
 }
+
+// Independent ports of every original issue/workflow_load_test.go scenario.
+#[test]
+fn explicit_workflow_wins_over_project_and_hub() {
+    let work = TempDir::new();
+    let path = work.0.join("explicit.toml");
+    std::fs::write(&path, b"[workflow]\nstatuses = [\"draft\", \"live\"]\ndefault = \"draft\"\nactive = [\"draft\"]\nterminal = [\"live\"]\n").unwrap();
+    let wf = load_workflow(
+        Some(&path),
+        b"[workflow]\ndefault = \"closed\"\n",
+        b"[workflow]\nstatuses = [\"open\", \"closed\"]\ndefault = \"open\"\n",
+    )
+    .unwrap();
+    assert_eq!(wf.statuses, Some(vec!["draft".into(), "live".into()]));
+    assert_eq!(wf.default.as_bytes(), b"draft");
+}
+#[test]
+fn project_workflow_overrides_hub_per_key() {
+    let wf = load_workflow(None, b"[workflow]\ndefault = \"in_progress\"\n", b"[workflow]\nstatuses = [\"open\", \"in_progress\", \"closed\"]\ndefault = \"open\"\nactive = [\"open\", \"in_progress\"]\nterminal = [\"closed\"]\n").unwrap();
+    assert_eq!(
+        wf.statuses,
+        Some(vec!["open".into(), "in_progress".into(), "closed".into()])
+    );
+    assert_eq!(wf.default.as_bytes(), b"in_progress");
+    assert_eq!(wf.active, Some(vec!["open".into(), "in_progress".into()]));
+    assert_eq!(wf.terminal, Some(vec!["closed".into()]));
+}
+#[test]
+fn missing_explicit_workflow_errors() {
+    let work = TempDir::new();
+    assert!(load_workflow(Some(&work.0.join("does-not-exist.toml")), b"", b"").is_err());
+}
+#[test]
+fn invalid_inherited_workflow_vocabulary_errors() {
+    let err = load_workflow(
+        None,
+        b"[workflow]\ndefault = \"nonexistent_status\"\n",
+        b"[workflow]\nstatuses = [\"open\", \"closed\"]\ndefault = \"open\"\n",
+    )
+    .unwrap_err();
+    assert!(err.to_string().contains("not in statuses"));
+}
+#[test]
+fn workflow_with_types_and_ids_tables_loads() {
+    let wf = load_workflow(None, b"", b"[workflow]\nstatuses = [\"open\", \"closed\"]\ndefault = \"open\"\nactive = [\"open\"]\nterminal = [\"closed\"]\n\n[types]\nnames = [\"task\", \"bug\"]\n\n[ids]\nlength = 5\n").unwrap();
+    assert_eq!(wf.statuses, Some(vec!["open".into(), "closed".into()]));
+}
+#[test]
+fn workflow_without_config_uses_built_in_defaults() {
+    assert_eq!(
+        load_workflow(None, b"", b"").unwrap(),
+        WorkflowConfig::built_in()
+    );
+}

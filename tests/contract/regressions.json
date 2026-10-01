@@ -777,56 +777,56 @@
       "source": "issue/coverage_test.go",
       "test": "TestParseAdditionalErrors",
       "line": 13,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::additional_owned_and_yaml_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseNoTrailingNewlineAfterClosingFence",
       "line": 40,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::closing_fence_without_trailing_newline",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseEmptyBodyAfterFence",
       "line": 54,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::empty_body_after_fence",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestScalarIntoNullValue",
       "line": 67,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::null_scalar",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestStringListNullAndEmpty",
       "line": 80,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::null_string_list",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestBlockedBySkipsEmptyElements",
       "line": 94,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::blocker_list_skips_empty_elements",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseLinkPipeAndHeading",
       "line": 117,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::link_alias_and_heading_targets",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -844,8 +844,8 @@
       "source": "issue/coverage_test.go",
       "test": "TestSectionSeparatorBranches",
       "line": 175,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::new_document_section_separators",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1243,40 +1243,40 @@
       "source": "issue/review_regression_test.go",
       "test": "TestFencedHeadingsAreNotSections",
       "line": 31,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::fenced_headings_are_not_sections",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestLogEntryTokensRoundTrip",
       "line": 53,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::log_tokens_round_trip",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestEncodeProjectConfigEscapesControlCharacters",
       "line": 75,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::project_config_control_characters",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestParseMemoryDuplicateKey",
       "line": 97,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::memory_duplicate_owned_key",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestUnclosedFenceDoesNotHideHeadings",
       "line": 105,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/parser_regressions.rs::unclosed_fence_does_not_hide_headings",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1380,48 +1380,48 @@
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowExplicitWinsOverProjectAndHub",
       "line": 10,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::explicit_workflow_wins_over_project_and_hub",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowProjectOverridesHubKeyByKey",
       "line": 43,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::project_workflow_overrides_hub_per_key",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowMissingExplicitPathErrors",
       "line": 71,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::missing_explicit_workflow_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowInvalidVocabularyErrors",
       "line": 78,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::invalid_inherited_workflow_vocabulary_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowTOMLWithTypesTableLoadsFine",
       "line": 97,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::workflow_with_types_and_ids_tables_loads",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowNoConfigUsesDefaults",
       "line": 120,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::workflow_without_config_uses_built_in_defaults",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1832,8 +1832,8 @@
       "source": "vault/resolve_test.go",
       "test": "TestResolveAutoCreateOnWriteNotRead",
       "line": 124,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/resolve.rs::resolve_auto_create_on_write_not_read_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

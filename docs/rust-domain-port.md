@@ -496,3 +496,39 @@ not establish dependency-operation replay, Git pipeline replay, arbitrary YAML
 syntax parity, UTF-16 serial edit validity, or filesystem behavior. Those and
 the remaining WP3 acceptance work are still open. The installed/default
 executable remains Go, and WP5 mutations remain held.
+
+
+### Project creation effects and remaining original issue regressions
+
+Operation-owned `vault::create_project_files` now writes the project config and
+seven ordered `.gitkeep` files, returning only the hub-relative paths it
+actually wrote. It preserves existing files/directories/valid symlinks, replaces
+dangling destination symlinks as Go does, skips non-ENOENT stat failures, and
+returns no staging paths after an error even when earlier writes remain. A
+second call writes nothing. Read/write resolution only reports the missing
+project; neither resolution call creates files.
+
+The helper uses the production `gitops::write_file` primitive: mkdir parents,
+exclusive same-directory `.bn-write-` temporary with 0600 permissions, write,
+explicit close with error handling, rename, and cleanup on failure. Short writes
+and interrupted writes match Go's behavior. This provides atomic file replacement
+at the rename boundary, not fsync durability or a proved crash-safe transaction.
+Locking, journaling, cancellation and real Git pipeline coupling remain WP4.
+No Rust CLI or HTTP write is enabled by this primitive.
+
+`compat-project-files` recaptures 90 immutable Go filesystem cases, each executed
+twice (180 stages), comparing exact file bytes, permissions, paths returned,
+errors and complete trees. Cases cover existing config/keep files and directories,
+valid/dangling symlinks, blocked parents, raw-byte names/remotes, empty names,
+path cleaning and partial failures. Rust executes the same real filesystem
+operations. The required Linux contract job recaptures this corpus. The original
+`TestResolveAutoCreateOnWriteNotRead` is independently ported, including all eight
+ordered staging paths, config contents, repeat no-op and project discovery.
+
+Eight original issue coverage tests, five issue review regressions and all six
+workflow-load regressions now have independent Rust ports. The ledger is 132
+ported/93 pending, with every original Go test retained. This completes the
+operation-owned project-file primitive and original issue-regression slices;
+it does not establish the whole WP3 lossless/schema/fault/transport/performance
+gate. WP5 remains held, Go remains default, and WP4-WP9 plus final requested
+review/fix-review remain unfinished.

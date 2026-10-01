@@ -30,3 +30,5 @@ pub use query::{
 };
 pub use remote::{NO_REMOTE, normalize_remote_url, remote_host, validate_remote_url};
 pub use resolve::{OUTSIDE_REPO, ResolveOptions, Resolved, project_dirs, resolve};
+mod project_files;
+pub use project_files::create_project_files;

@@ -119,6 +119,7 @@ jobs:
           make compat-paths
           make compat-remote
           make compat-resolve
+          make compat-project-files
           make compat-context
           make compat-index-graph
           make compat-recovery

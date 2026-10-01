@@ -506,3 +506,9 @@ mod mutation_regressions;
 
 #[path = "domain/edit_sequences.rs"]
 mod edit_sequences;
+
+#[path = "domain/parser_regressions.rs"]
+mod parser_regressions;
+
+#[path = "domain/project_files.rs"]
+mod project_files;

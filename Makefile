@@ -210,6 +210,10 @@ compat-remote:
 compat-resolve:
 	python3 -S tools/compat/resolve_reference.py --check tests/contract/resolve.json
 
+.PHONY: compat-project-files
+compat-project-files:
+	python3 -S tools/compat/project_files_reference.py --check tests/contract/project-files.json
+
 .PHONY: compat-context
 compat-context:
 	python3 -S tools/compat/context_reference.py --check tests/contract/context.json

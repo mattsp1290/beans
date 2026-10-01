@@ -334,3 +334,44 @@ fn resolve_overrides_original() {
     assert!(!hub.hub.join("projects/nope").exists());
     assert!(hub.resolve("Bad Name", false, false).is_err());
 }
+
+#[test]
+fn resolve_auto_create_on_write_not_read_original() {
+    use beans::vault::{create_project_files, project_dirs};
+    let mut hub = OriginalHub::new();
+    hub.git["Root"] = Value::String("/code/My Repo".into());
+    hub.git["Remote"] = Value::String("https://github.com/o/my-repo".into());
+    let read = hub.resolve("", false, false).unwrap();
+    assert!(!read.created);
+    assert_eq!(read.project, b"my-repo");
+    assert_eq!(read.notice, "project my-repo has no issues yet");
+    assert!(!hub.hub.join("projects/my-repo").exists());
+    let write = hub.resolve("", true, false).unwrap();
+    assert!(write.created);
+    assert_eq!(write.project, b"my-repo");
+    assert!(!hub.hub.join("projects/my-repo").exists());
+    let paths = create_project_files(&hub.hub, &write.project, &write.repo_remote)
+        .unwrap()
+        .unwrap();
+    assert_eq!(paths.len(), 8);
+    assert_eq!(paths[0], b"projects/my-repo/beans.toml");
+    assert_eq!(paths[5], b"projects/my-repo/requests/.gitkeep");
+    assert_eq!(paths[7], b"projects/my-repo/handoffs/archive/.gitkeep");
+    let cfg =
+        beans::domain::config::load_project_config(&hub.hub.join("projects/my-repo/beans.toml"))
+            .unwrap();
+    assert_eq!(cfg.prefix.as_bytes(), b"my-repo");
+    assert_eq!(
+        cfg.remotes,
+        Some(vec!["https://github.com/o/my-repo".into()])
+    );
+    assert!(
+        create_project_files(&hub.hub, &write.project, &write.repo_remote)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(
+        project_dirs(&hub.hub).unwrap(),
+        Some(vec![b"my-repo".to_vec()])
+    );
+}
