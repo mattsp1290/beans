@@ -1,0 +1,18 @@
+package markdown
+import("encoding/json";"os";"testing")
+func TestMigrationLinks(t *testing.T){
+ ints:=func(s string)[]int{v:=make([]int,len(s));for i:=0;i<len(s);i++{v[i]=int(s[i])};return v}
+ type link struct{Target,Fragment,Alias []int;Embed bool};type row struct{Input []int;Links []link}
+ inputs:=[]string{"See [[note]] and [[note]] again.\n\nEmbed: ![[note]].\n\nHeading link: [[note#Section]].\n\nInline code with `[[not a link]]` should not count.\n\n```\n[[also not a link]]\n```\n","[[note|Custom Label]]"}
+ for _,target:=range []string{"a","a#","a#b#c","#frag","a|alias","a|","|label","a&b","a&amp;b","a\\|b","a|[[b","a`b"," a ","a|**label**","a|label|again","a\nb","a\rb"}{for _,embed:=range []string{"","!"}{
+  wiki:=embed+"[["+target+"]]"
+  for _,wrap:=range [][2]string{{"",""},{"See "," again"},{"`","`"},{"``","``"},{"```\n","\n```"},{"~~~\n","\n~~~"},{"    ",""},{"> ",""},{"- ",""},{"\\",""},{"\\\\",""},{"[outer ","](https://x)"},{"<div>\n","\n</div>"},{"<span>","</span>"},{"<span data='","'>x</span>"},{"<!-- "," -->"},{"| head |\n| --- |\n| "," |"},{"---\ntitle: ","\n---\n[[body]]"},{"+++\ntitle=", "\n+++\n[[body]]"},{"----\n", "\n----\n[[body]]"},{"---\n", "\n...\n[[body]]"},{"\n---\n", "\n---\n[[body]]"},{"[", "]"},{"![", "](image.png)"},{"<http://example/",">"},{"<b>",""}}{inputs=append(inputs,wrap[0]+wiki+wrap[1])}
+ }}
+ for _,s:=range []string{"`x [[a|`]] [[b]]","[[a|`]] [[b]] `","[[a]] [[a|second]] ![[a]] [[a#x]] [[a#x|alias]]","[[a[[b]] [[c]]","[[a]b]]","[[a|<b>label</b>]]","[[a|&amp;]]","[[a]]](x)","[x [[a]]](url)","![x [[a]]](url)","[[a\x00b]]","[[a\xff\xfeb]]"}{inputs=append(inputs,s)}
+ for _,wiki:=range []string{"[[a]]", "![[a|label]]", "[[a\\|b]]", "[[a|`label`]]", "[[a|<b>label</b>]]"}{
+  for _,wrap:=range [][2]string{{"é ",""},{"界 ",""},{"\xff ",""},{"\t", ""},{"a\r", ""},{"a\r\n", ""},{"[text](", ")"},{"[", "]: /url"},{"[text][", "]"},{"| head |\r\n| --- |\r\n| ", " |"},{"| head |\n| --- |\n| before ", " after |"},{"    code\n\n", ""},{"# ", ""},{"- `code` ", ""},{"--- \n", "\n---\n[[body]]"},{"  ---\n", "\n---\n[[body]]"},{"\n\n---\n", "\n---\n[[body]]"}}{inputs=append(inputs,wrap[0]+wiki+wrap[1])}
+ }
+ for b:=0;b<256;b++{inputs=append(inputs,"[[a"+string([]byte{byte(b)})+"b]]","![[a|x"+string([]byte{byte(b)})+"y]]")}
+ rows:=[]row{};for _,s:=range inputs{r:=row{Input:ints(s)};for _,l:=range Links([]byte(s)){r.Links=append(r.Links,link{ints(l.Target),ints(l.Fragment),ints(l.Alias),l.Embed})};rows=append(rows,r)}
+ out,e:=json.Marshal(map[string]any{"cases":rows});if e!=nil{t.Fatal(e)};if e=os.WriteFile(os.Getenv("BN_LINKS_OUTPUT"),out,0600);e!=nil{t.Fatal(e)}
+}

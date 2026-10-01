@@ -121,3 +121,30 @@ Escaped \N/\L/\P keep their authored spaces. Diagnostic line accounting counts
 raw Unicode separators separately from physical LF byte offsets. More Unicode,
 quote/escape interactions and byte-span behavior still need differential cases
 before broad vault use; this gate does not establish complete YAML compatibility.
+
+## Markdown link extraction
+
+`src/markdown/links.rs` provides raw-byte body-link extraction for the vault
+loader. It preserves target, fragment and alias bytes, including invalid UTF-8,
+last-`#` fragment splitting, embed flags and first-occurrence deduplication by
+(target, fragment, embed). Frontmatter is excluded using Goldmark's delimiter
+rules, including TOML and one initial blank line. Alias markup and entities
+remain authored bytes. Ordinary Markdown link/image labels may contain
+wikilinks; their destinations, angle autolinks, code and HTML do not. Table
+cells split on unescaped pipes before parsing inline links.
+
+Comrak supplies block/inline context, with raw-byte grammar and temporary
+markers adapting its different wikilink rules. The context view masks lone CR
+without altering returned fields because Goldmark's reader splits on LF. The
+adapter never writes caller bytes. This is a trusted parser boundary, not a
+verified kernel. It parses context per candidate; full-index load measurements
+and pathological link-density measurements remain required before WP3
+acceptance.
+
+`make compat-markdown-links` independently recaptures 1,495 cases from the
+immutable Go revision under Go 1.25.7. The corpus covers every byte in target and
+alias positions, GFM tables, code/fences, HTML, ordinary links/images and
+references, Unicode prefixes, escapes, CR/CRLF and frontmatter delimiters. Two
+independent Rust assertions port `TestLinks` and `TestLinksAlias`. These tests
+qualify link extraction for the recorded inputs; they do not qualify rendered
+HTML, TOC, embeds, the disk index or end-to-end queries.

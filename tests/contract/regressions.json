@@ -1466,16 +1466,16 @@
       "source": "markdown/render_test.go",
       "test": "TestLinks",
       "line": 111,
-      "destination": "tests/markdown.rs",
-      "status": "pending",
+      "destination": "tests/domain/links.rs::links_original_code_and_duplicate_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "markdown/render_test.go",
       "test": "TestLinksAlias",
       "line": 142,
-      "destination": "tests/markdown.rs",
-      "status": "pending",
+      "destination": "tests/domain/links.rs::links_original_alias_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

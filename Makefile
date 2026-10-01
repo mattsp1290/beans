@@ -221,3 +221,7 @@ compat-index-graph:
 .PHONY: compat-recovery
 compat-recovery:
 	python3 -S tools/compat/recovery_reference.py --check tests/contract/recovery.json
+
+.PHONY: compat-markdown-links
+compat-markdown-links:
+	python3 -S tools/compat/links_reference.py --check tests/contract/links.json
