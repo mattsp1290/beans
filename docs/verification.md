@@ -10,8 +10,10 @@ at `5af204fa3244840ddde484d0cfa2b7a701471a21`: 12 kernel obligations verified,
 all ten guard mutations failed a proof, and the restored source verified again.
 The report, diagnostics and source/lock digests are preserved in
 `tests/contract/verus-kernel-linux-x86_64.json`; the requirement audit is in
-`tests/contract/wp2-acceptance.json`. WP2 is accepted. Production callers are
-still pending. The Rust
+`tests/contract/wp2-acceptance.json`. WP2 is accepted. Domain codecs now call the
+splice helpers through `src/domain/byte_edit.rs`; tests check their actual
+parsed source ranges and copied bytes. The Git pipeline's retry/discard callers
+remain a WP4 obligation. The Rust
 entry point is a migration scaffold, not a usable replacement for `bn`.
 
 The separate development-only probe under `tools/verification/probe` established
@@ -77,7 +79,8 @@ outcomes; real Git, filesystem effects, and crash recovery are WP4 obligations.
 `tests/properties.rs` runs 512 generated cases for each of three checks:
 pairwise range validity, offset translation against wider integer arithmetic,
 and complete/source-ordered preservation of the complement of edited spans.
-These tests check geometry, not the future codec's YAML parsing or byte copying.
+These tests check geometry, not YAML parsing or byte copying. The domain suite
+separately checks production codec byte preservation and actual copy ranges.
 Proptest persists shrunk failures for conversion into regression fixtures.
 
 Logs and `.compat/verification/qualification.json` record commands, exit codes,
@@ -99,6 +102,19 @@ Verus builtins and vstd's standard-library specifications also form part of the
 trusted proof boundary. The bounded model assumes its abstract Git outcomes and
 idempotent Apply semantics; it does not establish those real effects. Production
 callers and these effect boundaries need independent tests in WP3–WP5.
+
+Plan bundle loading and exclusive scaffold creation use Linux filesystem
+operations outside the kernel proofs. The immutable Go bundle corpus and actual
+Rust-to-Go snapshot reader check captured size, text, path, ordering and
+filesystem rejection behavior. Tests compare source trees before and after
+loads, including rejected size boundaries. They do not prove race freedom or
+all filesystem fault behavior. The scaffold writer consumes its owned `File`
+before calling `libc::close` exactly once, because Rust's `File` destructor
+discards close errors while Go's writer reports them. Descriptor ownership,
+the Linux syscall/errno interface and filesystem write/close outcomes remain
+trusted boundaries. `libc` is pinned to the existing locked version; this FFI
+call has no Verus correctness claim. Further effect/fault qualification remains
+part of the migration acceptance work.
 
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
