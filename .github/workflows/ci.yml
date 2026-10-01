@@ -94,6 +94,7 @@ jobs:
           make compat-frontmatter
           make compat-templates
           make compat-ids
+          make compat-request-lifecycle
       - name: Install the pinned Rust compiler for cross-language reading
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Read actual Rust-generated issue files with the fixed Go reader

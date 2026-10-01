@@ -1173,8 +1173,11 @@
       "test": "TestRequestIDsAndTransitions",
       "line": 5,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "requests::ids_and_transitions",
+      "rust_source": "tests/domain/requests.rs",
+      "validation": "cargo test --locked --test domain requests::; make compat-request-lifecycle; original Go regression retained until cutover"
     },
     {
       "source": "issue/review_regression_test.go",

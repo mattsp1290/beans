@@ -6,6 +6,7 @@ pub mod id;
 pub mod issue;
 mod issue_encode;
 pub mod log;
+pub mod request;
 mod splicing;
 pub mod template;
 pub mod text;

@@ -4,6 +4,8 @@ mod codec_regressions;
 mod creation;
 #[path = "domain/ids.rs"]
 mod ids;
+#[path = "domain/requests.rs"]
+mod requests;
 #[path = "domain/templates.rs"]
 mod templates;
 

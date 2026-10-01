@@ -105,6 +105,10 @@ compat-templates:
 compat-ids:
 	python3 -S tools/compat/id_reference.py --check tests/contract/ids.json
 
+.PHONY: compat-request-lifecycle
+compat-request-lifecycle:
+	python3 -S tools/compat/request_lifecycle_reference.py --check tests/contract/request-lifecycle.json
+
 .PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py

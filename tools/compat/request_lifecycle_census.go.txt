@@ -1,0 +1,55 @@
+package issue
+
+import (
+    "encoding/json"
+    "os"
+    "strings"
+    "testing"
+)
+
+func TestMigrationRequestLifecycleCensus(t *testing.T) {
+    type idCase struct { ID string `json:"id"`; Valid bool `json:"valid"` }
+    type transitionCase struct {
+        From string `json:"from"`; To string `json:"to"`
+        ValidFrom bool `json:"valid_from"`; ValidTo bool `json:"valid_to"`
+        Error string `json:"error"`
+    }
+    type generationCase struct {
+        Prefix string `json:"prefix"`; Length int `json:"length"`
+        Collisions int `json:"collisions"`; Attempts []int `json:"attempts"`
+        Valid bool `json:"valid"`
+    }
+    out := struct {
+        IDs []idCase `json:"ids"`
+        Transitions []transitionCase `json:"transitions"`
+        Generation []generationCase `json:"generation"`
+    }{}
+    for _, id := range []string{"beans-r-a3f2", "beans-a3f2", "beans-r-", "r-a", "r-r-a", "-r-a", "beans-r-r-a", "beans--r-a", "beans-r-a.0.001", "beans-r-a.1.2", "beans-r-a.١", "beans-r-a.", "beans-r-a..1", "beans-r-a-b", "Beans-r-a", "beans-R-a", "beans-r-A", "beans-r-a\n", "beans-r-a\x00", "beans/r-a", "é-r-a", "1-r-2", "beans_r-a", "beans-r-.1"} {
+        out.IDs = append(out.IDs, idCase{id, ValidRequestID(id)})
+    }
+    statuses := []string{RequestOpen, RequestAccepted, RequestInProgress, RequestResolved, RequestDeclined, "", "closed", "OPEN", " open", "open\n", "\"", "雪", "\x00", "\a\b\f\v\t\r", "\u0085\u2028\u2029"}
+    for _, from := range statuses {
+        for _, to := range statuses {
+            c := transitionCase{From:from, To:to, ValidFrom:ValidRequestStatus(from), ValidTo:ValidRequestStatus(to)}
+            if err := ValidateRequestTransition(from, to); err != nil { c.Error = err.Error() }
+            out.Transitions = append(out.Transitions, c)
+        }
+    }
+    for _, prefix := range []string{"beans", "foreign-project", "", "beans-r"} {
+        for _, length := range []int{-1, 0, 1, 4, 7} {
+            for _, collisions := range []int{0, 7, 8, 16} {
+                c := generationCase{Prefix:prefix, Length:length, Collisions:collisions}
+                id := NewRequestID(prefix, func(id string) bool {
+                    if !strings.HasPrefix(id, prefix+"-r-") { t.Fatal("wrong request prefix") }
+                    c.Attempts = append(c.Attempts, len(id)-len(prefix)-3)
+                    return len(c.Attempts) <= collisions
+                }, length)
+                c.Valid = ValidRequestID(id)
+                out.Generation = append(out.Generation, c)
+            }
+        }
+    }
+    data, err := json.Marshal(out)
+    if err != nil { t.Fatal(err) }
+    if err := os.WriteFile(os.Getenv("BN_REQUEST_OUTPUT"), data, 0644); err != nil { t.Fatal(err) }
+}

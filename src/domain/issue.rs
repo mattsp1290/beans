@@ -286,7 +286,7 @@ impl IssueMetadata {
 
 // Go %q error messages use mnemonic control escapes and literal printable
 // Unicode. Retaining raw scalar text here avoids quoting a coerced value.
-fn quoted(value: &str) -> String {
+pub(crate) fn quoted(value: &str) -> String {
     let mut output = String::from("\"");
     for ch in value.chars() {
         match ch {
