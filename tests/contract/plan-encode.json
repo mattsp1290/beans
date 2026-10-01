@@ -1,7 +1,7 @@
 {
   "schema": "beans-plan-encode-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "harness_sha256": "d0f5966c25dee8322240dd419eee00d913765cda79f5fbeceb4a7cbc6e108fb9",
+  "harness_sha256": "d980958ef4f97ee0edd0c384235021de6e3d84b01141fae14abdd3f7f9fc3d0d",
   "encodes": [
     {
       "error": "nil plan",
@@ -4288,6 +4288,146 @@
     {
       "error": "",
       "name": "time-4",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 999999-12-31T23:59:59Z\nupdated: 999999-12-31T23:59:59Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 31494784780799
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 31494784780799
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"999999-12-31T23:59:59Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"99-12-31T23:59:59Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "time-5",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 1000000-01-01T00:00:00Z\nupdated: 1000000-01-01T00:00:00Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 31494784780800
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 31494784780800
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"1000000-01-01T00:00:00Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"000-01-01T00:00:00Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "time-6",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 292277026596-12-04T15:30:07Z\nupdated: 292277026596-12-04T15:30:07Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 9223372036854775807
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 9223372036854775807
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"292277026596-12-04T15:30:07Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"77026596-12-04T15:30:07Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "time-7",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 292277026596-12-04T15:30:09Z\nupdated: 292277026596-12-04T15:30:09Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -9223372036854775807
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -9223372036854775807
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"292277026596-12-04T15:30:09Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"77026596-12-04T15:30:09Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "time-8",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 292277026596-12-04T15:30:08Z\nupdated: 292277026596-12-04T15:30:08Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -9223372036854775808
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -9223372036854775808
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"292277026596-12-04T15:30:08Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"77026596-12-04T15:30:08Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "time-9",
       "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
       "plan": {
         "aliases": [
@@ -4312,6 +4452,2694 @@
       },
       "read_error": "",
       "read_output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n"
+    },
+    {
+      "error": "",
+      "name": "unix-range-0",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -214921146772-05-17T05:07:11Z\nupdated: -214921146772-05-17T05:07:11Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6782256374624304769
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6782256374624304769
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-214921146772-05-17T05:07:11Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-214921146772-05-17T05:07:11Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-1",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 61722521075-01-20T09:10:58Z\nupdated: 61722521075-01-20T09:10:58Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1947774572717245858
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1947774572717245858
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"61722521075-01-20T09:10:58Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"2521075-01-20T09:10:58Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-2",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 174718417873-04-24T12:19:21Z\nupdated: 174718417873-04-24T12:19:21Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5513580664176860361
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5513580664176860361
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"174718417873-04-24T12:19:21Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"18417873-04-24T12:19:21Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-3",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 65059811507-06-04T15:17:56Z\nupdated: 65059811507-06-04T15:17:56Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2053089286701549476
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2053089286701549476
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"65059811507-06-04T15:17:56Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"9811507-06-04T15:17:56Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-4",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -219973259817-10-19T23:09:23Z\nupdated: -219973259817-10-19T23:09:23Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6941685663470537437
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6941685663470537437
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-219973259817-10-19T23:09:23Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-219973259817-10-19T23:09:23Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-5",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -86003078432-06-04T00:55:18Z\nupdated: -86003078432-06-04T00:55:18Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2713995080084703882
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2713995080084703882
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-86003078432-06-04T00:55:18Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-86003078432-06-04T00:55:18Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-6",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 158153275317-01-09T15:47:25Z\nupdated: 158153275317-01-09T15:47:25Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4990835255654936845
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4990835255654936845
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"158153275317-01-09T15:47:25Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"53275317-01-09T15:47:25Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-7",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 105207078922-09-22T00:08:56Z\nupdated: 105207078922-09-22T00:08:56Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3320014677457392536
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3320014677457392536
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"105207078922-09-22T00:08:56Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"07078922-09-22T00:08:56Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-8",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -285011354630-12-01T22:30:31Z\nupdated: -285011354630-12-01T22:30:31Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8994089699652101369
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8994089699652101369
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-285011354630-12-01T22:30:31Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-285011354630-12-01T22:30:31Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-9",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 102098129890-05-31T14:56:10Z\nupdated: 102098129890-05-31T14:56:10Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3221905722074348170
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3221905722074348170
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"102098129890-05-31T14:56:10Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"98129890-05-31T14:56:10Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-10",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -145916345871-05-03T19:40:01Z\nupdated: -145916345871-05-03T19:40:01Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4604675184823090799
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4604675184823090799
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-145916345871-05-03T19:40:01Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-145916345871-05-03T19:40:01Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-11",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 27206554352-02-29T17:09:32Z\nupdated: 27206554352-02-29T17:09:32Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 858555867609364172
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 858555867609364172
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"27206554352-02-29T17:09:32Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"6554352-02-29T17:09:32Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-12",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -203643222990-06-19T04:38:03Z\nupdated: -203643222990-06-19T04:38:03Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6426359475173320917
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6426359475173320917
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-203643222990-06-19T04:38:03Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-203643222990-06-19T04:38:03Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-13",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 53426803346-02-09T17:26:54Z\nupdated: 53426803346-02-09T17:26:54Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1685987006539426014
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1685987006539426014
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"53426803346-02-09T17:26:54Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"6803346-02-09T17:26:54Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-14",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 147712912397-07-18T03:00:37Z\nupdated: 147712912397-07-18T03:00:37Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4661369224142295637
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4661369224142295637
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"147712912397-07-18T03:00:37Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"12912397-07-18T03:00:37Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-15",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -98388280043-03-07T13:01:52Z\nupdated: -98388280043-03-07T13:01:52Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3104834292841028288
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3104834292841028288
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-98388280043-03-07T13:01:52Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-98388280043-03-07T13:01:52Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-16",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 292162915265-07-22T05:13:51Z\nupdated: 292162915265-07-22T05:13:51Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 9219771031048031631
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 9219771031048031631
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"292162915265-07-22T05:13:51Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"62915265-07-22T05:13:51Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-17",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 53464112587-03-30T13:19:46Z\nupdated: 53464112587-03-30T13:19:46Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1687164372471043186
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1687164372471043186
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"53464112587-03-30T13:19:46Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"4112587-03-30T13:19:46Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-18",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -75427624263-12-02T07:31:37Z\nupdated: -75427624263-12-02T07:31:37Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2380265980479707303
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2380265980479707303
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-75427624263-12-02T07:31:37Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-75427624263-12-02T07:31:37Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-19",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -180916277442-02-16T05:39:00Z\nupdated: -180916277442-02-16T05:39:00Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -5709166345419042060
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -5709166345419042060
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-180916277442-02-16T05:39:00Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-180916277442-02-16T05:39:00Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-20",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 4093155720-10-19T15:35:15Z\nupdated: 4093155720-10-19T15:35:15Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 129167456442622515
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 129167456442622515
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"4093155720-10-19T15:35:15Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"155720-10-19T15:35:15Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-21",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 106011050639-12-17T02:41:10Z\nupdated: 106011050639-12-17T02:41:10Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3345385574347526470
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3345385574347526470
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"106011050639-12-17T02:41:10Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"11050639-12-17T02:41:10Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-22",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -219923839018-08-26T09:47:09Z\nupdated: -219923839018-08-26T09:47:09Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6940126093693385571
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6940126093693385571
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-219923839018-08-26T09:47:09Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-219923839018-08-26T09:47:09Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-23",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 152697453448-07-01T05:38:48Z\nupdated: 152697453448-07-01T05:38:48Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4818666146829284328
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4818666146829284328
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"152697453448-07-01T05:38:48Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"97453448-07-01T05:38:48Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-24",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -127096602965-08-20T13:58:47Z\nupdated: -127096602965-08-20T13:58:47Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4010781461276772073
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4010781461276772073
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-127096602965-08-20T13:58:47Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-127096602965-08-20T13:58:47Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-25",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 26155422721-01-12T05:59:54Z\nupdated: 26155422721-01-12T05:59:54Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 825385357180072794
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 825385357180072794
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"26155422721-01-12T05:59:54Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"5422721-01-12T05:59:54Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-26",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -80090595778-10-19T17:15:13Z\nupdated: -80090595778-10-19T17:15:13Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2527415148759749087
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2527415148759749087
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-80090595778-10-19T17:15:13Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-80090595778-10-19T17:15:13Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-27",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -93084286660-09-23T15:54:04Z\nupdated: -93084286660-09-23T15:54:04Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2937456428228035556
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2937456428228035556
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-93084286660-09-23T15:54:04Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-93084286660-09-23T15:54:04Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-28",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 275108892315-08-22T13:18:51Z\nupdated: 275108892315-08-22T13:18:51Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 8681598047410550331
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 8681598047410550331
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"275108892315-08-22T13:18:51Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"08892315-08-22T13:18:51Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-29",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -267014900532-05-05T20:01:50Z\nupdated: -267014900532-05-05T20:01:50Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8426176461529444690
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8426176461529444690
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-267014900532-05-05T20:01:50Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-267014900532-05-05T20:01:50Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-30",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -198625527018-10-30T06:38:29Z\nupdated: -198625527018-10-30T06:38:29Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6268016284222756891
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6268016284222756891
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-198625527018-10-30T06:38:29Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-198625527018-10-30T06:38:29Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-31",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -121166385795-10-02T21:18:08Z\nupdated: -121166385795-10-02T21:18:08Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3823641882689740912
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3823641882689740912
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-121166385795-10-02T21:18:08Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-121166385795-10-02T21:18:08Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-32",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -37647130474-03-13T19:21:03Z\nupdated: -37647130474-03-13T19:21:03Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1188028751466775137
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1188028751466775137
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-37647130474-03-13T19:21:03Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-37647130474-03-13T19:21:03Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-33",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 193289820626-09-04T20:55:30Z\nupdated: 193289820626-09-04T20:55:30Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 6099637529437419330
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 6099637529437419330
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"193289820626-09-04T20:55:30Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"89820626-09-04T20:55:30Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-34",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 28835374873-02-13T11:13:45Z\nupdated: 28835374873-02-13T11:13:45Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 909956478605915625
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 909956478605915625
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"28835374873-02-13T11:13:45Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"5374873-02-13T11:13:45Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-35",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -180805665120-08-21T03:21:40Z\nupdated: -180805665120-08-21T03:21:40Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -5705675757666938300
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -5705675757666938300
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-180805665120-08-21T03:21:40Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-180805665120-08-21T03:21:40Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-36",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -212833882256-04-07T12:49:07Z\nupdated: -212833882256-04-07T12:49:07Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6716388668485029053
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6716388668485029053
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-212833882256-04-07T12:49:07Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-212833882256-04-07T12:49:07Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-37",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 65329119496-02-07T21:05:26Z\nupdated: 65329119496-02-07T21:05:26Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2061587825973608726
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2061587825973608726
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"65329119496-02-07T21:05:26Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"9119496-02-07T21:05:26Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-38",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 62444749334-05-24T18:19:25Z\nupdated: 62444749334-05-24T18:19:25Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1970565895230315565
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1970565895230315565
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"62444749334-05-24T18:19:25Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"4749334-05-24T18:19:25Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-39",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 95825089898-02-19T00:18:00Z\nupdated: 95825089898-02-19T00:18:00Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3023947700143949880
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3023947700143949880
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"95825089898-02-19T00:18:00Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"5089898-02-19T00:18:00Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-40",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -94636480076-09-07T00:28:23Z\nupdated: -94636480076-09-07T00:28:23Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2986438921352955097
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2986438921352955097
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-94636480076-09-07T00:28:23Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-94636480076-09-07T00:28:23Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-41",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 133157067844-09-23T22:24:42Z\nupdated: 133157067844-09-23T22:24:42Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4202031136269680682
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4202031136269680682
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"133157067844-09-23T22:24:42Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"57067844-09-23T22:24:42Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-42",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 54943467868-04-16T06:01:21Z\nupdated: 54943467868-04-16T06:01:21Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1733848316065980081
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1733848316065980081
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"54943467868-04-16T06:01:21Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"3467868-04-16T06:01:21Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-43",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 65865346637-11-11T02:03:24Z\nupdated: 65865346637-11-11T02:03:24Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2078509520147133804
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2078509520147133804
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"65865346637-11-11T02:03:24Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"5346637-11-11T02:03:24Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-44",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -29993396097-02-06T13:12:43Z\nupdated: -29993396097-02-06T13:12:43Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -946500223114118837
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -946500223114118837
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-29993396097-02-06T13:12:43Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-29993396097-02-06T13:12:43Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-45",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -12550164963-10-08T13:54:06Z\nupdated: -12550164963-10-08T13:54:06Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -396045015472404354
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -396045015472404354
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-12550164963-10-08T13:54:06Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-12550164963-10-08T13:54:06Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-46",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 219836487204-08-10T17:29:25Z\nupdated: 219836487204-08-10T17:29:25Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 6937369412397269365
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 6937369412397269365
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"219836487204-08-10T17:29:25Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"36487204-08-10T17:29:25Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-47",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 17613667198-01-30T00:05:52Z\nupdated: 17613667198-01-30T00:05:52Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 555833588146589152
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 555833588146589152
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"17613667198-01-30T00:05:52Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"3667198-01-30T00:05:52Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-48",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 45899566842-11-20T15:47:59Z\nupdated: 45899566842-11-20T15:47:59Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1448450365514600879
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1448450365514600879
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"45899566842-11-20T15:47:59Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"9566842-11-20T15:47:59Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-49",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 274616813511-04-07T19:52:50Z\nupdated: 274616813511-04-07T19:52:50Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 8666069540200689170
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 8666069540200689170
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"274616813511-04-07T19:52:50Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"16813511-04-07T19:52:50Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-50",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 271690663944-01-03T09:25:13Z\nupdated: 271690663944-01-03T09:25:13Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 8573729178761889913
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 8573729178761889913
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"271690663944-01-03T09:25:13Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"90663944-01-03T09:25:13Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-51",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 108896808334-07-05T21:18:12Z\nupdated: 108896808334-07-05T21:18:12Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3436451291398079892
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3436451291398079892
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"108896808334-07-05T21:18:12Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"96808334-07-05T21:18:12Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-52",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -115120354204-08-10T16:05:39Z\nupdated: -115120354204-08-10T16:05:39Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3632847553986566061
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3632847553986566061
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-115120354204-08-10T16:05:39Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-115120354204-08-10T16:05:39Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-53",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 12614774706-06-15T15:53:10Z\nupdated: 12614774706-06-15T15:53:10Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 398083777735132390
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 398083777735132390
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"12614774706-06-15T15:53:10Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"4774706-06-15T15:53:10Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-54",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 118701548784-01-09T12:21:17Z\nupdated: 118701548784-01-09T12:21:17Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3745859015135852477
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3745859015135852477
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"118701548784-01-09T12:21:17Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"01548784-01-09T12:21:17Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-55",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 146917989122-07-08T22:30:32Z\nupdated: 146917989122-07-08T22:30:32Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4636283868508573832
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4636283868508573832
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"146917989122-07-08T22:30:32Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"17989122-07-08T22:30:32Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-56",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 20871334851-07-02T17:58:15Z\nupdated: 20871334851-07-02T17:58:15Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 658635649917559095
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 658635649917559095
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"20871334851-07-02T17:58:15Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"1334851-07-02T17:58:15Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-57",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -225308064485-07-25T01:25:14Z\nupdated: -225308064485-07-25T01:25:14Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -7110035838315585286
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -7110035838315585286
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-225308064485-07-25T01:25:14Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-225308064485-07-25T01:25:14Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-58",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -73592086662-06-20T14:12:17Z\nupdated: -73592086662-06-20T14:12:17Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2322342008525008063
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2322342008525008063
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-73592086662-06-20T14:12:17Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-73592086662-06-20T14:12:17Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-59",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 132254198602-03-04T14:18:36Z\nupdated: 132254198602-03-04T14:18:36Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4173539334919971516
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4173539334919971516
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"132254198602-03-04T14:18:36Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"54198602-03-04T14:18:36Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-60",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 230975945692-06-18T18:39:23Z\nupdated: 230975945692-06-18T18:39:23Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7288896769204559963
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7288896769204559963
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"230975945692-06-18T18:39:23Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"75945692-06-18T18:39:23Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-61",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 7794625527-10-17T14:01:50Z\nupdated: 7794625527-10-17T14:01:50Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 245974561471288910
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 245974561471288910
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"7794625527-10-17T14:01:50Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"625527-10-17T14:01:50Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-62",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -144480991942-12-31T14:45:25Z\nupdated: -144480991942-12-31T14:45:25Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4559379789761716475
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4559379789761716475
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-144480991942-12-31T14:45:25Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-144480991942-12-31T14:45:25Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-63",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -34031236881-05-26T04:25:20Z\nupdated: -34031236881-05-26T04:25:20Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1073922170909052880
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1073922170909052880
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-34031236881-05-26T04:25:20Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-34031236881-05-26T04:25:20Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-64",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -60935128934-01-28T19:17:19Z\nupdated: -60935128934-01-28T19:17:19Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1922927001048823361
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1922927001048823361
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-60935128934-01-28T19:17:19Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-60935128934-01-28T19:17:19Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-65",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 164779958331-05-23T02:11:46Z\nupdated: 164779958331-05-23T02:11:46Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5199953173458401506
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5199953173458401506
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"164779958331-05-23T02:11:46Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"79958331-05-23T02:11:46Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-66",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 239909753717-01-16T18:44:25Z\nupdated: 239909753717-01-16T18:44:25Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7570820520213389065
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7570820520213389065
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"239909753717-01-16T18:44:25Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"09753717-01-16T18:44:25Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-67",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 234159896144-05-25T16:33:40Z\nupdated: 234159896144-05-25T16:33:40Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7389372540786568420
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7389372540786568420
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"234159896144-05-25T16:33:40Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"59896144-05-25T16:33:40Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-68",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -277460056522-08-24T17:33:23Z\nupdated: -277460056522-08-24T17:33:23Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8755793747728842397
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8755793747728842397
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-277460056522-08-24T17:33:23Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-277460056522-08-24T17:33:23Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-69",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -66609743429-10-10T02:11:02Z\nupdated: -66609743429-10-10T02:11:02Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2102000538264068938
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2102000538264068938
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-66609743429-10-10T02:11:02Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-66609743429-10-10T02:11:02Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-70",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 99947193780-09-30T08:39:41Z\nupdated: 99947193780-09-30T08:39:41Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3154028734506587981
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3154028734506587981
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"99947193780-09-30T08:39:41Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"7193780-09-30T08:39:41Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-71",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -289514639878-09-27T21:08:40Z\nupdated: -289514639878-09-27T21:08:40Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -9136199656071197480
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -9136199656071197480
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-289514639878-09-27T21:08:40Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-289514639878-09-27T21:08:40Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-72",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -109380275613-12-06T18:39:03Z\nupdated: -109380275613-12-06T18:39:03Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3451708169404060857
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3451708169404060857
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-109380275613-12-06T18:39:03Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-109380275613-12-06T18:39:03Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-73",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 138385611170-11-08T13:08:26Z\nupdated: 138385611170-11-08T13:08:26Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4367028027042076106
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 4367028027042076106
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"138385611170-11-08T13:08:26Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"85611170-11-08T13:08:26Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-74",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 219549124019-04-12T16:26:57Z\nupdated: 219549124019-04-12T16:26:57Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 6928301106151230417
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 6928301106151230417
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"219549124019-04-12T16:26:57Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"49124019-04-12T16:26:57Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-75",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -106075509600-12-15T03:14:20Z\nupdated: -106075509600-12-15T03:14:20Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3347419826959793140
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3347419826959793140
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-106075509600-12-15T03:14:20Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-106075509600-12-15T03:14:20Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-76",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -86909521575-12-27T15:36:11Z\nupdated: -86909521575-12-27T15:36:11Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2742599662821217429
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -2742599662821217429
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-86909521575-12-27T15:36:11Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-86909521575-12-27T15:36:11Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-77",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -43192776084-02-29T05:37:34Z\nupdated: -43192776084-02-29T05:37:34Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1363032423791691746
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1363032423791691746
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-43192776084-02-29T05:37:34Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-43192776084-02-29T05:37:34Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-78",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 119921849436-12-07T17:00:05Z\nupdated: 119921849436-12-07T17:00:05Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3784367984265363605
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3784367984265363605
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"119921849436-12-07T17:00:05Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"21849436-12-07T17:00:05Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-79",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 101927488514-06-11T11:16:16Z\nupdated: 101927488514-06-11T11:16:16Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3216520800363611776
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3216520800363611776
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"101927488514-06-11T11:16:16Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"27488514-06-11T11:16:16Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-80",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 176518623675-06-20T21:42:39Z\nupdated: 176518623675-06-20T21:42:39Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5570389672265655759
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5570389672265655759
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"176518623675-06-20T21:42:39Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"18623675-06-20T21:42:39Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-81",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -266321811020-11-20T15:45:54Z\nupdated: -266321811020-11-20T15:45:54Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8404304669050349646
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8404304669050349646
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-266321811020-11-20T15:45:54Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-266321811020-11-20T15:45:54Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-82",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -110834095421-03-28T00:45:13Z\nupdated: -110834095421-03-28T00:45:13Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3497586291323651687
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3497586291323651687
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-110834095421-03-28T00:45:13Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-110834095421-03-28T00:45:13Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-83",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -51979086813-06-29T04:04:04Z\nupdated: -51979086813-06-29T04:04:04Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1640301609713399756
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1640301609713399756
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-51979086813-06-29T04:04:04Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-51979086813-06-29T04:04:04Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-84",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 79664283567-08-15T08:29:39Z\nupdated: 79664283567-08-15T08:29:39Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2513961910490545779
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2513961910490545779
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"79664283567-08-15T08:29:39Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"4283567-08-15T08:29:39Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-85",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -229905065516-06-22T10:46:30Z\nupdated: -229905065516-06-22T10:46:30Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -7255103179197446010
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -7255103179197446010
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-229905065516-06-22T10:46:30Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-229905065516-06-22T10:46:30Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-86",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 169829311955-01-19T13:13:01Z\nupdated: 169829311955-01-19T13:13:01Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5359295383391337181
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 5359295383391337181
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"169829311955-01-19T13:13:01Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"29311955-01-19T13:13:01Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-87",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -133555090525-06-20T18:19:20Z\nupdated: -133555090525-06-20T18:19:20Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4214591643205518040
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -4214591643205518040
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-133555090525-06-20T18:19:20Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-133555090525-06-20T18:19:20Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-88",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 71716970603-06-15T02:11:35Z\nupdated: 71716970603-06-15T02:11:35Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2263168936751307095
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 2263168936751307095
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"71716970603-06-15T02:11:35Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"6970603-06-15T02:11:35Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-89",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 225376963958-09-19T15:13:30Z\nupdated: 225376963958-09-19T15:13:30Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7112209971383738010
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 7112209971383738010
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"225376963958-09-19T15:13:30Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"76963958-09-19T15:13:30Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-90",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: 123136982656-09-23T12:49:37Z\nupdated: 123136982656-09-23T12:49:37Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3885827788956026977
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 3885827788956026977
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"123136982656-09-23T12:49:37Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"36982656-09-23T12:49:37Z\" as \"-\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-91",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -53277963324-11-03T11:30:36Z\nupdated: -53277963324-11-03T11:30:36Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1681290193413875364
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -1681290193413875364
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-53277963324-11-03T11:30:36Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-53277963324-11-03T11:30:36Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-92",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -121968322537-11-14T07:10:51Z\nupdated: -121968322537-11-14T07:10:51Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3848948561960412549
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -3848948561960412549
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-121968322537-11-14T07:10:51Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-121968322537-11-14T07:10:51Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-93",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -258706571783-10-13T00:18:54Z\nupdated: -258706571783-10-13T00:18:54Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8163990929983246866
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -8163990929983246866
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-258706571783-10-13T00:18:54Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-258706571783-10-13T00:18:54Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-94",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -3220356474-05-20T13:05:41Z\nupdated: -3220356474-05-20T13:05:41Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -101624696828074459
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -101624696828074459
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-3220356474-05-20T13:05:41Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-3220356474-05-20T13:05:41Z\" as \"2006\"",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "unix-range-95",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: -218878085050-12-19T03:41:04Z\nupdated: -218878085050-12-19T03:41:04Z\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6907125285911506736
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -6907125285911506736
+        }
+      },
+      "read_error": "plan.md: created: parsing time \"-218878085050-12-19T03:41:04Z\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"-218878085050-12-19T03:41:04Z\" as \"2006\"",
+      "read_output": ""
     },
     {
       "error": "",
