@@ -274,3 +274,7 @@ compat-raw-log:
 
 compat-raw-log-read:
 	python3 -S tools/compat/raw_log_cross_read.py
+
+.PHONY: verify-codec-coupling
+verify-codec-coupling:
+	python3 -S tools/verification/codec_coupling.py

@@ -1,0 +1,278 @@
+{
+  "schema": "beans-codec-kernel-coupling-v1",
+  "os": "Linux",
+  "arch": "aarch64",
+  "rust": {
+    "binary": "rustc",
+    "commit-hash": "48a229ceaefd4985c50990b14116b6d856af0985",
+    "commit-date": "2026-09-01",
+    "host": "aarch64-unknown-linux-gnu",
+    "release": "1.98.1",
+    "LLVM version": "22.1.8"
+  },
+  "compiler_flags": [
+    "-Cinstrument-coverage"
+  ],
+  "git_sha": "eb93f8861f3c9111884fec15b2b6bb43826e2bd1",
+  "splice_adapter_source_sha256": "a6953603c97e4052ec1189f23e344d6af5abeca7abc4c14cef877fd7370163a1",
+  "span_construction_source_sha256": "0353864b3182912693ef6ee5d616c9d0de6571a9602f75d584185d8584c23c6e",
+  "kernel_source": "crates/beans-kernel/src/splice.rs",
+  "kernel_source_sha256": "6d33a21294a1599fd7709d40d2d263e0bfb7ff263ea533da32b4ad2c229b8674",
+  "cargo_lock_sha256": "4fa891378ac4f2ccfdfa50e5224c4ad51ca001510ef8299fd1c5f542c590a52a",
+  "binary_sha256": "e7c70e6862c78911260ae84f8b434e6bc036d1e12ec40fb418d0b3390657db4d",
+  "test_source_sha256": "8597474b9ae7235bf5a611bbab43d711a47c67dbc347936e1d97434bff661589",
+  "application_callers": [
+    {
+      "file": "src/domain/frontmatter.rs",
+      "line": 387,
+      "sha256": "b3d0bf1da561ac06b07227bf140fb07925ddc9170c49644c85716d04904e24a1"
+    },
+    {
+      "file": "src/domain/plan/reference.rs",
+      "line": 137,
+      "sha256": "63aa0f1c3bc16f9acc43d33fbf44dc3393fb5ded3dc2ee9d99d98386f63a358f"
+    }
+  ],
+  "cases": [
+    {
+      "test": "splice_coupling::issue_utf8",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::issue_utf16le",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::issue_utf16be",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::request_utf8",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::request_utf16le",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::request_utf16be",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::memory_utf8",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::memory_utf16le",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::memory_utf16be",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::handoff_utf8",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::handoff_utf16le",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::handoff_utf16be",
+      "helpers": {
+        "valid_splices": {
+          "count": 4,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    },
+    {
+      "test": "splice_coupling::plan_graph_utf8",
+      "helpers": {
+        "valid_splices": {
+          "count": 3,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+        },
+        "preserved_interval": {
+          "count": 2,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+        },
+        "translate_offset": {
+          "count": 2,
+          "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+        }
+      }
+    }
+  ],
+  "negative_control": {
+    "test": "splice_coupling::parse_only_negative_control",
+    "helpers": {
+      "valid_splices": {
+        "count": 0,
+        "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice13valid_splices"
+      },
+      "preserved_interval": {
+        "count": 0,
+        "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice18preserved_interval"
+      },
+      "translate_offset": {
+        "count": 0,
+        "symbol": "_RNvNtCsc3V4LIgwsbz_12beans_kernel6splice16translate_offset"
+      }
+    },
+    "rejected": true
+  },
+  "scope": "actual compiled helper entry counts plus integration assertions of parsed raw ranges and copied bytes; not a parser or whole-codec proof"
+}

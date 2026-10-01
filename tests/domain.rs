@@ -497,3 +497,6 @@ mod scalar_comment;
 
 #[path = "domain/raw_log.rs"]
 mod raw_log;
+
+#[path = "domain/splice_coupling.rs"]
+mod splice_coupling;

@@ -19,9 +19,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install the pinned compiler and checks
-        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
+        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools
       - name: Build, test, format and lint the locked workspace
         run: make rust-build rust-test rust-check
+      - name: Observe real codec calls to the verified splice bodies
+        run: make verify-codec-coupling
+      - name: Preserve compiler coverage and coupling evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: codec-kernel-coupling-linux
+          path: .compat/verification/codec-coupling
+          if-no-files-found: error
 
   toolchain:
     name: Verus toolchain (Linux)

@@ -447,3 +447,23 @@ median 138.48 ms, ratio 0.426 (three warmups and twenty measured loads each).
 binary hashes plus exact samples. This is in-process loading; CLI/startup/output
 and pathological link-density measurements remain separate gates. Go remains
 the default binary; dependent WP5 mutations stay held until WP3 acceptance.
+
+### Observed verified-helper calls from production codecs
+
+The WP3 coupling gate is now executable as `make verify-codec-coupling` and
+required in the Linux Rust job. Compiler coverage observes the actual verified
+splice.rs helper bodies in thirteen isolated production encoder cases: four
+note kinds in UTF-8/UTF-16 LE/BE and the plan graph-reference splice. The cases
+independently assert parsed raw ranges, changed bytes, preserved copy geometry
+and rejection behavior. A parser-only control records zero helper calls and is
+rejected. The application caller inventory and source/binary/toolchain hashes
+are captured alongside actual entry counts, without a runtime instrumentation
+flag or alternate helper implementation. See docs/verification.md and
+`tests/contract/codec-kernel-coupling-linux-arm64.json` for scope and evidence.
+
+This completes that specific current-caller instrumentation gate. WP3 still
+requires broader YAML/scalar/time/alias and error-order qualification, generated
+mutation sequences, operation-owned project file writes, filesystem faults,
+CLI/API query transport and CLI/startup/pathological-link measurements. The
+lossless gate remains open, so WP5 mutations remain held. Go is still the
+default executable; WP4-WP9 and the final requested review/fix-review remain.

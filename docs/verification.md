@@ -236,3 +236,52 @@ Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/relea
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),
 [solver version](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/source/tools/get-z3.sh),
 and [Cargo integration](https://verus-lang.github.io/verus/guide/cargo_verus.html).
+
+## Instrumented production codec coupling
+
+`make verify-codec-coupling` uses the pinned Rust1.98.1 compiler and its own
+LLVM22.1.8 tools, installed with `rustup component add llvm-tools --toolchain
+1.98.1`. It builds the production library and the domain integration binary
+with `-Cinstrument-coverage` in a separate ignored target directory. It introduces
+no runtime feature flag, helper substitute, test-only kernel body or public
+observer API. Verus and ordinary Rust still compile the same splice.rs source.
+The required Linux Rust job runs this gate and preserves the compiler profiles,
+LLVM exports, test/build logs and report as `codec-kernel-coupling-linux`.
+
+Thirteen isolated test runs cover issue/request/memory/handoff encoders in UTF-8
+and BOM-selected UTF-16 LE/BE, plus the UTF-8 plan graph-reference editor. Each
+note case changes two separated fields; independently computed raw physical LF
+ranges must equal the actual parsed spans, exact output bytes must match those
+replacements, and each reported copy must equal the preserved source interval.
+Unknown frontmatter, Unicode and opaque body bytes remain outside changed
+ranges. Bad field indexes and duplicate replacements reject without changing
+original bytes. The plan case derives its graph-fence range from parsed body
+bytes, preserves Unicode prose and verifies a missing-node rejection leaves the
+body unchanged. The tests never call the kernel helpers directly.
+
+Compiler profiles must identify exactly one body from the actual
+crates/beans-kernel/src/splice.rs file for each helper. Each two-field note edit
+records four valid_splices entries and three preserved_interval/translate_offset
+entries; the one-range plan splice records three/two/two. The parser-only
+negative control executes a real typed parse, records zero entries in all three
+helpers, and is explicitly rejected by the qualification predicate. Missing
+LLVM tools, missing/multiple symbols, absent profiles, failed/empty tests or
+unexpected counts fail closed. Build-script profiles stay separate from case
+profiles and all generated profiles remain under .compat.
+
+The report records compiler/host information, flags, source and Cargo.lock
+hashes, binary/test-source hashes, actual symbols/counts and the negative
+control. A caller inventory covers both current byte_edit::apply call sites:
+Frontmatter::apply_edits and plan::set_node_ref. Changes to that inventory
+require extending the observed cases. A local Linux aarch64 qualification
+snapshot is in tests/contract/codec-kernel-coupling-linux-arm64.json; required CI
+regenerates evidence on native x86_64 Linux. The kernel proof job independently
+checks proofs and rejected guard mutations from the same checkout.
+
+This completes the WP3 instrumented-caller gate for the current splice paths.
+The proof still concerns geometry, not YAML interpretation or the whole codec.
+Compiler coverage is observational evidence under the compiler/toolchain trust
+boundary; parsed-range and byte assertions are bounded integration tests.
+Broader lossless/schema/generated-sequence/filesystem/transport qualification
+remains required before WP3 acceptance. WP4 must separately instrument the real
+Git retry/discard/attempt-grant callers; this gate makes no claim about them.
