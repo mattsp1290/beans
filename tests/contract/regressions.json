@@ -670,32 +670,44 @@
       "test": "TestRoundTrip",
       "line": 37,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::round_trip",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestMutationsTouchOnlyTheirLines",
       "line": 57,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::mutations_touch_only_their_lines",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestNewIssueEncodeAndLogCreation",
       "line": 109,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::new_issue_encode_and_log_creation",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestParseErrors",
       "line": 162,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::parse_errors_name_the_file",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
     },
     {
       "source": "issue/config_test.go",

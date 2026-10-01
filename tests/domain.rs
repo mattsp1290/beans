@@ -1,3 +1,5 @@
+#[path = "domain/codec_regressions.rs"]
+mod codec_regressions;
 #[path = "domain/creation.rs"]
 mod creation;
 #[path = "domain/ids.rs"]
