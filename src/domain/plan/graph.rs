@@ -37,7 +37,7 @@ fn unsafe_yaml(node: &Node) -> bool {
         )
         || node.children.iter().any(unsafe_yaml)
 }
-fn duplicate_errors(node: &Node) -> Vec<String> {
+pub(super) fn duplicate_errors(node: &Node) -> Vec<String> {
     let pairs: Vec<_> = node.children.as_chunks::<2>().0.iter().collect();
     let mut errors = Vec::new();
     for i in 0..pairs.len() {
@@ -54,7 +54,7 @@ fn duplicate_errors(node: &Node) -> Vec<String> {
     }
     errors
 }
-fn type_error(node: &Node, target: &str) -> String {
+pub(super) fn type_error(node: &Node, target: &str) -> String {
     let value = node.value.as_deref().unwrap_or_default();
     let snippet = if matches!(node.tag.as_str(), "!!seq" | "!!map") {
         String::new()
@@ -146,10 +146,18 @@ pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
             empty,
         ));
     }
-    let root = crate::domain::yaml::parse(path, &yaml).map_err(|error| GraphError {
-        graph: empty.clone(),
-        message: error.to_string().replace(": frontmatter:", ": graph YAML:"),
-    })?;
+    let root = crate::domain::yaml::parse_optional(path, &yaml)
+        .map_err(|error| GraphError {
+            graph: empty.clone(),
+            message: error.to_string().replace(": frontmatter:", ": graph YAML:"),
+        })?
+        .ok_or_else(|| {
+            failure(
+                path,
+                "graph contains an unknown or invalid field",
+                empty.clone(),
+            )
+        })?;
     if !allowed(&root, &["version", "nodes", "edges"]) {
         return Err(failure(
             path,

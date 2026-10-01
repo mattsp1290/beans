@@ -1506,8 +1506,8 @@
       "source": "plan/plan_test.go",
       "test": "TestParseRejectsUnknownFrontmatter",
       "line": 41,
-      "destination": "tests/plans.rs",
-      "status": "pending",
+      "destination": "tests/domain/plan_parse.rs::parse_rejects_unknown_frontmatter",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

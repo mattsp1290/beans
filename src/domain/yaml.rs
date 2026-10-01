@@ -25,6 +25,13 @@ fn scalar_null(value: &str, style: TScalarStyle, tag: Option<&Tag>) -> bool {
 }
 
 pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
+    parse_optional(path, text)?
+        .ok_or_else(|| Error(format!("{path}: line 2: frontmatter is empty")))
+}
+
+pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Error> {
+    let mut reader = super::yaml_reader::Reader::new(text);
+    reader.check(path, 1, 0)?;
     let adapted = adapt_quote_indentation(text);
     let mut parser = Parser::new_from_str(&adapted);
     let mut positions = SourcePositions::scan(&adapted);
@@ -32,6 +39,31 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
     let mut root = None;
     loop {
         let (event, marker) = parser.next_token().map_err(|error| {
+            if let Err(reader_error) =
+                reader.check(path, error.marker().line(), error.marker().col())
+            {
+                return reader_error;
+            }
+            if error.info() == "while parsing a block mapping, did not find expected key" {
+                // yaml.v3 reports the parser context's zero-based line when
+                // nonzero, falling back to the problem mark at the root.
+                let line = stack
+                    .last()
+                    .map_or(0, |node: &Node| node.line.saturating_sub(1));
+                let line = if line > 0 {
+                    line
+                } else {
+                    error.marker().line().saturating_sub(1)
+                };
+                let where_ = if line > 0 {
+                    format!("line {line}: ")
+                } else {
+                    String::new()
+                };
+                return Error(format!(
+                    "{path}: frontmatter: yaml: {where_}did not find expected key"
+                ));
+            }
             if error.info() == "while parsing node, found unknown anchor" {
                 for token in Scanner::new(adapted.chars()) {
                     if token.0.index() == error.marker().index()
@@ -47,9 +79,11 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
             // the typed codec differential corpus; scanner text is retained.
             Error(format!("{path}: frontmatter: {error}"))
         })?;
+        reader.check(path, marker.line(), marker.col())?;
         let node = match event {
             Event::MappingStart(anchor, ref tag) | Event::SequenceStart(anchor, ref tag) => {
                 stack.push(Node {
+                    anchor_id: anchor,
                     tag: resolved_tag(
                         tag.as_ref(),
                         if matches!(event, Event::MappingStart(..)) {
@@ -114,6 +148,7 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
                 };
                 let line = positions.node_line(line, anchor, tag.is_some());
                 Node {
+                    anchor_id: anchor,
                     tag: resolved_tag(
                         tag.as_ref(),
                         if style == TScalarStyle::Plain {
@@ -133,7 +168,8 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
                     children: Vec::new(),
                 }
             }
-            Event::Alias(_) => Node {
+            Event::Alias(anchor_id) => Node {
+                anchor_id,
                 tag: String::new(),
                 kind: NodeKind::Alias,
                 line: marker.line(),
@@ -141,7 +177,11 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
                 null: None,
                 children: Vec::new(),
             },
-            Event::DocumentEnd | Event::StreamEnd => break,
+            Event::DocumentEnd => {
+                reader.document_end(path, &adapted, marker.line(), marker.col())?;
+                break;
+            }
+            Event::StreamEnd => break,
             _ => continue,
         };
         if let Some(parent) = stack.last_mut() {
@@ -150,7 +190,7 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
             root = Some(node);
         }
     }
-    root.ok_or_else(|| Error(format!("{path}: line 2: frontmatter is empty")))
+    Ok(root)
 }
 
 // yaml.v3 allows a multiline quoted scalar's closing quote at column zero.

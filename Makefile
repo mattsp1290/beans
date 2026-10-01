@@ -162,3 +162,7 @@ compat-plan-encode:
 
 compat-plan-encode-read:
 	python3 -S tools/compat/plan_encode_read.py
+
+.PHONY: compat-plan-parse
+compat-plan-parse:
+	python3 -S tools/compat/plan_parse_reference.py --check tests/contract/plan-parse.json

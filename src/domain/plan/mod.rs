@@ -1,5 +1,12 @@
 //! Portable plan models. Lifecycle validation is distinct from manifest,
 //! graph and filesystem bundle validation.
+mod parse;
+mod scaffold;
+pub use scaffold::scaffold;
+mod yaml_string;
+pub use yaml_string::YamlString;
+mod timestamp;
+pub use parse::parse;
 mod encode;
 pub use encode::encode;
 mod graph;
@@ -22,13 +29,13 @@ pub const COMPLETE: &str = "complete";
 #[serde(default)]
 pub struct Plan {
     pub id: String,
-    pub aliases: Vec<String>,
+    pub aliases: Vec<YamlString>,
     pub title: String,
     pub slug: String,
     pub status: String,
     pub created: Timestamp,
     pub updated: Timestamp,
-    pub sections: Vec<String>,
+    pub sections: Vec<YamlString>,
     pub section_bodies: Vec<Section>,
     pub body: String,
     pub path: String,

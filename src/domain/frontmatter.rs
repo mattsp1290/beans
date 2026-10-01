@@ -18,6 +18,9 @@ pub struct Node {
     /// Resolved YAML tag used by schemas that restrict scalar/container types.
     #[serde(skip)]
     pub tag: String,
+    /// Parser identity of an anchor or the target of an alias.
+    #[serde(skip)]
+    pub anchor_id: usize,
     pub kind: NodeKind,
     pub line: usize,
     #[serde(skip_serializing_if = "Option::is_none")]

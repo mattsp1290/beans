@@ -1,4 +1,4 @@
-use super::{Plan, valid_status};
+use super::{Plan, YamlString, valid_status};
 use crate::domain::{frontmatter::Error, issue::Timestamp, yaml_render::scalar_value_indented};
 
 fn scalar(value: &str, sequence: bool) -> String {
@@ -12,15 +12,18 @@ fn pair(output: &mut String, key: &str, value: &str) {
         output.push('\n');
     }
 }
-fn sequence(output: &mut String, key: &str, values: &[String]) {
+fn sequence(output: &mut String, key: &str, values: &[YamlString]) -> Result<(), Error> {
     output.push_str(key);
     if values.is_empty() {
         output.push_str(": []\n");
-        return;
+        return Ok(());
     }
     output.push_str(":\n");
     for value in values {
         output.push_str("    - ");
+        let value = value
+            .as_str()
+            .ok_or_else(|| Error("yaml: cannot marshal invalid UTF-8 data as !!str".into()))?;
         let rendered = scalar(value, true);
         for (i, line) in rendered
             .split_inclusive(['\n', '\u{85}', '\u{2028}', '\u{2029}'])
@@ -39,6 +42,7 @@ fn sequence(output: &mut String, key: &str, values: &[String]) {
             output.push('\n');
         }
     }
+    Ok(())
 }
 fn timestamp(value: &Timestamp) -> String {
     // Match Go's March-based absolute epoch and wrapping uint64 seconds,
@@ -80,7 +84,7 @@ pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
     }
     let mut output = String::from("---\n");
     pair(&mut output, "id", &p.id);
-    sequence(&mut output, "aliases", &p.aliases);
+    sequence(&mut output, "aliases", &p.aliases)?;
     for (key, value) in [
         ("title", p.title.as_str()),
         ("slug", &p.slug),
@@ -91,7 +95,7 @@ pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
     pair(&mut output, "created", &timestamp(&p.created));
     pair(&mut output, "updated", &timestamp(&p.updated));
     if !p.sections.is_empty() {
-        sequence(&mut output, "sections", &p.sections);
+        sequence(&mut output, "sections", &p.sections)?;
     }
     output.push_str("---\n");
     output.push_str(&p.body);

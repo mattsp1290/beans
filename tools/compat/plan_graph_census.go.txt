@@ -34,6 +34,7 @@ func TestMigrationPlanGraphCensus(t *testing.T) {
     for i,value:=range []string{"true", "1.0", "2026-09-10", "!beans A", "!!str true", "null", "123", "[a, b]", "{a: b}"} { add(fmt.Sprintf("label-type-%d",i),fence("version: 1\nnodes: [{id: a, label: "+value+", kind: component}]\nedges: []")) }
     add("nested-duplicate",fence("version: 1\nnodes: [{id: a, id: b, label: A, kind: component}]"))
     add("merge",fence("version: 1\nnodes: [{<<: {}, id: a, label: A, kind: component}]"))
+    add("comments-only",fence("# comment"))
     summaries:=[]map[string]any{}
     body:="## Summary\n\n### Outcome\n```text\n## not a section\n```\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n"+fence("version: 1\nnodes: []\nedges: []")+"\n\n## Next\n"
     inputs:=[]string{body,"",body+"## Summary\n",strings.Replace(body,"### Outcome","### Risks",1),strings.Replace(body,"### Risks","### Outcome",1),strings.Replace(body,"### Outcome","  ### Outcome",1),strings.Replace(body,"## Summary","  ## Summary  ",1)}
