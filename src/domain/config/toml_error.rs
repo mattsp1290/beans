@@ -80,7 +80,26 @@ pub(super) fn adapt(source: &str, error: toml::de::Error) -> Error {
         format!("expected a comma (',') or array terminator (']'), but got {found}")
     } else if error.message().starts_with("unclosed array") {
         offset = source.len();
-        "expected a comma (',') or array terminator (']'), but got end of file".into()
+        use toml_parser::lexer::TokenKind;
+        let last = toml_parser::Source::new(source)
+            .lex()
+            .map(|token| (token.kind(), token.span().start()))
+            .filter(|(kind, _)| {
+                !matches!(
+                    kind,
+                    TokenKind::Whitespace
+                        | TokenKind::Newline
+                        | TokenKind::Comment
+                        | TokenKind::Eof
+                )
+            })
+            .last();
+        if let Some((TokenKind::LeftSquareBracket | TokenKind::Comma, start)) = last {
+            offset = start;
+            "unexpected EOF; expected value".into()
+        } else {
+            "expected a comma (',') or array terminator (']'), but got end of file".into()
+        }
     } else if error.message() == "duplicate key"
         || error.message().starts_with("cannot extend value of type")
     {

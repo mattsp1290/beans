@@ -3,7 +3,7 @@ pub mod authored_yaml;
 pub mod config;
 pub mod duration;
 mod extra_encode;
-mod file_io;
+pub(crate) mod file_io;
 pub mod frontmatter;
 mod go_print;
 pub mod handoff;

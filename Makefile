@@ -205,3 +205,7 @@ compat-paths:
 .PHONY: compat-remote
 compat-remote:
 	python3 -S tools/compat/remote_reference.py --check tests/contract/remote.json
+
+.PHONY: compat-resolve
+compat-resolve:
+	python3 -S tools/compat/resolve_reference.py --check tests/contract/resolve.json

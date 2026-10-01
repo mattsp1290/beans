@@ -181,6 +181,19 @@ Linux contract job requires corpus and lower-table recapture. Additional URL
 malformations and complete project/Git/actor integration remain qualification
 work; this corpus does not claim arbitrary URL-parser equivalence.
 
+Project resolution and project-directory listing match 672 immutable Go 1.25.7
+filesystem cases. These exercise flag/environment precedence, basename and
+remote matching/collisions, outside-repository reads, write marking without
+creation, ignored Git capture errors, short raw-byte HEAD capture, hidden and
+symlinked project directories, config directories, invalid configs and directory
+errors. Before/after filesystem snapshots remain identical. A native system-Git
+test covers an unborn repository, configured origin, a real commit, branch and
+detached HEAD. A parser-token diagnostic fix preserves Go's EOF wording and line
+for arrays waiting for a value. Existing config and workflow recaptures pass.
+CI requires resolution recapture. Original resolution regressions remain in the
+ledger pending independent named ports; project creation, actor/opsEnv wiring,
+raw-filename and wider filesystem fault cases still require work.
+
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),

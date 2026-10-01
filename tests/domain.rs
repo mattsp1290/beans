@@ -26,6 +26,8 @@ mod remote;
 mod request_codec;
 #[path = "domain/requests.rs"]
 mod requests;
+#[path = "domain/resolve.rs"]
+mod resolve;
 #[path = "domain/templates.rs"]
 mod templates;
 #[path = "domain/workflow_file.rs"]

@@ -1,0 +1,43 @@
+package vault
+import("encoding/json";"os";"path/filepath";"strings";"testing";"errors")
+type migrationGit struct {Root,Remote,Head,BranchName string; Calls *[]string}
+func (g migrationGit) cap(field,value string)(string,bool,error) {*g.Calls=append(*g.Calls,field);return value,value!="",errors.New("ignored capture error")}
+func (g migrationGit) Toplevel(string)(string,bool,error) {return g.cap("toplevel",g.Root)}
+func (g migrationGit) RemoteURL(string)(string,bool,error) {return g.cap("remote",g.Remote)}
+func (g migrationGit) HeadCommit(string)(string,bool,error) {return g.cap("head",g.Head)}
+func (g migrationGit) Branch(string)(string,bool,error) {return g.cap("branch",g.BranchName)}
+func TestMigrationResolve(t *testing.T) {
+ type input struct { Files map[string]string; Dirs []string; Links map[string]string; Root,Remote,Head,Branch,Flag,Env string; Write,All bool }
+ type output struct {Input input; Fields map[string][]int; Created bool; Notice,Error,DirsError string; Names []string; Calls []string}
+ ints:=func(s string)[]int {v:=make([]int,len(s));for i:=0;i<len(s);i++ {v[i]=int(s[i])};return v}
+ layouts:=[]input{
+ {},{Files:map[string]string{"projects/exa/beans.toml":"name='exa'\nremotes=['https://github.com/o/exa']"}},
+ {Files:map[string]string{"projects/renamed/beans.toml":"remotes=['git@github.com:o/exa.git']"}},
+ {Files:map[string]string{"projects/exa/beans.toml":"remotes=['https://github.com/other/exa']"}},
+ {Files:map[string]string{"projects/a/beans.toml":"remotes=['https://github.com/o/exa']","projects/z/beans.toml":"remotes=['https://github.com/o/exa']"}},
+ {Files:map[string]string{"projects/other/beans.toml":"name=["}},
+ {Files:map[string]string{"projects/exa/beans.toml":"name=["}},
+ {Dirs:[]string{"projects/exa/beans.toml"}},
+ {Dirs:[]string{"projects/absent","projects/.hidden"}},
+ {Files:map[string]string{"projects/.hidden/beans.toml":"name=[","projects/a/beans.toml":"remotes=['https://github.com/o/exa']"},Links:map[string]string{"projects/link":"a"}},
+ {Files:map[string]string{"projects":"file"}},
+ {Files:map[string]string{"projects/Not Valid/beans.toml":"remotes=['https://github.com/o/exa']"}},
+ }
+ layouts=append(layouts,input{Env:" exa "},input{Env:"exa",Files:map[string]string{"projects/exa/beans.toml":"name='exa'"}},input{Remote:"NONE"},input{Remote:"relative",Head:"tiny"})
+ for _,bad:=range []string{"name=[1,","name=[[","name=[#comment\n","name=[1","name=['x'"} {layouts=append(layouts,input{Files:map[string]string{"projects/other/beans.toml":bad}})}
+ var rows []output
+ for _,layout:=range layouts {for _,root:=range []string{"","/code/exa","/code/My Repo","/"} {for _,flag:=range []string{""," exa ","missing","Bad Name"} {for _,write:=range []bool{false,true} {
+  in:=layout;in.Root=root;if in.Remote=="NONE" {in.Remote=""} else if in.Remote=="" {in.Remote="git@github.com:o/exa.git"};if in.Head=="" {in.Head="€€€0123456789"};in.Branch="feature/x";in.Flag=flag;in.Write=write;in.All=root==""&&flag==""&&write
+  hub:=t.TempDir()
+  for _,d:=range in.Dirs {if e:=os.MkdirAll(filepath.Join(hub,d),0700);e!=nil {t.Fatal(e)}}
+  for p,contents:=range in.Files {name:=filepath.Join(hub,p);if e:=os.MkdirAll(filepath.Dir(name),0700);e!=nil {t.Fatal(e)};if e:=os.WriteFile(name,[]byte(contents),0600);e!=nil {t.Fatal(e)}}
+  for p,target:=range in.Links {if e:=os.Symlink(target,filepath.Join(hub,p));e!=nil {t.Fatal(e)}}
+  out:=output{Input:in,Calls:[]string{}}
+  g:=migrationGit{in.Root,in.Remote,in.Head,in.Branch,&out.Calls}
+  r,e:=Resolve(hub,ResolveOptions{Cwd:"/working",FlagProject:in.Flag,Write:in.Write,AllProjects:in.All,Git:g,Env:func(string)string{return in.Env}})
+  norm:=func(s string)string{return strings.ReplaceAll(s,hub,"/oracle/hub")}
+  out.Fields=map[string][]int{"HubDir":ints(norm(r.HubDir)),"Project":ints(r.Project),"ProjectDir":ints(norm(r.ProjectDir)),"RepoRoot":ints(r.RepoRoot),"RepoRemote":ints(r.RepoRemote),"RepoHead":ints(r.RepoHead),"RepoBranch":ints(r.RepoBranch),"Candidate":ints(r.Candidate)};out.Created=r.Created;out.Notice=r.Notice;if e!=nil {out.Error=norm(e.Error())}
+  out.Names,e=ProjectDirs(hub);if e!=nil {out.DirsError=norm(e.Error())};rows=append(rows,out)
+ }}}}
+ data,e:=json.Marshal(map[string]any{"cases":rows});if e!=nil {t.Fatal(e)};if e=os.WriteFile(os.Getenv("BN_RESOLVE_OUTPUT"),data,0600);e!=nil {t.Fatal(e)}
+}
