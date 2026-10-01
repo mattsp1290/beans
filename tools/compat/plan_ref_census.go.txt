@@ -1,0 +1,108 @@
+package plan
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+	"time"
+)
+
+func refView(p *Plan) any {
+	if p == nil {
+		return nil
+	}
+	return map[string]any{"path": p.Path, "status": p.Status, "body": p.Body, "summary": map[string]string{"outcome": p.Summary.Outcome, "affected_areas": p.Summary.AffectedAreas, "execution_order": p.Summary.ExecutionOrder, "risks": p.Summary.Risks, "change_graph": p.Summary.ChangeGraph}, "graph": p.Graph}
+}
+func TestMigrationPlanRefCensus(t *testing.T) {
+	base, err := Parse("plan.md", []byte(strings.Replace(string(Scaffold("beans-plan-a3f2", "x", time.Date(2026, 9, 11, 12, 0, 0, 0, time.UTC))), "nodes: []", "nodes:\n  # old comment\n  - {id: model, label: Model, kind: component}", 1)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := []map[string]any{}
+	add := func(name string, p *Plan, id, ref string) {
+		before := refView(p)
+		encoded, err := json.Marshal(before)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var input any
+		if err := json.Unmarshal(encoded, &input); err != nil {
+			t.Fatal(err)
+		}
+		err = SetNodeRef(p, id, ref)
+		message := ""
+		if err != nil {
+			message = err.Error()
+		}
+		rows = append(rows, map[string]any{"name": name, "plan": input, "id": id, "ref": ref, "after": refView(p), "error": message})
+	}
+	clone := func() *Plan { p := *base; p.Graph.Nodes = append([]GraphNode(nil), base.Graph.Nodes...); return &p }
+	add("nil", nil, "model", "x")
+	add("missing", clone(), "missing", "x")
+	for i, ref := range []string{"", "[[beans-a1b2|work]]", "x", "true", "false", "yes", "no", "on", "off", "null", "123", "2026-09-11", "a: b", "# x", "a\nb", " a\nb", "\n", "\n\n", "雪", "🌱", "a\t b", "a\r b", "a\u2028b", "a\x00b", "<<", "y", "Y", "Yes", "YES", "n", "N", "No", "NO", "On", "ON", "Off", "OFF", "1:20", "+1:20", "-1:20", "12:59:59", "12:60", "1:2.", "1_:2.3_", " a\nb\n", "  a\nb", "   a\nb", "    a\nb", " a\n b", " a\n  b", "\n a\nb", "a\n b", "a\n  b"} {
+		add(fmt.Sprintf("ref-%d", i), clone(), "model", ref)
+	}
+	for _, status := range []Status{StatusDraft, StatusBlocked, StatusReady, StatusComplete, "", "open"} {
+		p := clone()
+		p.Status = status
+		add("status-"+string(status), p, "model", "x")
+	}
+	for i, body := range []string{"", "```bn-change-graph\nversion: 1", strings.Replace(base.Body, "```bn-change-graph\n", " ```bn-change-graph\n", 1), strings.Replace(base.Body, "```bn-change-graph\n", "```bn-change-graph\r\n", 1), strings.Replace(base.Body, "## Summary", "## Other", 1), base.Body + base.Body} {
+		p := clone()
+		p.Body = body
+		add(fmt.Sprintf("body-%d", i), p, "model", "x")
+	}
+	for i, label := range []string{"yes", "null", "a\nb", " a\nb", "\n", "\n\n", "a\u2028b", "a\x00b"} {
+		p := clone()
+		p.Graph.Nodes[0].Label = label
+		add(fmt.Sprintf("label-%d", i), p, "model", "x")
+	}
+	p := clone()
+	p.Graph.Nodes = append(p.Graph.Nodes, p.Graph.Nodes[0])
+	add("duplicate", p, "model", "x")
+	p = clone()
+	p.Graph.Version = 2
+	add("version", p, "model", "x")
+	p = clone()
+	p.Graph.Edges = []GraphEdge{{From: "model", To: "model", Kind: "affects", Label: "yes"}}
+	add("edge", p, "model", "x")
+	out, err := json.Marshal(map[string]any{"refs": rows})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(os.Getenv("BN_PLAN_REF_OUTPUT"), out, 0644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestMigrationPlanRefCrossRead(t *testing.T) {
+	data, err := os.ReadFile(os.Getenv("BN_PLAN_REF_INPUT"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var inputs []struct {
+		Name  string `json:"name"`
+		Input string `json:"input"`
+	}
+	if err := json.Unmarshal(data, &inputs); err != nil {
+		t.Fatal(err)
+	}
+	rows := []map[string]any{}
+	for _, item := range inputs {
+		p, err := Parse("plan.md", []byte(item.Input))
+		message := ""
+		if err != nil {
+			message = err.Error()
+		}
+		rows = append(rows, map[string]any{"name": item.Name, "plan": refView(p), "error": message})
+	}
+	output, err := json.Marshal(map[string]any{"reads": rows})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(os.Getenv("BN_PLAN_REF_OUTPUT"), output, 0644); err != nil {
+		t.Fatal(err)
+	}
+}

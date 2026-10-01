@@ -1,7 +1,7 @@
 {
   "schema": "beans-plan-encode-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "harness_sha256": "d980958ef4f97ee0edd0c384235021de6e3d84b01141fae14abdd3f7f9fc3d0d",
+  "harness_sha256": "19e383d6c5a61c2bd81ea46221c6680965de316abb745cc08982fe74addcea13",
   "encodes": [
     {
       "error": "nil plan",
@@ -3976,6 +3976,441 @@
       },
       "read_error": "",
       "read_output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\nsections:\n    - '\"quoted\"'\n    - sections/02.md\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n"
+    },
+    {
+      "error": "",
+      "name": "id-26",
+      "output": "---\nid: |4-\n    a\n    b\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "\na\nb",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: aliases must include id",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "title-26",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: |4-\n    a\n    b\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "\na\nb",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "",
+      "read_output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: |-\n    a\n    b\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n"
+    },
+    {
+      "error": "",
+      "name": "slug-26",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: |4-\n    a\n    b\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "\na\nb",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: invalid required frontmatter values",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "aliases-26",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\n    - |4-\n      a\n      b\n    - second\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2",
+          "\na\nb",
+          "second"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: frontmatter: yaml: line 2: did not find expected '-' indicator",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "sections-26",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\nsections:\n    - |4-\n      a\n      b\n    - sections/02.md\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": [
+          "\na\nb",
+          "sections/02.md"
+        ],
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: frontmatter: yaml: line 9: did not find expected '-' indicator",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "id-27",
+      "output": "---\nid: |4-\n     a\n    b\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "\n a\nb",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: aliases must include id",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "title-27",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: |4-\n     a\n    b\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "\n a\nb",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "",
+      "read_output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: |4-\n     a\n    b\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n"
+    },
+    {
+      "error": "",
+      "name": "slug-27",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: |4-\n     a\n    b\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "\n a\nb",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: invalid required frontmatter values",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "aliases-27",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\n    - |4-\n       a\n      b\n    - second\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2",
+          "\n a\nb",
+          "second"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: frontmatter: yaml: line 2: did not find expected '-' indicator",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "sections-27",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\nsections:\n    - |4-\n       a\n      b\n    - sections/02.md\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": [
+          "\n a\nb",
+          "sections/02.md"
+        ],
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: frontmatter: yaml: line 9: did not find expected '-' indicator",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "id-28",
+      "output": "---\nid: |4-\n\n    a\n    b\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "\n\na\nb",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: aliases must include id",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "title-28",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: |4-\n\n    a\n    b\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "\n\na\nb",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "",
+      "read_output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: |4-\n    a\n    b\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n"
+    },
+    {
+      "error": "",
+      "name": "slug-28",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: |4-\n\n    a\n    b\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "\n\na\nb",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: invalid required frontmatter values",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "aliases-28",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\n    - |4-\n\n      a\n      b\n    - second\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2",
+          "\n\na\nb",
+          "second"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": null,
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: frontmatter: yaml: line 2: did not find expected '-' indicator",
+      "read_output": ""
+    },
+    {
+      "error": "",
+      "name": "sections-28",
+      "output": "---\nid: beans-plan-a3f2\naliases:\n    - beans-plan-a3f2\ntitle: Add plan artifacts\nslug: add-plan-artifacts\nstatus: draft\ncreated: \"2026-09-11T12:00:00Z\"\nupdated: \"2026-09-11T12:00:00Z\"\nsections:\n    - |4-\n\n      a\n      b\n    - sections/02.md\n---\n## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+      "plan": {
+        "aliases": [
+          "beans-plan-a3f2"
+        ],
+        "body": "## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n",
+        "created": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        },
+        "id": "beans-plan-a3f2",
+        "sections": [
+          "\n\na\nb",
+          "sections/02.md"
+        ],
+        "slug": "add-plan-artifacts",
+        "status": "draft",
+        "title": "Add plan artifacts",
+        "updated": {
+          "nanoseconds": 123456789,
+          "offset_seconds": 0,
+          "seconds": 1789128000
+        }
+      },
+      "read_error": "plan.md: frontmatter: yaml: line 9: did not find expected '-' indicator",
+      "read_output": ""
     },
     {
       "error": "",

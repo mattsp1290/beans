@@ -130,11 +130,9 @@ pub(crate) fn scalar_value_indented(
             ""
         };
         let mut output = format!("|{indent}{chomp}\n");
-        let content = if value.chars().all(|ch| ch == '\n') {
-            &value[1..]
-        } else {
-            value
-        };
+        // yaml.v3 emits the header break lazily. A leading LF in the
+        // value supplies that break rather than an extra content line.
+        let content = value.strip_prefix('\n').unwrap_or(value);
         for line in content.split_inclusive('\n') {
             if line != "\n" {
                 output.push_str(&" ".repeat(block_indent));

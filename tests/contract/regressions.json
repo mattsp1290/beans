@@ -1574,8 +1574,8 @@
       "source": "plan/plan_test.go",
       "test": "TestSetNodeRefPreservesPlanAndCanonicalizesFence",
       "line": 131,
-      "destination": "tests/plans.rs",
-      "status": "pending",
+      "destination": "tests/domain/plan_reference.rs::set_node_ref_preserves_plan_and_canonicalizes_fence",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

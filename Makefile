@@ -166,3 +166,11 @@ compat-plan-encode-read:
 .PHONY: compat-plan-parse
 compat-plan-parse:
 	python3 -S tools/compat/plan_parse_reference.py --check tests/contract/plan-parse.json
+
+.PHONY: compat-plan-ref
+compat-plan-ref:
+	python3 -S tools/compat/plan_ref_reference.py --check tests/contract/plan-ref.json
+
+.PHONY: compat-plan-ref-read
+compat-plan-ref-read:
+	python3 -S tools/compat/plan_ref_read.py

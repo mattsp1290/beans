@@ -450,3 +450,6 @@ mod plan_encode;
 
 #[path = "domain/plan_parse.rs"]
 mod plan_parse;
+
+#[path = "domain/plan_reference.rs"]
+mod plan_reference;

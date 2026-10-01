@@ -44,7 +44,12 @@ pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Err
             {
                 return reader_error;
             }
-            if error.info() == "while parsing a block mapping, did not find expected key" {
+            if error.info() == "while parsing a block mapping, did not find expected key"
+                || (error.info() == "wrongly indented line in block scalar"
+                    && stack
+                        .last()
+                        .is_some_and(|node| node.kind == NodeKind::Mapping))
+            {
                 // yaml.v3 reports the parser context's zero-based line when
                 // nonzero, falling back to the problem mark at the root.
                 let line = stack

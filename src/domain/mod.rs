@@ -19,3 +19,5 @@ mod yaml;
 mod yaml_render;
 
 mod yaml_reader;
+
+mod byte_edit;

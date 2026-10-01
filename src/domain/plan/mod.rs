@@ -1,6 +1,8 @@
 //! Portable plan models. Lifecycle validation is distinct from manifest,
 //! graph and filesystem bundle validation.
 mod parse;
+mod reference;
+pub use reference::set_node_ref;
 mod scaffold;
 pub use scaffold::scaffold;
 mod yaml_string;
