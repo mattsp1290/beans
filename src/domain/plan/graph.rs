@@ -60,7 +60,10 @@ fn type_error(node: &Node, target: &str) -> String {
         String::new()
     } else {
         let value = if value.len() > 10 {
-            format!("{}...", String::from_utf8_lossy(&value.as_bytes()[..7]))
+            // yaml.v3 truncates to seven bytes. Go's JSON encoder replaces
+            // each invalid trailing byte separately when a rune is split.
+            let end = value.floor_char_boundary(7);
+            format!("{}{}...", &value[..end], "�".repeat(7 - end))
         } else {
             value.to_owned()
         };

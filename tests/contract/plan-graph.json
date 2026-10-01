@@ -1,7 +1,7 @@
 {
   "schema": "beans-plan-graph-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "harness_sha256": "e5e3f0292c5c28ee0edbaa1893febb84fac4173c3c26a81d43036521fc1b8833",
+  "harness_sha256": "4ea6fe54d9f93dd26c1e423c52f886d5bd788e5aea96a30b581f9bebe0e8f225",
   "graphs": [
     {
       "error": "plan.md: missing bn-change-graph fence",
@@ -362,6 +362,36 @@
       },
       "input": "```bn-change-graph\nversion: 9223372036854775808\nnodes: []\nedges: []\n```",
       "name": "version-14"
+    },
+    {
+      "error": "plan.md: graph YAML: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `ab雪��...` into int",
+      "graph": {
+        "version": 0,
+        "nodes": null,
+        "edges": null
+      },
+      "input": "```bn-change-graph\nversion: 'ab雪雪雪'\nnodes: []\nedges: []\n```",
+      "name": "version-15"
+    },
+    {
+      "error": "plan.md: graph YAML: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `a🌱��...` into int",
+      "graph": {
+        "version": 0,
+        "nodes": null,
+        "edges": null
+      },
+      "input": "```bn-change-graph\nversion: 'a🌱🌱🌱'\nnodes: []\nedges: []\n```",
+      "name": "version-16"
+    },
+    {
+      "error": "plan.md: graph YAML: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `雪雪�...` into int",
+      "graph": {
+        "version": 0,
+        "nodes": null,
+        "edges": null
+      },
+      "input": "```bn-change-graph\nversion: '雪雪雪雪'\nnodes: []\nedges: []\n```",
+      "name": "version-17"
     },
     {
       "error": "",

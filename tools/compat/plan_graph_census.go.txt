@@ -18,7 +18,7 @@ func TestMigrationPlanGraphCensus(t *testing.T) {
     }
     add("missing","");add("unterminated","```bn-change-graph\nversion: 1");add("multiple",fence("version: 1")+"\n"+fence("version: 1"));add("prose","prose\n"+fence("version: 1"))
     for i,yaml:=range []string{"", "[]", "null", "{version: 1, nodes: [], edges: []}","version: 1", "version: 1\nnodes: null\nedges: null", "version: 1\nnodes: &nodes []\nedges: *nodes", "version: 1\nedges: *missing", "version: !beans 1", "version: 1\ncolor: red", "version: 1\nversion: 1", "!beans {version: 1}", "version: 1\nnodes: 1", "version: 1\nedges: {}", "version: 1\nnodes: [null]", "version: 1\nnodes: [{id: a, label: A, kind: component, color: red}]", "version: 1\nedges: [{from: a, to: a, kind: precedes, color: red}]"} { add(fmt.Sprintf("shape-%d",i),fence(yaml)) }
-    for i,value:=range []string{"0", "2", "null", "'1'", "!!str 1", "0x1", "01", "+1", "true", "1.0", "2026-09-10", "!!int '1'", "!!int x", "! 1", "9223372036854775808"} { add(fmt.Sprintf("version-%d",i),fence("version: "+value+"\nnodes: []\nedges: []")) }
+    for i,value:=range []string{"0", "2", "null", "'1'", "!!str 1", "0x1", "01", "+1", "true", "1.0", "2026-09-10", "!!int '1'", "!!int x", "! 1", "9223372036854775808", "'ab雪雪雪'", "'a🌱🌱🌱'", "'雪雪雪雪'"} { add(fmt.Sprintf("version-%d",i),fence("version: "+value+"\nnodes: []\nedges: []")) }
     base:=ChangeGraph{Version:1,Nodes:[]GraphNode{{ID:"a",Label:"A",Kind:"component"},{ID:"b",Label:"B",Kind:"workflow"}},Edges:[]GraphEdge{{From:"a",To:"b",Kind:"precedes"}}}
     generated:=func(name string,g ChangeGraph) { data,err:=yaml.Marshal(g);if err!=nil { t.Fatal(err) };add(name,fence(string(data))) }
     generated("valid",base)
