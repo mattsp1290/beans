@@ -1,0 +1,10 @@
+# The initial model incorrectly expected a plain supplementary Unicode scalar.
+# Go-compatible YAML emits the supplementary scalar as a quoted \U escape;
+# the independent byte model now spells out that representation.
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc b06329841d6bda5bd4c65ed670bb0aaefe30a96a3721a5cf1bb4917641e85aad # shrinks to steps = [(3, 0)], body = [], unknown = 0, padding = 0

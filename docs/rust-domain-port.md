@@ -467,3 +467,32 @@ mutation sequences, operation-owned project file writes, filesystem faults,
 CLI/API query transport and CLI/startup/pathological-link measurements. The
 lossless gate remains open, so WP5 mutations remain held. Go is still the
 default executable; WP4-WP9 and the final requested review/fix-review remain.
+
+
+### Serial codec edits and original mutation regressions
+
+The ten original `issue/mutation_test.go` and `issue/roundtrip_test.go`
+regressions now have independent Rust ports in
+`tests/domain/mutation_regressions.rs`. Exact whole-document expectations cover
+status, description, blocker addition/removal, parent clearing, absent-assignee
+insertion before user fields, inline comments, and log appends before a trailing
+section. Every result is reparsed and encoded again. All original issue
+roundtrip fixtures are read directly, including error fixtures, archive path
+metadata, opaque/multiline log semantics and three blocker list styles. The
+ledger now records 112 independently ported regressions and 113 pending; all
+original Go tests remain.
+
+`tests/domain/edit_sequences.rs` generates 512 cases of one to twenty-four
+serial edits through each of the four note codecs. An independent fixed-line
+byte model checks exact output after two nonadjacent owned-field changes,
+Unicode values, supplementary-scalar YAML escapes, nested/anchored/block-scalar
+unknown fields, comments, padding and arbitrary non-CR body bytes. Each step
+verifies semantic rereading, byte-exact no-op encoding, repeating the same
+semantic edit after reload, and every reported source/destination copy range.
+A shrunk seed is retained: it first exposed an incorrect plain-scalar expectation
+in the test model, which now explicitly spells out Go's quoted supplementary
+Unicode escape. These properties qualify serial scalar codec edits; they do
+not establish dependency-operation replay, Git pipeline replay, arbitrary YAML
+syntax parity, UTF-16 serial edit validity, or filesystem behavior. Those and
+the remaining WP3 acceptance work are still open. The installed/default
+executable remains Go, and WP5 mutations remain held.

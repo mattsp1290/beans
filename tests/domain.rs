@@ -500,3 +500,9 @@ mod raw_log;
 
 #[path = "domain/splice_coupling.rs"]
 mod splice_coupling;
+
+#[path = "domain/mutation_regressions.rs"]
+mod mutation_regressions;
+
+#[path = "domain/edit_sequences.rs"]
+mod edit_sequences;

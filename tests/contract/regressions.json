@@ -1116,72 +1116,72 @@
       "source": "issue/mutation_test.go",
       "test": "TestMutationSetStatus",
       "line": 55,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::set_status",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationAppendLog",
       "line": 77,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::append_log",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationSetDescription",
       "line": 109,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::set_description",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationAddBlocker",
       "line": 132,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::add_blocker",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationRemoveBlockerToZero",
       "line": 153,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::remove_blocker_to_zero",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationSetAbsentAssignee",
       "line": 174,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::set_absent_assignee",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationClearParent",
       "line": 211,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::clear_parent",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationAppendLogWhenLogNotLast",
       "line": 249,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::append_log_when_log_not_last",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationKeepsInlineCommentOnRewrittenScalar",
       "line": 279,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::keeps_inline_comment_on_rewritten_scalar",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1283,8 +1283,8 @@
       "source": "issue/roundtrip_test.go",
       "test": "TestRoundTripFixtures",
       "line": 13,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/mutation_regressions.rs::round_trip_fixtures",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
