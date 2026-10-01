@@ -376,8 +376,8 @@ fn issue_body_mutations_match_go_without_rewriting_original_logs() {
                     );
                 }
                 "opaque-original" => {
-                    issue.log[0].event = "must not rewrite original".to_owned();
-                    issue.log[0].raw = "- replacement ignored".to_owned();
+                    issue.log[0].event = "must not rewrite original".into();
+                    issue.log[0].raw = "- replacement ignored".into();
                 }
                 _ => panic!("unknown mutation"),
             }
@@ -494,3 +494,6 @@ mod utf16_reader;
 
 #[path = "domain/scalar_comment.rs"]
 mod scalar_comment;
+
+#[path = "domain/raw_log.rs"]
+mod raw_log;

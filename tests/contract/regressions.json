@@ -974,48 +974,66 @@
       "test": "TestFormatParseLogEntryRoundTrip",
       "line": 8,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::format_parse_log_entry_round_trip_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
     },
     {
       "source": "issue/log_test.go",
       "test": "TestFormatLogEntryOmitsParensWithoutRepoInfo",
       "line": 52,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::format_log_entry_omits_parens_without_repo_info_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
     },
     {
       "source": "issue/log_test.go",
       "test": "TestFormatLogEntryRepoAndShaNoBranch",
       "line": 62,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::format_log_entry_repo_and_sha_no_branch_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
     },
     {
       "source": "issue/log_test.go",
       "test": "TestParseLogEntryMinutePrecision",
       "line": 72,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::parse_log_entry_minute_precision_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
     },
     {
       "source": "issue/log_test.go",
       "test": "TestParseLogEntryNonMatchingLines",
       "line": 86,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::parse_log_entry_non_matching_lines_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
     },
     {
       "source": "issue/log_test.go",
       "test": "TestParseLogEntryMultiLineContinuation",
       "line": 101,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::parse_log_entry_multi_line_continuation_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
     },
     {
       "source": "issue/memory_test.go",

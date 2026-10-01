@@ -153,7 +153,7 @@ impl IssueDocument {
         );
         let body =
             super::yaml_string::YamlString::from_bytes(document.slice_bytes(sections.body).into());
-        let log = super::log::parse_section(sections.log);
+        let log = super::log::parse_section_bytes(document.slice_bytes(sections.log));
         let original_log_len = log.len();
         Ok(Self {
             original_metadata: metadata.clone(),
@@ -235,7 +235,7 @@ impl IssueDocument {
             }
             output.extend_from_slice(b"## Log\n");
             for entry in entries {
-                output.extend_from_slice(entry.line()?.as_bytes());
+                output.extend_from_slice(&entry.line_bytes()?);
             }
         }
         if let Some(document) = &self.document {

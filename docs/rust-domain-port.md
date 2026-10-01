@@ -402,3 +402,48 @@ comparison reproduces exact output bytes, reread errors/no-ops and copy geometry
 The new corpus exposed the plain-continuation regression and one mapping-error
 reader-demand mismatch before this correction. Wider YAML attachment/schema
 cases remain part of the unfinished WP3 gate.
+
+### Byte-valued log arguments and captures
+
+LogEntry actor/repo/SHA/branch/event/raw fields now hold canonical YamlString
+bytes. `parse_bytes` preserves raw regex capture slices, including malformed
+UTF-8; `parse_section_bytes` preserves opaque list items and their continuation
+bytes. Both issue and request parsers read the original log slice, and their
+existing/new-document encoders use `format_bytes`/`line_bytes`. UTF-8 string
+conveniences explicitly reject non-UTF-8 output. No write uses a replacement
+character view. Parsed original history remains opaque for encoding: only
+entries beyond its original length are appended, as in Go.
+
+Formatting keeps Go's distinct rules: Unicode strings.Fields whitespace becomes
+hyphens in actor/repo/branch tokens, invalid octets stay intact, SHA is emitted
+verbatim, event LF continuations gain two spaces, and Raw overrides the whole
+line. Parsing retains the existing ASCII-regex whitespace rules. An exhaustive
+production-token check compares every Unicode scalar with fixed-Go whitespace
+ranges and separately verifies invalid octets and empty/whitespace-only fields.
+
+`compat-raw-log` captures 1,584 inputs (all byte values and Unicode/malformed
+sequences in all six fields), direct formatting/line output and raw parse
+captures, plus 15,840 issue/request appends. Five document shapes cover original
+logs, missing logs, empty bodies, fence endings and newly constructed documents.
+`compat-raw-log-read` checks all 15,840 actual Rust outputs with fixed Go:
+15,810 accepted byte roundtrips and 30 matching CRLF rejections. Rust independently
+checks exact bytes, reread errors/no-ops and retained-copy geometry. A disk-index
+regression verifies canonical invalid-byte captures, opaque entries, unchanged
+original history, actual file loading and lossless encoding.
+
+All six original issue/log_test.go regressions are independently ported:
+roundtrip, absent/incomplete context, repo/SHA without branch, minute-precision
+time, nonmatching lines and multiline continuations. The ledger is now 102
+ported and 123 pending. Full local Rust/Go/UI gates and existing UTF-8, UTF-16,
+scalar-comment and raw-body cross-reads pass. This qualifies the captured raw log
+contracts, not the full WP3 gate; wider parser/time schemas, generated mutation
+sequences, production proof-coupling audit and filesystem/transport/startup/
+pathological-link qualification remain.
+
+The same WP1 5,000-live-plus-one-archived fixture was measured again after byte
+log integration on Linux aarch64: Go1.25.7 median 324.92 ms, Rust1.98.1 release
+median 138.48 ms, ratio 0.426 (three warmups and twenty measured loads each).
+`tests/contract/index-performance-raw-log-linux-arm64.json` records fixture and
+binary hashes plus exact samples. This is in-process loading; CLI/startup/output
+and pathological link-density measurements remain separate gates. Go remains
+the default binary; dependent WP5 mutations stay held until WP3 acceptance.

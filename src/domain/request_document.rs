@@ -4,7 +4,7 @@ use super::authored_yaml;
 use super::frontmatter::{Error, Field, Frontmatter, Node};
 use super::issue::{Timestamp, quoted};
 use super::issue_encode::instant;
-use super::log::{LogEntry, parse_section};
+use super::log::{LogEntry, parse_section_bytes};
 use super::request;
 use super::text::{Link, RequestBody, split_request_body};
 use serde::{Deserialize, Serialize};
@@ -117,7 +117,7 @@ impl RequestDocument {
         let body = super::yaml_string::YamlString::from_bytes(
             document.slice_bytes(sections.before_log).into(),
         );
-        let log = parse_section(sections.log);
+        let log = parse_section_bytes(document.slice_bytes(sections.log));
         let original_log_len = log.len();
         Ok(Self {
             original_metadata: metadata.clone(),
@@ -182,7 +182,7 @@ impl RequestDocument {
             }
             output.extend_from_slice(b"## Log\n");
             for entry in entries {
-                output.extend_from_slice(entry.line()?.as_bytes());
+                output.extend_from_slice(&entry.line_bytes()?);
             }
         }
         if let Some(document) = &self.document {

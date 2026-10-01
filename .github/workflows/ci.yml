@@ -121,6 +121,7 @@ jobs:
           make compat-raw-reader
           make compat-utf16-reader
           make compat-scalar-comment
+          make compat-raw-log
       - name: Install the pinned Rust compiler for cross-language reading
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Read actual Rust-generated issue files with the fixed Go reader
@@ -135,6 +136,8 @@ jobs:
         run: make compat-utf16-reader-read
       - name: Read actual Rust scalar comment edits with the fixed Go reader
         run: make compat-scalar-comment-read
+      - name: Read actual Rust raw log appends with the fixed Go reader
+        run: make compat-raw-log-read
       - name: Read actual Rust raw-body documents with the fixed Go reader
         run: make compat-raw-codec-read
       - name: Read actual Rust-generated handoffs with the fixed Go reader

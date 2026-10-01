@@ -267,3 +267,10 @@ compat-scalar-comment:
 
 compat-scalar-comment-read:
 	python3 -S tools/compat/scalar_comment_cross_read.py
+
+.PHONY: compat-raw-log compat-raw-log-read
+compat-raw-log:
+	python3 -S tools/compat/raw_log_reference.py --check tests/contract/raw-log.json
+
+compat-raw-log-read:
+	python3 -S tools/compat/raw_log_cross_read.py

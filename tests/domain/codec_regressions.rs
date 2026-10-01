@@ -52,8 +52,11 @@ fn round_trip() {
     assert_eq!(issue.metadata.priority, 2);
     assert_eq!(issue.metadata.parent.target, "exa-mkg1-deploy-bean-counter");
     assert_eq!(issue.log.len(), 2);
-    assert_eq!(issue.log[0].sha, "a1b2c3d");
-    assert_eq!(issue.log[1].event, "closed — parity gate passes");
+    assert_eq!(issue.log[0].sha.as_bytes(), b"a1b2c3d");
+    assert_eq!(
+        issue.log[1].event.as_bytes(),
+        "closed — parity gate passes".as_bytes()
+    );
     assert_eq!(issue.unknown_fields().next().unwrap().key, "custom");
 }
 
@@ -153,7 +156,7 @@ desc
     )
     .unwrap();
     assert_eq!(back.metadata.title, "Title: with colon");
-    assert_eq!(back.log[0].event, "created");
+    assert_eq!(back.log[0].event.as_bytes(), b"created");
     let no_log = "---\nid: a-1\ntitle: t\ntype: task\nstatus: open\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nbody text\n";
     let mut issue = IssueDocument::parse("a.md", no_log).unwrap();
     issue.append_log(LogEntry {
