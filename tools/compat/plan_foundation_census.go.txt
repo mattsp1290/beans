@@ -1,0 +1,61 @@
+package plan
+
+import (
+    "encoding/json"
+    "os"
+    "strings"
+    "testing"
+)
+
+func TestMigrationPlanFoundationCensus(t *testing.T) {
+    lifecycle:=[]map[string]any{}
+    add:=func(p *Plan) {
+        c:=map[string]any{}
+        if p==nil { c["nil"]=true } else {
+            c["status"]=string(p.Status);c["valid_status"]=p.Status.Valid()
+            c["outcome"]=p.Summary.Outcome;c["areas"]=p.Summary.AffectedAreas
+            c["order"]=p.Summary.ExecutionOrder;c["risks"]=p.Summary.Risks;c["nodes"]=len(p.Graph.Nodes)
+        }
+        c["error"]="";if err:=Validate(p);err!=nil { c["error"]=err.Error() };lifecycle=append(lifecycle,c)
+    }
+    add(nil)
+    outcomes:=[]string{"outcome",""," \n\t","<!-- bn:todo -->","<!-- hidden -->","<!-- a\n雪 -->","<!-- a --> <!-- b -->","<!-- unclosed","text <!-- bn:todo -->","\u0085\u00a0"}
+    areas:=[]string{"- area","","prose","- ","* area","\u00a0- area","- <!-- bn:todo -->"}
+    orders:=[]string{"1. step","prose","","  12.\tstep","1.\nstep","\n\n1. step","1. ","1.step","١. step","\u00a01. step","1.\u00a0step","\v1. step","1.\vstep","\f1. step","1.\fstep","line\n2. x","<!-- bn:todo -->\n1. step"}
+    risks:=[]string{"- None.","","prose","- ","- BLOCKER:","* BLOCKER: thing","-   BLOCKER: thing","- blocker: thing","- <!-- bn:todo -->","<!-- comment -->\n- BLOCKER: x"}
+    for _,status:=range []Status{StatusDraft,StatusBlocked,StatusReady,StatusComplete,"","READY","later"} {
+        base:=Plan{Status:status,Summary:Summary{Outcome:"outcome",AffectedAreas:"- area",ExecutionOrder:"1. step",Risks:"- None."},Graph:ChangeGraph{Nodes:[]GraphNode{{}}}}
+        add(&base)
+        for _,v:=range outcomes { p:=base;p.Summary.Outcome=v;add(&p) }
+        for _,v:=range areas { p:=base;p.Summary.AffectedAreas=v;add(&p) }
+        for _,v:=range orders { p:=base;p.Summary.ExecutionOrder=v;add(&p) }
+        for _,v:=range risks { p:=base;p.Summary.Risks=v;add(&p) }
+        p:=base;p.Graph.Nodes=nil;add(&p)
+        p=base;p.Summary.Outcome="<!-- bn:todo -->";p.Summary.Risks="- BLOCKER: x";add(&p)
+        p=base;p.Summary.AffectedAreas="";p.Summary.ExecutionOrder="";p.Summary.Risks="";p.Graph.Nodes=nil;add(&p)
+    }
+    ids:=[]map[string]any{}
+    for _,prefix:=range []string{"beans","","a.b","Upper","a\nb","foreign-project"} {
+        for _,hash:=range []string{"a1b2","", "A1", "a.1", "a-1", "a\n", "١"} {
+            id:=prefix+"-plan-"+hash;ids=append(ids,map[string]any{"prefix":prefix,"id":id,"valid":ValidID(prefix,id)})
+        }
+        ids=append(ids,map[string]any{"prefix":prefix,"id":"other-plan-abc","valid":ValidID(prefix,"other-plan-abc")})
+    }
+    slugs:=[]map[string]any{}
+    titles:=[]string{"", "!!!", "Hello, World!!!", "İstanbul K", "雪", "ΟΣ Σς", "a\x00B",strings.Repeat("a",59)+" b",strings.Repeat("a",59)+"  bb","one "+strings.Repeat("b",80)}
+    for n:=58;n<=62;n++ { titles=append(titles,strings.Repeat("a",n),"a "+strings.Repeat("b",n)) }
+    for _,title:=range titles { slug:=Slug(title);slugs=append(slugs,map[string]any{"title":title,"slug":slug,"valid":ValidSlug(slug),"directory":DirectoryName("beans-plan-abc",slug)}) }
+    slugGrammar:=[]map[string]any{}
+    for _,s:=range []string{"", "a", "0", "a-b", "-a", "a-", "a--b", "Upper", "a_b", "a.b", "a\n", "雪", strings.Repeat("a",81)} { slugGrammar=append(slugGrammar,map[string]any{"slug":s,"valid":ValidSlug(s)}) }
+    generation:=[]map[string]any{}
+    for _,prefix:=range []string{"beans","","a.b"} { for _,length:=range []int{-1,0,1,4,7} { for _,collisions:=range []int{0,7,8,16,24} {
+        attempts:=[]int{}
+        id:=NewID(prefix,func(id string)bool { if !strings.HasPrefix(id,prefix+"-plan-") { t.Fatal("wrong prefix") };attempts=append(attempts,len(id)-len(prefix)-6);return len(attempts)<=collisions },length)
+        generation=append(generation,map[string]any{"prefix":prefix,"length":length,"collisions":collisions,"attempts":attempts,"valid":ValidID(prefix,id)})
+    } } }
+    graphModels:=[]ChangeGraph{{},{Version:1,Nodes:[]GraphNode{},Edges:[]GraphEdge{}},{Version:1,Nodes:[]GraphNode{{ID:"model",Label:"Model",Kind:"component"},{ID:"work",Label:"Work",Kind:"workflow",Ref:"[[beans-abc]]"}},Edges:[]GraphEdge{{From:"model",To:"work",Kind:"precedes"},{From:"work",To:"model",Kind:"affects",Label:"change"}}}}
+    validations:=[]map[string]any{}
+    for _,issues:=range [][]ValidationIssue{nil,{{Path:"plan.md",Code:"invalid",Message:"first"}},{{Path:"x.md",Line:2,Code:"invalid",Message:"雪"},{Path:"later.md",Message:"second"}}} { e:=&ValidationError{Issues:issues};validations=append(validations,map[string]any{"issues":issues,"error":e.Error()}) }
+    out,err:=json.Marshal(map[string]any{"lifecycle":lifecycle,"ids":ids,"slugs":slugs,"slug_grammar":slugGrammar,"generation":generation,"graph_models":graphModels,"validation_errors":validations});if err!=nil { t.Fatal(err) }
+    if err:=os.WriteFile(os.Getenv("BN_PLAN_FOUNDATION_OUTPUT"),out,0644);err!=nil { t.Fatal(err) }
+}

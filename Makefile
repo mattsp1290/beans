@@ -130,6 +130,10 @@ compat-handoffs:
 compat-handoff-read:
 	python3 -S tools/compat/handoff_cross_read.py
 
+.PHONY: compat-plan-foundation
+compat-plan-foundation:
+	python3 -S tools/compat/plan_foundation_reference.py --check tests/contract/plan-foundation.json
+
 .PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py

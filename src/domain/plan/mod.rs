@@ -1,0 +1,116 @@
+//! Portable plan models. Lifecycle validation is distinct from manifest,
+//! graph and filesystem bundle validation.
+pub mod id;
+mod lifecycle;
+use super::issue::Timestamp;
+pub use lifecycle::{valid_status, validate};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+
+pub const DRAFT: &str = "draft";
+pub const BLOCKED: &str = "blocked";
+pub const READY: &str = "ready";
+pub const COMPLETE: &str = "complete";
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Plan {
+    pub id: String,
+    pub aliases: Vec<String>,
+    pub title: String,
+    pub slug: String,
+    pub status: String,
+    pub created: Timestamp,
+    pub updated: Timestamp,
+    pub sections: Vec<String>,
+    pub section_bodies: Vec<Section>,
+    pub body: String,
+    pub path: String,
+    pub summary: Summary,
+    pub graph: ChangeGraph,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Section {
+    pub path: String,
+    pub markdown: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Summary {
+    pub outcome: String,
+    pub affected_areas: String,
+    pub execution_order: String,
+    pub risks: String,
+    pub change_graph: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ChangeGraph {
+    pub version: i64,
+    pub nodes: Option<Vec<GraphNode>>,
+    pub edges: Option<Vec<GraphEdge>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct GraphNode {
+    pub id: String,
+    pub label: String,
+    pub kind: String,
+    #[serde(rename = "ref", skip_serializing_if = "String::is_empty")]
+    pub reference: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct GraphEdge {
+    pub from: String,
+    pub to: String,
+    pub kind: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub label: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Bundle {
+    pub plan: Option<Plan>,
+    pub sections: Vec<Section>,
+    pub root: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct BundleSnapshot {
+    pub files: BTreeMap<String, Vec<u8>>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ValidationIssue {
+    pub path: String,
+    #[serde(skip_serializing_if = "is_zero")]
+    pub line: i64,
+    pub code: String,
+    pub message: String,
+}
+fn is_zero(value: &i64) -> bool {
+    *value == 0
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct ValidationError {
+    pub issues: Vec<ValidationIssue>,
+}
+impl std::fmt::Display for ValidationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(issue) = self.issues.first() {
+            write!(f, "{}: {}", issue.path, issue.message)
+        } else {
+            f.write_str("invalid plan")
+        }
+    }
+}
+impl std::error::Error for ValidationError {}

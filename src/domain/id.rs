@@ -60,7 +60,7 @@ fn new_id_with_source(
     }
 }
 
-pub fn slug(title: &str) -> String {
+pub(super) fn normalized_slug(title: &str) -> String {
     let mut output = String::new();
     let mut last_dash = true;
     for character in title.chars() {
@@ -76,7 +76,12 @@ pub fn slug(title: &str) -> String {
             last_dash = true;
         }
     }
-    let output = output.trim_matches('-');
+    output.trim_matches('-').to_owned()
+}
+
+pub fn slug(title: &str) -> String {
+    let output = normalized_slug(title);
+    let output = output.as_str();
     if output.len() <= SLUG_MAX_LEN {
         return output.to_owned();
     }

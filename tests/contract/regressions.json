@@ -1539,8 +1539,11 @@
       "test": "TestReadyRequiresStructuredSummary",
       "line": 102,
       "destination": "tests/plans.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plans::ready_requires_structured_summary",
+      "rust_source": "tests/domain/plans.rs",
+      "validation": "cargo test --locked --test domain plans::; make compat-plan-foundation; original Go regression retained until cutover"
     },
     {
       "source": "plan/plan_test.go",

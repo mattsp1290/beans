@@ -8,6 +8,8 @@ mod handoffs;
 mod ids;
 #[path = "domain/memories.rs"]
 mod memories;
+#[path = "domain/plans.rs"]
+mod plans;
 #[path = "domain/request_codec.rs"]
 mod request_codec;
 #[path = "domain/requests.rs"]
