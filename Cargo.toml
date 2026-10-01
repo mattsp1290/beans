@@ -33,6 +33,7 @@ tokio = { version = "=1.53.1", features = ["rt-multi-thread", "macros", "signal"
 comrak = { version = "=0.55.0", default-features = false }
 notify = "=8.2.0"
 getrandom = "=0.4.3"
+libc = "=0.2.189"
 time = { version = "=0.3.55", features = ["formatting", "parsing", "serde", "large-dates"] }
 
 [dev-dependencies]

@@ -1490,16 +1490,16 @@
       "source": "plan/plan_test.go",
       "test": "TestScaffoldLoadsAsDraft",
       "line": 11,
-      "destination": "tests/plans.rs",
-      "status": "pending",
+      "destination": "tests/domain/plan_bundle.rs::scaffold_loads_as_draft",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestScaffoldSafelyEncodesSpecialTitle",
       "line": 26,
-      "destination": "tests/plans.rs",
-      "status": "pending",
+      "destination": "tests/domain/plan_bundle.rs::scaffold_safely_encodes_special_title",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1514,8 +1514,8 @@
       "source": "plan/plan_test.go",
       "test": "TestLoadRetainsOrderedSectionBodies",
       "line": 49,
-      "destination": "tests/plans.rs",
-      "status": "pending",
+      "destination": "tests/domain/plan_bundle.rs::load_retains_ordered_section_bodies",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1533,8 +1533,8 @@
       "source": "plan/plan_test.go",
       "test": "TestLoadRejectsUnlistedSection",
       "line": 86,
-      "destination": "tests/plans.rs",
-      "status": "pending",
+      "destination": "tests/domain/plan_bundle.rs::load_rejects_unlisted_section",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

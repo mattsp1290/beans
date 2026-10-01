@@ -1,6 +1,6 @@
 //! yaml.v3 string lists can contain non-UTF-8 bytes decoded from !!binary.
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct YamlString(Vec<u8>);
 impl YamlString {
     pub fn from_bytes(bytes: Vec<u8>) -> Self {
@@ -12,19 +12,7 @@ impl YamlString {
     pub fn as_str(&self) -> Option<&str> {
         std::str::from_utf8(&self.0).ok()
     }
-}
-impl From<String> for YamlString {
-    fn from(value: String) -> Self {
-        Self(value.into_bytes())
-    }
-}
-impl From<&str> for YamlString {
-    fn from(value: &str) -> Self {
-        Self(value.as_bytes().into())
-    }
-}
-impl Serialize for YamlString {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn display_text(&self) -> String {
         let mut bytes = self.0.as_slice();
         let mut text = String::new();
         loop {
@@ -41,7 +29,53 @@ impl Serialize for YamlString {
                 }
             }
         }
-        serializer.serialize_str(&text)
+        text
+    }
+    pub(crate) fn quoted(&self) -> String {
+        let mut bytes = self.0.as_slice();
+        let mut out = String::from("\"");
+        while !bytes.is_empty() {
+            let (valid, invalid) = match std::str::from_utf8(bytes) {
+                Ok(_) => (bytes.len(), 0),
+                Err(e) => (
+                    e.valid_up_to(),
+                    e.error_len().unwrap_or(bytes.len() - e.valid_up_to()),
+                ),
+            };
+            let text = super::super::issue::quoted(std::str::from_utf8(&bytes[..valid]).unwrap());
+            out.push_str(&text[1..text.len() - 1]);
+            for byte in &bytes[valid..valid + invalid] {
+                out.push_str(&format!("\\x{byte:02x}"));
+            }
+            bytes = &bytes[valid + invalid..];
+        }
+        out.push('"');
+        out
+    }
+}
+impl std::borrow::Borrow<[u8]> for YamlString {
+    fn borrow(&self) -> &[u8] {
+        self.as_bytes()
+    }
+}
+impl std::fmt::Display for YamlString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.display_text())
+    }
+}
+impl From<String> for YamlString {
+    fn from(value: String) -> Self {
+        Self(value.into_bytes())
+    }
+}
+impl From<&str> for YamlString {
+    fn from(value: &str) -> Self {
+        Self(value.as_bytes().into())
+    }
+}
+impl Serialize for YamlString {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&self.display_text())
     }
 }
 impl<'de> Deserialize<'de> for YamlString {

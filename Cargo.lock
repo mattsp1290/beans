@@ -150,6 +150,7 @@ dependencies = [
  "clap",
  "comrak",
  "getrandom 0.4.3",
+ "libc",
  "notify",
  "proptest",
  "serde",

@@ -1,6 +1,10 @@
 //! Portable plan models. Lifecycle validation is distinct from manifest,
 //! graph and filesystem bundle validation.
+mod bundle;
 mod parse;
+pub use bundle::{
+    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, load, load_snapshot, valid_section_path, write_scaffold,
+};
 mod reference;
 pub use reference::set_node_ref;
 mod scaffold;
@@ -48,7 +52,7 @@ pub struct Plan {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Section {
-    pub path: String,
+    pub path: YamlString,
     pub markdown: String,
 }
 
@@ -99,7 +103,7 @@ pub struct Bundle {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct BundleSnapshot {
-    pub files: BTreeMap<String, Vec<u8>>,
+    pub files: BTreeMap<YamlString, Vec<u8>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]

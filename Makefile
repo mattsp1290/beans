@@ -174,3 +174,10 @@ compat-plan-ref:
 .PHONY: compat-plan-ref-read
 compat-plan-ref-read:
 	python3 -S tools/compat/plan_ref_read.py
+
+.PHONY: compat-plan-bundle compat-plan-bundle-read
+compat-plan-bundle:
+	python3 -S tools/compat/plan_bundle_reference.py --check tests/contract/plan-bundle.json
+
+compat-plan-bundle-read:
+	python3 -S tools/compat/plan_bundle_read.py
