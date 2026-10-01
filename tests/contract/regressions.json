@@ -745,8 +745,8 @@
       "source": "issue/config_test.go",
       "test": "TestEncodeProjectConfigWithoutWorkflow",
       "line": 102,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::encode_project_config_without_workflow",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

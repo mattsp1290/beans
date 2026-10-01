@@ -185,3 +185,9 @@ compat-plan-bundle-read:
 .PHONY: compat-config-foundation
 compat-config-foundation:
 	python3 -S tools/compat/config_foundation_reference.py --check tests/contract/config-foundation.json
+
+.PHONY: compat-config-codec compat-config-codec-read
+compat-config-codec:
+	python3 -S tools/compat/config_codec_reference.py --check tests/contract/config-codec.json
+compat-config-codec-read:
+	python3 -S tools/compat/config_codec_read.py

@@ -1,0 +1,232 @@
+package issue
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"testing"
+)
+
+func ccBytes(s string) []int {
+	out := make([]int, len(s))
+	for i, b := range []byte(s) {
+		out[i] = int(b)
+	}
+	return out
+}
+func ccList(xs []string) any {
+	if xs == nil {
+		return nil
+	}
+	out := []any{}
+	for _, s := range xs {
+		out = append(out, ccBytes(s))
+	}
+	return out
+}
+func ccWorkflow(w WorkflowFile, raw bool) any {
+	if !raw {
+		return map[string]any{"statuses": w.Statuses, "default": w.Default, "active": w.Active, "terminal": w.Terminal, "transitions": w.Transitions}
+	}
+	var transitions any
+	if w.Transitions != nil {
+		keys := []string{}
+		for key := range w.Transitions {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		entries := []any{}
+		for _, key := range keys {
+			entries = append(entries, map[string]any{"from": ccBytes(key), "to": ccList(w.Transitions[key])})
+		}
+		transitions = entries
+	}
+	return map[string]any{"statuses": ccList(w.Statuses), "default": ccBytes(w.Default), "active": ccList(w.Active), "terminal": ccList(w.Terminal), "transitions": transitions}
+}
+func ccUser(c UserConfig, raw bool) any {
+	if raw {
+		return map[string]any{"actor": ccBytes(c.Actor), "hub": map[string]any{"remote": ccBytes(c.Hub.Remote), "branch": ccBytes(c.Hub.Branch)}, "fetch": map[string]any{"throttle": ccBytes(c.Fetch.Throttle)}}
+	}
+	return map[string]any{"actor": c.Actor, "hub": map[string]any{"remote": c.Hub.Remote, "branch": c.Hub.Branch}, "fetch": map[string]any{"throttle": c.Fetch.Throttle}}
+}
+func ccProject(c ProjectConfig, raw bool) any {
+	if raw {
+		return map[string]any{"name": ccBytes(c.Name), "prefix": ccBytes(c.Prefix), "remotes": ccList(c.Remotes), "workflow": ccWorkflow(c.Workflow, true)}
+	}
+	return map[string]any{"name": c.Name, "prefix": c.Prefix, "remotes": c.Remotes, "workflow": ccWorkflow(c.Workflow, false)}
+}
+func ccHub(c HubConfig) any {
+	return map[string]any{"workflow": ccWorkflow(c.Workflow, false), "types": map[string]any{"names": c.Types.Names}, "ids": map[string]any{"length": c.IDs.Length}}
+}
+func ccRead(kind, path string) (any, string) {
+	var cfg any
+	var err error
+	switch kind {
+	case "user":
+		c, e := LoadUserConfig(path)
+		cfg = ccUser(c, false)
+		err = e
+	case "project":
+		c, e := LoadProjectConfig(path)
+		cfg = ccProject(c, false)
+		err = e
+	case "hub":
+		c, e := LoadHubConfig(path)
+		cfg = ccHub(c)
+		err = e
+	}
+	message := ""
+	if err != nil {
+		message = err.Error()
+	}
+	return cfg, message
+}
+func TestMigrationConfigCodec(t *testing.T) {
+	encodes := []any{}
+	reads := []any{}
+	capture := func(name, kind string, c any, data []byte, err error) {
+		work := t.TempDir()
+		path := filepath.Join(work, "config.toml")
+		if e := os.WriteFile(path, data, 0644); e != nil {
+			t.Fatal(e)
+		}
+		cfg, message := ccRead(kind, path)
+		message = strings.ReplaceAll(message, work+"/", "")
+		encodeError := ""
+		if err != nil {
+			encodeError = err.Error()
+		}
+		encodes = append(encodes, map[string]any{"name": name, "kind": kind, "config": c, "output": ccBytes(string(data)), "error": encodeError, "read_config": cfg, "read_error": message})
+	}
+	user := func(name string, c UserConfig) {
+		data, e := EncodeUserConfig(c)
+		capture(name, "user", ccUser(c, true), data, e)
+	}
+	project := func(name string, c ProjectConfig) {
+		data, e := EncodeProjectConfig(c)
+		capture(name, "project", ccProject(c, true), data, e)
+	}
+	user("user-zero", UserConfig{})
+	user("user-base", UserConfig{Actor: "matt", Hub: UserHubConfig{Remote: "git@github.com:owner/beans-hub.git", Branch: "main"}, Fetch: UserFetchConfig{Throttle: "90s"}})
+	project("project-zero", ProjectConfig{})
+	project("project-base", ProjectConfig{Name: "beanCounter", Prefix: "bean-counter", Remotes: []string{"https://github.com/mattsp1290/beans", "git@github.com:mattsp1290/beans.git"}, Workflow: WorkflowFile{Statuses: []string{"open", "closed"}, Default: "open"}})
+	values := []string{"", "true", "null", "123", "2026-10-01", "a: b", "# x", "'quoted'", "\"quoted\"", "a\\b", "a\nb", "a\r\nb", "a\tb", "a\x00b", "a\x07b", "a\x0bb", "a\x7fb", "a\u0085b", "a\u2003b", "\u200b", "\ufeff", "雪", "🌱", string([]byte{255}), string([]byte{226, 130}), "�"}
+	for i, value := range values {
+		for _, field := range []string{"actor", "remote", "branch", "throttle"} {
+			c := UserConfig{}
+			switch field {
+			case "actor":
+				c.Actor = value
+			case "remote":
+				c.Hub.Remote = value
+			case "branch":
+				c.Hub.Branch = value
+			case "throttle":
+				c.Fetch.Throttle = value
+			}
+			user(fmt.Sprintf("user-%s-%d", field, i), c)
+		}
+		for _, field := range []string{"name", "prefix", "remotes", "statuses", "default", "active", "terminal", "transition-key", "transition-value"} {
+			c := ProjectConfig{Name: "p", Prefix: "p"}
+			switch field {
+			case "name":
+				c.Name = value
+			case "prefix":
+				c.Prefix = value
+			case "remotes":
+				c.Remotes = []string{value, "second"}
+			case "statuses":
+				c.Workflow.Statuses = []string{value}
+			case "default":
+				c.Workflow.Default = value
+			case "active":
+				c.Workflow.Active = []string{value}
+			case "terminal":
+				c.Workflow.Terminal = []string{value}
+			case "transition-key":
+				c.Workflow.Transitions = map[string][]string{value: {"open"}}
+			case "transition-value":
+				c.Workflow.Transitions = map[string][]string{"open": {value}}
+			}
+			project(fmt.Sprintf("project-%s-%d", field, i), c)
+		}
+	}
+	for i, w := range []WorkflowFile{{}, {Statuses: []string{}, Active: []string{}, Terminal: []string{}, Transitions: map[string][]string{}}, {Default: " \u2003 "}, {Default: "open"}, {Default: "open", Statuses: []string{}, Active: []string{}, Terminal: []string{}, Transitions: map[string][]string{}}, {Transitions: map[string][]string{"open": nil}}, {Transitions: map[string][]string{"open": {}}}, {Default: "open", Transitions: map[string][]string{"z": {"a"}, "a": {"b"}, "nil": nil, "empty": {}}}} {
+		project(fmt.Sprintf("workflow-shape-%d", i), ProjectConfig{Name: "p", Prefix: "p", Remotes: []string{}, Workflow: w})
+	}
+	for _, kind := range []string{"user", "project", "hub"} {
+		for _, fsKind := range []string{"missing", "directory", "parent-file", "symlink", "dangling-link"} {
+			work := t.TempDir()
+			path := filepath.Join(work, "config.toml")
+			switch fsKind {
+			case "directory":
+				os.Mkdir(path, 0755)
+			case "parent-file":
+				os.WriteFile(filepath.Join(work, "parent"), []byte("x"), 0644)
+				path = filepath.Join(work, "parent/config.toml")
+			case "symlink":
+				os.WriteFile(filepath.Join(work, "target.toml"), []byte(""), 0644)
+				os.Symlink("target.toml", path)
+			case "dangling-link":
+				os.Symlink("absent.toml", path)
+			}
+			cfg, message := ccRead(kind, path)
+			reads = append(reads, map[string]any{"name": kind + "-" + fsKind, "kind": kind, "fs_kind": fsKind, "config": cfg, "error": strings.ReplaceAll(message, work+"/", "")})
+		}
+		inputs := []string{"", "# comment\n", "name = \"p\"\nprefix = \"prefix\"\nremotes = [\"one\", \"two\"]\n", "actor=\"matt\"\n[hub]\nremote=\"remote\"\nbranch=\"main\"\n[fetch]\nthrottle=\"5m\"\n", "[workflow]\nstatuses=[\"open\",\"closed\"]\ndefault=\"open\"\nactive=[\"open\"]\nterminal=[\"closed\"]\n", "[types]\nnames=[\"story\"]\n[ids]\nlength=8\n", "[types]\nnames=[]\n[ids]\nlength=0\n", "[ids]\nlength=-5\n", "NAME=\"upper\"\nACTOR=\"upper\"\n[WORKFLOW]\nDEFAULT=\"upper\"\n", "name=123\n", "actor=true\n", "remotes=[1]\n", "[workflow]\nstatuses=123\n", "[workflow]\ndefault=123\n", "[workflow]\nactive=[\"open\",1]\n", "[workflow.transitions]\nopen=\"closed\"\n", "[ids]\nlength=\"4\"\n", "[types]\nnames=[true]\n", "unknown=123\n[other]\nx=[true,1]\n", "[workflow]\nunknown=123\n", "[workflow]\nstatuses=[\"open\"\ndefault=\"open\"\n", "name=\"a\"\nname=\"b\"\n", "actor=\"\\xFF\"\n", "[workflow]\nstatuses=[]\n[workflow.transitions]\nopen=[]\n", string([]byte{255})}
+		for i, input := range inputs {
+			work := t.TempDir()
+			path := filepath.Join(work, "config.toml")
+			if e := os.WriteFile(path, []byte(input), 0644); e != nil {
+				t.Fatal(e)
+			}
+			cfg, message := ccRead(kind, path)
+			reads = append(reads, map[string]any{"name": fmt.Sprintf("%s-input-%d", kind, i), "kind": kind, "input": ccBytes(input), "config": cfg, "error": strings.ReplaceAll(message, work+"/", "")})
+		}
+	}
+	out, e := json.Marshal(map[string]any{"encodes": encodes, "reads": reads})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_CONFIG_CODEC_OUTPUT"), out, 0644); e != nil {
+		t.Fatal(e)
+	}
+}
+func TestMigrationConfigCodecCrossRead(t *testing.T) {
+	data, e := os.ReadFile(os.Getenv("BN_CONFIG_CODEC_INPUT"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	var inputs []struct {
+		Name  string `json:"name"`
+		Kind  string `json:"kind"`
+		Bytes []int  `json:"bytes"`
+	}
+	if e = json.Unmarshal(data, &inputs); e != nil {
+		t.Fatal(e)
+	}
+	rows := []any{}
+	for _, input := range inputs {
+		work := t.TempDir()
+		path := filepath.Join(work, "config.toml")
+		data := []byte{}
+		for _, b := range input.Bytes {
+			data = append(data, byte(b))
+		}
+		if e = os.WriteFile(path, data, 0644); e != nil {
+			t.Fatal(e)
+		}
+		cfg, message := ccRead(input.Kind, path)
+		rows = append(rows, map[string]any{"name": input.Name, "config": cfg, "error": strings.ReplaceAll(message, work+"/", "")})
+	}
+	out, e := json.Marshal(map[string]any{"cross_reads": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_CONFIG_CODEC_OUTPUT"), out, 0644); e != nil {
+		t.Fatal(e)
+	}
+}

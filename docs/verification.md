@@ -116,6 +116,15 @@ trusted boundaries. `libc` is pinned to the existing locked version; this FFI
 call has no Verus correctness claim. Further effect/fault qualification remains
 part of the migration acceptance work.
 
+Configuration encoding is qualified against 350 immutable Go writer cases and
+actual Go file loads of every Rust-generated output. The byte-oriented writer
+preserves Go's nil/empty distinctions, sorted transition keys, control escapes
+and raw invalid UTF-8. Of these outputs, 324 are accepted by Go and 26 reproduce
+Go's rejection; encoding does not promise that arbitrary Go strings form valid
+TOML. The same corpus captures 90 Go file-loading cases for the pending Rust
+decoder. Capturing loader behavior does not establish Rust loader parity or
+workflow source precedence. Neither encoder changes the input configuration.
+
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),
