@@ -123,6 +123,13 @@ compat-memories:
 compat-memory-read:
 	python3 -S tools/compat/memory_cross_read.py
 
+.PHONY: compat-handoffs compat-handoff-read
+compat-handoffs:
+	python3 -S tools/compat/handoff_reference.py --check tests/contract/handoffs.json
+
+compat-handoff-read:
+	python3 -S tools/compat/handoff_cross_read.py
+
 .PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py

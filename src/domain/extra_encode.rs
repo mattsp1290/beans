@@ -1,4 +1,4 @@
-//! Presentation of authored unknown YAML nodes in new issue files.
+//! Presentation of authored unknown YAML nodes in new domain documents.
 use super::authored_yaml::{
     DOUBLE_QUOTED, FLOW, FOLDED, Kind, LITERAL, Node, SINGLE_QUOTED, TAGGED,
 };
@@ -9,10 +9,15 @@ pub(super) fn mapping_fields(node: &Node) -> Result<String, Error> {
     if node.kind != Kind::Mapping {
         return Ok(String::new());
     }
-    for child in node.content.iter().take(node.content.len() / 2 * 2) {
+    content_fields(&node.content)
+}
+
+/// Handoffs append Extra.Content regardless of the root node's kind.
+pub(super) fn content_fields(content: &[Node]) -> Result<String, Error> {
+    for child in content.iter().take(content.len() / 2 * 2) {
         validate(child)?;
     }
-    pairs(&node.content, 0)
+    pairs(content, 0)
 }
 
 fn validate(node: &Node) -> Result<(), Error> {

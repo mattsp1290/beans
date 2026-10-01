@@ -1,0 +1,62 @@
+package issue
+
+import (
+    "encoding/json"
+    "os"
+    "testing"
+    "time"
+    "gopkg.in/yaml.v3"
+)
+
+func handoffMigrationMetadata(m *Handoff) map[string]any {
+    stamp:=func(v time.Time)map[string]any { _,offset:=v.Zone();return map[string]any{"seconds":v.Unix(),"nanoseconds":v.Nanosecond(),"offset_seconds":offset} }
+    aliases:=m.Aliases;if aliases==nil { aliases=[]string{} }
+    return map[string]any{"id":m.ID,"aliases":aliases,"title":m.Title,"issue":map[string]string{"raw":m.Issue.Raw,"target":m.Issue.Target},"created":stamp(m.Created),"updated":stamp(m.Updated),"project":m.Project,"archived":m.Archived}
+}
+func TestMigrationHandoffCensus(t *testing.T) {
+    raw,err:=os.ReadFile(os.Getenv("BN_HANDOFF_INPUT"));if err!=nil { t.Fatal(err) }
+    var cases []map[string]any;if err:=json.Unmarshal(raw,&cases);err!=nil { t.Fatal(err) }
+    for _,c:=range cases {
+        path,input:=c["path"].(string),c["input"].(string)
+        m,err:=ParseHandoff(path,[]byte(input));if err!=nil { c["error"]=err.Error();continue }
+        c["metadata"]=handoffMigrationMetadata(m);c["body"]=m.Body
+        unknown:=[]string{};for i:=0;i+1<len(m.Extra.Content);i+=2 { unknown=append(unknown,m.Extra.Content[i].Value) };c["unknown"]=unknown
+        out,err:=EncodeHandoff(m);if err!=nil { t.Fatal(err) };c["encoded"]=string(out)
+        if os.Getenv("BN_HANDOFF_READ_ONLY")=="1" { continue }
+        edits:=[]map[string]any{}
+        for _,kind:=range []string{"id","id-empty","aliases","aliases-empty","title","title-empty","issue","issue-target-only","detach","created","updated","zero-time","body","all","same-instant","new","new-extra","new-extra-scalar","new-extra-sequence"} {
+            changed,_:=ParseHandoff(path,[]byte(input))
+            apply:=func(key string) {
+                switch key {
+                case "id":changed.ID="foreign-a4b5.1"
+                case "id-empty":changed.ID=""
+                case "aliases":changed.Aliases=[]string{"external"}
+                case "aliases-empty":changed.Aliases=nil
+                case "title":changed.Title="雪: new title"
+                case "title-empty":changed.Title=""
+                case "issue":changed.Issue=ParseLink("[[other-abc#heading|alias]]")
+                case "issue-target-only":changed.Issue=Link{Target:"other-abc"}
+                case "detach":changed.Issue=Link{}
+                case "created":changed.Created=time.Date(2027,1,2,3,4,5,123000000,time.FixedZone("offset",19800))
+                case "updated":changed.Updated=time.Date(2027,1,2,3,4,5,123000000,time.UTC)
+                case "zero-time":changed.Created=time.Time{}
+                case "body":changed.Body="replacement\n## Log\nopaque\n"
+                case "same-instant":changed.Created=changed.Created.UTC();changed.Updated=changed.Updated.UTC()
+                }
+            }
+            if kind=="all" { for _,key:=range []string{"aliases","title","issue","created","updated","body"} { apply(key) } } else if kind=="new" || kind=="new-extra" || kind=="new-extra-scalar" || kind=="new-extra-sequence" {
+                changed.orig=nil;changed.Extra=yaml.Node{}
+                if kind!="new" {
+                    changed.Extra=yaml.Node{Kind:yaml.MappingNode,Tag:"!!map",Content:[]*yaml.Node{keyNode("custom"),strNode("雪: value")}}
+                    if kind=="new-extra-scalar" { changed.Extra.Kind=yaml.ScalarNode }
+                    if kind=="new-extra-sequence" { changed.Extra.Kind=yaml.SequenceNode }
+                }
+            } else { apply(kind) }
+            out,err:=EncodeHandoff(changed);if err!=nil { t.Fatal(err) }
+            edits=append(edits,map[string]any{"kind":kind,"encoded":string(out)})
+        }
+        c["edits"]=edits
+    }
+    out,err:=json.Marshal(cases);if err!=nil { t.Fatal(err) }
+    if err:=os.WriteFile(os.Getenv("BN_HANDOFF_OUTPUT"),out,0644);err!=nil { t.Fatal(err) }
+}

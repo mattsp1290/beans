@@ -2,6 +2,8 @@
 mod codec_regressions;
 #[path = "domain/creation.rs"]
 mod creation;
+#[path = "domain/handoffs.rs"]
+mod handoffs;
 #[path = "domain/ids.rs"]
 mod ids;
 #[path = "domain/memories.rs"]

@@ -853,24 +853,33 @@
       "test": "TestHandoffRoundTripAndMinimalAttachmentEdit",
       "line": 11,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "handoffs::round_trip_and_minimal_attachment_edit",
+      "rust_source": "tests/domain/handoffs.rs",
+      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/handoff_test.go",
       "test": "TestParseHandoffRejectsBadInput",
       "line": 35,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "handoffs::rejects_bad_input",
+      "rust_source": "tests/domain/handoffs.rs",
+      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/handoff_test.go",
       "test": "TestParseHandoffRejectsMisleadingPath",
       "line": 49,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "handoffs::rejects_misleading_path",
+      "rust_source": "tests/domain/handoffs.rs",
+      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/id_test.go",

@@ -97,6 +97,7 @@ jobs:
           make compat-request-lifecycle
           make compat-requests
           make compat-memories
+          make compat-handoffs
       - name: Install the pinned Rust compiler for cross-language reading
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Read actual Rust-generated issue files with the fixed Go reader
@@ -105,6 +106,8 @@ jobs:
         run: make compat-request-read
       - name: Read actual Rust-generated memories with the fixed Go reader
         run: make compat-memory-read
+      - name: Read actual Rust-generated handoffs with the fixed Go reader
+        run: make compat-handoff-read
       - name: Replay the oracle and reject deliberately broken candidates
         run: make compat-cli compat-http compat-journey compat-signals compat-io compat-test
       - uses: actions/setup-node@v7

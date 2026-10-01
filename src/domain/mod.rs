@@ -2,6 +2,7 @@
 pub mod authored_yaml;
 mod extra_encode;
 pub mod frontmatter;
+pub mod handoff;
 pub mod id;
 pub mod issue;
 mod issue_encode;

@@ -1,0 +1,2806 @@
+{
+  "schema": "beans-handoffs-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "harness_sha256": "45b996411bd9ef32af825f8f571b45bd90c4af05d8e00043ea871b0922037298",
+  "cases": [
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "original",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "missing-id",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"id\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\nid: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-id",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\naliases: [external]\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\naliases: [external]\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "missing-aliases",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"aliases\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\naliases: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-aliases",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "missing-title",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"title\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\ntitle: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-title",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\nissue: '[[other-abc#heading|alias]]'\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\nissue: \"\"\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\nissue: '[[other-abc#heading|alias]]'\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "",
+          "target": ""
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "missing-issue",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"issue\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\nissue: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-issue",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "missing-created",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"created\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\ncreated: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-created",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "missing-updated",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"updated\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\nupdated: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-updated",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "missing-custom",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": []
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 9: duplicate frontmatter key \"custom\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\ncustom: null\n---\n# Context\n\nBody.\n",
+      "name": "duplicate-custom",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: null\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "id-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: invalid handoff id \"bad\"",
+      "input": "---\nid: bad\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "id-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: filename does not match handoff id \"alpha-a1b2.1\"",
+      "input": "---\nid: alpha-a1b2.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "id-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 2: id must be a string",
+      "input": "---\nid: []\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "id-3",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: null\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "title-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ''\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "title-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: ' '\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": " ",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "title-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"true\"\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"true\"\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"true\"\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"true\"\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: true\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "true",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "title-3",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 4: title must be a string",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: []\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "title-4",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: null\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "aliases-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: []\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "aliases-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "external"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "aliases-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [\"null\", \"42\"]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [\"null\", \"42\"]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [\"null\", \"42\"]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [\"null\", \"42\"]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [null, 42]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "null",
+          "42"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "aliases-3",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 3: aliases must be a list of strings",
+      "input": "---\nid: alpha-a1b2\naliases: [{}]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "aliases-4",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: null\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "",
+          "target": ""
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "issue-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"true\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"true\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"true\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"true\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: true\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "true",
+          "target": "true"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "issue-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: bare\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: bare\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: bare\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: bare\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: 'bare'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "bare",
+          "target": "bare"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "issue-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 5: issue must be a string",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: []\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "issue-3",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[x#h|a]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[x#h|a]]",
+          "target": "x"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "issue-4",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 6: created must be an RFC3339 timestamp, got \"\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: null\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "created-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 6: created must be an RFC3339 timestamp, got \"\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: ''\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "created-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter is missing required handoff fields",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "created-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 6: created must be an RFC3339 timestamp, got \"bad\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: bad\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "created-3",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 6: created must be a string",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: []\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "created-4",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T03:00:00Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T03:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T03:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T03:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 500000000,
+          "offset_seconds": 0,
+          "seconds": 1789009200
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "created-5",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 7: updated must be an RFC3339 timestamp, got \"\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: null\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "updated-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: line 7: updated must be an RFC3339 timestamp, got \"bad\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: bad\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "updated-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-09T00:00:00Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-09T00:00:00Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-09T00:00:00Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-09T00:00:00Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T00:00:00+24:00\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 86400,
+          "seconds": 1788912000
+        }
+      },
+      "name": "updated-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "path-0",
+      "path": "projects/alpha/handoffs/alpha-a1b2.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "path-1",
+      "path": "projects/alpha/handoffs/alpha-a1b2-.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2x.md: filename does not match handoff id \"alpha-a1b2\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-2",
+      "path": "projects/alpha/handoffs/alpha-a1b2x.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/.md: filename does not match handoff id \"alpha-a1b2\"",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-3",
+      "path": "projects/alpha/handoffs/.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2.MD: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-4",
+      "path": "projects/alpha/handoffs/alpha-a1b2.MD"
+    },
+    {
+      "error": "projects/alpha/handoffs/nested/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-5",
+      "path": "projects/alpha/handoffs/nested/alpha-a1b2.md"
+    },
+    {
+      "error": "docs/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-6",
+      "path": "docs/alpha-a1b2.md"
+    },
+    {
+      "error": "/projects/alpha/handoffs/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-7",
+      "path": "/projects/alpha/handoffs/alpha-a1b2.md"
+    },
+    {
+      "error": "./projects/alpha/handoffs/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-8",
+      "path": "./projects/alpha/handoffs/alpha-a1b2.md"
+    },
+    {
+      "error": "projects//handoffs/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-9",
+      "path": "projects//handoffs/alpha-a1b2.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": true,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "path-10",
+      "path": "projects/alpha/handoffs/archive/2026/alpha-a1b2.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": true,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "path-11",
+      "path": "projects/alpha/handoffs/archive/0000/alpha-a1b2.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": true,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "path-12",
+      "path": "projects/alpha/handoffs/archive/9999/alpha-a1b2.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "projects/alpha/handoffs/archive/abcd/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-13",
+      "path": "projects/alpha/handoffs/archive/abcd/alpha-a1b2.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/archive/123/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-14",
+      "path": "projects/alpha/handoffs/archive/123/alpha-a1b2.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/archive/12345/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-15",
+      "path": "projects/alpha/handoffs/archive/12345/alpha-a1b2.md"
+    },
+    {
+      "error": "projects/alpha/handoffs/archive/２０２６/alpha-a1b2.md: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-16",
+      "path": "projects/alpha/handoffs/archive/２０２６/alpha-a1b2.md"
+    },
+    {
+      "error": "bad/path: has Windows line endings (\\r\\n); bn requires \\n",
+      "input": "---\r\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "crlf",
+      "path": "bad/path"
+    },
+    {
+      "error": "projects/alpha/handoffs/alpha-a1b2-continue-work.md: frontmatter: yaml: unknown anchor 'missing' referenced",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: *missing\n---\n# Context\n\nBody.\n",
+      "name": "unknown-anchor",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md"
+    },
+    {
+      "body": "# Context\n\nBody.\n",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.\n",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: &a {雪: [one, two]}\nreference: *a\n---\n# Context\n\nBody.\n",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "nested-unknown",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom",
+        "reference"
+      ]
+    },
+    {
+      "body": "# Context\n\nBody.",
+      "edits": [
+        {
+          "encoded": "---\nid: foreign-a4b5.1\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "id"
+        },
+        {
+          "encoded": "---\nid: \"\"\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "id-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "aliases"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "aliases-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: '雪: new title'\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "title"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: \"\"\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "title-empty"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[other-abc#heading|alias]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "issue"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "issue-target-only"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "detach"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "zero-time"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [external]\ntitle: '雪: new title'\nissue: '[[other-abc#heading|alias]]'\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\n---\n# Context\n\nBody.",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.",
+          "kind": "new-extra"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.",
+          "kind": "new-extra-scalar"
+        },
+        {
+          "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: '[[alpha-c3d4-fix-it]]'\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: '雪: value'\n---\n# Context\n\nBody.",
+          "kind": "new-extra-sequence"
+        }
+      ],
+      "encoded": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: 2026-09-10T21:44:02Z\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.",
+      "metadata": {
+        "aliases": [
+          "alpha-a1b2"
+        ],
+        "archived": false,
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        },
+        "id": "alpha-a1b2",
+        "issue": {
+          "raw": "[[alpha-c3d4-fix-it]]",
+          "target": "alpha-c3d4-fix-it"
+        },
+        "project": "alpha",
+        "title": "Continue work",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1789076642
+        }
+      },
+      "name": "body-no-newline",
+      "path": "projects/alpha/handoffs/alpha-a1b2-continue-work.md",
+      "unknown": [
+        "custom"
+      ]
+    },
+    {
+      "error": "bad/path: not a handoff path",
+      "input": "---\nid: alpha-a1b2\naliases: [alpha-a1b2]\ntitle: Continue work\nissue: \"[[alpha-c3d4-fix-it]]\"\ncreated: bad\nupdated: 2026-09-10T21:44:02Z\ncustom: keep me\n---\n# Context\n\nBody.\n",
+      "name": "path-before-field-validation",
+      "path": "bad/path"
+    }
+  ]
+}
