@@ -1,0 +1,36 @@
+package plan
+
+import (
+ "encoding/json"
+ "fmt"
+ "os"
+ "testing"
+ "time"
+)
+
+func TestMigrationPlanEncodeCensus(t *testing.T) {
+ rows:=[]map[string]any{}
+ stamp:=func(t time.Time)map[string]any{return map[string]any{"seconds":t.Unix(),"nanoseconds":t.Nanosecond(),"offset_seconds":0}}
+ view:=func(p *Plan)any{if p==nil{return nil};return map[string]any{"id":p.ID,"aliases":p.Aliases,"title":p.Title,"slug":p.Slug,"status":p.Status,"created":stamp(p.Created),"updated":stamp(p.Updated),"sections":p.Sections,"body":p.Body}}
+ add:=func(name string,p *Plan){data,err:=Encode(p);message:="";if err!=nil{message=err.Error()};rows=append(rows,map[string]any{"name":name,"plan":view(p),"output":string(data),"error":message,"read_error":readError(data),"read_output":readOutput(data)})}
+ now:=time.Date(2026,9,11,12,0,0,123456789,time.UTC)
+ base:=Plan{ID:"beans-plan-a3f2",Aliases:[]string{"beans-plan-a3f2"},Title:"Add plan artifacts",Slug:"add-plan-artifacts",Status:StatusDraft,Created:now,Updated:now,Body:"## Summary\n\n### Outcome\nTODO\n\n### Affected areas\n- x\n\n### Execution order\n1. x\n\n### Risks\n- none\n\n### Change graph\n```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```\n"}
+ add("nil",nil);add("base",&base)
+ for _,status:=range []Status{StatusDraft,StatusBlocked,StatusReady,StatusComplete,"","open"}{p:=base;p.Status=status;add("status-"+string(status),&p)}
+ values:=[]string{"","null","true","123","2026-09-11","a: b","# hi","---","a\nb","\n","\n\n","a\n","a\n\n"," a\nb","a\nb ","a\x00b","雪","🌱","a\tb","a\rb","a\u0085b","a\u2028b","[x]","<<","it's fine","\"quoted\""}
+ for i,value:=range values{for _,field:=range []string{"id","title","slug","aliases","sections"}{p:=base;switch field{case"id":p.ID=value;case"title":p.Title=value;case"slug":p.Slug=value;case"aliases":p.Aliases=[]string{p.ID,value,"second"};case"sections":p.Sections=[]string{value,"sections/02.md"}};add(fmt.Sprintf("%s-%d",field,i),&p)}}
+ for i,body:=range []string{"","text","text\n","text\n\n","\r\n","\x00","雪\n"}{p:=base;p.Body=body;add(fmt.Sprintf("body-%d",i),&p)}
+ for i,at:=range []time.Time{{},time.Date(0,1,1,0,0,0,0,time.UTC),time.Date(-1,1,1,0,0,0,0,time.UTC),time.Date(10000,1,1,0,0,0,0,time.UTC),now.In(time.FixedZone("off",3600))}{p:=base;p.Created=at;p.Updated=at;add(fmt.Sprintf("time-%d",i),&p)}
+ p:=base;p.Aliases=nil;add("nil-aliases",&p);p.Aliases=[]string{};add("empty-aliases",&p)
+ output,err:=json.Marshal(map[string]any{"encodes":rows});if err!=nil{t.Fatal(err)};if err:=os.WriteFile(os.Getenv("BN_PLAN_ENCODE_OUTPUT"),output,0644);err!=nil{t.Fatal(err)}
+}
+
+func readOutput(data []byte)string{p,e:=Parse("plan.md",data);if e!=nil{return ""};x,e:=Encode(p);if e!=nil{panic(e)};return string(x)}
+func readError(data []byte)string{_,err:=Parse("plan.md",data);if err!=nil{return err.Error()};return ""}
+func TestMigrationPlanEncodeCrossRead(t *testing.T){
+ data,err:=os.ReadFile(os.Getenv("BN_PLAN_ENCODE_INPUT"));if err!=nil{t.Fatal(err)}
+ var inputs []struct{Name string `json:"name"`;Input string `json:"input"`};if err:=json.Unmarshal(data,&inputs);err!=nil{t.Fatal(err)}
+ rows:=[]map[string]any{}
+ for _,item:=range inputs{p,err:=Parse("plan.md",[]byte(item.Input));message:="";same:=false;if err!=nil{message=err.Error()}else{encoded,e:=Encode(p);if e!=nil{t.Fatal(e)};same=string(encoded)==item.Input};rows=append(rows,map[string]any{"name":item.Name,"read_error":message,"unchanged":same,"read_output":readOutput([]byte(item.Input))})}
+ output,err:=json.Marshal(rows);if err!=nil{t.Fatal(err)};if err:=os.WriteFile(os.Getenv("BN_PLAN_ENCODE_OUTPUT"),output,0644);err!=nil{t.Fatal(err)}
+}

@@ -99,6 +99,17 @@ pub(crate) fn scalar_value(
     force_double: bool,
     string_tag: bool,
 ) -> String {
+    scalar_value_indented(value, flow, force_double, string_tag, 2, 2)
+}
+
+pub(crate) fn scalar_value_indented(
+    value: &str,
+    flow: bool,
+    force_double: bool,
+    string_tag: bool,
+    block_indent: usize,
+    indicator_indent: usize,
+) -> String {
     let chars: Vec<_> = value.chars().collect();
     let special = chars.iter().any(|&ch| ch != '\t' && !printable(ch));
     let space_break = chars
@@ -114,7 +125,7 @@ pub(crate) fn scalar_value(
             ""
         };
         let indent = if chars.first().is_some_and(|&ch| ch == ' ' || break_char(ch)) {
-            "2"
+            &indicator_indent.to_string()
         } else {
             ""
         };
@@ -126,7 +137,7 @@ pub(crate) fn scalar_value(
         };
         for line in content.split_inclusive('\n') {
             if line != "\n" {
-                output.push_str("  ");
+                output.push_str(&" ".repeat(block_indent));
             }
             output.push_str(line);
         }
@@ -188,7 +199,7 @@ pub(crate) fn scalar_value(
                 breaks = true;
             } else {
                 if breaks {
-                    output.push_str(if flow { "    " } else { "  " });
+                    output.push_str(&" ".repeat(if flow { 4 } else { block_indent }));
                 }
                 if ch == '\'' {
                     output.push('\'');

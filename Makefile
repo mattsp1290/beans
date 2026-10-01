@@ -155,3 +155,10 @@ rust-test:
 rust-check:
 	cargo fmt --all --check
 	cargo clippy --workspace --all-targets --locked -- -D warnings
+
+.PHONY: compat-plan-encode compat-plan-encode-read
+compat-plan-encode:
+	python3 -S tools/compat/plan_encode_reference.py --check tests/contract/plan-encode.json
+
+compat-plan-encode-read:
+	python3 -S tools/compat/plan_encode_read.py

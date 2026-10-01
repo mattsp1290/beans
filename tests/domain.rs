@@ -444,3 +444,6 @@ fn issue_owned_field_edits_match_go_full_documents() {
         }
     }
 }
+
+#[path = "domain/plan_encode.rs"]
+mod plan_encode;

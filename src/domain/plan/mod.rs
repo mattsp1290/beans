@@ -1,5 +1,7 @@
 //! Portable plan models. Lifecycle validation is distinct from manifest,
 //! graph and filesystem bundle validation.
+mod encode;
+pub use encode::encode;
 mod graph;
 pub mod id;
 mod summary;
