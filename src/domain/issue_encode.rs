@@ -19,15 +19,7 @@ impl IssueDocument {
                     .iter()
                     .find(|field| field.key == key)
                     .filter(|field| field.value.kind == NodeKind::Scalar)
-                    .map_or(String::new(), |field| {
-                        scalar_comment(
-                            document.original(),
-                            document.view_offset(field.start),
-                            document.view_offset(field.end),
-                            field.value.line,
-                            field.key_line,
-                        )
-                    });
+                    .map_or(String::new(), |field| document.scalar_comment(field));
                 rendered.push((key, self.metadata.render(key, &comment)?));
             }
         }
@@ -218,6 +210,9 @@ pub(super) fn scalar_comment(
         if byte == 0 && quoted.is_some() {
             previous = ch;
             continue;
+        }
+        if ch == '\n' && quoted.is_none() {
+            break;
         }
         if escaped {
             escaped = false;

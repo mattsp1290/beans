@@ -100,6 +100,7 @@ impl std::error::Error for Error {}
 #[derive(Clone, Debug)]
 pub struct Frontmatter {
     source: String,
+    decoded_yaml: Option<String>,
     raw: Vec<u8>,
     offsets: Vec<usize>,
     fields: Vec<Field>,
@@ -167,7 +168,11 @@ impl Frontmatter {
             fm_end.ok_or_else(|| Error(format!("{path}: frontmatter has no closing --- fence")))?;
         let text = &source[fm_start..fm_end];
         let map = |at: usize| mapping.get(at).copied().unwrap_or(at);
-        let root = super::yaml::parse_raw(path, text, &raw[map(fm_start)..map(fm_end)])?;
+        let yaml_raw = &raw[map(fm_start)..map(fm_end)];
+        let decoded = matches!(yaml_raw.get(..2), Some([255, 254] | [254, 255]))
+            .then(|| super::source::Source::yaml(yaml_raw));
+        let yaml_text = decoded.as_ref().map_or(text, |view| view.text.as_str());
+        let root = super::yaml::parse_raw(path, yaml_text, yaml_raw)?;
         if root.kind != NodeKind::Mapping {
             return Err(Error(format!(
                 "{path}: line {}: frontmatter must be a mapping",
@@ -229,6 +234,7 @@ impl Frontmatter {
         }
         Ok(Self {
             source: source.to_owned(),
+            decoded_yaml: decoded.map(|view| view.text),
             raw: raw.into(),
             offsets: mapping,
             fields,
@@ -236,6 +242,24 @@ impl Frontmatter {
             fm_end,
             body_start,
         })
+    }
+
+    pub(super) fn scalar_comment(&self, field: &Field) -> String {
+        let (source, start, end) = if let Some(decoded) = &self.decoded_yaml {
+            let start = decoded
+                .split_inclusive('\n')
+                .take(field.key_line - 1)
+                .map(str::len)
+                .sum();
+            (decoded.as_str(), start, decoded.len())
+        } else {
+            (
+                self.original(),
+                self.view_offset(field.start),
+                self.view_offset(field.end),
+            )
+        };
+        super::issue_encode::scalar_comment(source, start, end, field.value.line, field.key_line)
     }
 
     pub(crate) fn raw_offset(&self, view: usize) -> usize {
@@ -262,7 +286,9 @@ impl Frontmatter {
     }
 
     pub fn yaml_text(&self) -> &str {
-        &self.source[self.fm_start..self.fm_end]
+        self.decoded_yaml
+            .as_deref()
+            .unwrap_or(&self.source[self.fm_start..self.fm_end])
     }
 
     /// Diagnostic lines follow yaml.v3's raw Unicode line-break counting.

@@ -253,3 +253,10 @@ compat-raw-reader:
 .PHONY: compat-raw-reader-read
 compat-raw-reader-read:
 	python3 -S tools/compat/raw_reader_cross_read.py
+
+.PHONY: compat-utf16-reader compat-utf16-reader-read
+compat-utf16-reader:
+	python3 -S tools/compat/utf16_reader_reference.py --check tests/contract/utf16-reader.json
+
+compat-utf16-reader-read:
+	python3 -S tools/compat/utf16_reader_cross_read.py

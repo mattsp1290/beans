@@ -488,3 +488,6 @@ mod plan_parse;
 
 #[path = "domain/plan_reference.rs"]
 mod plan_reference;
+
+#[path = "domain/utf16_reader.rs"]
+mod utf16_reader;

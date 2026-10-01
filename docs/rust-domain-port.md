@@ -340,9 +340,46 @@ and actual disk-index roundtrip of ignored invalid frontmatter. Existing codec,
 workflow, generic-document, plan, index and query corpora remain required.
 
 This qualifies the captured UTF-8 reader behavior, not the full WP3 format gate.
-A separate fixed-Go probe confirms accepted UTF-16 LE/BE BOM frontmatter with an
-explicit document end; decoding, byte ranges and editing that encoding remain
-mandatory work. Wider YAML syntax and aliases, other multifault combinations,
+The following UTF-16 reader slice qualifies BOM-selected LE/BE frontmatter
+against its own captured cases; broader YAML encoding cases remain a gate. Wider YAML syntax and aliases, other multifault combinations,
 new raw log arguments, generated edit sequences, production proof-coupling
 audit and filesystem/transport/performance gates remain. The original-test
 ledger remains 96 ported and 129 pending.
+
+
+### BOM-selected UTF-16 reader and physical edit spans
+
+Frontmatter framing and field preservation still use the original raw ASCII LF
+bytes. A separate BOM-selected UTF-16 LE/BE view supplies YAML semantics and
+inline comments. Key lines from decoded YAML select the same raw physical lines
+as Go; changed fields are emitted as UTF-8, retaining every untouched UTF-16 byte.
+This intentionally preserves the mixed-encoding outputs of Go's line editor.
+The BOM and original body bytes survive a no-op exactly. The reader validates
+UTF-16 units and surrogate pairs as its 512-byte windows are requested, using
+Go's low-surrogate, pair, incomplete-unit and control-character error order.
+A short nonempty read does not report EOF until the next refill, so a truncated
+unit beyond the scanner's demand can remain ignored after a document end.
+
+`make compat-utf16-reader` recaptures 7,200 inputs and 21,600 parse/edit outcomes
+from the immutable Go baseline. Both byte orders, all four note kinds, Unicode
+and supplementary-plane scalars, blank/comment prefixes, early syntax faults,
+explicit document ends, raw 510/512/514/1024/4096 boundaries, malformed and
+truncated surrogate/unit sequences, control/noncharacter values and first/last
+field edits are covered. Of these inputs, 2,048 are accepted. The corpus stores
+lossless repeated-unit chunks to keep padding compact; tests expand the captured
+bytes before calling production parsers and encoders.
+
+`make compat-utf16-reader-read` checks 6,144 actual Rust outputs in fixed Go:
+2,464 accepted byte roundtrips and 3,680 matching rejections. Successful Go
+encoding does not promise a valid reread for these mixed-encoding edits; both
+implementations retain those captured outcomes. Rust also checks reread errors,
+accepted reread no-ops and retained-copy geometry. An independent regression
+checks the Unicode title, raw physical title span, decoded inline comment,
+actual splice output and disk-index preservation in both byte orders.
+
+The full WP3 gate remains open: wider YAML schemas/aliases and multifault
+ordering, raw new log arguments, generated mutation sequences, an explicit
+production proof-coupling audit, operation-owned project file writes and broader
+filesystem/transport/startup/link-density qualification are pending. The
+original-test ledger remains 96 ported and 129 pending. Go remains the default
+binary, and WP5 mutations stay held until the lossless format gate is complete.

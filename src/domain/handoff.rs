@@ -3,7 +3,7 @@
 use super::authored_yaml;
 use super::frontmatter::{EditResult, Error, Field, Frontmatter, NodeKind};
 use super::issue::{Timestamp, quoted};
-use super::issue_encode::{instant, scalar_comment, timestamp_pair};
+use super::issue_encode::{instant, timestamp_pair};
 use super::text::Link;
 use super::yaml_render::{flow_pair, string_pair};
 use serde::{Deserialize, Serialize};
@@ -170,15 +170,7 @@ impl HandoffDocument {
                     .iter()
                     .find(|f| f.key == key)
                     .filter(|f| f.value.kind == NodeKind::Scalar)
-                    .map_or(String::new(), |f| {
-                        scalar_comment(
-                            document.original(),
-                            document.view_offset(f.start),
-                            document.view_offset(f.end),
-                            f.value.line,
-                            f.key_line,
-                        )
-                    });
+                    .map_or(String::new(), |f| document.scalar_comment(f));
                 rendered.push((key, self.metadata.render(key, &comment)?));
             }
         }

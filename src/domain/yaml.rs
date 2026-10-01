@@ -128,6 +128,12 @@ fn parse_optional_inner(
                     }
                 }
             }
+            if error.info() == "simple key expected" {
+                return Error(format!(
+                    "{path}: frontmatter: yaml: line {}: could not find expected ':'",
+                    error.marker().line().saturating_sub(1)
+                ));
+            }
             // Exact yaml.v3 syntax-error presentation is completed alongside
             // the typed codec differential corpus; scanner text is retained.
             if let Some(syntax) = syntax {

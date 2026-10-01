@@ -1,7 +1,7 @@
 //! Minimal request edits use the same verified splice geometry as issues;
 //! their field ownership, validation and body selection remain distinct.
 use super::frontmatter::{EditResult, Error, NodeKind};
-use super::issue_encode::{comment_suffix, instant, raw_link, scalar_comment, timestamp_pair};
+use super::issue_encode::{comment_suffix, instant, raw_link, timestamp_pair};
 use super::request_document::{OWNED, RequestDocument, RequestMetadata};
 use super::yaml_render::{flow_pair, link_pair, string_pair};
 
@@ -37,15 +37,7 @@ impl RequestDocument {
                     .iter()
                     .find(|field| field.key == key)
                     .filter(|field| field.value.kind == NodeKind::Scalar)
-                    .map_or(String::new(), |field| {
-                        scalar_comment(
-                            document.original(),
-                            document.view_offset(field.start),
-                            document.view_offset(field.end),
-                            field.value.line,
-                            field.key_line,
-                        )
-                    });
+                    .map_or(String::new(), |field| document.scalar_comment(field));
                 rendered.push((key, self.metadata.render(key, &comment)?));
             }
         }
