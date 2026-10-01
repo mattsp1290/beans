@@ -71,6 +71,11 @@ func TestMigrationWorkflowFile(t *testing.T) {
 		"workflow: {<<: [{<<: {default: open}}, {active: [open]}]}",
 	)
 
+	yamls = append(yamls,
+		"workflow: {statuses: [\nopen, closed\n], default: open}",
+		"workflow:\n  statuses: [\n  active:\n    - open\n",
+		"workflow: {statuses: [\n{bad: value}\n]}",
+	)
 	for i, raw := range yamls {
 		capture(fmt.Sprintf("yaml-%d", i), "wf.yaml", raw)
 	}

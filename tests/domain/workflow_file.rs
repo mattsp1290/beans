@@ -14,7 +14,7 @@ fn bytes(value: &Value) -> Vec<u8> {
 fn strict_workflow_files_match_go() {
     let corpus = corpus();
     let mut mismatches = Vec::new();
-    assert_eq!(corpus["decodes"].as_array().unwrap().len(), 371);
+    assert_eq!(corpus["decodes"].as_array().unwrap().len(), 374);
     for row in corpus["decodes"].as_array().unwrap() {
         let result = decode_workflow_file(row["file"].as_str().unwrap(), &bytes(&row["input"]));
         let (cfg, error) = match result {

@@ -286,3 +286,7 @@ compat-raw-log-read:
 .PHONY: verify-codec-coupling
 verify-codec-coupling:
 	python3 -S tools/verification/codec_coupling.py
+
+.PHONY: compat-plan-bytes
+compat-plan-bytes:
+	python3 -S tools/compat/plan_bytes_reference.py --check tests/contract/plan-bytes.json

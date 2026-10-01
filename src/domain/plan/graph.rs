@@ -1,6 +1,6 @@
-use super::{ChangeGraph, GraphEdge, GraphNode};
+use super::{ChangeGraph, GraphEdge, GraphNode, YamlString};
 use crate::domain::{
-    frontmatter::{Node, NodeKind},
+    frontmatter::{Error, Node, NodeKind},
     issue::quoted,
 };
 use std::collections::HashSet;
@@ -8,18 +8,26 @@ use std::collections::HashSet;
 #[derive(Clone, Debug)]
 pub struct GraphError {
     pub graph: ChangeGraph,
-    message: String,
+    message: Error,
 }
 impl std::fmt::Display for GraphError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.message)
+        std::fmt::Display::fmt(&self.message, f)
     }
 }
 impl std::error::Error for GraphError {}
-fn failure(path: &str, message: &str, graph: ChangeGraph) -> GraphError {
+impl GraphError {
+    pub fn diagnostic(&self) -> Error {
+        self.message.clone()
+    }
+    pub fn as_bytes(&self) -> &[u8] {
+        self.message.as_bytes()
+    }
+}
+fn failure(path: &[u8], message: &str, graph: ChangeGraph) -> GraphError {
     GraphError {
         graph,
-        message: format!("{path}: {message}"),
+        message: Error::new(message.into()).context(path),
     }
 }
 fn allowed(node: &Node, keys: &[&str]) -> bool {
@@ -79,6 +87,10 @@ fn integer(value: &str) -> Option<i64> {
 }
 
 pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
+    parse_graph_bytes(path.as_bytes(), text)
+}
+pub fn parse_graph_bytes(path: &[u8], text: &str) -> Result<ChangeGraph, GraphError> {
+    let view = YamlString::from_bytes(path.into()).to_string();
     let empty = ChangeGraph::default();
     let lines: Vec<_> = text.split('\n').collect();
     let mut start = None;
@@ -111,10 +123,10 @@ pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
             empty,
         ));
     }
-    let root = crate::domain::yaml::parse_optional(path, &yaml)
+    let root = crate::domain::yaml::parse_optional(&view, &yaml)
         .map_err(|error| GraphError {
             graph: empty.clone(),
-            message: error.to_string().replace(": frontmatter:", ": graph YAML:"),
+            message: graph_yaml_error(error, &view, path),
         })?
         .ok_or_else(|| {
             failure(
@@ -309,4 +321,12 @@ pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
         }
     }
     Ok(g)
+}
+
+fn graph_yaml_error(error: Error, view: &str, path: &[u8]) -> Error {
+    let prefix = [view.as_bytes(), b": frontmatter: "].concat();
+    match error.as_bytes().strip_prefix(prefix.as_slice()) {
+        Some(rest) => Error::from_bytes(rest.into()).context(&[path, b": graph YAML"].concat()),
+        None => error.with_path(view, path),
+    }
 }

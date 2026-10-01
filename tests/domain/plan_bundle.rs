@@ -76,7 +76,7 @@ fn files(snapshot: &BundleSnapshot) -> Value {
 }
 fn view(bundle: &Bundle, prefix: &str) -> Value {
     let p = bundle.plan.as_ref().unwrap();
-    json!({"root":bundle.root.strip_prefix(prefix).unwrap_or(&bundle.root),"id":p.id,"title":p.title,"slug":p.slug,"status":p.status,"path":p.path.strip_prefix(prefix).unwrap_or(&p.path),"body":digest(p.body.as_bytes()),"sections":sections(&bundle.sections),"section_bodies":sections(&p.section_bodies),"snapshot":files(&bundle.snapshot())})
+    json!({"root":bundle.root.as_str().unwrap().strip_prefix(prefix).unwrap_or(bundle.root.as_str().unwrap()),"id":p.id,"title":p.title,"slug":p.slug,"status":p.status,"path":p.path.as_str().unwrap().strip_prefix(prefix).unwrap_or(p.path.as_str().unwrap()),"body":digest(p.body.as_bytes()),"sections":sections(&bundle.sections),"section_bodies":sections(&p.section_bodies),"snapshot":files(&bundle.snapshot())})
 }
 fn materialize(row: &Value, base: &str) -> BundleSnapshot {
     let mut snapshot = BundleSnapshot::default();

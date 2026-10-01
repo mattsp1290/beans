@@ -113,6 +113,7 @@ jobs:
           make compat-plan-parse
           make compat-plan-ref
           make compat-plan-bundle
+          make compat-plan-bytes
           make compat-config-foundation
           make compat-config-codec
           make compat-workflow-file

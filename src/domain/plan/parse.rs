@@ -2,7 +2,7 @@ use super::{
     Plan, YamlString,
     graph::{duplicate_errors, type_error},
     id::valid_slug,
-    parse_summary, timestamp, valid_status,
+    parse_summary_bytes, timestamp, valid_status,
 };
 use crate::domain::{
     frontmatter::{Error, Node, NodeKind},
@@ -96,7 +96,12 @@ fn list(node: &Node, anchors: &HashMap<usize, &Node>) -> Result<Vec<YamlString>,
 }
 /// Parse a strict plan manifest; section files and authored lifecycle are validated separately.
 pub fn parse(path: &str, data: &[u8]) -> Result<Plan, Error> {
-    let fail = |message: &str| Error::new(format!("{path}: {message}"));
+    parse_bytes(path.as_bytes(), data)
+}
+/// Parse a manifest retaining canonical filename bytes in its model and diagnostics.
+pub fn parse_bytes(path: &[u8], data: &[u8]) -> Result<Plan, Error> {
+    let view = YamlString::from_bytes(path.into()).to_string();
+    let fail = |message: &str| Error::new(message.into()).context(path);
     if data.contains(&0) {
         return Err(fail("contains NUL bytes"));
     }
@@ -118,13 +123,14 @@ pub fn parse(path: &str, data: &[u8]) -> Result<Plan, Error> {
     if fm.trim().is_empty() {
         return Err(fail("frontmatter must be mapping"));
     }
-    let root = crate::domain::yaml::parse_optional(path, fm)?
+    let root = crate::domain::yaml::parse_optional(&view, fm)
+        .map_err(|e| e.with_path(&view, path))?
         .ok_or_else(|| fail("frontmatter must be mapping"))?;
     if root.kind != NodeKind::Mapping {
         return Err(fail("frontmatter must be mapping"));
     }
     let mut p = Plan {
-        path: path.into(),
+        path: YamlString::from_bytes(path.into()),
         body: text[end + 5..].into(),
         ..Plan::default()
     };
@@ -154,7 +160,7 @@ pub fn parse(path: &str, data: &[u8]) -> Result<Plan, Error> {
             }
             Ok(())
         })();
-        decoded.map_err(|e| fail(&format!("{key}: {e}")))?;
+        decoded.map_err(|e| e.context(key.as_bytes()).context(path))?;
     }
     for key in &OWNED[..7] {
         if !seen.contains(key) {
@@ -174,6 +180,6 @@ pub fn parse(path: &str, data: &[u8]) -> Result<Plan, Error> {
     if !p.aliases.iter().any(|a| a.as_bytes() == p.id.as_bytes()) {
         return Err(fail("aliases must include id"));
     }
-    (p.summary, p.graph) = parse_summary(path, &p.body)?;
+    (p.summary, p.graph) = parse_summary_bytes(path, &p.body)?;
     Ok(p)
 }

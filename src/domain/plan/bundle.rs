@@ -1,5 +1,7 @@
 //! Linux bundle capture and portable snapshot validation, separate from hub writes.
-use super::{Bundle, BundleSnapshot, Section, YamlString, encode, id, parse, scaffold, validate};
+use super::{
+    Bundle, BundleSnapshot, Section, YamlString, encode, id, parse_bytes, scaffold, validate,
+};
 use crate::domain::{
     file_io::path_error,
     frontmatter::Error,
@@ -35,52 +37,33 @@ fn valid_file_name(name: &[u8]) -> bool {
 
 // Go's path.Join is lexical and uses '/' even when the root contains redundant
 // separators or dot segments. The root retained on Bundle itself is unmodified.
-fn manifest_path(root: &str) -> String {
-    let joined = format!("{root}/plan.md");
-    let absolute = joined.starts_with('/');
-    let mut parts = Vec::new();
-    for part in joined.split('/') {
-        match part {
-            "" | "." => {}
-            ".." if parts.last().is_some_and(|p| *p != "..") => {
-                parts.pop();
-            }
-            ".." if absolute => {}
-            _ => parts.push(part),
-        }
-    }
-    // path.Join skips an empty root; it does not make that root absolute.
-    if absolute && !root.is_empty() {
-        format!("/{}", parts.join("/"))
-    } else {
-        parts.join("/")
-    }
-}
-
 pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Error> {
+    load_snapshot_bytes(root.as_bytes(), snapshot)
+}
+pub fn load_snapshot_bytes(root: &[u8], snapshot: &BundleSnapshot) -> Result<Bundle, Error> {
     let data = snapshot
         .files
         .get(b"plan.md".as_slice())
-        .ok_or_else(|| Error::new(format!("{root}: missing plan.md")))?;
+        .ok_or_else(|| Error::new("missing plan.md".into()).context(root))?;
     if data.len() > MAX_FILE_SIZE {
         return Err(Error::new("plan.md: file exceeds 512KiB".into()));
     }
     let mut total = 0usize;
     for (name, bytes) in &snapshot.files {
         if !valid_file_name(name.as_bytes()) {
-            return Err(Error::new(format!("{name}: invalid bundle file")));
+            return Err(Error::new("invalid bundle file".into()).context(name.as_bytes()));
         }
         total = total
             .checked_add(bytes.len())
             .ok_or_else(|| Error::new("bundle exceeds 2MiB".into()))?;
         if bytes.len() > MAX_FILE_SIZE {
-            return Err(Error::new(format!("{name}: file exceeds 512KiB")));
+            return Err(Error::new("file exceeds 512KiB".into()).context(name.as_bytes()));
         }
     }
     if total > MAX_BUNDLE_SIZE {
         return Err(Error::new("bundle exceeds 2MiB".into()));
     }
-    let mut plan = parse(&manifest_path(root), data)?;
+    let mut plan = parse_bytes(&crate::vault::paths::join(&[root, b"plan.md"]), data)?;
     let prefix = plan.id.split("-plan-").next().unwrap_or_default();
     if !id::valid_id(prefix, &plan.id) {
         return Err(Error::new(format!(
@@ -100,15 +83,14 @@ pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Er
         let bytes = snapshot
             .files
             .get(name)
-            .ok_or_else(|| Error::new(format!("{name}: listed section missing")))?;
+            .ok_or_else(|| Error::new("listed section missing".into()).context(name.as_bytes()))?;
         if bytes.contains(&0)
             || bytes.contains(&b'\r')
             || bytes.last() != Some(&b'\n')
             || std::str::from_utf8(bytes).is_err()
         {
-            return Err(Error::new(format!(
-                "{name}: must be UTF-8 LF text ending in newline"
-            )));
+            return Err(Error::new("must be UTF-8 LF text ending in newline".into())
+                .context(name.as_bytes()));
         }
         sections.push(Section {
             path: name.clone(),
@@ -117,15 +99,15 @@ pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Er
     }
     for name in snapshot.files.keys() {
         if name.as_bytes() != b"plan.md" && !seen.contains(name) {
-            return Err(Error::new(format!("{name}: section is not listed")));
+            return Err(Error::new("section is not listed".into()).context(name.as_bytes()));
         }
     }
-    validate(Some(&plan)).map_err(|e| Error::new(e.to_string()))?;
+    validate(Some(&plan))?;
     plan.section_bodies = sections.clone();
     Ok(Bundle {
         plan: Some(plan),
         sections,
-        root: root.into(),
+        root: YamlString::from_bytes(root.into()),
     })
 }
 
@@ -185,29 +167,29 @@ fn capture(
             .file_type()
             .map_err(|e| path_error("lstat", &full, e))?;
         if kind.is_symlink() {
-            return Err(Error::new(format!("{name}: symlinks are not allowed")));
+            return Err(Error::new("symlinks are not allowed".into()).context(name.as_bytes()));
         }
         if kind.is_dir() {
             if name.as_bytes() != b"sections" {
-                return Err(Error::new(format!("{name}: unexpected directory")));
+                return Err(Error::new("unexpected directory".into()).context(name.as_bytes()));
             }
             capture(root, &full, files, total)?;
             continue;
         }
         if !kind.is_file() {
-            return Err(Error::new(format!("{name}: non-regular file")));
+            return Err(Error::new("non-regular file".into()).context(name.as_bytes()));
         }
         if name.as_bytes() != b"plan.md" && !name.as_bytes().starts_with(b"sections/") {
-            return Err(Error::new(format!("{name}: unexpected file")));
+            return Err(Error::new("unexpected file".into()).context(name.as_bytes()));
         }
         if !name.as_bytes().ends_with(b".md") {
-            return Err(Error::new(format!(
-                "{name}: only Markdown files are allowed"
-            )));
+            return Err(
+                Error::new("only Markdown files are allowed".into()).context(name.as_bytes())
+            );
         }
         let info = fs::symlink_metadata(&full).map_err(|e| path_error("lstat", &full, e))?;
         if info.len() > MAX_FILE_SIZE as u64 {
-            return Err(Error::new(format!("{name}: file exceeds 512KiB")));
+            return Err(Error::new("file exceeds 512KiB".into()).context(name.as_bytes()));
         }
         *total += info.len();
         if *total > MAX_BUNDLE_SIZE as u64 {
@@ -222,16 +204,14 @@ pub fn load(root: &str) -> Result<Bundle, Error> {
     load_path(Path::new(root))
 }
 pub fn load_path(path: &Path) -> Result<Bundle, Error> {
-    let root = crate::domain::file_io::path_name(path).to_string();
+    let root = path.as_os_str().as_bytes();
     let metadata = fs::symlink_metadata(path).map_err(|e| path_error("lstat", path, e))?;
     if !metadata.is_dir() || metadata.file_type().is_symlink() {
-        return Err(Error::new(format!(
-            "{root}: bundle root must be a directory"
-        )));
+        return Err(Error::new("bundle root must be a directory".into()).context(root));
     }
     let mut snapshot = BundleSnapshot::default();
     capture(path, path, &mut snapshot, &mut 0)?;
-    load_snapshot(&root, &snapshot)
+    load_snapshot_bytes(root, &snapshot)
 }
 
 pub fn write_scaffold(
@@ -240,7 +220,14 @@ pub fn write_scaffold(
     title: &str,
     now: &Timestamp,
 ) -> Result<(), Error> {
-    let directory = Path::new(directory);
+    write_scaffold_path(Path::new(directory), id, title, now)
+}
+pub fn write_scaffold_path(
+    directory: &Path,
+    id: &str,
+    title: &str,
+    now: &Timestamp,
+) -> Result<(), Error> {
     fs::DirBuilder::new()
         .mode(0o755)
         .create(directory)
@@ -277,5 +264,5 @@ pub fn write_scaffold(
         }
         Ok(())
     })();
-    result.map_err(|e| Error::new(format!("write scaffold: {e}")))
+    result.map_err(|e| e.context(b"write scaffold"))
 }

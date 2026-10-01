@@ -1,4 +1,4 @@
-use super::{ChangeGraph, Plan, parse_summary, validate};
+use super::{ChangeGraph, Plan, parse_summary_bytes, validate};
 use crate::domain::{
     byte_edit,
     frontmatter::{EditResult, Error},
@@ -125,15 +125,16 @@ pub fn set_node_ref(
         .ok_or_else(|| Error::new(format!("graph node {} not found", quoted(node_id))))?;
     node.reference = reference.into();
     let data = render(&p.graph);
-    let start = p
-        .body
-        .find("```bn-change-graph\n")
-        .ok_or_else(|| Error::new(format!("{}: missing bn-change-graph fence", p.path)))?;
+    let start = p.body.find("```bn-change-graph\n").ok_or_else(|| {
+        Error::new("missing bn-change-graph fence".into()).context(p.path.as_bytes())
+    })?;
     let content = start + "```bn-change-graph\n".len();
     let end = p.body[content..]
         .find("\n```")
         .map(|i| content + i)
-        .ok_or_else(|| Error::new(format!("{}: unterminated bn-change-graph fence", p.path)))?;
+        .ok_or_else(|| {
+            Error::new("unterminated bn-change-graph fence".into()).context(p.path.as_bytes())
+        })?;
     let result = byte_edit::apply(
         p.body.as_bytes(),
         vec![(
@@ -146,7 +147,7 @@ pub fn set_node_ref(
     )?;
     p.body = String::from_utf8(result.bytes.clone())
         .map_err(|_| Error::new("invalid UTF-8 plan body".into()))?;
-    (p.summary, p.graph) = parse_summary(&p.path, &p.body)?;
-    validate(Some(p)).map_err(|e| Error::new(e.to_string()))?;
+    (p.summary, p.graph) = parse_summary_bytes(p.path.as_bytes(), &p.body)?;
+    validate(Some(p))?;
     Ok(result)
 }

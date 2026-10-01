@@ -48,7 +48,7 @@ fn parse_optional_inner(
 ) -> Result<Option<Node>, Error> {
     let mut reader = super::yaml_reader::Reader::new_raw(text, raw);
     reader.check(path, 1, 0)?;
-    let adapted = adapt_quote_indentation(text);
+    let adapted = adapt_flow_indentation(&adapt_quote_indentation(text));
     let adapted = if syntax.is_some() {
         adapt_alias_keys(&adapted)
     } else {
@@ -65,7 +65,11 @@ fn parse_optional_inner(
             {
                 return reader_error;
             }
-            if error.info() == "while parsing a node, did not find expected node content" {
+            if matches!(
+                error.info(),
+                "while parsing a node, did not find expected node content"
+                    | "\"-\" is only valid inside a block"
+            ) {
                 if let Err(reader_error) = reader.error_lookahead(
                     path,
                     &adapted,
@@ -557,4 +561,54 @@ fn adapt_quoted_unicode_breaks(text: &str, line: usize, column: usize) -> Option
             _ => {}
         }
     }
+}
+
+// yaml.v3 permits flow continuation tokens at columns that yaml-rust2 rejects.
+// Add parser-view indentation only where its scanner has stopped inside a flow
+// collection. Physical source bytes and node line positions remain unchanged.
+fn adapt_flow_indentation(text: &str) -> String {
+    let mut adapted = text.to_owned();
+    loop {
+        let mut scanner = Scanner::new(adapted.chars());
+        let mut flow = Vec::new();
+        for token in scanner.by_ref() {
+            match token.1 {
+                TokenType::FlowSequenceStart | TokenType::FlowMappingStart => {
+                    flow.push(token.0.col())
+                }
+                TokenType::FlowSequenceEnd | TokenType::FlowMappingEnd => {
+                    flow.pop();
+                }
+                _ => (),
+            }
+        }
+        let Some(error) = scanner.get_error() else {
+            break;
+        };
+        if !matches!(
+            error.info(),
+            "invalid indentation" | "invalid indentation in flow construct"
+        ) || flow.is_empty()
+        {
+            break;
+        }
+        let marker = error.marker();
+        let Some(line) = adapted.split_inclusive('\n').nth(marker.line() - 1) else {
+            break;
+        };
+        if !line.chars().take(marker.col()).all(|c| c == ' ') {
+            break;
+        }
+        let required = flow.iter().copied().max().unwrap() + 1;
+        if marker.col() >= required {
+            break;
+        }
+        let start: usize = adapted
+            .split_inclusive('\n')
+            .take(marker.line() - 1)
+            .map(str::len)
+            .sum();
+        adapted.insert_str(start, &" ".repeat(required - marker.col()));
+    }
+    adapted
 }

@@ -223,7 +223,8 @@ pub(super) fn decode(data: &[u8]) -> Result<WorkflowFile, Error> {
 }
 fn syntax_error(error: &yaml_rust2::scanner::ScanError, stack: &[Node]) -> Error {
     let (line, message) = match error.info() {
-        "while parsing a node, did not find expected node content" => (
+        "while parsing a node, did not find expected node content"
+        | "\"-\" is only valid inside a block" => (
             error.marker().line().saturating_sub(1),
             "did not find expected node content",
         ),

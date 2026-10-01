@@ -606,3 +606,47 @@ parity, CLI/API transports, performance and generated operation replay remain op
 The test ledger remains 135 ported/90 pending with original Go tests retained.
 Go remains the default implementation; the complete migration and final requested
 review/fix-review are unfinished.
+
+
+### Canonical plan paths, bundle diagnostics and local scaffold boundaries
+
+`Plan.path`, `Bundle.root` and all string fields in `ValidationIssue` now own
+canonical `YamlString` bytes. Graph and validation errors expose canonical
+`Error` diagnostics instead of formatting through a Unicode view. Byte-path
+manifest, summary, graph and snapshot APIs complement existing string conveniences;
+filesystem bundle/scaffold APIs accept native `Path`. Index plan records retain
+raw relative manifest paths. Path cleaning uses the shared Go-compatible lexical
+join, while a bundle retains its original root spelling. YAML parser views
+remain Unicode; only their known leading diagnostic context is restored to the
+original path. Graph YAML context conversion no longer replaces matching text
+inside a filename.
+
+The required Linux `compat-plan-bytes` gate recaptures 12,665 immutable Go cases:
+6,336 snapshot loads, 2,105 actual disk loads, 1,584 manifest parses, 1,056 graph
+parses, 792 failing graph-reference edits, 264 successful reference edits, 264
+validation error models and 264 local scaffold attempts. It covers all 256 byte
+values in snapshot/model paths plus Unicode, invalid UTF-8 sequences, context-like
+names and lexical path spellings. Disk setup excludes impossible NUL components;
+actual load/scaffold calls still exercise NUL failures. Relative entry kinds,
+bytes, permissions and complete before/after trees are compared, including
+symlinks, FIFO rejection and exclusive destination behavior. Model paths and
+errors use byte arrays, with the separate Go JSON Unicode path view checked too.
+Section names decoded from `!!binary` retain their original bytes. Long repeated
+fixture strings/byte arrays share storage entries that expand without conversion;
+this reduces corpus size without removing a case or changing a byte.
+
+The corpus exposed an outdented flow-continuation difference in yaml-rust2.
+A scanner-driven parser-view adapter supplies indentation where its scanner
+stops inside a flow collection; physical source bytes and node line positions
+remain unchanged. The actual malformed block-entry token now reports the Go
+node-content diagnostic. Native accepted flow continuations are also captured,
+including a graph node and manifest aliases. Three workflow cases independently
+qualify the shared syntax behavior (374 strict decodes, original131 loads).
+Existing raw UTF-8/UTF-16/scalar reader and edit corpora pass unchanged.
+
+This bounded qualification does not prove the complete YAML grammar, multiple
+simultaneous faults, arbitrary I/O injection, CLI/API error transport, generated
+operation replay or transaction crash recovery. Repeated adaptation of large
+malformed flow input still needs pathological-input measurement. Original test
+ledger remains135 ported/90 pending. WP3 acceptance and WP4-WP9, followed by the
+requested dotfiles review/fix-review, remain unfinished; Go stays default.

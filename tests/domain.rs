@@ -515,3 +515,6 @@ mod project_files;
 
 #[path = "domain/raw_diagnostics.rs"]
 mod raw_diagnostics;
+
+#[path = "domain/plan_bytes.rs"]
+mod plan_bytes;

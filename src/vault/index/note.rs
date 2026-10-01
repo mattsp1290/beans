@@ -300,7 +300,7 @@ impl Index {
             return;
         }
         let manifest = [rel, b"/plan.md"].concat();
-        plan.path = display(&manifest);
+        plan.path = crate::domain::yaml_string::YamlString::from_bytes(manifest.clone());
         let mut raw = links(plan.body.as_bytes());
         for section in &bundle.sections {
             raw.extend(links(section.markdown.as_bytes()));

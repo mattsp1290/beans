@@ -3,8 +3,8 @@
 mod bundle;
 mod parse;
 pub use bundle::{
-    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, load, load_path, load_snapshot, valid_section_path,
-    write_scaffold,
+    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, load, load_path, load_snapshot, load_snapshot_bytes,
+    valid_section_path, write_scaffold, write_scaffold_path,
 };
 mod reference;
 pub use reference::set_node_ref;
@@ -12,14 +12,14 @@ mod scaffold;
 pub use super::yaml_string::YamlString;
 pub use scaffold::scaffold;
 mod timestamp;
-pub use parse::parse;
+pub use parse::{parse, parse_bytes};
 mod encode;
 pub use encode::encode;
 mod graph;
 pub mod id;
 mod summary;
-pub use graph::{GraphError, parse_graph};
-pub use summary::parse_summary;
+pub use graph::{GraphError, parse_graph, parse_graph_bytes};
+pub use summary::{parse_summary, parse_summary_bytes};
 mod lifecycle;
 use super::issue::Timestamp;
 pub use lifecycle::{valid_status, validate};
@@ -44,7 +44,7 @@ pub struct Plan {
     pub sections: Vec<YamlString>,
     pub section_bodies: Vec<Section>,
     pub body: String,
-    pub path: String,
+    pub path: YamlString,
     pub summary: Summary,
     pub graph: ChangeGraph,
 }
@@ -98,7 +98,7 @@ pub struct GraphEdge {
 pub struct Bundle {
     pub plan: Option<Plan>,
     pub sections: Vec<Section>,
-    pub root: String,
+    pub root: YamlString,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -109,11 +109,11 @@ pub struct BundleSnapshot {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ValidationIssue {
-    pub path: String,
+    pub path: YamlString,
     #[serde(skip_serializing_if = "is_zero")]
     pub line: i64,
-    pub code: String,
-    pub message: String,
+    pub code: YamlString,
+    pub message: YamlString,
 }
 fn is_zero(value: &i64) -> bool {
     *value == 0
@@ -123,13 +123,19 @@ fn is_zero(value: &i64) -> bool {
 pub struct ValidationError {
     pub issues: Vec<ValidationIssue>,
 }
+impl ValidationError {
+    pub fn diagnostic(&self) -> super::error::Error {
+        match self.issues.first() {
+            Some(issue) => super::error::Error::from_bytes(
+                [issue.path.as_bytes(), b": ", issue.message.as_bytes()].concat(),
+            ),
+            None => super::error::Error::new("invalid plan".into()),
+        }
+    }
+}
 impl std::fmt::Display for ValidationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(issue) = self.issues.first() {
-            write!(f, "{}: {}", issue.path, issue.message)
-        } else {
-            f.write_str("invalid plan")
-        }
+        std::fmt::Display::fmt(&self.diagnostic(), f)
     }
 }
 impl std::error::Error for ValidationError {}
