@@ -1,7 +1,7 @@
 {
   "schema": "beans-plan-parse-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "harness_sha256": "1cc60c44f2f1022c4d18e1b6412ff4bac4d11c5f26084923b44110f24cbff968",
+  "harness_sha256": "a48aed40ee403530a6f2d7e1e53d5a74a0845c3a92006da23068951fe8e8ccb0",
   "parses": [
     {
       "encode_error": "",
