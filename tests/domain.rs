@@ -20,6 +20,8 @@ mod plan_bundle;
 mod plan_graph;
 #[path = "domain/plans.rs"]
 mod plans;
+#[path = "domain/remote.rs"]
+mod remote;
 #[path = "domain/request_codec.rs"]
 mod request_codec;
 #[path = "domain/requests.rs"]

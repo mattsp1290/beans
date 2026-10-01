@@ -1758,16 +1758,16 @@
       "source": "vault/remote_test.go",
       "test": "TestNormalizeRemoteURL",
       "line": 8,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/remote.rs::remote_validation_normalization_host_and_second_pass_match_fixed_go",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/remote_test.go",
       "test": "TestNormalizeRemoteURLIdempotent",
       "line": 116,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/remote.rs::original_remote_transport_equivalence_and_idempotence",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

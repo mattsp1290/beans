@@ -201,3 +201,7 @@ compat-workflow-file-read:
 .PHONY: compat-paths
 compat-paths:
 	python3 -S tools/compat/paths_reference.py --check tests/contract/paths.json
+
+.PHONY: compat-remote
+compat-remote:
+	python3 -S tools/compat/remote_reference.py --check tests/contract/remote.json

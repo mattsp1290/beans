@@ -169,6 +169,18 @@ original Go regressions are independently ported. The Linux contract job
 recaptures the corpus. Project resolution, remote normalization, actor wiring,
 filesystem races and wider path-fault behavior remain migration work.
 
+Remote validation, normalization and host extraction match 3,061 immutable Go
+cases under Go 1.25.7, the CI baseline compiler. These cover hosted/SCP/file/bare
+paths, userinfo, default and nondefault ports, decoded raw bytes, control bytes,
+percent escapes, fragments and IPv6 literals/zones. Second-pass results are
+captured rather than assuming universal normalization idempotence. Runtime
+lowercasing uses a recaptured Go Unicode 15 simple-lower table. The parser
+retains Go's lexical and decoded-byte behavior; it does not use a generic URL
+normalizer. Two original remote regressions are independently ported. The
+Linux contract job requires corpus and lower-table recapture. Additional URL
+malformations and complete project/Git/actor integration remain qualification
+work; this corpus does not claim arbitrary URL-parser equivalence.
+
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),
