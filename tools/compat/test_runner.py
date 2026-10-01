@@ -37,6 +37,19 @@ class OracleMutationTests(unittest.TestCase):
         case = self.case("read:show-alpha-a1b2:json")
         self.assertEqual(execute(self.binary, case), case["expected"])
 
+    def test_manual_replays_with_current_utc_header_date(self):
+        self.assertEqual(check(self.binary, {"cases": [self.case("man:no-args")]}), [])
+
+    def test_rejects_wrong_manual_header_date(self):
+        mutation = r'''import re
+out = re.sub(rb'(\A\.TH BN 1 ")[0-9-]+(" )', lambda m: m[1] + b'1900-01-01' + m[2], out, count=1)'''
+        self.assertEqual(self.candidate(mutation, self.case("man:no-args")),
+                         ["man:no-args: stdout_b64"])
+
+    def test_rejects_manual_content_change(self):
+        self.assertEqual(self.candidate("out = out.replace(b'.SH SYNOPSIS', b'.SH BROKEN', 1)",
+                                        self.case("man:no-args")), ["man:no-args: stdout_b64"])
+
     def test_rejects_wrong_exit(self):
         self.assertEqual(self.candidate("code = 1", self.case("version")), ["version: exit"])
 

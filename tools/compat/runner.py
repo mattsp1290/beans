@@ -3,6 +3,7 @@
 import argparse
 import base64
 from contextlib import ExitStack
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -257,12 +258,30 @@ def cases(census):
     return result
 
 
+def expected_with_man_date(case, date):
+    expected = case["expected"]
+    if case["argv"] != ["man"] or expected["exit"] != 0:
+        return expected
+    # Fang's manual header uses time.Now(). The fixture environment pins TZ to
+    # UTC. Validate that date against observation time, keeping the captured
+    # golden and every other byte intact. This is not timestamp stripping.
+    output = base64.b64decode(expected["stdout_b64"])
+    output = re.sub(rb'\A(\.TH BN 1 ")[0-9]{4}-[0-9]{2}-[0-9]{2}(" )',
+                    lambda match: match[1] + date.isoformat().encode("ascii") + match[2],
+                    output, count=1)
+    return dict(expected, stdout_b64=encode(output))
+
+
 def check(binary, corpus):
     failures = []
     for case in corpus["cases"]:
+        before = datetime.now(timezone.utc).date()
         actual = execute(binary, case)
-        if actual != case["expected"]:
-            fields = [key for key in actual if actual[key] != case["expected"].get(key)]
+        after = datetime.now(timezone.utc).date()
+        # A command crossing UTC midnight may legitimately print either day.
+        expected = [expected_with_man_date(case, day) for day in {before, after}]
+        if actual not in expected:
+            fields = [key for key in actual if actual[key] != expected[0].get(key)]
             failures.append(case["id"] + ": " + ", ".join(fields))
     return failures
 
