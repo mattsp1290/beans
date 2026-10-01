@@ -24,6 +24,8 @@ mod plan_bundle;
 mod plan_graph;
 #[path = "domain/plans.rs"]
 mod plans;
+#[path = "domain/recovery.rs"]
+mod recovery;
 #[path = "domain/remote.rs"]
 mod remote;
 #[path = "domain/request_codec.rs"]

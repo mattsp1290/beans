@@ -413,8 +413,8 @@
       "source": "gitops/tree_swap_test.go",
       "test": "TestRecoverTreesRestoresInterruptedBackup",
       "line": 59,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/domain/recovery.rs::recover_trees_restores_interrupted_backup_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

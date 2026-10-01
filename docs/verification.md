@@ -219,6 +219,18 @@ iteration does not define which such note wins, and no deterministic tie rule
 is claimed. CI requires graph/path recapture. Original full-index regressions
 remain pending until the production loader is ported.
 
+Plan tree and temporary-file recovery match 324 immutable Go 1.25.7 filesystem
+cases with before/after tree snapshots and error comparison. Missing targets
+restore backups; completed targets discard backups without following symlinks.
+Bulk recovery respects Go's sorted directory filtering and prefix/suffix rules;
+temporary plan cleanup removes one file/symlink/empty directory and rejects a
+nonempty directory. External sentinel files remain intact. One original bulk
+recovery regression is independently ported. Tests run in disposable fixture
+directories. CI requires recapture. This qualifies captured recovery effects,
+not replacement staging, locking, crash/fault injection or full WP4 recovery.
+Additional raw-filename, permissions and race diagnostics remain obligations;
+these effects are outside the verified pure kernel.
+
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),

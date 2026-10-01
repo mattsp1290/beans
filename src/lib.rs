@@ -3,6 +3,7 @@
 pub use beans_kernel as kernel;
 pub mod cli;
 pub mod domain;
+pub mod gitops;
 pub mod ops;
 pub mod vault;
 
