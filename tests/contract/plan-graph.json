@@ -1,7 +1,7 @@
 {
   "schema": "beans-plan-graph-v1",
   "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
-  "harness_sha256": "c509c5763e56a2cf68325e37671823e52cf90aba897bb90830a404cac27baabb",
+  "harness_sha256": "e8d052dcfc2e8eaa7f2a6a66e703c4a4ca433c0167c4b91b71e072bcc0278d29",
   "graphs": [
     {
       "error": "plan.md: missing bn-change-graph fence",
@@ -8303,6 +8303,46 @@
       },
       "input": "```bn-change-graph\n# comment\n```",
       "name": "comments-only"
+    },
+    {
+      "error": "plan.md: graph YAML: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!null `` into int",
+      "graph": {
+        "version": 0,
+        "nodes": null,
+        "edges": null
+      },
+      "input": "```bn-change-graph\nversion: !!null []\n```",
+      "name": "null-container-0"
+    },
+    {
+      "error": "",
+      "graph": {
+        "version": 1,
+        "nodes": [],
+        "edges": []
+      },
+      "input": "```bn-change-graph\nversion: 1\nnodes: !!null []\nedges: !!null []\n```",
+      "name": "null-container-1"
+    },
+    {
+      "error": "plan.md: graph YAML: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!null `` into []plan.GraphNode",
+      "graph": {
+        "version": 0,
+        "nodes": null,
+        "edges": null
+      },
+      "input": "```bn-change-graph\nversion: 1\nnodes: !!null {}\n```",
+      "name": "null-container-2"
+    },
+    {
+      "error": "plan.md: graph YAML: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!null `` into string",
+      "graph": {
+        "version": 0,
+        "nodes": null,
+        "edges": null
+      },
+      "input": "```bn-change-graph\nversion: 1\nnodes: [{id: a, label: !!null {}, kind: component}]\n```",
+      "name": "null-container-3"
     }
   ],
   "summaries": [

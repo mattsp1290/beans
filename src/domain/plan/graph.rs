@@ -75,7 +75,7 @@ pub(super) fn type_error(node: &Node, target: &str) -> String {
     )
 }
 fn string_value(node: &Node, errors: &mut Vec<String>) -> String {
-    if node.tag == "!!null" {
+    if node.tag == "!!null" && node.kind == NodeKind::Scalar {
         return String::new();
     }
     if node.kind == NodeKind::Scalar {
@@ -202,7 +202,7 @@ pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
             let value = &pair[1];
             match key {
                 "version" => {
-                    if value.tag != "!!null" {
+                    if value.tag != "!!null" || value.kind != NodeKind::Scalar {
                         if value.tag == "!!int" {
                             let raw = value.value.as_deref().unwrap_or_default();
                             let resolved = crate::domain::yaml_render::implicit_tag(raw);
@@ -227,7 +227,7 @@ pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
                     }
                 }
                 "nodes" | "edges" => {
-                    if value.tag == "!!null" {
+                    if value.tag == "!!null" && value.kind == NodeKind::Scalar {
                         continue;
                     }
                     if value.kind != NodeKind::Sequence {
