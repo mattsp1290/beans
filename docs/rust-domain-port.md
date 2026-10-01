@@ -383,3 +383,22 @@ production proof-coupling audit, operation-owned project file writes and broader
 filesystem/transport/startup/link-density qualification are pending. The
 original-test ledger remains 96 ported and 129 pending. Go remains the default
 binary, and WP5 mutations stay held until the lossless format gate is complete.
+
+
+### Multiline scalar comment attachment
+
+An edited scalar retains its inline comment even when the comment follows an
+indented plain continuation or the closing quote on a later line. Indented
+comment-only lines remain separate foot comments; document-end and following
+key lines terminate inline-comment scanning. The node-content and mapping-key
+error paths both follow the reader's two-token comment lookahead before choosing
+a syntax error, preserving the error precedence on mixed-encoding rereads.
+
+`compat-scalar-comment` captures 48 fixed-Go inputs/144 parse/edit outcomes:
+plain continuations, separate foot comments, multiline quotes and block-header
+comments, across all four note codecs in UTF-8 and UTF-16 LE/BE. The production
+comparison reproduces exact output bytes, reread errors/no-ops and copy geometry;
+`compat-scalar-comment-read` checks the actual Rust outputs with immutable Go.
+The new corpus exposed the plain-continuation regression and one mapping-error
+reader-demand mismatch before this correction. Wider YAML attachment/schema
+cases remain part of the unfinished WP3 gate.

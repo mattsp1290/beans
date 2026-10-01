@@ -98,6 +98,14 @@ fn parse_optional_inner(
                         .last()
                         .is_some_and(|node| node.kind == NodeKind::Mapping))
             {
+                if let Err(reader_error) = reader.error_lookahead(
+                    path,
+                    &adapted,
+                    error.marker().line(),
+                    error.marker().col(),
+                ) {
+                    return reader_error;
+                }
                 // yaml.v3 reports the parser context's zero-based line when
                 // nonzero, falling back to the problem mark at the root.
                 let line = stack

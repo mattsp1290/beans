@@ -260,3 +260,10 @@ compat-utf16-reader:
 
 compat-utf16-reader-read:
 	python3 -S tools/compat/utf16_reader_cross_read.py
+
+.PHONY: compat-scalar-comment compat-scalar-comment-read
+compat-scalar-comment:
+	python3 -S tools/compat/scalar_comment_reference.py --check tests/contract/scalar-comment.json
+
+compat-scalar-comment-read:
+	python3 -S tools/compat/scalar_comment_cross_read.py

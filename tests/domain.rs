@@ -491,3 +491,6 @@ mod plan_reference;
 
 #[path = "domain/utf16_reader.rs"]
 mod utf16_reader;
+
+#[path = "domain/scalar_comment.rs"]
+mod scalar_comment;

@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Capture scalar comment edit contracts from immutable Go."""
+import argparse
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import subprocess
+import tarfile
+import tempfile
+
+from utf16_reader_reference import ROOT, compact
+
+
+def capture():
+    baseline = json.loads((ROOT / "tests/contract/baseline.json").read_text())
+    archive = subprocess.check_output(["git", "archive", baseline["source_sha"]], cwd=ROOT)
+    harness = ROOT / "tools/compat/scalar_comment_census.go.txt"
+    result = {"schema": "beans-scalar-comment-v1", "source_sha": baseline["source_sha"],
+              "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest()}
+    with tempfile.TemporaryDirectory(prefix="beans-scalar-comment-oracle-") as work:
+        source = Path(work)
+        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+            tar.extractall(source, filter="data")
+        (source / "issue/migration_scalar_comment_test.go").write_bytes(harness.read_bytes())
+        output = source / "scalar-comment.json"
+        subprocess.run(["go", "test", "./issue", "-run", "^TestMigrationScalarComment$", "-count=1"],
+                       cwd=source, env=dict(os.environ, BN_SCALAR_COMMENT_OUTPUT=str(output), GOTOOLCHAIN="go1.25.7"), check=True)
+        result.update(compact(json.loads(output.read_text())))
+    return result
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=ROOT / ".compat/scalar-comment-reference.json")
+    parser.add_argument("--check", type=Path)
+    args = parser.parse_args()
+    result = capture()
+    if args.check:
+        if result != json.loads(args.check.read_text()):
+            raise SystemExit("Scalar comment reader corpus differs from fixed Go")
+        print("fixed Go scalar comment corpus matches")
+    else:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(result, separators=(",", ":"), ensure_ascii=False) + "\n")
+        print(args.output)

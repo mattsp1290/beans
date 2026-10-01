@@ -212,7 +212,16 @@ pub(super) fn scalar_comment(
             continue;
         }
         if ch == '\n' && quoted.is_none() {
-            break;
+            let next = value[byte + 1..].split('\n').next().unwrap_or_default();
+            // An indented plain-scalar continuation can own its inline
+            // comment. A comment-only line is a separate foot comment, and
+            // document indicators or following keys end this scalar.
+            if !next.starts_with([' ', '\t'])
+                || next.trim().is_empty()
+                || next.trim_start().starts_with('#')
+            {
+                break;
+            }
         }
         if escaped {
             escaped = false;
