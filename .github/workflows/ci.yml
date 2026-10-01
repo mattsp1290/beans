@@ -106,6 +106,7 @@ jobs:
           make compat-plan-bundle
           make compat-config-foundation
           make compat-config-codec
+          make compat-workflow-file
       - name: Install the pinned Rust compiler for cross-language reading
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Read actual Rust-generated issue files with the fixed Go reader
@@ -124,6 +125,8 @@ jobs:
         run: make compat-plan-bundle-read
       - name: Read actual Rust configuration files with the fixed Go loaders
         run: make compat-config-codec-read
+      - name: Read actual Rust project files with the fixed Go strict workflow decoder
+        run: make compat-workflow-file-read
       - name: Replay the oracle and reject deliberately broken candidates
         run: make compat-cli compat-http compat-journey compat-signals compat-io compat-test
       - uses: actions/setup-node@v7

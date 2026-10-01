@@ -30,9 +30,29 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
 }
 
 pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Error> {
+    parse_optional_inner(path, text, None)
+}
+type SyntaxFormatter = fn(&yaml_rust2::scanner::ScanError, &[Node]) -> Error;
+pub(crate) fn parse_optional_with_syntax(
+    path: &str,
+    text: &str,
+    syntax: SyntaxFormatter,
+) -> Result<Option<Node>, Error> {
+    parse_optional_inner(path, text, Some(syntax))
+}
+fn parse_optional_inner(
+    path: &str,
+    text: &str,
+    syntax: Option<SyntaxFormatter>,
+) -> Result<Option<Node>, Error> {
     let mut reader = super::yaml_reader::Reader::new(text);
     reader.check(path, 1, 0)?;
     let adapted = adapt_quote_indentation(text);
+    let adapted = if syntax.is_some() {
+        adapt_alias_keys(&adapted)
+    } else {
+        adapted
+    };
     let mut parser = Parser::new_from_str(&adapted);
     let mut positions = SourcePositions::scan(&adapted);
     let mut stack: Vec<Node> = Vec::new();
@@ -82,6 +102,9 @@ pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Err
             }
             // Exact yaml.v3 syntax-error presentation is completed alongside
             // the typed codec differential corpus; scanner text is retained.
+            if let Some(syntax) = syntax {
+                return syntax(&error, &stack);
+            }
             Error(format!("{path}: frontmatter: {error}"))
         })?;
         reader.check(path, marker.line(), marker.col())?;
@@ -89,6 +112,11 @@ pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Err
             Event::MappingStart(anchor, ref tag) | Event::SequenceStart(anchor, ref tag) => {
                 stack.push(Node {
                     anchor_id: anchor,
+                    anchor_name: positions
+                        .anchor_names
+                        .get(anchor.wrapping_sub(1))
+                        .cloned()
+                        .unwrap_or_default(),
                     tag: resolved_tag(
                         tag.as_ref(),
                         if matches!(event, Event::MappingStart(..)) {
@@ -154,6 +182,11 @@ pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Err
                 let line = positions.node_line(line, anchor, tag.is_some());
                 Node {
                     anchor_id: anchor,
+                    anchor_name: positions
+                        .anchor_names
+                        .get(anchor.wrapping_sub(1))
+                        .cloned()
+                        .unwrap_or_default(),
                     tag: resolved_tag(
                         tag.as_ref(),
                         if style == TScalarStyle::Plain {
@@ -175,6 +208,7 @@ pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Err
             }
             Event::Alias(anchor_id) => Node {
                 anchor_id,
+                anchor_name: positions.alias_names.pop_front().unwrap_or_default(),
                 tag: String::new(),
                 kind: NodeKind::Alias,
                 line: marker.line(),
@@ -274,6 +308,8 @@ struct SourcePositions {
     block_headers: std::collections::VecDeque<usize>,
     quoted_values: std::collections::VecDeque<Option<String>>,
     anchors: Vec<usize>,
+    anchor_names: Vec<String>,
+    alias_names: std::collections::VecDeque<String>,
     tags: std::collections::VecDeque<usize>,
     empty_values: std::collections::VecDeque<usize>,
 }
@@ -297,6 +333,8 @@ impl SourcePositions {
         let mut headers = Vec::new();
         let mut quoted_values = Vec::new();
         let mut anchors = Vec::new();
+        let mut anchor_names = Vec::new();
+        let mut alias_names = Vec::new();
         let mut tags = Vec::new();
         let mut empty_values = Vec::new();
         let mut pending_value = None;
@@ -333,7 +371,11 @@ impl SourcePositions {
                 ));
             }
             match &token.1 {
-                TokenType::Anchor(_) => anchors.push(token.0.line()),
+                TokenType::Anchor(name) => {
+                    anchors.push(token.0.line());
+                    anchor_names.push(name.clone());
+                }
+                TokenType::Alias(name) => alias_names.push(name.clone()),
                 TokenType::Tag(..) => tags.push(token.0.line()),
                 _ => {}
             }
@@ -383,10 +425,32 @@ impl SourcePositions {
             block_headers: headers.into(),
             quoted_values: quoted_values.into(),
             anchors,
+            anchor_names,
+            alias_names: alias_names.into(),
             tags: tags.into(),
             empty_values: empty_values.into(),
         }
     }
+}
+fn adapt_alias_keys(text: &str) -> String {
+    let mut positions = Vec::new();
+    for token in Scanner::new(text.chars()) {
+        if let TokenType::Alias(name) = token.1
+            && let Some(bare) = name.strip_suffix(':')
+            && !bare.is_empty()
+            && bare
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-'))
+            && let Some((byte, _)) = text.char_indices().nth(token.0.index() + 1 + bare.len())
+        {
+            positions.push(byte);
+        }
+    }
+    let mut out = text.to_owned();
+    for byte in positions.into_iter().rev() {
+        out.insert(byte, ' ');
+    }
+    out
 }
 
 // yaml.v3 treats raw NEL/LS/PS as quoted-scalar line breaks; yaml-rust2's

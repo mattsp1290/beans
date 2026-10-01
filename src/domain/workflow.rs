@@ -2,6 +2,9 @@
 use super::{frontmatter::Error, yaml_string::YamlString};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
+mod file;
+mod yaml;
+pub use file::{decode_workflow_file, load_workflow};
 
 pub type States = Option<Vec<YamlString>>;
 pub type Transitions = Option<BTreeMap<YamlString, States>>;

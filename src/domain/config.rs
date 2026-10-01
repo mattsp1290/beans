@@ -3,6 +3,8 @@ use super::{duration::parse_duration, workflow::WorkflowFile, yaml_string::YamlS
 use serde::{Deserialize, Serialize};
 mod decode;
 mod encode;
+mod toml_metadata;
+pub(crate) use decode::decode_workflow_toml;
 pub use decode::{
     decode_hub_config, decode_project_config, decode_user_config, load_hub_config,
     load_project_config, load_user_config,

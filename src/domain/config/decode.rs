@@ -14,7 +14,7 @@ mod syntax;
 mod tree;
 use tree::{Node, line};
 
-fn equal_field(actual: &str, expected: &str) -> bool {
+pub(super) fn equal_field(actual: &str, expected: &str) -> bool {
     actual
         .chars()
         .map(|c| match c {
@@ -129,18 +129,65 @@ impl<'a> Context<'a> {
     }
 }
 
-fn parse(data: &[u8]) -> Result<(String, Spanned<Node>), Error> {
+fn parse_mode(data: &[u8], full: bool) -> Result<(String, Spanned<Node>), Error> {
     let source = std::str::from_utf8(data).map_err(|e| {
         let offset = e.valid_up_to();
         let line = 1 + data[..offset].iter().filter(|&&b| b == b'\n').count();
-        Error(format!(
+        let error = Error(format!(
             "line {line}: invalid UTF-8 byte: 0x{:02x}",
             data[offset]
-        ))
+        ));
+        if full {
+            super::toml_metadata::full_error(
+                std::str::from_utf8(&data[..offset]).unwrap(),
+                offset,
+                error,
+            )
+        } else {
+            error
+        }
     })?;
-    let parser = toml::de::Deserializer::parse(source).map_err(|e| syntax_error(source, e))?;
-    let root = Spanned::<Node>::deserialize(parser).map_err(|e| syntax_error(source, e))?;
+    let adapt = |e: toml::de::Error| {
+        let offset = e.span().map(|s| s.start).unwrap_or(source.len());
+        let error = syntax_error(source, e);
+        if full {
+            super::toml_metadata::full_error(source, offset, error)
+        } else {
+            error
+        }
+    };
+    let parser = toml::de::Deserializer::parse(source).map_err(&adapt)?;
+    let root = Spanned::<Node>::deserialize(parser).map_err(adapt)?;
     Ok((source.into(), root))
+}
+fn parse(data: &[u8]) -> Result<(String, Spanned<Node>), Error> {
+    parse_mode(data, false)
+}
+pub(crate) fn decode_workflow_toml(data: &[u8]) -> Result<WorkflowFile, Error> {
+    let (source, node) = parse_mode(data, true)?;
+    let base = root(&source);
+    let mut cfg = WorkflowFile::default();
+    for (key, value) in base.table(&node, "workflowFile")? {
+        if equal_field(key, "workflow") {
+            base.child(key, value).workflow(value, &mut cfg)?;
+        }
+    }
+    let unknown: Vec<_> = super::toml_metadata::keys(&source)
+        .into_iter()
+        .filter(|entry| {
+            let path = &entry.path;
+            path.first().is_some_and(|k| k == "workflow")
+                && path.len() > 1
+                && !["statuses", "default", "active", "terminal", "transitions"]
+                    .iter()
+                    .any(|key| equal_field(&path[1], key))
+        })
+        .map(|entry| super::toml_metadata::format_key(&entry.path))
+        .collect();
+    if !unknown.is_empty() {
+        return Err(Error(format!("unknown key(s): {}", unknown.join(", "))));
+    }
+    Ok(cfg)
 }
 fn syntax_error(source: &str, error: toml::de::Error) -> Error {
     syntax::adapt(source, error)

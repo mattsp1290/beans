@@ -1314,48 +1314,48 @@
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileTOMLAndYAML",
       "line": 5,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_toml_and_yaml",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestMergeWorkflowFilePartialInheritsBase",
       "line": 39,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::merge_workflow_file_partial_inherits_base",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileUnknownKeysFailFast",
       "line": 54,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_unknown_keys_fail_fast",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileIgnoresOtherTOMLTables",
       "line": 69,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_ignores_other_toml_tables",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileUnsupportedExtension",
       "line": 80,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_unsupported_extension",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestMergedInvalidBucketFailsValidate",
       "line": 87,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/workflow_file.rs::merged_invalid_bucket_fails_validate",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

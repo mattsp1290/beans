@@ -191,3 +191,9 @@ compat-config-codec:
 	python3 -S tools/compat/config_codec_reference.py --check tests/contract/config-codec.json
 compat-config-codec-read:
 	python3 -S tools/compat/config_codec_read.py
+
+.PHONY: compat-workflow-file compat-workflow-file-read
+compat-workflow-file:
+	python3 -S tools/compat/workflow_file_reference.py --check tests/contract/workflow-file.json
+compat-workflow-file-read:
+	python3 -S tools/compat/workflow_file_read.py

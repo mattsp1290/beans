@@ -37,43 +37,8 @@ fn unsafe_yaml(node: &Node) -> bool {
         )
         || node.children.iter().any(unsafe_yaml)
 }
-pub(super) fn duplicate_errors(node: &Node) -> Vec<String> {
-    let pairs: Vec<_> = node.children.as_chunks::<2>().0.iter().collect();
-    let mut errors = Vec::new();
-    for i in 0..pairs.len() {
-        for j in i + 1..pairs.len() {
-            if pairs[i][0].kind == pairs[j][0].kind && pairs[i][0].value == pairs[j][0].value {
-                errors.push(format!(
-                    "line {}: mapping key {} already defined at line {}",
-                    pairs[j][0].line,
-                    quoted(pairs[j][0].value.as_deref().unwrap_or_default()),
-                    pairs[i][0].line
-                ));
-            }
-        }
-    }
-    errors
-}
-pub(super) fn type_error(node: &Node, target: &str) -> String {
-    let value = node.value.as_deref().unwrap_or_default();
-    let snippet = if matches!(node.tag.as_str(), "!!seq" | "!!map") {
-        String::new()
-    } else {
-        let value = if value.len() > 10 {
-            // yaml.v3 truncates to seven bytes. Go's JSON encoder replaces
-            // each invalid trailing byte separately when a rune is split.
-            let end = value.floor_char_boundary(7);
-            format!("{}{}...", &value[..end], "�".repeat(7 - end))
-        } else {
-            value.to_owned()
-        };
-        format!(" `{value}`")
-    };
-    format!(
-        "line {}: cannot unmarshal {}{snippet} into {target}",
-        node.line, node.tag
-    )
-}
+pub(super) use crate::domain::yaml_decode::{duplicate_errors, type_error};
+
 fn string_value(node: &Node, errors: &mut Vec<String>) -> String {
     if node.tag == "!!null" && node.kind == NodeKind::Scalar {
         return String::new();

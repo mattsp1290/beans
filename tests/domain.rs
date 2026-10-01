@@ -24,6 +24,8 @@ mod request_codec;
 mod requests;
 #[path = "domain/templates.rs"]
 mod templates;
+#[path = "domain/workflow_file.rs"]
+mod workflow_file;
 
 use beans::domain::frontmatter::Frontmatter;
 use beans::domain::text::{Link, split_issue_body, split_request_body};

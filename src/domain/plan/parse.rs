@@ -26,27 +26,8 @@ fn anchors<'a>(node: &'a Node, result: &mut HashMap<usize, &'a Node>) {
         anchors(child, result);
     }
 }
-fn decoded_string(node: &Node) -> Result<YamlString, Error> {
-    let value = node.value.as_deref().unwrap_or_default();
-    let resolved = crate::domain::yaml_render::implicit_tag(value);
-    if matches!(
-        node.tag.as_str(),
-        "!!null" | "!!int" | "!!float" | "!!bool" | "!!timestamp"
-    ) && resolved != node.tag
-        && !(node.tag == "!!float" && resolved == "!!int")
-    {
-        return Err(Error(format!(
-            "yaml: cannot decode {resolved} `{value}` as a {}",
-            node.tag
-        )));
-    }
-    if node.tag == "!!binary" {
-        return crate::domain::yaml_string::binary(value)
-            .map(YamlString::from_bytes)
-            .ok_or_else(|| Error("yaml: !!binary value contains invalid base64 data".into()));
-    }
-    Ok(value.into())
-}
+use crate::domain::yaml_decode::decoded_string;
+
 fn list(node: &Node, anchors: &HashMap<usize, &Node>) -> Result<Vec<YamlString>, Error> {
     let node = if node.kind == NodeKind::Alias {
         anchors

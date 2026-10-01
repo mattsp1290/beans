@@ -21,6 +21,9 @@ pub struct Node {
     /// Parser identity of an anchor or the target of an alias.
     #[serde(skip)]
     pub anchor_id: usize,
+    /// Scanner spelling for aliases and anchored nodes; semantic JSON is unchanged.
+    #[serde(skip)]
+    pub anchor_name: String,
     pub kind: NodeKind,
     pub line: usize,
     #[serde(skip_serializing_if = "Option::is_none")]

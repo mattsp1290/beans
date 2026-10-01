@@ -134,10 +134,29 @@ For duplicate-key diagnostics it replaces only the offending key in temporary
 memory and reparses to recover the table/dotted/inline context; repaired data is
 never returned or written. Selected syntax errors use observed Go wording.
 Other TOML syntax/error cases, error ordering when several faults coexist,
-filesystem race/fault behavior, workflow-file decoding and workflow source
-precedence remain migration obligations. Configuration parsing and filesystem
+filesystem race/fault behavior and complete configuration integration remain
+migration obligations. Configuration parsing and filesystem
 effects are outside the verified pure kernel contracts. Shared Linux path-error
 formatting retains the existing bundle behavior and raw-byte path storage.
+
+Workflow TOML/YAML decoding and source precedence are checked against 371
+immutable Go decode cases and 131 load cases. This includes all 244 captured
+Go project-writer outputs. The fixed Go strict workflow decoder also reads all
+244 actual Rust project outputs identically: 226 accepted and 18 matching
+rejections. TOML unknown-key diagnostics use
+source-ordered physical events from `toml_parser`, directly pinned to its
+already locked version; no resolved dependency versions changed. YAML keeps
+strict case-sensitive fields, aggregated errors, nil/empty values, scalar and
+binary coercions, aliases, duplicate keys and merge order. Parser metadata
+retains anchor spellings; an alias-key colon adaptation affects only the
+workflow parser representation. It never rewrites the original file. Explicit
+configuration is exclusive over built-in defaults, while implicit hub then
+project sources merge per key before validation. Missing explicit files are
+errors. Tests assert that loads leave files unchanged. Six original workflow
+file regressions and 512 generated cross-format vocabularies supplement the
+corpus. Broader YAML syntax, alias grammar/expansion limits, raw-byte reader
+boundaries and multiple-fault ordering still require qualification; `opsEnv`
+fallback and end-to-end environment wiring remain later migration work.
 
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),

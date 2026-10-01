@@ -21,6 +21,7 @@ pub mod template;
 pub mod text;
 pub mod workflow;
 mod yaml;
+mod yaml_decode;
 mod yaml_render;
 mod yaml_string;
 
