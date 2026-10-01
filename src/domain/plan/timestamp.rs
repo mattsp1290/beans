@@ -29,7 +29,7 @@ impl Cursor<'_> {
         &self.raw.as_bytes()[self.position..]
     }
     fn invalid(&self, layout: &str) -> Error {
-        Error(format!(
+        Error::new(format!(
             "parsing time {} as {}: cannot parse {} as {}",
             quoted(self.raw.as_bytes()),
             quoted(LAYOUT.as_bytes()),
@@ -38,7 +38,7 @@ impl Cursor<'_> {
         ))
     }
     fn range(&self, field: &str) -> Error {
-        Error(format!(
+        Error::new(format!(
             "parsing time {}: {field} out of range",
             quoted(self.raw.as_bytes())
         ))
@@ -132,7 +132,7 @@ pub(super) fn parse(value: &str) -> Result<Timestamp, Error> {
         c.position += 6;
     }
     if !c.remaining().is_empty() {
-        return Err(Error(format!(
+        return Err(Error::new(format!(
             "parsing time {}: extra text: {}",
             quoted(value.as_bytes()),
             quoted(c.remaining())
@@ -148,7 +148,7 @@ pub(super) fn parse(value: &str) -> Result<Timestamp, Error> {
         return Err(c.range("day"));
     }
     if !utc {
-        return Err(Error("must be UTC".into()));
+        return Err(Error::new("must be UTC".into()));
     }
     parse_timestamp(value).ok_or_else(|| c.invalid(LAYOUT))
 }

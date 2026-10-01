@@ -146,5 +146,5 @@ pub(super) fn adapt(source: &str, error: toml::de::Error) -> Error {
     } else {
         error.message().into()
     };
-    Error(format!("line {}: {message}", line(source, offset)))
+    Error::new(format!("line {}: {message}", line(source, offset)))
 }

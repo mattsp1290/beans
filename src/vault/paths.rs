@@ -69,7 +69,7 @@ pub fn default_paths(flag_hub: &OsStr) -> Result<Paths, Error> {
         || {
             std::env::current_dir().map_err(|e| {
                 let message = e.to_string();
-                Error(format!(
+                Error::new(format!(
                     "getwd: {}",
                     message
                         .split(" (os error ")
@@ -93,7 +93,9 @@ pub fn default_paths_with(
     if home.is_empty() {
         let user_home = env("HOME");
         if user_home.is_empty() {
-            return Err(Error("resolve home directory: $HOME is not defined".into()));
+            return Err(Error::new(
+                "resolve home directory: $HOME is not defined".into(),
+            ));
         }
         home = join(&[user_home.as_bytes(), b".beans"]);
     }
@@ -120,7 +122,7 @@ pub fn check_hub(paths: &Paths) -> Result<(), Error> {
     if std::fs::metadata(git).is_ok_and(|meta| meta.is_dir()) {
         return Ok(());
     }
-    Err(Error(format!(
+    Err(Error::new(format!(
         "no hub found; run bn init <remote> (expected a clone at {})",
         YamlString::from_bytes(paths.hub.as_os_str().as_bytes().into())
     )))

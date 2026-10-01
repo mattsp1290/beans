@@ -37,21 +37,29 @@ impl Index {
             } else if let Some(rest) = input.strip_prefix(root).and_then(|s| s.strip_prefix(b"/")) {
                 rest.into()
             } else {
-                return Err(Error(format!(
-                    "vault: {} is not under hub {}",
-                    path_name(p),
-                    path_name(&self.hub_dir)
-                )));
+                return Err(Error::from_bytes(
+                    [
+                        b"vault: ".as_slice(),
+                        p.as_os_str().as_bytes(),
+                        b" is not under hub ",
+                        self.hub_dir.as_os_str().as_bytes(),
+                    ]
+                    .concat(),
+                ));
             }
         } else {
             input
         };
         if rel == b".." || rel.starts_with(b"../") {
-            return Err(Error(format!(
-                "vault: {} is not under hub {}",
-                path_name(p),
-                path_name(&self.hub_dir)
-            )));
+            return Err(Error::from_bytes(
+                [
+                    b"vault: ".as_slice(),
+                    p.as_os_str().as_bytes(),
+                    b" is not under hub ",
+                    self.hub_dir.as_os_str().as_bytes(),
+                ]
+                .concat(),
+            ));
         }
         Ok(rel)
     }

@@ -11,10 +11,10 @@ pub fn parse_summary(path: &str, body: &str) -> Result<(Summary, ChangeGraph), E
             continue;
         }
         if !in_fence && line.trim() == "## Summary" && summary.replace(i).is_some() {
-            return Err(Error(format!("{path}: duplicate Summary")));
+            return Err(Error::new(format!("{path}: duplicate Summary")));
         }
     }
-    let start = summary.ok_or_else(|| Error(format!("{path}: missing Summary")))?;
+    let start = summary.ok_or_else(|| Error::new(format!("{path}: missing Summary")))?;
     let mut end = lines.len();
     in_fence = false;
     for (i, line) in lines.iter().enumerate().skip(start + 1) {
@@ -46,7 +46,7 @@ pub fn parse_summary(path: &str, body: &str) -> Result<(Summary, ChangeGraph), E
             if let Some(index) = names.iter().position(|&n| n == name)
                 && starts[index].replace(i).is_some()
             {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: duplicate Summary subsection {}",
                     quoted(name)
                 )));
@@ -56,10 +56,14 @@ pub fn parse_summary(path: &str, body: &str) -> Result<(Summary, ChangeGraph), E
     for i in 0..5 {
         let Some(current) = starts[i] else {
             // Go formats the missing index (-1), not its name, using %q.
-            return Err(Error(format!("{path}: missing Summary subsection '�'")));
+            return Err(Error::new(format!(
+                "{path}: missing Summary subsection '�'"
+            )));
         };
         if i > 0 && current < starts[i - 1].unwrap() {
-            return Err(Error(format!("{path}: Summary subsections out of order")));
+            return Err(Error::new(format!(
+                "{path}: Summary subsections out of order"
+            )));
         }
     }
     let values: Vec<_> = (0..5)
@@ -70,7 +74,7 @@ pub fn parse_summary(path: &str, body: &str) -> Result<(Summary, ChangeGraph), E
                 .to_owned()
         })
         .collect();
-    let graph = parse_graph(path, &values[4]).map_err(|error| Error(error.to_string()))?;
+    let graph = parse_graph(path, &values[4]).map_err(|error| Error::new(error.to_string()))?;
     Ok((
         Summary {
             outcome: values[0].clone(),

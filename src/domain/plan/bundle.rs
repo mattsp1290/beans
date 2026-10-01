@@ -61,29 +61,29 @@ pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Er
     let data = snapshot
         .files
         .get(b"plan.md".as_slice())
-        .ok_or_else(|| Error(format!("{root}: missing plan.md")))?;
+        .ok_or_else(|| Error::new(format!("{root}: missing plan.md")))?;
     if data.len() > MAX_FILE_SIZE {
-        return Err(Error("plan.md: file exceeds 512KiB".into()));
+        return Err(Error::new("plan.md: file exceeds 512KiB".into()));
     }
     let mut total = 0usize;
     for (name, bytes) in &snapshot.files {
         if !valid_file_name(name.as_bytes()) {
-            return Err(Error(format!("{name}: invalid bundle file")));
+            return Err(Error::new(format!("{name}: invalid bundle file")));
         }
         total = total
             .checked_add(bytes.len())
-            .ok_or_else(|| Error("bundle exceeds 2MiB".into()))?;
+            .ok_or_else(|| Error::new("bundle exceeds 2MiB".into()))?;
         if bytes.len() > MAX_FILE_SIZE {
-            return Err(Error(format!("{name}: file exceeds 512KiB")));
+            return Err(Error::new(format!("{name}: file exceeds 512KiB")));
         }
     }
     if total > MAX_BUNDLE_SIZE {
-        return Err(Error("bundle exceeds 2MiB".into()));
+        return Err(Error::new("bundle exceeds 2MiB".into()));
     }
     let mut plan = parse(&manifest_path(root), data)?;
     let prefix = plan.id.split("-plan-").next().unwrap_or_default();
     if !id::valid_id(prefix, &plan.id) {
-        return Err(Error(format!(
+        return Err(Error::new(format!(
             "plan.md: invalid plan id {}",
             quoted(&plan.id)
         )));
@@ -92,7 +92,7 @@ pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Er
     let mut sections = Vec::new();
     for name in &plan.sections {
         if !valid_section_path(name.as_bytes()) || !seen.insert(name.clone()) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "plan.md: invalid or duplicate section {}",
                 name.quoted()
             )));
@@ -100,13 +100,13 @@ pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Er
         let bytes = snapshot
             .files
             .get(name)
-            .ok_or_else(|| Error(format!("{name}: listed section missing")))?;
+            .ok_or_else(|| Error::new(format!("{name}: listed section missing")))?;
         if bytes.contains(&0)
             || bytes.contains(&b'\r')
             || bytes.last() != Some(&b'\n')
             || std::str::from_utf8(bytes).is_err()
         {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{name}: must be UTF-8 LF text ending in newline"
             )));
         }
@@ -117,10 +117,10 @@ pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Er
     }
     for name in snapshot.files.keys() {
         if name.as_bytes() != b"plan.md" && !seen.contains(name) {
-            return Err(Error(format!("{name}: section is not listed")));
+            return Err(Error::new(format!("{name}: section is not listed")));
         }
     }
-    validate(Some(&plan)).map_err(|e| Error(e.to_string()))?;
+    validate(Some(&plan)).map_err(|e| Error::new(e.to_string()))?;
     plan.section_bodies = sections.clone();
     Ok(Bundle {
         plan: Some(plan),
@@ -185,31 +185,33 @@ fn capture(
             .file_type()
             .map_err(|e| path_error("lstat", &full, e))?;
         if kind.is_symlink() {
-            return Err(Error(format!("{name}: symlinks are not allowed")));
+            return Err(Error::new(format!("{name}: symlinks are not allowed")));
         }
         if kind.is_dir() {
             if name.as_bytes() != b"sections" {
-                return Err(Error(format!("{name}: unexpected directory")));
+                return Err(Error::new(format!("{name}: unexpected directory")));
             }
             capture(root, &full, files, total)?;
             continue;
         }
         if !kind.is_file() {
-            return Err(Error(format!("{name}: non-regular file")));
+            return Err(Error::new(format!("{name}: non-regular file")));
         }
         if name.as_bytes() != b"plan.md" && !name.as_bytes().starts_with(b"sections/") {
-            return Err(Error(format!("{name}: unexpected file")));
+            return Err(Error::new(format!("{name}: unexpected file")));
         }
         if !name.as_bytes().ends_with(b".md") {
-            return Err(Error(format!("{name}: only Markdown files are allowed")));
+            return Err(Error::new(format!(
+                "{name}: only Markdown files are allowed"
+            )));
         }
         let info = fs::symlink_metadata(&full).map_err(|e| path_error("lstat", &full, e))?;
         if info.len() > MAX_FILE_SIZE as u64 {
-            return Err(Error(format!("{name}: file exceeds 512KiB")));
+            return Err(Error::new(format!("{name}: file exceeds 512KiB")));
         }
         *total += info.len();
         if *total > MAX_BUNDLE_SIZE as u64 {
-            return Err(Error("bundle exceeds 2MiB".into()));
+            return Err(Error::new("bundle exceeds 2MiB".into()));
         }
         files.files.insert(name, read_file(&full)?);
     }
@@ -223,7 +225,9 @@ pub fn load_path(path: &Path) -> Result<Bundle, Error> {
     let root = crate::domain::file_io::path_name(path).to_string();
     let metadata = fs::symlink_metadata(path).map_err(|e| path_error("lstat", path, e))?;
     if !metadata.is_dir() || metadata.file_type().is_symlink() {
-        return Err(Error(format!("{root}: bundle root must be a directory")));
+        return Err(Error::new(format!(
+            "{root}: bundle root must be a directory"
+        )));
     }
     let mut snapshot = BundleSnapshot::default();
     capture(path, path, &mut snapshot, &mut 0)?;
@@ -257,7 +261,7 @@ pub fn write_scaffold(
             match file.write(&data) {
                 Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
                 Err(error) => break Err(path_error("write", &file_path, error)),
-                Ok(size) if size != data.len() => break Err(Error("short write".into())),
+                Ok(size) if size != data.len() => break Err(Error::new("short write".into())),
                 Ok(_) => break Ok(()),
             }
         };
@@ -273,5 +277,5 @@ pub fn write_scaffold(
         }
         Ok(())
     })();
-    result.map_err(|e| Error(format!("write scaffold: {e}")))
+    result.map_err(|e| Error::new(format!("write scaffold: {e}")))
 }

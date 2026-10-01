@@ -45,7 +45,7 @@ fn temporary(parent: &Path) -> Result<(Temporary, File), Error> {
     for _ in 0..10000 {
         let mut bytes = [0; 4];
         getrandom::fill(&mut bytes)
-            .map_err(|e| Error(format!("random temporary filename: {e}")))?;
+            .map_err(|e| Error::new(format!("random temporary filename: {e}")))?;
         let path = parent.join(format!(".bn-write-{}", u32::from_ne_bytes(bytes)));
         match OpenOptions::new()
             .read(true)
@@ -59,7 +59,7 @@ fn temporary(parent: &Path) -> Result<(Temporary, File), Error> {
             Err(e) => return Err(path_error("open", &path, e)),
         }
     }
-    Err(Error(format!(
+    Err(Error::new(format!(
         "createtemp {}: file exists",
         parent.display()
     )))
@@ -77,7 +77,7 @@ pub fn write_file(path: &Path, bytes: &[u8]) -> Result<(), Error> {
         match file.write(bytes) {
             Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
             Err(e) => break Err(path_error("write", &temp.0, e)),
-            Ok(written) if written != bytes.len() => break Err(Error("short write".into())),
+            Ok(written) if written != bytes.len() => break Err(Error::new("short write".into())),
             Ok(_) => break Ok(()),
         }
     };
@@ -89,16 +89,5 @@ pub fn write_file(path: &Path, bytes: &[u8]) -> Result<(), Error> {
     if let Some(e) = close_error {
         return Err(path_error("close", &temp.0, e));
     }
-    fs::rename(&temp.0, path).map_err(|e| {
-        Error(format!(
-            "rename {} {}: {}",
-            crate::domain::file_io::path_name(&temp.0),
-            crate::domain::file_io::path_name(path),
-            e.to_string()
-                .split(" (os error ")
-                .next()
-                .unwrap_or("rename failed")
-                .to_lowercase()
-        ))
-    })
+    crate::domain::file_io::rename(&temp.0, path)
 }

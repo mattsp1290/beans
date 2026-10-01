@@ -1856,24 +1856,24 @@
       "source": "vault/review_regression_test.go",
       "test": "TestDuplicateBasenameKeepsEveryIssue",
       "line": 35,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::duplicate_basename_keeps_every_issue_original_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/review_regression_test.go",
       "test": "TestReloadBeansTOMLRefreshesWorkflow",
       "line": 81,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::reload_project_config_refreshes_workflow_original_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/review_regression_test.go",
       "test": "TestReloadRejectsPathsOutsideHub",
       "line": 103,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::reload_rejects_paths_outside_hub_original_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

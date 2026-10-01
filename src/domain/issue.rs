@@ -47,7 +47,7 @@ impl Timestamp {
     pub(super) fn read(key: &str, node: &Node) -> Result<Self, Error> {
         let raw = node.scalar(key)?;
         parse_timestamp(raw.trim()).ok_or_else(|| {
-            Error(format!(
+            Error::new(format!(
                 "{key} must be an RFC3339 timestamp, got {}",
                 quoted(raw)
             ))
@@ -117,14 +117,14 @@ impl IssueDocument {
                 continue;
             }
             if !seen.insert(key) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: line {}: duplicate frontmatter key {}",
                     document.diagnostic_line(field.key_line),
                     quoted(key)
                 )));
             }
             metadata.read(key, &field.value).map_err(|error| {
-                Error(format!(
+                Error::new(format!(
                     "{path}: line {}: {error}",
                     document.diagnostic_line(field.value.line)
                 ))
@@ -132,7 +132,7 @@ impl IssueDocument {
         }
         for key in REQUIRED {
             if !seen.contains(key) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: frontmatter is missing required key {}",
                     quoted(key)
                 )));
@@ -214,7 +214,7 @@ impl IssueDocument {
     /// Full-document encoding combines this with rendered owned frontmatter.
     pub fn render_body(&self) -> Result<String, Error> {
         String::from_utf8(self.render_body_bytes()?)
-            .map_err(|_| Error("body is not UTF-8; use render_body_bytes".into()))
+            .map_err(|_| Error::new("body is not UTF-8; use render_body_bytes".into()))
     }
 
     pub fn render_body_bytes(&self) -> Result<Vec<u8>, Error> {
@@ -274,7 +274,7 @@ impl IssueMetadata {
             "priority" => {
                 let raw = node.scalar(key)?;
                 self.priority = raw.trim().parse::<i64>().map_err(|_| {
-                    Error(format!("priority must be an integer, got {}", quoted(raw)))
+                    Error::new(format!("priority must be an integer, got {}", quoted(raw)))
                 })?;
             }
             "labels" => {

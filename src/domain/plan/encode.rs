@@ -23,7 +23,7 @@ fn sequence(output: &mut String, key: &str, values: &[YamlString]) -> Result<(),
         output.push_str("    - ");
         let value = value
             .as_str()
-            .ok_or_else(|| Error("yaml: cannot marshal invalid UTF-8 data as !!str".into()))?;
+            .ok_or_else(|| Error::new("yaml: cannot marshal invalid UTF-8 data as !!str".into()))?;
         let rendered = scalar(value, true);
         for (i, line) in rendered
             .split_inclusive(['\n', '\u{85}', '\u{2028}', '\u{2029}'])
@@ -78,9 +78,9 @@ fn timestamp(value: &Timestamp) -> String {
 /// Go's plan writer emits canonical owned frontmatter and retains the body.
 /// It validates status only; manifest and lifecycle validation are separate.
 pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
-    let p = plan.ok_or_else(|| Error("nil plan".into()))?;
+    let p = plan.ok_or_else(|| Error::new("nil plan".into()))?;
     if !valid_status(&p.status) {
-        return Err(Error("invalid status".into()));
+        return Err(Error::new("invalid status".into()));
     }
     let mut output = String::from("---\n");
     pair(&mut output, "id", &p.id);

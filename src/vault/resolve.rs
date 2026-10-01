@@ -94,7 +94,7 @@ pub fn resolve(hub: &Path, opts: ResolveOptions<'_>) -> Result<Resolved, Error> 
         Some(cwd) => cwd.to_path_buf(),
         None => std::env::current_dir().map_err(|e| {
             let s = e.to_string();
-            Error(format!(
+            Error::new(format!(
                 "getwd: {}",
                 s.split(" (os error ").next().unwrap_or(&s).to_lowercase()
             ))
@@ -137,7 +137,7 @@ pub fn resolve(hub: &Path, opts: ResolveOptions<'_>) -> Result<Resolved, Error> 
     }
     if !name.is_empty() {
         if !valid_project_name(&name) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "invalid project name {} (use [a-z0-9-])",
                 text(&name).quoted()
             )));
@@ -145,7 +145,7 @@ pub fn resolve(hub: &Path, opts: ResolveOptions<'_>) -> Result<Resolved, Error> 
         res.project_dir = project_path(hub, &name);
         if !exists(hub, &name) {
             if !opts.write {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "project {} does not exist in the hub",
                     text(&name)
                 )));
@@ -159,7 +159,7 @@ pub fn resolve(hub: &Path, opts: ResolveOptions<'_>) -> Result<Resolved, Error> 
         return if opts.all_projects {
             Ok(res)
         } else {
-            Err(Error(OUTSIDE_REPO.into()))
+            Err(Error::new(OUTSIDE_REPO.into()))
         };
     }
     let mut basename = res.repo_root.as_slice();
@@ -181,7 +181,7 @@ pub fn resolve(hub: &Path, opts: ResolveOptions<'_>) -> Result<Resolved, Error> 
                 .iter()
                 .map(ToString::to_string)
                 .collect();
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "projects/{} belongs to {}; run bn project create <other-name> --link to use a different name",
                 text(&candidate),
                 remotes.join(", ")
@@ -200,7 +200,7 @@ pub fn resolve(hub: &Path, opts: ResolveOptions<'_>) -> Result<Resolved, Error> 
             }
         }
         if found.len() > 1 {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "remote {} is linked to more than one project: {}; pass --project",
                 text(&res.repo_remote),
                 found

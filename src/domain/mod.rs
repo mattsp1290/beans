@@ -30,3 +30,5 @@ pub(crate) mod yaml_value;
 mod yaml_reader;
 
 mod byte_edit;
+
+pub mod error;

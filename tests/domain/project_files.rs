@@ -10,7 +10,7 @@ use std::{
 fn bytes(v: &Value) -> Vec<u8> {
     serde_json::from_value(v.clone()).unwrap()
 }
-fn snapshot(root: &Path) -> Value {
+pub(super) fn snapshot(root: &Path) -> Value {
     fn walk(root: &Path, dir: &Path, nodes: &mut Vec<Value>) {
         let mut entries: Vec<_> = std::fs::read_dir(dir)
             .unwrap()

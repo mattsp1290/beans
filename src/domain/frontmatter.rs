@@ -2,7 +2,6 @@
 //! and field rendering; parsing alone never rewrites YAML or Markdown.
 use beans_kernel::splice::Span;
 use serde::Serialize;
-use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -39,7 +38,7 @@ impl Node {
     /// numeric and boolean spellings. Null becomes empty; aliases are rejected.
     pub fn scalar(&self, key: &str) -> Result<&str, Error> {
         if self.kind != NodeKind::Scalar {
-            return Err(Error(format!("{key} must be a string")));
+            return Err(Error::new(format!("{key} must be a string")));
         }
         Ok(if self.null == Some(true) {
             ""
@@ -70,7 +69,7 @@ impl Node {
                     .map(|node| node.value.as_deref().unwrap_or_default())
                     .collect())
             }
-            _ => Err(Error(format!("{key} must be a list of strings"))),
+            _ => Err(Error::new(format!("{key} must be a list of strings"))),
         }
     }
 }
@@ -86,16 +85,7 @@ pub struct Field {
     pub end: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Error(pub String);
-
-impl fmt::Display for Error {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(&self.0)
-    }
-}
-
-impl std::error::Error for Error {}
+pub use super::error::Error;
 
 #[derive(Clone, Debug)]
 pub struct Frontmatter {
@@ -143,12 +133,12 @@ impl Frontmatter {
         mapping: Vec<usize>,
     ) -> Result<Self, Error> {
         if source.contains("\r\n") {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: has Windows line endings (\\r\\n); bn requires \\n"
             )));
         }
         if !source.starts_with("---\n") {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: line 1: file must start with a --- frontmatter fence"
             )));
         }
@@ -164,8 +154,8 @@ impl Frontmatter {
             }
             offset += line.len();
         }
-        let fm_end =
-            fm_end.ok_or_else(|| Error(format!("{path}: frontmatter has no closing --- fence")))?;
+        let fm_end = fm_end
+            .ok_or_else(|| Error::new(format!("{path}: frontmatter has no closing --- fence")))?;
         let text = &source[fm_start..fm_end];
         let map = |at: usize| mapping.get(at).copied().unwrap_or(at);
         let yaml_raw = &raw[map(fm_start)..map(fm_end)];
@@ -174,7 +164,7 @@ impl Frontmatter {
         let yaml_text = decoded.as_ref().map_or(text, |view| view.text.as_str());
         let root = super::yaml::parse_raw(path, yaml_text, yaml_raw)?;
         if root.kind != NodeKind::Mapping {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: line {}: frontmatter must be a mapping",
                 root.line + 1
             )));
@@ -189,12 +179,12 @@ impl Frontmatter {
         let mut fields = Vec::new();
         let (pairs, remainder) = root.children.as_chunks::<2>();
         if !remainder.is_empty() {
-            return Err(Error(format!("{path}: invalid YAML mapping pairs")));
+            return Err(Error::new(format!("{path}: invalid YAML mapping pairs")));
         }
         for pair in pairs {
             let key = &pair[0];
             if key.kind != NodeKind::Scalar {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: line {}: frontmatter keys must be strings",
                     key.line + 1
                 )));
@@ -202,10 +192,10 @@ impl Frontmatter {
             let line = key
                 .line
                 .checked_sub(1)
-                .ok_or_else(|| Error(format!("{path}: invalid frontmatter line position")))?;
+                .ok_or_else(|| Error::new(format!("{path}: invalid frontmatter line position")))?;
             let start = *offsets
                 .get(line)
-                .ok_or_else(|| Error(format!("{path}: invalid frontmatter line position")))?;
+                .ok_or_else(|| Error::new(format!("{path}: invalid frontmatter line position")))?;
             fields.push(Field {
                 key: key.value.clone().unwrap_or_default(),
                 key_line: key.line,
@@ -333,12 +323,12 @@ impl Frontmatter {
         let mut seen = std::collections::HashSet::new();
         for &(index, bytes) in replacements {
             if !seen.insert(index) {
-                return Err(Error("duplicate field replacement".into()));
+                return Err(Error::new("duplicate field replacement".into()));
             }
             let field = self
                 .fields
                 .get(index)
-                .ok_or_else(|| Error("field replacement is out of bounds".into()))?;
+                .ok_or_else(|| Error::new("field replacement is out of bounds".into()))?;
             edits.push((
                 Span {
                     start: field.start,

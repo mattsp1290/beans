@@ -72,7 +72,7 @@ impl RequestDocument {
     pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
         // Go checks CRLF before request path validation.
         if source.windows(2).any(|v| v == b"\r\n") {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: has Windows line endings (\\r\\n); bn requires \\n"
             )));
         }
@@ -89,14 +89,14 @@ impl RequestDocument {
                 continue;
             }
             if !seen.insert(key) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: line {}: duplicate frontmatter key {}",
                     document.diagnostic_line(field.key_line),
                     quoted(key)
                 )));
             }
             metadata.read(key, &field.value).map_err(|error| {
-                Error(format!(
+                Error::new(format!(
                     "{path}: line {}: {error}",
                     document.diagnostic_line(field.value.line)
                 ))
@@ -104,7 +104,7 @@ impl RequestDocument {
         }
         for key in REQUIRED {
             if !seen.contains(key) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: frontmatter is missing required key {}",
                     quoted(key)
                 )));
@@ -112,7 +112,7 @@ impl RequestDocument {
         }
         metadata
             .validate()
-            .map_err(|error| Error(format!("{path}: {error}")))?;
+            .map_err(|error| Error::new(format!("{path}: {error}")))?;
         let sections = split_request_body(document.body());
         let body = super::yaml_string::YamlString::from_bytes(
             document.slice_bytes(sections.before_log).into(),
@@ -162,7 +162,7 @@ impl RequestDocument {
 
     pub fn render_body(&self) -> Result<String, Error> {
         String::from_utf8(self.render_body_bytes()?)
-            .map_err(|_| Error("body is not UTF-8; use render_body_bytes".into()))
+            .map_err(|_| Error::new("body is not UTF-8; use render_body_bytes".into()))
     }
 
     pub fn render_body_bytes(&self) -> Result<Vec<u8>, Error> {
@@ -210,28 +210,31 @@ impl RequestDocument {
 impl RequestMetadata {
     pub fn validate(&self) -> Result<(), Error> {
         if !request::valid_id(&self.id) {
-            return Err(Error(format!("invalid request id {}", quoted(&self.id))));
+            return Err(Error::new(format!(
+                "invalid request id {}",
+                quoted(&self.id)
+            )));
         }
         if self.title.trim().is_empty() {
-            return Err(Error("title must not be blank".into()));
+            return Err(Error::new("title must not be blank".into()));
         }
         if !request::valid_status(&self.status) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "invalid request status {}",
                 quoted(&self.status)
             )));
         }
         if !(0..=4).contains(&self.priority) {
-            return Err(Error("priority must be between 0 and 4".into()));
+            return Err(Error::new("priority must be between 0 and 4".into()));
         }
         let zero = instant(&Timestamp::default());
         if instant(&self.created) == zero || instant(&self.updated) == zero {
-            return Err(Error(
+            return Err(Error::new(
                 "created and updated must be RFC3339 timestamps".into(),
             ));
         }
         if !self.aliases.contains(&self.id) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "aliases must contain request id {}",
                 quoted(&self.id)
             )));
@@ -270,7 +273,7 @@ impl RequestMetadata {
             "priority" => {
                 let raw = node.scalar(key)?;
                 self.priority = raw.trim().parse().map_err(|_| {
-                    Error(format!("priority must be an integer, got {}", quoted(raw)))
+                    Error::new(format!("priority must be an integer, got {}", quoted(raw)))
                 })?;
             }
             "created" => self.created = Timestamp::read(key, node)?,
@@ -307,7 +310,7 @@ fn project_from_path(path: &str) -> Result<String, Error> {
             return Ok(tail[1].to_owned());
         }
     }
-    Err(Error(format!(
+    Err(Error::new(format!(
         "{path}: request path must be projects/<project>/requests/<id>-<slug>.md"
     )))
 }

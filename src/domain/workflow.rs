@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 mod file;
 mod yaml;
-pub use file::{decode_workflow_file, load_workflow};
+pub use file::{decode_workflow_file, decode_workflow_file_bytes, load_workflow};
 
 pub type States = Option<Vec<YamlString>>;
 pub type Transitions = Option<BTreeMap<YamlString, States>>;
@@ -89,31 +89,31 @@ impl WorkflowConfig {
     }
     pub fn validate(&self) -> Result<(), Error> {
         if list(&self.statuses).is_empty() {
-            return Err(Error("workflow: statuses must not be empty".into()));
+            return Err(Error::new("workflow: statuses must not be empty".into()));
         }
         let mut known = HashSet::new();
         for state in list(&self.statuses) {
             if state.trimmed().as_bytes().is_empty() {
-                return Err(Error(
+                return Err(Error::new(
                     "workflow: statuses must not contain empty values".into(),
                 ));
             }
             if !known.insert(state) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "workflow: duplicate status {}",
                     state.quoted()
                 )));
             }
         }
         if !known.contains(&self.default) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "workflow: default status {} is not in statuses",
                 self.default.quoted()
             )));
         }
         for state in list(&self.active) {
             if !known.contains(state) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "workflow: active status {} is not in statuses",
                     state.quoted()
                 )));
@@ -121,7 +121,7 @@ impl WorkflowConfig {
         }
         for state in list(&self.terminal) {
             if !known.contains(state) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "workflow: terminal status {} is not in statuses",
                     state.quoted()
                 )));
@@ -135,7 +135,7 @@ impl WorkflowConfig {
             .collect();
         if !overlap.is_empty() {
             overlap.sort();
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "workflow: status(es) cannot be both active and terminal: {}",
                 overlap
                     .iter()
@@ -146,14 +146,14 @@ impl WorkflowConfig {
         }
         for (from, to) in self.transitions.iter().flatten() {
             if !known.contains(from) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "workflow: transition source {} is not in statuses",
                     from.quoted()
                 )));
             }
             for state in list(to) {
                 if !known.contains(state) {
-                    return Err(Error(format!(
+                    return Err(Error::new(format!(
                         "workflow: transition target {} (from {}) is not in statuses",
                         state.quoted(),
                         from.quoted()

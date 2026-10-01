@@ -17,7 +17,7 @@ fn quoted(bytes: &[u8]) -> String {
     out
 }
 pub fn parse_duration(original: &[u8]) -> Result<i64, Error> {
-    let error = |message: &str| Error(format!("time: {message} {}", quoted(original)));
+    let error = |message: &str| Error::new(format!("time: {message} {}", quoted(original)));
     let mut input = original;
     let negative = input.first() == Some(&b'-');
     if matches!(input.first(), Some(b'-' | b'+')) {

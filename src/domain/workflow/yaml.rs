@@ -24,7 +24,7 @@ impl<'a> Decoder<'a> {
             return Ok(node);
         }
         if self.active.contains(&std::ptr::from_ref(node).addr()) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "yaml: anchor '{}' value contains itself",
                 node.anchor_name
             )));
@@ -32,7 +32,7 @@ impl<'a> Decoder<'a> {
         self.anchors
             .get(&node.anchor_id)
             .copied()
-            .ok_or_else(|| Error("yaml: unknown anchor".into()))
+            .ok_or_else(|| Error::new("yaml: unknown anchor".into()))
     }
     fn string(&mut self, node: &'a Node) -> Result<Option<YamlString>, Error> {
         let node = self.resolve(node)?;
@@ -117,14 +117,14 @@ impl<'a> Decoder<'a> {
                     resolved.children.iter().collect()
                 }
                 _ => {
-                    return Err(Error(
+                    return Err(Error::new(
                         "yaml: map merge requires map or sequence of maps as the value".into(),
                     ));
                 }
             };
             for map in maps {
                 if self.resolve(map)?.kind != NodeKind::Mapping {
-                    return Err(Error(
+                    return Err(Error::new(
                         "yaml: map merge requires map or sequence of maps as the value".into(),
                     ));
                 }
@@ -177,20 +177,21 @@ impl<'a> Decoder<'a> {
     }
 }
 pub(super) fn decode(data: &[u8]) -> Result<WorkflowFile, Error> {
-    let text =
-        std::str::from_utf8(data).map_err(|_| Error("yaml: invalid leading UTF-8 octet".into()))?;
+    let text = std::str::from_utf8(data)
+        .map_err(|_| Error::new("yaml: invalid leading UTF-8 octet".into()))?;
     let Some(node) =
         crate::domain::yaml::parse_optional_with_syntax("workflow", text, syntax_error).map_err(
             |e| {
-                let message =
-                    e.0.strip_prefix("workflow: frontmatter: ")
-                        .or_else(|| e.0.strip_prefix("workflow: "))
-                        .unwrap_or(&e.0);
-                Error(message.into())
+                let message = e
+                    .as_bytes()
+                    .strip_prefix(b"workflow: frontmatter: ")
+                    .or_else(|| e.as_bytes().strip_prefix(b"workflow: "))
+                    .unwrap_or(e.as_bytes());
+                Error::from_bytes(message.into())
             },
         )?
     else {
-        return Err(Error("EOF".into()));
+        return Err(Error::new("EOF".into()));
     };
     let mut anchor_map = HashMap::new();
     anchors(&node, &mut anchor_map);
@@ -213,7 +214,7 @@ pub(super) fn decode(data: &[u8]) -> Result<WorkflowFile, Error> {
         }
     }
     if !decoder.errors.is_empty() {
-        return Err(Error(format!(
+        return Err(Error::new(format!(
             "yaml: unmarshal errors:\n  {}",
             decoder.errors.join("\n  ")
         )));
@@ -248,12 +249,12 @@ fn syntax_error(error: &yaml_rust2::scanner::ScanError, stack: &[Node]) -> Error
             error.marker().line(),
             "found invalid Unicode character escape code",
         ),
-        _ => return Error(error.to_string()),
+        _ => return Error::new(error.to_string()),
     };
     let location = if line > 0 {
         format!("line {line}: ")
     } else {
         String::new()
     };
-    Error(format!("yaml: {location}{message}"))
+    Error::new(format!("yaml: {location}{message}"))
 }

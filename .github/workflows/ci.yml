@@ -120,6 +120,7 @@ jobs:
           make compat-remote
           make compat-resolve
           make compat-project-files
+          make compat-raw-diagnostics
           make compat-context
           make compat-index-graph
           make compat-recovery

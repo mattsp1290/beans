@@ -22,7 +22,9 @@ pub(super) fn content_fields(content: &[Node]) -> Result<String, Error> {
 
 fn validate(node: &Node) -> Result<(), Error> {
     if node.kind == Kind::Zero && node != &Node::default() {
-        return Err(Error("yaml: cannot encode node with unknown kind 0".into()));
+        return Err(Error::new(
+            "yaml: cannot encode node with unknown kind 0".into(),
+        ));
     }
     let (value, kind) = if node.kind == Kind::Alias {
         (&node.value, "alias")
@@ -30,13 +32,13 @@ fn validate(node: &Node) -> Result<(), Error> {
         (&node.anchor, "anchor")
     };
     if node.kind == Kind::Alias && value.is_empty() {
-        return Err(Error("yaml: alias value must not be empty".into()));
+        return Err(Error::new("yaml: alias value must not be empty".into()));
     }
     if !value
         .bytes()
         .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-'))
     {
-        return Err(Error(format!(
+        return Err(Error::new(format!(
             "yaml: {kind} value must contain alphanumerical characters only"
         )));
     }

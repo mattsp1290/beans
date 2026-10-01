@@ -56,7 +56,7 @@ impl<'a> Context<'a> {
         } else {
             format!("line {} ", self.line)
         };
-        Error(format!(
+        Error::new(format!(
             "toml: {line}(last key {}): {message}",
             context.quoted()
         ))
@@ -133,7 +133,7 @@ fn parse_mode(data: &[u8], full: bool) -> Result<(String, Spanned<Node>), Error>
     let source = std::str::from_utf8(data).map_err(|e| {
         let offset = e.valid_up_to();
         let line = 1 + data[..offset].iter().filter(|&&b| b == b'\n').count();
-        let error = Error(format!(
+        let error = Error::new(format!(
             "line {line}: invalid UTF-8 byte: 0x{:02x}",
             data[offset]
         ));
@@ -185,7 +185,10 @@ pub(crate) fn decode_workflow_toml(data: &[u8]) -> Result<WorkflowFile, Error> {
         .map(|entry| super::toml_metadata::format_key(&entry.path))
         .collect();
     if !unknown.is_empty() {
-        return Err(Error(format!("unknown key(s): {}", unknown.join(", "))));
+        return Err(Error::new(format!(
+            "unknown key(s): {}",
+            unknown.join(", ")
+        )));
     }
     Ok(cfg)
 }
@@ -281,11 +284,7 @@ pub fn decode_hub_config(data: &[u8]) -> Result<HubConfig, Error> {
 }
 
 fn file_error(path: &Path, operation: &str, error: std::io::Error) -> Error {
-    Error(format!(
-        "{}: {}",
-        path_name(path),
-        path_error(operation, path, error)
-    ))
+    path_error(operation, path, error).context(path_name(path).as_bytes())
 }
 fn load<T>(
     path: &Path,
@@ -300,7 +299,7 @@ fn load<T>(
     let mut data = Vec::new();
     file.read_to_end(&mut data)
         .map_err(|e| file_error(path, "read", e))?;
-    decode(&data).map_err(|e| Error(format!("{}: {e}", path_name(path))))
+    decode(&data).map_err(|e| e.context(path_name(path).as_bytes()))
 }
 pub fn load_user_config(path: &Path) -> Result<UserConfig, Error> {
     load(path, UserConfig::default, decode_user_config)

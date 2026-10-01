@@ -6,21 +6,31 @@ use crate::domain::{
 };
 use std::{fs::File, io::Read, path::Path};
 pub fn decode_workflow_file(name: &str, data: &[u8]) -> Result<WorkflowFile, Error> {
+    decode_workflow_file_bytes(name.as_bytes(), data)
+}
+pub fn decode_workflow_file_bytes(name: &[u8], data: &[u8]) -> Result<WorkflowFile, Error> {
     // filepath.Ext also treats a leading dot and a trailing dot as extensions.
-    let base = name.rsplit('/').next().unwrap_or(name);
+    let base = name.rsplit(|b| *b == b'/').next().unwrap_or(name);
     let ext = base
-        .rfind('.')
-        .map(|i| base[i..].to_lowercase())
+        .iter()
+        .rposition(|b| *b == b'.')
+        .map(|i| {
+            crate::domain::yaml_string::YamlString::from_bytes(base[i..].into())
+                .to_string()
+                .to_lowercase()
+        })
         .unwrap_or_default();
     let result = match ext.as_str() {
         ".toml" => decode_workflow_toml(data),
         ".yaml" | ".yml" => super::yaml::decode(data),
-        _ => Err(Error(format!(
+        _ => Err(Error::new(format!(
             "unsupported extension {} (use .toml, .yaml, or .yml)",
             crate::domain::yaml_string::YamlString::from(ext).quoted()
         ))),
     };
-    result.map_err(|e| Error(format!("workflow config {name}: {e}")))
+    let mut prefix = b"workflow config ".to_vec();
+    prefix.extend_from_slice(name);
+    result.map_err(|e| e.context(&prefix))
 }
 pub fn load_workflow(
     explicit: Option<&Path>,
@@ -29,17 +39,16 @@ pub fn load_workflow(
 ) -> Result<WorkflowConfig, Error> {
     let mut workflow = WorkflowConfig::built_in();
     if let Some(path) = explicit.filter(|p| !p.as_os_str().is_empty()) {
-        let prefix = format!("workflow config {}", path_name(path));
-        let mut file = File::open(path)
-            .map_err(|e| Error(format!("{prefix}: {}", path_error("open", path, e))))?;
+        let mut prefix = b"workflow config ".to_vec();
+        prefix.extend_from_slice(path_name(path).as_bytes());
+        let mut file =
+            File::open(path).map_err(|e| path_error("open", path, e).context(&prefix))?;
         let mut data = Vec::new();
         file.read_to_end(&mut data)
-            .map_err(|e| Error(format!("{prefix}: {}", path_error("read", path, e))))?;
-        let file = decode_workflow_file(&path_name(path).to_string(), &data)?;
+            .map_err(|e| path_error("read", path, e).context(&prefix))?;
+        let file = decode_workflow_file_bytes(path_name(path).as_bytes(), &data)?;
         workflow = workflow.merge(&file);
-        workflow
-            .validate()
-            .map_err(|e| Error(format!("{prefix}: {e}")))?;
+        workflow.validate().map_err(|e| e.context(&prefix))?;
         return Ok(workflow);
     }
     for (name, data) in [
@@ -50,7 +59,7 @@ pub fn load_workflow(
             continue;
         }
         let file =
-            decode_workflow_file("beans.toml", data).map_err(|e| Error(format!("{name}: {e}")))?;
+            decode_workflow_file("beans.toml", data).map_err(|e| e.context(name.as_bytes()))?;
         workflow = workflow.merge(&file);
     }
     workflow.validate()?;

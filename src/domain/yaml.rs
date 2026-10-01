@@ -26,7 +26,7 @@ fn scalar_null(value: &str, style: TScalarStyle, tag: Option<&Tag>) -> bool {
 
 pub(crate) fn parse_raw(path: &str, text: &str, raw: &[u8]) -> Result<Node, Error> {
     parse_optional_inner(path, text, raw, None)?
-        .ok_or_else(|| Error(format!("{path}: line 2: frontmatter is empty")))
+        .ok_or_else(|| Error::new(format!("{path}: line 2: frontmatter is empty")))
 }
 
 pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Error> {
@@ -88,7 +88,7 @@ fn parse_optional_inner(
                 } else {
                     String::new()
                 };
-                return Error(format!(
+                return Error::new(format!(
                     "{path}: frontmatter: yaml: {location}did not find expected node content"
                 ));
             }
@@ -121,7 +121,7 @@ fn parse_optional_inner(
                 } else {
                     String::new()
                 };
-                return Error(format!(
+                return Error::new(format!(
                     "{path}: frontmatter: yaml: {where_}did not find expected key"
                 ));
             }
@@ -130,14 +130,14 @@ fn parse_optional_inner(
                     if token.0.index() == error.marker().index()
                         && let TokenType::Alias(name) = token.1
                     {
-                        return Error(format!(
+                        return Error::new(format!(
                             "{path}: frontmatter: yaml: unknown anchor '{name}' referenced"
                         ));
                     }
                 }
             }
             if error.info() == "simple key expected" {
-                return Error(format!(
+                return Error::new(format!(
                     "{path}: frontmatter: yaml: line {}: could not find expected ':'",
                     error.marker().line().saturating_sub(1)
                 ));
@@ -147,7 +147,7 @@ fn parse_optional_inner(
             if let Some(syntax) = syntax {
                 return syntax(&error, &stack);
             }
-            Error(format!("{path}: frontmatter: {error}"))
+            Error::new(format!("{path}: frontmatter: {error}"))
         })?;
         reader.check(path, marker.line(), marker.col())?;
         let node = match event {
@@ -181,7 +181,7 @@ fn parse_optional_inner(
             }
             Event::MappingEnd | Event::SequenceEnd => stack
                 .pop()
-                .ok_or_else(|| Error(format!("{path}: invalid YAML container")))?,
+                .ok_or_else(|| Error::new(format!("{path}: invalid YAML container")))?,
             Event::Scalar(mut value, style, anchor, tag) => {
                 if matches!(
                     style,
@@ -197,7 +197,7 @@ fn parse_optional_inner(
                 // one line, since leading blank lines and split values exist.
                 let line = if matches!(style, TScalarStyle::Literal | TScalarStyle::Folded) {
                     let header = positions.block_headers.pop_front().ok_or_else(|| {
-                        Error(format!("{path}: could not locate block scalar header"))
+                        Error::new(format!("{path}: could not locate block scalar header"))
                     })?;
                     // The scanner supplies a virtual LF at EOF for an empty
                     // keep-chomp block. yaml.v3 retains only physical blank

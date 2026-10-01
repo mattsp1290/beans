@@ -116,24 +116,24 @@ pub fn set_node_ref(
     node_id: &str,
     reference: &str,
 ) -> Result<EditResult, Error> {
-    let p = plan.ok_or_else(|| Error("nil plan".into()))?;
+    let p = plan.ok_or_else(|| Error::new("nil plan".into()))?;
     let node = p
         .graph
         .nodes
         .as_mut()
         .and_then(|nodes| nodes.iter_mut().find(|n| n.id == node_id))
-        .ok_or_else(|| Error(format!("graph node {} not found", quoted(node_id))))?;
+        .ok_or_else(|| Error::new(format!("graph node {} not found", quoted(node_id))))?;
     node.reference = reference.into();
     let data = render(&p.graph);
     let start = p
         .body
         .find("```bn-change-graph\n")
-        .ok_or_else(|| Error(format!("{}: missing bn-change-graph fence", p.path)))?;
+        .ok_or_else(|| Error::new(format!("{}: missing bn-change-graph fence", p.path)))?;
     let content = start + "```bn-change-graph\n".len();
     let end = p.body[content..]
         .find("\n```")
         .map(|i| content + i)
-        .ok_or_else(|| Error(format!("{}: unterminated bn-change-graph fence", p.path)))?;
+        .ok_or_else(|| Error::new(format!("{}: unterminated bn-change-graph fence", p.path)))?;
     let result = byte_edit::apply(
         p.body.as_bytes(),
         vec![(
@@ -145,8 +145,8 @@ pub fn set_node_ref(
         )],
     )?;
     p.body = String::from_utf8(result.bytes.clone())
-        .map_err(|_| Error("invalid UTF-8 plan body".into()))?;
+        .map_err(|_| Error::new("invalid UTF-8 plan body".into()))?;
     (p.summary, p.graph) = parse_summary(&p.path, &p.body)?;
-    validate(Some(p)).map_err(|e| Error(e.to_string()))?;
+    validate(Some(p)).map_err(|e| Error::new(e.to_string()))?;
     Ok(result)
 }

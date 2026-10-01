@@ -47,39 +47,39 @@ fn suffix(s: &[u8]) -> &[u8] {
 }
 fn validate(s: &[u8]) -> Result<(), Error> {
     if s.is_empty() {
-        return Err(Error("repository: remote_url is required".into()));
+        return Err(Error::new("repository: remote_url is required".into()));
     }
     if control(s) {
-        return Err(Error(
+        return Err(Error::new(
             "repository: remote_url contains control characters".into(),
         ));
     }
     if scp(s).is_some() {
         return Ok(());
     }
-    let url =
-        remote_url::parse(s).map_err(|e| Error(format!("repository: remote_url parse: {e}")))?;
+    let url = remote_url::parse(s)
+        .map_err(|e| Error::new(format!("repository: remote_url parse: {e}")))?;
     match url.scheme.as_slice() {
         b"" => Ok(()),
-        b"file" if url.user => Err(Error(
+        b"file" if url.user => Err(Error::new(
             "repository: file remote_url must not include userinfo".into(),
         )),
         b"file" => Ok(()),
         b"ssh" | b"git" | b"http" | b"https" => {
             if url.host.is_empty() {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "repository: {} remote_url requires a host",
                     String::from_utf8_lossy(&url.scheme)
                 )));
             }
             if matches!(url.scheme.as_slice(), b"http" | b"https") && url.user {
-                return Err(Error(
+                return Err(Error::new(
                     "repository: http(s) remote_url must not include userinfo".into(),
                 ));
             }
             Ok(())
         }
-        _ => Err(Error(format!(
+        _ => Err(Error::new(format!(
             "repository: unsupported remote_url scheme {}",
             quote(&url.scheme)
         ))),
@@ -94,8 +94,8 @@ pub fn remote_host(remote: &[u8]) -> Result<Option<Vec<u8>>, Error> {
     if let Some(colon) = scp(&s) {
         return Ok(Some(lower(strip_user(&s[..colon]))));
     }
-    let url =
-        remote_url::parse(&s).map_err(|e| Error(format!("repository: remote_url parse: {e}")))?;
+    let url = remote_url::parse(&s)
+        .map_err(|e| Error::new(format!("repository: remote_url parse: {e}")))?;
     if matches!(url.scheme.as_slice(), b"" | b"file") {
         return Ok(None);
     }
@@ -104,17 +104,17 @@ pub fn remote_host(remote: &[u8]) -> Result<Option<Vec<u8>>, Error> {
 pub fn normalize_remote_url(remote: &[u8]) -> Result<Vec<u8>, Error> {
     let s = trim(remote);
     if s.is_empty() {
-        return Err(Error(NO_REMOTE.into()));
+        return Err(Error::new(NO_REMOTE.into()));
     }
     if control(&s) {
-        return Err(Error(
+        return Err(Error::new(
             "repository: remote_url contains control characters".into(),
         ));
     }
     if let Some(colon) = scp(&s) {
         let host = lower(&trim(strip_user(&s[..colon])));
         if host.is_empty() {
-            return Err(Error(
+            return Err(Error::new(
                 "repository: NormalizeRemoteURL: empty host in SCP remote".into(),
             ));
         }
@@ -132,13 +132,13 @@ pub fn normalize_remote_url(remote: &[u8]) -> Result<Vec<u8>, Error> {
     let Url {
         scheme, host, path, ..
     } = remote_url::parse(&s)
-        .map_err(|e| Error(format!("repository: NormalizeRemoteURL parse: {e}")))?;
+        .map_err(|e| Error::new(format!("repository: NormalizeRemoteURL parse: {e}")))?;
     match scheme.as_slice() {
         b"http" | b"https" | b"ssh" | b"git" => {
             let (name, port) = remote_url::host_port(&host);
             let name = lower(name);
             if name.is_empty() {
-                return Err(Error(
+                return Err(Error::new(
                     "repository: NormalizeRemoteURL: missing host in URL".into(),
                 ));
             }
@@ -159,14 +159,14 @@ pub fn normalize_remote_url(remote: &[u8]) -> Result<Vec<u8>, Error> {
         }
         b"file" => {
             if !host.is_empty() && !host.eq_ignore_ascii_case(b"localhost") {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "repository: NormalizeRemoteURL: file:// URL must not specify a host, got {}; use ssh:// for network file remotes",
                     quote(&host)
                 )));
             }
             let path = suffix(&path);
             if path.is_empty() {
-                return Err(Error(
+                return Err(Error::new(
                     "repository: NormalizeRemoteURL: empty path in file URL".into(),
                 ));
             }
@@ -174,7 +174,7 @@ pub fn normalize_remote_url(remote: &[u8]) -> Result<Vec<u8>, Error> {
         }
         b"" => {
             if !s.starts_with(b"/") {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "repository: NormalizeRemoteURL: relative path {} is ambiguous as a canonical key; use an absolute path or file:// URL",
                     quote(&s)
                 )));
@@ -183,7 +183,7 @@ pub fn normalize_remote_url(remote: &[u8]) -> Result<Vec<u8>, Error> {
             let path = path.strip_suffix(b".git").unwrap_or(&path);
             Ok([b"file://".as_slice(), path].concat())
         }
-        _ => Err(Error(format!(
+        _ => Err(Error::new(format!(
             "repository: NormalizeRemoteURL: unsupported scheme {}",
             quote(&scheme)
         ))),

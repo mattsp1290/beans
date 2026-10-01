@@ -292,7 +292,7 @@ pub(crate) fn string_map(data: &[u8]) -> Option<BTreeMap<Vec<u8>, YamlValue>> {
     // The generic decoder accepts alias keys; use the shared parser's alias
     // key adaptation. Syntax errors leave the original doc body available.
     let node = super::yaml::parse_optional_with_syntax("document", text, |_, _| {
-        super::frontmatter::Error("invalid YAML".into())
+        super::frontmatter::Error::new("invalid YAML".into())
     })
     .ok()??;
     if node.kind != NodeKind::Mapping || !duplicate_errors(&node).is_empty() {

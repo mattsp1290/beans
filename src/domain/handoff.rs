@@ -49,7 +49,7 @@ impl HandoffDocument {
     pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
         let document = Frontmatter::parse_bytes(path, source)?;
         let (project, archived) =
-            path_info(path).ok_or_else(|| Error(format!("{path}: not a handoff path")))?;
+            path_info(path).ok_or_else(|| Error::new(format!("{path}: not a handoff path")))?;
         let mut metadata = HandoffMetadata {
             project: project.to_owned(),
             archived,
@@ -60,7 +60,7 @@ impl HandoffDocument {
             let key = field.key.as_str();
             // Unlike memories/requests/issues, unknown keys also own uniqueness.
             if !seen.insert(key) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: line {}: duplicate frontmatter key {}",
                     document.diagnostic_line(field.key_line),
                     quoted(key)
@@ -86,7 +86,7 @@ impl HandoffDocument {
                 Ok(())
             };
             read().map_err(|error| {
-                Error(format!(
+                Error::new(format!(
                     "{path}: line {}: {error}",
                     document.diagnostic_line(field.value.line)
                 ))
@@ -98,12 +98,12 @@ impl HandoffDocument {
             || instant(&metadata.created) == zero
             || instant(&metadata.updated) == zero
         {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: frontmatter is missing required handoff fields"
             )));
         }
         if !super::id::valid_id(&metadata.id) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: invalid handoff id {}",
                 quoted(&metadata.id)
             )));
@@ -115,7 +115,7 @@ impl HandoffDocument {
             .strip_suffix(".md")
             .unwrap();
         if filename != metadata.id && !filename.starts_with(&format!("{}-", metadata.id)) {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: filename does not match handoff id {}",
                 quoted(&metadata.id)
             )));

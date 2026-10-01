@@ -52,7 +52,7 @@ pub(crate) fn decoded_string(node: &Node) -> Result<YamlString, Error> {
     ) && resolved != node.tag
         && !(node.tag == "!!float" && resolved == "!!int")
     {
-        return Err(Error(format!(
+        return Err(Error::new(format!(
             "yaml: cannot decode {resolved} `{value}` as a {}",
             node.tag
         )));
@@ -60,7 +60,7 @@ pub(crate) fn decoded_string(node: &Node) -> Result<YamlString, Error> {
     if node.tag == "!!binary" {
         return crate::domain::yaml_string::binary(value)
             .map(YamlString::from_bytes)
-            .ok_or_else(|| Error("yaml: !!binary value contains invalid base64 data".into()));
+            .ok_or_else(|| Error::new("yaml: !!binary value contains invalid base64 data".into()));
     }
     Ok(value.into())
 }

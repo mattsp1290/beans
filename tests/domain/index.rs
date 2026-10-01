@@ -348,3 +348,72 @@ fn index_original_reload_section_keeps_last_valid_plan() {
     assert_eq!(body(&ix), "# Changed\n");
     assert!(!ix.graph.warnings().is_empty());
 }
+
+#[test]
+fn duplicate_basename_keeps_every_issue_original_regression() {
+    use beans::vault::{NoteData, NoteKind};
+    let root = hub("duplicate-basename-regression", true);
+    let path = root.0.join("projects/b/issues/a-open001.md");
+    std::fs::write(&path, b"---\nid: b-dup001\ntitle: Duplicate basename\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nbody\n").unwrap();
+    std::fs::create_dir_all(root.0.join("projects/b/docs")).unwrap();
+    std::fs::write(root.0.join("projects/b/docs/parity.md"), b"# B parity\n").unwrap();
+    let mut ix = Index::load(&root.0).unwrap();
+    assert!(ix.note_by_id(NoteKind::Issue, b"b-dup001").is_some());
+    assert_eq!(ix.lookup(b"a-open001").unwrap().project, b"a");
+    for target in [b"projects/b/docs/parity.md".as_slice(), b"b/docs/parity"] {
+        assert_eq!(
+            ix.lookup(target).unwrap().graph.path,
+            b"projects/b/docs/parity.md"
+        );
+    }
+    assert_eq!(
+        ix.graph
+            .warnings()
+            .iter()
+            .filter(|w| w.error.contains("duplicate note basename"))
+            .count(),
+        2
+    );
+    let winner = root.0.join("projects/a/issues/a-open001.md");
+    std::fs::remove_file(&winner).unwrap();
+    ix.reload(&[winner]).unwrap();
+    let promoted = ix.lookup(b"a-open001").unwrap();
+    assert_eq!(promoted.project, b"b");
+    match &promoted.data {
+        NoteData::Issue(d) => assert_eq!(d.metadata.id, "b-dup001"),
+        _ => panic!("not issue"),
+    }
+    assert!(ix.note_by_id(NoteKind::Issue, b"a-open001").is_none());
+}
+#[test]
+fn reload_project_config_refreshes_workflow_original_regression() {
+    let root = hub("reload-workflow-regression", true);
+    let mut ix = Index::load(&root.0).unwrap();
+    assert!(!ix.workflow_for(b"a").is_active(b"blocked"));
+    let path = root.0.join("projects/a/beans.toml");
+    let mut data = std::fs::read(&path).unwrap();
+    data.extend_from_slice(b"\n[workflow]\nactive = [\"open\", \"blocked\"]\n");
+    std::fs::write(&path, data).unwrap();
+    ix.reload(&[path]).unwrap();
+    assert!(ix.workflow_for(b"a").is_active(b"blocked"));
+    assert!(!ix.ordered_notes().is_empty());
+    assert!(
+        ix.ordered_notes()
+            .iter()
+            .any(|n| n.graph.kind == beans::vault::NoteKind::Issue)
+    );
+}
+#[test]
+fn reload_rejects_paths_outside_hub_original_regression() {
+    let root = hub("reload-outside-regression", true);
+    let mut ix = Index::load(&root.0).unwrap();
+    let before = snapshot(&ix, &root.0);
+    let outside = hub("reload-external-regression", false);
+    for path in [
+        outside.0.join("elsewhere.md"),
+        PathBuf::from("../escape.md"),
+    ] {
+        assert!(ix.reload(&[path]).is_err());
+        assert_eq!(snapshot(&ix, &root.0), before);
+    }
+}

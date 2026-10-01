@@ -235,5 +235,5 @@ fn printable(c: char) -> bool {
 }
 
 fn reader_error(path: &str, reason: &str) -> Error {
-    Error(format!("{path}: frontmatter: yaml: {reason}"))
+    Error::new(format!("{path}: frontmatter: yaml: {reason}"))
 }

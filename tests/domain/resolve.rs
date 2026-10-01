@@ -20,7 +20,7 @@ impl Fake<'_> {
         GitCapture {
             found: !value.is_empty(),
             value,
-            error: Some(Error("ignored capture error".into())),
+            error: Some(Error::new("ignored capture error".into())),
         }
     }
 }

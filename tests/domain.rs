@@ -512,3 +512,6 @@ mod parser_regressions;
 
 #[path = "domain/project_files.rs"]
 mod project_files;
+
+#[path = "domain/raw_diagnostics.rs"]
+mod raw_diagnostics;

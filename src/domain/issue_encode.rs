@@ -145,7 +145,7 @@ pub(super) fn raw_link(link: &Link) -> String {
 
 pub(super) fn timestamp_pair(key: &str, value: &Timestamp, comment: &str) -> Result<String, Error> {
     let date = OffsetDateTime::from_unix_timestamp(value.seconds)
-        .map_err(|_| Error("issue timestamp is out of range".into()))?;
+        .map_err(|_| Error::new("issue timestamp is out of range".into()))?;
     let year = if date.year() < 0 {
         format!("-{:04}", -date.year())
     } else {

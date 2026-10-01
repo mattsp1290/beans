@@ -7,23 +7,27 @@ pub fn valid_status(value: &str) -> bool {
 
 pub fn validate(plan: Option<&Plan>) -> Result<(), Error> {
     let Some(plan) = plan else {
-        return Err(Error("nil plan".into()));
+        return Err(Error::new("nil plan".into()));
     };
     if !valid_status(&plan.status) {
-        return Err(Error("invalid plan status".into()));
+        return Err(Error::new("invalid plan status".into()));
     }
     if plan.status == DRAFT {
         return Ok(());
     }
     if !meaningful(&plan.summary.outcome) {
-        return Err(Error("Summary Outcome must contain meaningful text".into()));
+        return Err(Error::new(
+            "Summary Outcome must contain meaningful text".into(),
+        ));
     }
     let risks = list_items(&plan.summary.risks);
     if plan.status == BLOCKED {
         if risks.iter().any(|risk| risk.trim().starts_with("BLOCKER:")) {
             return Ok(());
         }
-        return Err(Error("blocked plans require a BLOCKER: Risks item".into()));
+        return Err(Error::new(
+            "blocked plans require a BLOCKER: Risks item".into(),
+        ));
     }
     if [
         &plan.summary.outcome,
@@ -34,19 +38,23 @@ pub fn validate(plan: Option<&Plan>) -> Result<(), Error> {
     .iter()
     .any(|value| value.contains("<!-- bn:todo -->"))
     {
-        return Err(Error("ready plans cannot contain bn:todo markers".into()));
+        return Err(Error::new(
+            "ready plans cannot contain bn:todo markers".into(),
+        ));
     }
     if list_items(&plan.summary.affected_areas).is_empty() {
-        return Err(Error("ready plans require Affected areas list".into()));
+        return Err(Error::new("ready plans require Affected areas list".into()));
     }
     if !ordered_items(&plan.summary.execution_order) {
-        return Err(Error("ready plans require ordered Execution order".into()));
+        return Err(Error::new(
+            "ready plans require ordered Execution order".into(),
+        ));
     }
     if risks.is_empty() {
-        return Err(Error("ready plans require Risks list".into()));
+        return Err(Error::new("ready plans require Risks list".into()));
     }
     if plan.graph.nodes.as_ref().is_none_or(Vec::is_empty) {
-        return Err(Error("ready plans require a graph node".into()));
+        return Err(Error::new("ready plans require a graph node".into()));
     }
     Ok(())
 }

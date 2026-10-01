@@ -83,7 +83,7 @@ fn absolute_hub_does_not_require_a_working_directory() {
     let error = default_paths_with(
         OsStr::new("relative"),
         |_| OsString::from("/home"),
-        || Err(Error("getwd failed".into())),
+        || Err(Error::new("getwd failed".into())),
     )
     .unwrap_err();
     assert_eq!(error.to_string(), "getwd failed");

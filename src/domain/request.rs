@@ -42,7 +42,7 @@ pub fn validate_transition(from: &str, to: &str) -> Result<(), Error> {
     {
         return Ok(());
     }
-    Err(Error(format!(
+    Err(Error::new(format!(
         "invalid request status transition {} -> {}",
         quoted(from),
         quoted(to)

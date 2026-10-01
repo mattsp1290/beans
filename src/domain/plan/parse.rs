@@ -14,7 +14,7 @@ const OWNED: &[&str] = &[
 ];
 fn scalar(node: &Node) -> Result<&str, Error> {
     if node.kind != NodeKind::Scalar {
-        return Err(Error("must be scalar".into()));
+        return Err(Error::new("must be scalar".into()));
     }
     Ok(node.value.as_deref().unwrap_or_default())
 }
@@ -33,7 +33,7 @@ fn list(node: &Node, anchors: &HashMap<usize, &Node>) -> Result<Vec<YamlString>,
         anchors
             .get(&node.anchor_id)
             .copied()
-            .ok_or_else(|| Error("yaml: unknown anchor".into()))?
+            .ok_or_else(|| Error::new("yaml: unknown anchor".into()))?
     } else {
         node
     };
@@ -62,7 +62,7 @@ fn list(node: &Node, anchors: &HashMap<usize, &Node>) -> Result<Vec<YamlString>,
                 anchors
                     .get(&child.anchor_id)
                     .copied()
-                    .ok_or_else(|| Error("yaml: unknown anchor".into()))?
+                    .ok_or_else(|| Error::new("yaml: unknown anchor".into()))?
             } else {
                 child
             };
@@ -88,7 +88,7 @@ fn list(node: &Node, anchors: &HashMap<usize, &Node>) -> Result<Vec<YamlString>,
     if errors.is_empty() {
         Ok(result)
     } else {
-        Err(Error(format!(
+        Err(Error::new(format!(
             "yaml: unmarshal errors:\n  {}",
             errors.join("\n  ")
         )))
@@ -96,7 +96,7 @@ fn list(node: &Node, anchors: &HashMap<usize, &Node>) -> Result<Vec<YamlString>,
 }
 /// Parse a strict plan manifest; section files and authored lifecycle are validated separately.
 pub fn parse(path: &str, data: &[u8]) -> Result<Plan, Error> {
-    let fail = |message: &str| Error(format!("{path}: {message}"));
+    let fail = |message: &str| Error::new(format!("{path}: {message}"));
     if data.contains(&0) {
         return Err(fail("contains NUL bytes"));
     }

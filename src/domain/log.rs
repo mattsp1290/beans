@@ -130,12 +130,12 @@ impl LogEntry {
 
     pub fn format(&self) -> Result<String, Error> {
         String::from_utf8(self.format_bytes()?)
-            .map_err(|_| Error("log entry is not UTF-8; use format_bytes".into()))
+            .map_err(|_| Error::new("log entry is not UTF-8; use format_bytes".into()))
     }
 
     pub fn format_bytes(&self) -> Result<Vec<u8>, Error> {
         let at = OffsetDateTime::from_unix_timestamp(self.at.seconds)
-            .map_err(|_| Error("log timestamp is out of range".to_owned()))?;
+            .map_err(|_| Error::new("log timestamp is out of range".to_owned()))?;
         let year = if at.year() < 0 {
             format!("-{:04}", -at.year())
         } else {
@@ -174,7 +174,7 @@ impl LogEntry {
 
     pub fn line(&self) -> Result<String, Error> {
         String::from_utf8(self.line_bytes()?)
-            .map_err(|_| Error("log entry is not UTF-8; use line_bytes".into()))
+            .map_err(|_| Error::new("log entry is not UTF-8; use line_bytes".into()))
     }
 
     pub fn line_bytes(&self) -> Result<Vec<u8>, Error> {
@@ -230,7 +230,7 @@ pub fn parse_section_bytes(raw: &[u8]) -> Vec<LogEntry> {
 /// Append after the last nonblank line, preserving original blank lines.
 pub fn append_to_section(raw: &str, entries: &[LogEntry]) -> Result<String, Error> {
     String::from_utf8(append_to_section_bytes(raw.as_bytes(), entries)?)
-        .map_err(|_| Error("log section is not UTF-8; use its byte representation".into()))
+        .map_err(|_| Error::new("log section is not UTF-8; use its byte representation".into()))
 }
 
 pub(crate) fn append_to_section_bytes(raw: &[u8], entries: &[LogEntry]) -> Result<Vec<u8>, Error> {

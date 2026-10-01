@@ -67,26 +67,35 @@ impl Index {
         let absolute = if raw.starts_with(b"/") {
             clean(raw)
         } else {
-            let cwd = std::env::current_dir()
-                .map_err(|e| Error(format!("vault: resolve hub dir {}: {e}", path_name(hub))))?;
+            let cwd = std::env::current_dir().map_err(|e| {
+                Error::new(e.to_string()).context(
+                    &[
+                        b"vault: resolve hub dir ".as_slice(),
+                        path_name(hub).as_bytes(),
+                    ]
+                    .concat(),
+                )
+            })?;
             join(&[cwd.as_os_str().as_bytes(), raw])
         };
         let hub_dir = path(&absolute);
         let toml_path = hub_dir.join("beans.toml");
         let hub_config = config::load_hub_config(&toml_path)
-            .map_err(|e| Error(format!("vault: load hub config: {e}")))?;
+            .map_err(|e| e.context(b"vault: load hub config"))?;
         let hub_toml = match read_with_kind(&toml_path) {
             Ok(v) => v,
             Err((std::io::ErrorKind::NotFound, _)) => Vec::new(),
             Err((_, e)) => {
-                return Err(Error(format!("vault: read {}: {e}", path_name(&toml_path))));
+                return Err(e.context(
+                    &[b"vault: read ".as_slice(), path_name(&toml_path).as_bytes()].concat(),
+                ));
             }
         };
         let workflow = load_workflow(options.explicit_workflow.as_deref(), &[], &hub_toml)
-            .map_err(|e| Error(format!("vault: hub workflow: {e}")))?;
+            .map_err(|e| e.context(b"vault: hub workflow"))?;
         let mut project_paths =
             glob::glob(&join(&[&absolute, b"projects", b"*", b"beans.toml"]))
-                .map_err(|_| Error("vault: glob projects: syntax error in pattern".into()))?;
+                .map_err(|_| Error::new("vault: glob projects: syntax error in pattern".into()))?;
         project_paths.sort();
         let mut projects = BTreeMap::new();
         for raw_path in project_paths {
@@ -94,19 +103,20 @@ impl Index {
             let dir = toml_path.parent().unwrap().to_path_buf();
             let name = dir.file_name().unwrap().as_bytes().to_vec();
             let config = config::load_project_config(&toml_path).map_err(|e| {
-                Error(format!(
-                    "vault: load project config {}: {e}",
-                    path_name(&toml_path)
-                ))
+                e.context(
+                    &[
+                        b"vault: load project config ".as_slice(),
+                        path_name(&toml_path).as_bytes(),
+                    ]
+                    .concat(),
+                )
             })?;
-            let raw = read(&toml_path)
-                .map_err(|e| Error(format!("vault: read {}: {e}", path_name(&toml_path))))?;
+            let raw = read(&toml_path).map_err(|e| {
+                e.context(&[b"vault: read ".as_slice(), path_name(&toml_path).as_bytes()].concat())
+            })?;
             let workflow = load_workflow(options.explicit_workflow.as_deref(), &raw, &hub_toml)
                 .map_err(|e| {
-                    Error(format!(
-                        "vault: workflow for project {}: {e}",
-                        path_name(&path(&name))
-                    ))
+                    e.context(&[b"vault: workflow for project ".as_slice(), &name].concat())
                 })?;
             projects.insert(
                 name.clone(),

@@ -67,7 +67,7 @@ impl MemoryDocument {
                 continue;
             }
             if !seen.insert(key) {
-                return Err(Error(format!(
+                return Err(Error::new(format!(
                     "{path}: line {}: duplicate frontmatter key {}",
                     document.diagnostic_line(field.key_line),
                     quoted(key)
@@ -101,14 +101,14 @@ impl MemoryDocument {
                 Ok(())
             };
             read().map_err(|error| {
-                Error(format!(
+                Error::new(format!(
                     "{path}: line {}: {error}",
                     document.diagnostic_line(field.value.line)
                 ))
             })?;
         }
         if metadata.key.is_empty() {
-            return Err(Error(format!(
+            return Err(Error::new(format!(
                 "{path}: frontmatter is missing required key \"key\""
             )));
         }

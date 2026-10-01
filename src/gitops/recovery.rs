@@ -27,7 +27,7 @@ fn parts(target: &Path) -> Result<(PathBuf, Vec<u8>), Error> {
         base.rsplit(|&b| b == b'/').next().unwrap()
     };
     if matches!(base, b"." | b"/" | b"") {
-        return Err(Error(format!(
+        return Err(Error::new(format!(
             "invalid tree target {}",
             YamlString::from_bytes(raw.into()).quoted()
         )));
@@ -98,16 +98,15 @@ pub fn recover_tree(target: &Path) -> Result<(), Error> {
         Ok(_) => match std::fs::symlink_metadata(target) {
             Err(e) if e.kind() == io::ErrorKind::NotFound => std::fs::rename(&backup, target)
                 .map_err(|e| {
-                    Error(format!(
+                    Error::new(format!(
                         "recover tree backup: rename {} {}: {}",
                         YamlString::from_bytes(backup.as_os_str().as_bytes().into()),
                         YamlString::from_bytes(target.as_os_str().as_bytes().into()),
                         reason(e)
                     ))
                 }),
-            Ok(_) => {
-                remove_all(&backup).map_err(|e| Error(format!("clear completed tree backup: {e}")))
-            }
+            Ok(_) => remove_all(&backup)
+                .map_err(|e| Error::new(format!("clear completed tree backup: {e}"))),
             Err(e) => Err(path_error("lstat", target, e)),
         },
         Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),

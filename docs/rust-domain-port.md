@@ -532,3 +532,42 @@ operation-owned project-file primitive and original issue-regression slices;
 it does not establish the whole WP3 lossless/schema/fault/transport/performance
 gate. WP5 remains held, Go remains default, and WP4-WP9 plus final requested
 review/fix-review remain unfinished.
+
+
+### Canonical diagnostic bytes and remaining synchronous vault regressions
+
+The shared domain error now owns canonical `YamlString` bytes, with `as_bytes`
+for command transports and a byte-preserving context method. `Display` remains
+a read-only Unicode view for JSON/text inspection; formatting an error through
+it cannot qualify raw stderr parity. Constructor calls were migrated explicitly,
+without encoding raw bytes into a Unicode surrogate or escape convention.
+Filesystem path errors, config loading, explicit workflow names/contexts,
+index load contexts and outside-hub reload errors now preserve original bytes.
+
+`compat-raw-diagnostics` captures 4,257 fixed-Go cases and compares raw diagnostic
+byte arrays, not JSON error strings. Config/workflow cases include every byte
+value in a filename, Unicode names, missing files, directories, malformed data
+and invalid vocabulary. Additional cases check index config errors, project
+directory failures and outside-hub reload rejection. Direct writes compare
+complete trees, permissions and cleanup for replacement, symlinks, directory
+rejection, blocked parents, NUL/raw paths and preserved unrelated files. Read
+cases assert unchanged trees in both implementations. Temporary numeric names
+and disposable root prefixes are normalized without changing any other byte.
+
+This corpus exposed six native rename mismatches: Go `os.Rename` checks a
+directory destination and reports EEXIST, while Rust's direct Linux rename
+reported EISDIR. The real write primitive now uses Go's destination/source
+checks and EINTR retry behavior. Actual error bytes and filesystem effects
+match the captured cases; no fixture expectation was waived. This does not
+qualify crash recovery, cancellation, locking, syscall fault injection or
+whole-application raw diagnostic transport. Remaining warning/plan/recovery
+contexts still need their own byte qualification before full parity.
+
+Three original synchronous vault review regressions are independently ported:
+duplicate basename ownership retains every issue and promotes a loser after
+removal; config reload refreshes workflow without losing notes; outside-hub
+reload failures leave the index unchanged. The ledger is now 135 ported and
+90 pending, with originals retained. Concurrent locked reads and watcher event
+regressions remain for server/watcher integration. WP3's wider schema/lossless,
+fault, transport and performance gates remain open; Go remains default, and
+the requested complete migration and final review/fix-review remain active.

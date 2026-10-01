@@ -20,7 +20,7 @@ pub(super) fn owned_edits(
 ) -> Result<Vec<(Span, Vec<u8>)>, Error> {
     let text = source
         .get(fm.start..fm.end)
-        .ok_or_else(|| Error("invalid frontmatter byte range".into()))?;
+        .ok_or_else(|| Error::new("invalid frontmatter byte range".into()))?;
     let mut pieces = Vec::new();
     let mut offsets = vec![fm.start];
     let mut offset = fm.start;
@@ -39,7 +39,7 @@ pub(super) fn owned_edits(
     let mut seen = HashSet::new();
     for &(key, _) in changes {
         if !owned_order.contains(&key) || !seen.insert(key) {
-            return Err(Error("invalid or duplicate owned field change".into()));
+            return Err(Error::new("invalid or duplicate owned field change".into()));
         }
     }
     let mut edits = Vec::new();
@@ -51,10 +51,10 @@ pub(super) fn owned_edits(
         if let Some(field) = fields.iter().find(|field| field.key == key) {
             let start = offsets
                 .binary_search(&field.start)
-                .map_err(|_| Error("field start is not a physical line boundary".into()))?;
+                .map_err(|_| Error::new("field start is not a physical line boundary".into()))?;
             let end = offsets
                 .binary_search(&field.end)
-                .map_err(|_| Error("field end is not a physical line boundary".into()))?;
+                .map_err(|_| Error::new("field end is not a physical line boundary".into()))?;
             let lines = replacement
                 .unwrap_or_default()
                 .split_inclusive(|byte| *byte == b'\n')
@@ -77,7 +77,7 @@ pub(super) fn owned_edits(
             .unwrap_or(fm.end);
         let position = offsets
             .binary_search(&byte)
-            .map_err(|_| Error("insertion is not a physical line boundary".into()))?;
+            .map_err(|_| Error::new("insertion is not a physical line boundary".into()))?;
         edits.push((
             position,
             position,
@@ -95,7 +95,7 @@ pub(super) fn owned_edits(
     edits.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| (b.0 == b.1).cmp(&(a.0 == a.1))));
     for (start, end, lines) in edits {
         if start > end || end > pieces.len() {
-            return Err(Error("invalid frontmatter line edit".into()));
+            return Err(Error::new("invalid frontmatter line edit".into()));
         }
         pieces.splice(start..end, lines);
     }
@@ -105,7 +105,7 @@ pub(super) fn owned_edits(
     for piece in pieces {
         if let Some(span) = piece.original {
             if span.start < cursor || span.end < span.start || span.end > fm.end {
-                return Err(Error("invalid source provenance order".into()));
+                return Err(Error::new("invalid source provenance order".into()));
             }
             if span.start != cursor || !pending.is_empty() {
                 byte_edits.push((

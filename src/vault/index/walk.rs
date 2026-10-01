@@ -14,7 +14,7 @@ impl Index {
         if !rel.is_empty() {
             if is_plans_directory(rel) {
                 crate::gitops::recover_trees(&full).map_err(|e| {
-                    Error(format!(
+                    Error::new(format!(
                         "vault: recover plan trees in {}: {e}",
                         path_name(&path(rel))
                     ))

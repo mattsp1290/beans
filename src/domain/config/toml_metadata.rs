@@ -74,7 +74,7 @@ pub(super) fn keys(text: &str) -> Vec<Key> {
     result
 }
 pub(super) fn full_error(source: &str, offset: usize, error: Error) -> Error {
-    let Some((line, message)) = error.0.split_once(": ") else {
+    let Some((line, message)) = error.as_str().and_then(|message| message.split_once(": ")) else {
         return error;
     };
     let key = keys(source).into_iter().rfind(|k| k.offset < offset);
@@ -86,5 +86,5 @@ pub(super) fn full_error(source: &str, offset: usize, error: Error) -> Error {
             )
         })
         .unwrap_or_default();
-    Error(format!("toml: {line}{context}: {message}"))
+    Error::new(format!("toml: {line}{context}: {message}"))
 }
