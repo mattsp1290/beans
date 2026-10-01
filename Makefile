@@ -233,3 +233,7 @@ compat-doc-metadata:
 .PHONY: compat-index
 compat-index:
 	python3 -S tools/compat/index_reference.py --check tests/contract/index.json
+
+.PHONY: compat-query
+compat-query:
+	python3 -S tools/compat/query_reference.py --check tests/contract/query.json

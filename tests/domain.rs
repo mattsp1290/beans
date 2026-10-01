@@ -30,6 +30,8 @@ mod plan_bundle;
 mod plan_graph;
 #[path = "domain/plans.rs"]
 mod plans;
+#[path = "domain/query.rs"]
+mod query;
 #[path = "domain/recovery.rs"]
 mod recovery;
 #[path = "domain/remote.rs"]

@@ -53,7 +53,7 @@ fn snapshot(ix: &Index, root: &Path) -> Value {
     let projects: Vec<_> = ix.projects.iter().map(|(name,p)| json!({"name":name,"prefix":p.config.prefix.as_bytes(),"workflow":p.workflow})).collect();
     json!({"notes":notes,"owners":owners,"aliases":aliases,"backlinks":backlinks,"warnings":warnings,"assets":ix.assets,"projects":projects,"workflow":ix.workflow})
 }
-fn write(root: &Path, entries: &Value) {
+pub(super) fn write(root: &Path, entries: &Value) {
     for entry in entries.as_array().unwrap() {
         let full = root.join(path(&entry["Path"]));
         match entry["Kind"].as_str().unwrap() {
@@ -166,13 +166,13 @@ fn disk_index_loading_recovery_and_reload_match_fixed_go() {
     );
 }
 
-struct TestHub(PathBuf);
+pub(super) struct TestHub(pub(super) PathBuf);
 impl Drop for TestHub {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.0);
     }
 }
-fn hub(name: &str, fixture: bool) -> TestHub {
+pub(super) fn hub(name: &str, fixture: bool) -> TestHub {
     let root = std::env::temp_dir().join(format!("beans-index-{}-{name}", std::process::id()));
     std::fs::create_dir(&root).unwrap();
     fn copy(source: &Path, target: &Path) {

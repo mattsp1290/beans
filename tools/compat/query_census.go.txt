@@ -1,0 +1,338 @@
+package vault
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+)
+
+// Lists here deliberately capture semantic identities with nonnil empty
+// arrays. Transport nilness is qualified separately at the CLI/API boundary.
+func queryIDs(v []*issue.Issue) []string {
+	out := []string{}
+	for _, i := range v {
+		out = append(out, i.ID)
+	}
+	return out
+}
+func queryPaths(v []*Note) [][]int {
+	out := [][]int{}
+	for _, n := range v {
+		out = append(out, indexBytes(n.Path))
+	}
+	return out
+}
+func querySnapshot(ix *Index) any {
+	scopes := []any{}
+	for _, p := range []string{"", "a", "b", "missing", "raw\xff"} {
+		for _, all := range []bool{false, true} {
+			blocked := []any{}
+			for _, b := range ix.Blocked(p, all) {
+				blocked = append(blocked, map[string]any{"id": b.Issue.ID, "blockers": b.Blockers})
+			}
+			nodes, edges := ix.Graph(p, all)
+			if edges == nil {
+				edges = []GraphEdge{}
+			}
+			scopes = append(scopes, map[string]any{"project": indexBytes(p), "all": all, "ready": queryIDs(ix.Ready(p, all)), "blocked": blocked, "nodes": nodes, "edges": edges})
+		}
+	}
+	projects := []any{}
+	for _, p := range []string{"", "a", "b", "missing", "raw\xff"} {
+		for _, archive := range []bool{false, true} {
+			hs := []string{}
+			for _, h := range ix.ProjectHandoffs(p, archive) {
+				hs = append(hs, h.ID)
+			}
+			plans := []string{}
+			for _, v := range ix.ProjectPlans(p) {
+				plans = append(plans, v.ID)
+			}
+			projects = append(projects, map[string]any{"project": indexBytes(p), "archived": archive, "issues": queryIDs(ix.ProjectIssues(p, archive)), "handoffs": hs, "plans": plans})
+		}
+	}
+	refs := []any{}
+	for _, r := range []string{"a-open001", "b-blocked001", "a-epic001", "a-child001", "b-child001", "shared-schema", "[[ a-open001#anchor|label ]]", "missing", "[[a-missing999]]", "docs/a-open001.md", "\xff", "[[ ]]", "\u2003a-open001\u2003"} {
+		target, i, ok := ix.ResolveIssueRef(r)
+		id := ""
+		if ok {
+			id = i.ID
+		}
+		refs = append(refs, map[string]any{"ref": indexBytes(r), "target": indexBytes(target), "issue": id, "children": queryIDs(ix.Children(r)), "parents": queryIDs(ix.Parents(r)), "backlinks": indexLinks(ix.IssueBacklinks(r, false)), "all_backlinks": indexLinks(ix.IssueBacklinks(r, true))})
+	}
+	blockers := []any{}
+	for _, i := range ix.ProjectIssues("", true) {
+		resolved, missing := ix.Blockers(i)
+		if missing == nil {
+			missing = []string{}
+		}
+		blockers = append(blockers, map[string]any{"id": i.ID, "resolved": queryIDs(resolved), "unresolved": missing})
+	}
+	searches := []any{}
+	for _, q := range []string{"", "  ", "parity", "a-open001", "schema", "raw\xff", "\xff", "needle-only-in-section", "label", "request", "handoff", "İ", "ſ", "Σ", "\u2003PARITY\u2003", "not-found"} {
+		for _, kinds := range [][]Kind{nil, {KindIssue}, {KindDoc, KindMemory}, {KindRequest, KindPlan, KindHandoff}, {"unknown"}, {KindIssue, KindIssue}} {
+			for _, archive := range []bool{false, true} {
+				hits := ix.SearchWithOptions(q, SearchOptions{Kinds: kinds, IncludeArchivedHandoffs: archive})
+				if hits == nil {
+					hits = []Hit{}
+				}
+				// Byte arrays retain invalid filename bytes that Go JSON would replace.
+				rows := []any{}
+				for _, h := range hits {
+					rows = append(rows, map[string]any{"kind": h.Kind, "id": indexBytes(h.ID), "basename": indexBytes(h.Basename), "title": indexBytes(h.Title), "project": indexBytes(h.Project), "path": indexBytes(h.Path), "score": h.Score})
+				}
+				searches = append(searches, map[string]any{"q": indexBytes(q), "kinds": kinds, "archived": archive, "hits": rows})
+			}
+		}
+	}
+	requests := []any{}
+	for _, f := range []RequestFilter{{}, {Project: "a"}, {Project: "b"}, {Status: "resolved"}, {Status: "declined"}, {Status: "hold"}, {Label: "label"}, {Priority: new(int)}, {Query: "REQUEST"}, {Query: "\u2003raw\xff\u2003"}, {Query: "actor"}, {Query: "label"}, {Terminal: true}, {Project: "a", Terminal: true, Priority: func() *int { v := 2; return &v }()}} {
+		ids := []string{}
+		for _, r := range ix.ProjectRequests(f.Project, f.Status, f.Label, f.Priority, f.Query, f.Terminal) {
+			ids = append(ids, r.ID)
+		}
+		requests = append(requests, map[string]any{"filter": f, "ids": ids})
+	}
+	cycles := ix.Cycles()
+	if cycles == nil {
+		cycles = [][]string{}
+	}
+	executions := []any{}
+	for _, p := range ix.ProjectPlans("") {
+		v, ok := ix.PlanExecution(p.ID)
+		executions = append(executions, map[string]any{"id": p.ID, "ok": ok, "report": v})
+	}
+	_, missingOK := ix.PlanExecution("missing")
+	return map[string]any{"executions": executions, "missing_execution": missingOK, "scopes": scopes, "projects": projects, "refs": refs, "blockers": blockers, "searches": searches, "requests": requests, "cycles": cycles}
+}
+func TestMigrationQueries(t *testing.T) {
+	rows := []any{}
+	for scenario := 0; scenario < 39; scenario++ {
+		root := copyFixtureHub(t)
+		write := func(p, s string) { writeFile(t, filepath.Join(root, p), s) }
+		edit := func(p, from, to string) {
+			v, e := os.ReadFile(filepath.Join(root, p))
+			if e != nil {
+				t.Fatal(e)
+			}
+			s := strings.Replace(string(v), from, to, 1)
+			if s == string(v) {
+				t.Fatalf("edit not applied %s", p)
+			}
+			write(p, s)
+		}
+		switch scenario {
+		case 1:
+			edit("projects/a/issues/a-open001.md", "status: open", "status: closed")
+		case 2:
+			edit("projects/a/issues/a-open001.md", "updated: 2026-01-01T00:00:00Z\n---", "updated: 2026-01-01T00:00:00Z\nblocked_by: ['[[b-blocked001]]', '[[a-open001]]']\n---")
+		case 3:
+			write("docs/a-open001.md", "# Collision\n[[b-blocked001]]")
+		case 4:
+			write("projects/b/issues/a-open001.md", dupIssue)
+		case 5:
+			write("projects/b/issues/duplicate.md", strings.Replace(dupIssue, "b-dup001", "a-open001", 1))
+		case 6:
+			write("projects/a/beans.toml", "name='a'\nprefix='a'\n[workflow]\nactive=['open']\nterminal=['closed','blocked']\n")
+		case 7:
+			edit("projects/b/issues/b-blocked001.md", "status: open", "status: ready_for_review")
+		case 8:
+			edit("projects/b/issues/b-blocked001.md", "blocked_by:\n  - \"[[a-open001]]\"", "blocked_by: ['[[missing]]', '[[parity]]', '[[a-open001]]', '[[a-open001]]']")
+		case 9:
+			edit("projects/a/issues/a-epic001.md", "updated: 2026-01-01T00:00:00Z\n---", "updated: 2026-01-01T00:00:00Z\nparent: '[[b-child001]]'\n---")
+		case 10:
+			write("projects/b/issues/sort.md", strings.ReplaceAll(strings.ReplaceAll(dupIssue, "b-dup001", "b-sort001"), "2026-01-01T00:00:00Z", "2026-01-01T01:00:00+01:00"))
+		case 11:
+			for i, status := range []string{"open", "resolved", "declined", "accepted", "in_progress"} {
+				write(fmt.Sprintf("projects/a/requests/a-r-req%d.md", i), fmt.Sprintf("---\nid: a-r-req%d\naliases: [a-r-req%d]\ntitle: Request\nstatus: %s\npriority: %d\nrequested_by: actor\nlabels: [label]\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nraw\xff request\n", i, i, status, i%3))
+			}
+		case 12:
+			for i, p := range []string{"projects/a/handoffs/a-handoff1.md", "projects/a/handoffs/archive/2026/a-handoff2.md"} {
+				write(p, fmt.Sprintf("---\nid: a-handoff%d\ntitle: Handoff\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nissue: '[[a-open001]]'\n---\n[[a-open001]]", i+1))
+			}
+		case 13:
+			write("docs/Unicode.md", "# İ ſ Σ\nraw\xff label")
+		case 14:
+			write("projects/raw\xff/beans.toml", "name='raw'\nprefix='raw'\n[workflow]\nactive=['blocked']\n")
+			write("projects/raw\xff/issues/raw-one.md", strings.Replace(strings.Replace(dupIssue, "b-dup001", "raw-one", 1), "status: open", "status: blocked", 1))
+		case 15:
+			planDir := filepath.Join(root, "projects/a/plans/a-plan-a123-test")
+			if e := os.MkdirAll(filepath.Dir(planDir), 0755); e != nil {
+				t.Fatal(e)
+			}
+			if e := planScaffoldForQuery(planDir); e != nil {
+				t.Fatal(e)
+			}
+		case 16:
+			write("docs/first/same.md", "# parity")
+			write("projects/b/docs/same.md", "# parity")
+		case 34:
+			for i := 0; i < 3; i++ {
+				id := fmt.Sprintf("a-plan-a12%d", i)
+				file := string(plan.Scaffold(id, "sort", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)))
+				if i == 1 {
+					file = strings.Replace(file, "updated: 2026-01-01T00:00:00Z", "updated: 2026-01-02T00:00:00Z", 1)
+				}
+				write("projects/a/plans/"+id+"-sort/plan.md", file)
+			}
+		case 35:
+			write("projects/b/beans.toml", "name='b'\nprefix='b'\n[workflow]\nterminal=['closed','blocked']\n")
+			edit("projects/a/issues/a-open001.md", "updated: 2026-01-01T00:00:00Z\n---", "updated: 2026-01-01T00:00:00Z\nblocked_by: ['[[b-blocked001]]']\n---")
+			edit("projects/b/issues/b-blocked001.md", "status: open", "status: blocked")
+		case 36:
+			write("docs/a-handoff2.md", "# Owner")
+			write("projects/a/handoffs/archive/2026/a-handoff2.md", "---\nid: a-handoff2\ntitle: Handoff\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\nissue: '[[a-open001]]'\n---\n[[a-open001]]")
+		case 37:
+			write("projects/raw\xff/beans.toml", "name='raw'\nprefix='raw'\n")
+			write("projects/raw\xff/requests/raw-r-one.md", "---\nid: raw-r-one\naliases: [raw-r-one]\ntitle: Request\nstatus: accepted\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nraw\xff request")
+		case 38:
+			for i := 0; i < 3; i++ {
+				id := fmt.Sprintf("a-r-sort%d", i)
+				stamp := "2026-01-01T00:00:00Z"
+				if i == 1 {
+					stamp = "2026-01-01T01:00:00+01:00"
+				}
+				write("projects/a/requests/"+id+".md", fmt.Sprintf("---\nid: %s\naliases: [%s]\ntitle: Request\nstatus: open\npriority: 2\ncreated: %s\nupdated: %s\n---\nrequest", id, id, stamp, stamp))
+			}
+		case 17:
+			for i := 0; i < 24; i++ {
+				next := (i + 1) % 24
+				id := fmt.Sprintf("a-cycle%02d", i)
+				s := strings.Replace(dupIssue, "b-dup001", id, 1)
+				s = strings.Replace(s, "\n---\nbody", fmt.Sprintf("\nblocked_by: ['[[a-cycle%02d]]']\n---\nbody", next), 1)
+				write("projects/a/issues/"+id+".md", s)
+			}
+		}
+		if scenario >= 18 && scenario < 34 {
+			refs := []string{"", "README", "a-missing999", "a-open001", "b-blocked001"}
+			switch scenario {
+			case 19:
+				refs = []string{"README"}
+			case 20:
+				refs = []string{"a-open001"}
+			case 21:
+				refs = []string{"b-blocked001"}
+			case 22:
+				refs = []string{"a-epic001"}
+			case 23:
+				refs = []string{"a-archived001"}
+			case 24:
+				refs = []string{"a-open001"}
+				edit("projects/a/issues/a-open001.md", "status: open", "status: in_progress")
+			case 25:
+				refs = []string{"a-open001"}
+				edit("projects/a/issues/a-open001.md", "status: open", "status: ready_for_merge")
+			case 26:
+				refs = []string{"a-open001", "a-open001", "shared-schema"}
+			case 27:
+				refs = []string{"[[ a-open001#fragment|alias ]]"}
+				write("docs/a-open001.md", "# Collision")
+			case 28:
+				refs = []string{"a-open001"}
+				edit("projects/a/issues/a-open001.md", "status: open", "status: closed")
+				edit("projects/a/issues/a-open001.md", "updated: 2026-01-01T00:00:00Z\n---", "updated: 2026-01-01T00:00:00Z\nblocked_by: ['[[missing]]']\n---")
+			case 29:
+				refs = []string{"a-open001"}
+			case 30:
+				refs = []string{"a-open001"}
+				edit("projects/a/issues/a-open001.md", "status: open", "status: closed")
+			case 31:
+				refs = []string{"a-archived001"}
+				edit("projects/a/archive/2026/a-archived001.md", "status: closed", "status: open")
+			case 32:
+				refs = []string{"a-open001", "b-blocked001"}
+				edit("projects/a/issues/a-open001.md", "status: open", "status: in_progress")
+			case 33:
+				refs = []string{"b-blocked001"}
+				edit("projects/b/issues/b-blocked001.md", "blocked_by:\n  - \"[[a-open001]]\"", "blocked_by: ['[[z-missing]]', '[[a-open001]]', '[[parity]]', '[[a-missing]]', '[[a-open001]]']")
+			}
+			file := string(plan.Scaffold("a-plan-a123", "execution", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)))
+			nodes := "nodes:"
+			for i, r := range refs {
+				node := fmt.Sprintf("\n  - id: node%d\n    label: Node %d\n    kind: component", i, i)
+				if r != "" {
+					b, _ := json.Marshal(r)
+					node += "\n    ref: " + string(b)
+				}
+				nodes += node
+			}
+			file = strings.Replace(file, "nodes: []", nodes, 1)
+			if scenario == 29 || scenario == 30 {
+				file = strings.Replace(file, "status: draft", "status: complete", 1)
+				for _, text := range []string{"Outcome", "- Areas", "1. Execute", "- Risks"} {
+					file = strings.Replace(file, "<!-- bn:todo -->", text, 1)
+				}
+			}
+			write("projects/a/plans/a-plan-a123-execution/plan.md", file)
+		}
+		initial := indexFiles(t, root)
+		ix, e := Load(root)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if (scenario == 34 && len(ix.Plans) != 3) || (scenario == 37 && len(ix.Requests) != 1) || (scenario == 38 && len(ix.Requests) != 3) {
+			t.Fatalf("sorting/raw fixture not indexed: %v", ix.Warnings)
+		}
+		if scenario == 11 && len(ix.Requests) != 5 {
+			t.Fatalf("request fixture not indexed: %v", ix.Warnings)
+		}
+		if (scenario == 15 || (scenario >= 18 && scenario < 34)) && len(ix.ProjectPlans("a")) != 1 {
+			t.Fatalf("plan fixture not indexed: %v", ix.Warnings)
+		}
+		stages := []any{querySnapshot(ix)}
+		changes := []indexEntry{}
+		paths := []string{}
+		if scenario == 0 || scenario == 3 || scenario == 4 {
+			p := "projects/a/issues/a-open001.md"
+			data, _ := os.ReadFile(filepath.Join(root, p))
+			s := strings.Replace(string(data), "status: open", "status: closed", 1)
+			write(p, s)
+			changes = append(changes, indexEntry{indexBytes(p), "file", indexBytes(s)})
+			paths = append(paths, p)
+			if e := ix.Reload(p); e != nil {
+				t.Fatal(e)
+			}
+			stages = append(stages, querySnapshot(ix))
+		}
+		rows = append(rows, map[string]any{"initial": initial, "changes": changes, "paths": paths, "stages": stages})
+	}
+	data, e := json.Marshal(map[string]any{"cases": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e := os.WriteFile(os.Getenv("BN_QUERY_OUTPUT"), data, 0600); e != nil {
+		t.Fatal(e)
+	}
+}
+
+type RequestFilter struct {
+	Project, Status, Label string
+	Priority               *int
+	Query                  string
+	Terminal               bool
+}
+
+func planScaffoldForQuery(dir string) error {
+	if e := plan.WriteScaffold(dir, "a-plan-a123", "test", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)); e != nil {
+		return e
+	}
+	p := filepath.Join(dir, "plan.md")
+	v, e := os.ReadFile(p)
+	if e != nil {
+		return e
+	}
+	s := strings.Replace(string(v), "created:", "sections: [sections/one.md]\ncreated:", 1)
+	if e := os.MkdirAll(filepath.Join(dir, "sections"), 0755); e != nil {
+		return e
+	}
+	if e := os.WriteFile(filepath.Join(dir, "sections/one.md"), []byte("needle-only-in-section\n"), 0644); e != nil {
+		return e
+	}
+	return os.WriteFile(p, []byte(s), 0644)
+}

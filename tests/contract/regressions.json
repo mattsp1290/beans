@@ -1630,8 +1630,8 @@
       "source": "vault/index_test.go",
       "test": "TestHandoffsAreIndexedSearchableAndArchivedOptIn",
       "line": 238,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_handoffs_archived_opt_in",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1654,104 +1654,104 @@
       "source": "vault/index_test.go",
       "test": "TestReloadFlipsReady",
       "line": 310,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_reload_flips_ready",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/plan_execution_test.go",
       "test": "TestPlanExecutionClassifiesBindingsDeterministically",
       "line": 10,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_plan_execution_classifies_bindings_deterministically",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestPlanSearchBodyIncludesSectionBodies",
       "line": 14,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_plan_section_search",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestReadyExcludesBlocked",
       "line": 21,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_ready_excludes_blocked",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestReadyExcludesEpicWithChildren",
       "line": 33,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_ready_excludes_epic_with_children",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestChildrenAcrossProjects",
       "line": 42,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_children_across_projects",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestParents",
       "line": 53,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_parents",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestBlockers",
       "line": 61,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_blockers",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestBlocked",
       "line": 76,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_blocked",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestGraphCrossProjectEdge",
       "line": 93,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_graph_cross_project_edge",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestCyclesEmptyOnFixture",
       "line": 116,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_cycles_empty_on_fixture",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestCyclesDetectsCrossProjectCycle",
       "line": 124,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_cycles_detects_cross_project_cycle",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/query_test.go",
       "test": "TestSearchParity",
       "line": 157,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/query.rs::query_original_search_parity",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

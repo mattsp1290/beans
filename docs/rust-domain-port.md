@@ -212,8 +212,8 @@ stages) and 216 byte/Unicode filepath matching cases from Go 1.25.7. Snapshots
 compare note order, metadata/body fields, raw/resolved links, ownership, aliases,
 backlinks, configuration/workflow, warnings and exact filesystem effects. Eight
 original index regressions have independent assertions, bringing the ledger to
-82 ported and 143 pending. Readiness/search/other queries and derived plan
-execution remain unported; these tests do not establish whole-vault parity.
+82 ported and 143 pending at that checkpoint. These index tests do not
+establish whole-vault parity.
 
 `tools/compat/index_benchmark.py` and `examples/index_load.rs` measure the actual
 Go and release Rust loaders on the same WP1 fixture (5,000 live issues plus one
@@ -224,3 +224,42 @@ samples, compiler pins, fixture and binary hashes are recorded in
 `tests/contract/index-performance-linux-arm64.json`. This is in-process load
 evidence, excluding CLI startup/output; end-to-end command measurements and
 pathological link-density qualification remain separate gates.
+
+## Vault queries and derived plan execution
+
+`src/vault/query.rs` and its dependency/search/cycle/execution modules query the
+actual disk index. Lists preserve project/archive filters and priority/time/ID
+ordering, using timestamp instants rather than authored UTC offsets. Requests
+retain their fixed workflow and field filters. Search reads original issue
+body bytes, all plan sections and summaries, applies Go Unicode simple lowercase,
+preserves stable equal-score/basename ties, and excludes archived handoffs by
+default. Unknown kind filters match nothing. Iterative Tarjan traversal reports
+sorted dependency SCCs and self-loops without using the native call stack.
+
+Readiness and execution blockers resolve exact issue IDs before generic note
+lookup. Blocked lists, parents, children and dependency graph edges retain Go's
+separate generic lookup behavior, including colliding document basenames.
+Blocker terminality uses the blocker's project workflow. Archived children can
+hold epics, while archived handoffs only affect search/backlink visibility.
+Issue/memory project derivation now uses original Linux filename bytes and the
+last `projects` component, preserving workflow lookup for invalid-UTF-8 paths.
+
+Plan execution derives each authored graph node's binding and work state from
+live indexed issues. Terminal status precedes blockers, blockers precede archive
+and epic holds, and literal `in_progress` precedes ordinary active/hold workflow
+classification. Aggregate counts, distinct issue counts, execution precedence
+and lifecycle mismatch flags are derived without changing the plan. Report JSON
+retains omitted absent issues and Go's `null`/`[]` blocker distinctions.
+
+`make compat-query` recaptures 39 real filesystem scenarios, including three
+incremental reloads, from immutable Go 1.25.7. Queries cover all six note kinds,
+custom workflows, unknown kinds, invalid body/path bytes, ID/basename/alias
+collisions, duplicate ownership, sorting and offsets, unresolved/duplicate
+blockers, cross-project cycles, archive opt-in and plan execution states. Fixture
+preconditions assert that requests and plans actually load. Query identity lists
+normalize nil-empty slices to arrays for this internal semantic comparison;
+CLI/API transport nilness still requires their route/command gates. Execution
+reports compare complete Go JSON directly. Fourteen independent original
+regressions bring the ledger to 96 ported and 129 pending. This slice does not
+qualify all vault filesystem faults, YAML reader/error ordering, watcher/server
+concurrency, CLI/API query transport or the wider WP3 lossless mutation gates.

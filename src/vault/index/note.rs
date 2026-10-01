@@ -222,12 +222,16 @@ impl Note {
             }
             _ => unreachable!(),
         };
-        let project = match &data {
-            NoteData::Issue(doc) => doc.metadata.project.as_bytes().to_vec(),
-            NoteData::Request(doc) => doc.metadata.project.as_bytes().to_vec(),
-            NoteData::Memory(doc) => doc.metadata.project.as_bytes().to_vec(),
-            NoteData::Handoff(doc) => doc.metadata.project.as_bytes().to_vec(),
-            _ => project,
+        // Go derives issue/memory projects from the last `projects` path
+        // component. Use the original Linux path bytes, not the parser view.
+        let project = if matches!(kind, NoteKind::Issue | NoteKind::Memory) {
+            let parts: Vec<_> = rel.split(|&b| b == b'/').collect();
+            parts
+                .windows(2)
+                .rfind(|p| p[0] == b"projects")
+                .map_or_else(Vec::new, |p| p[1].to_vec())
+        } else {
+            project
         };
         let mut note = Self::empty(kind, project, rel, data);
         note.title = title;
