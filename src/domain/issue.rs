@@ -79,8 +79,8 @@ pub struct IssueMetadata {
 pub struct IssueDocument {
     pub metadata: IssueMetadata,
     pub log: Vec<super::log::LogEntry>,
-    pub description: String,
-    pub body: String,
+    pub description: super::yaml_string::YamlString,
+    pub body: super::yaml_string::YamlString,
     /// Authored unknown fields for a new issue. Parsed documents retain their
     /// original unknown bytes and ignore changes to this tree, as Go does.
     pub new_extra: super::authored_yaml::Node,
@@ -97,15 +97,18 @@ impl IssueDocument {
             metadata,
             document: None,
             log: Vec::new(),
-            description: String::new(),
-            body: String::new(),
+            description: Default::default(),
+            body: Default::default(),
             new_extra: super::authored_yaml::Node::default(),
             original_log_len: 0,
         }
     }
 
     pub fn parse(path: &str, source: &str) -> Result<Self, Error> {
-        let document = Frontmatter::parse(path, source)?;
+        Self::parse_bytes(path, source.as_bytes())
+    }
+    pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
+        let document = Frontmatter::parse_bytes(path, source)?;
         let mut metadata = IssueMetadata::default();
         let mut seen = HashSet::new();
         for field in document.fields() {
@@ -145,8 +148,11 @@ impl IssueDocument {
             metadata.archived |= *part == "archive";
         }
         let sections = split_issue_body(document.body());
-        let description = sections.description.to_owned();
-        let body = sections.body.to_owned();
+        let description = super::yaml_string::YamlString::from_bytes(
+            document.slice_bytes(sections.description).into(),
+        );
+        let body =
+            super::yaml_string::YamlString::from_bytes(document.slice_bytes(sections.body).into());
         let log = super::log::parse_section(sections.log);
         let original_log_len = log.len();
         Ok(Self {
@@ -186,45 +192,63 @@ impl IssueDocument {
     }
 
     pub fn set_description(&mut self, text: &str) {
-        let text = text.trim_end_matches('\n');
+        self.set_description_bytes(text.as_bytes());
+    }
+    pub fn set_description_bytes(&mut self, text: &[u8]) {
+        let end = text.iter().rposition(|&b| b != b'\n').map_or(0, |i| i + 1);
+        let text = &text[..end];
         let followed = !self.body.is_empty() || !self.log.is_empty() || !self.body().log.is_empty();
-        self.description = if text.is_empty() {
-            if followed {
-                "\n".to_owned()
+        let mut value = text.to_vec();
+        if !text.is_empty() || followed {
+            value.extend_from_slice(if followed && !text.is_empty() {
+                b"\n\n"
             } else {
-                String::new()
-            }
-        } else {
-            format!("{text}{}", if followed { "\n\n" } else { "\n" })
-        };
+                b"\n"
+            });
+        }
+        self.description = super::yaml_string::YamlString::from_bytes(value);
     }
 
     /// Render the body only. Existing parsed log entries are deliberately not
     /// reserialized: only entries beyond the original length are appended.
     /// Full-document encoding combines this with rendered owned frontmatter.
     pub fn render_body(&self) -> Result<String, Error> {
+        String::from_utf8(self.render_body_bytes()?)
+            .map_err(|_| Error("body is not UTF-8; use render_body_bytes".into()))
+    }
+
+    pub fn render_body_bytes(&self) -> Result<Vec<u8>, Error> {
         let original = self.body();
-        let mut output = self.description.clone() + &self.body;
+        let mut output = self.description.as_bytes().to_vec();
+        output.extend_from_slice(self.body.as_bytes());
         let entries = self.log.get(self.original_log_len..).unwrap_or_default();
         if !original.log.is_empty() {
-            output.push_str(&super::log::append_to_section(original.log, entries)?);
+            let raw = self.document.as_ref().unwrap().slice_bytes(original.log);
+            output.extend_from_slice(&super::log::append_to_section_bytes(raw, entries)?);
         } else if !entries.is_empty() {
-            if !output.is_empty() && !output.ends_with("---\n") {
-                if !output.ends_with('\n') {
-                    output.push_str("\n\n");
-                } else if !output.ends_with("\n\n") {
-                    output.push('\n');
+            if !output.is_empty() && !output.ends_with(b"---\n") {
+                if !output.ends_with(b"\n") {
+                    output.extend_from_slice(b"\n\n");
+                } else if !output.ends_with(b"\n\n") {
+                    output.push(b'\n');
                 }
             }
-            output.push_str("## Log\n");
+            output.extend_from_slice(b"## Log\n");
             for entry in entries {
-                output.push_str(&entry.line()?);
+                output.extend_from_slice(entry.line()?.as_bytes());
             }
         }
-        output.push_str(original.tail);
+        if let Some(document) = &self.document {
+            output.extend_from_slice(document.slice_bytes(original.tail));
+        }
         Ok(output)
     }
 
+    pub fn original_bytes(&self) -> &[u8] {
+        self.document
+            .as_ref()
+            .map_or(&[], Frontmatter::original_bytes)
+    }
     pub fn original(&self) -> &str {
         self.document.as_ref().map_or("", Frontmatter::original)
     }

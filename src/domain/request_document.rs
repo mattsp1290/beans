@@ -4,7 +4,7 @@ use super::authored_yaml;
 use super::frontmatter::{Error, Field, Frontmatter, Node};
 use super::issue::{Timestamp, quoted};
 use super::issue_encode::instant;
-use super::log::{LogEntry, append_to_section, parse_section};
+use super::log::{LogEntry, parse_section};
 use super::request;
 use super::text::{Link, RequestBody, split_request_body};
 use serde::{Deserialize, Serialize};
@@ -44,7 +44,7 @@ pub struct RequestMetadata {
 #[derive(Clone, Debug)]
 pub struct RequestDocument {
     pub metadata: RequestMetadata,
-    pub body: String,
+    pub body: super::yaml_string::YamlString,
     pub log: Vec<LogEntry>,
     /// Used only for newly authored documents; parsed unknown bytes are retained.
     pub new_extra: authored_yaml::Node,
@@ -58,7 +58,7 @@ impl RequestDocument {
         Self {
             original_metadata: metadata.clone(),
             metadata,
-            body: String::new(),
+            body: Default::default(),
             log: Vec::new(),
             new_extra: authored_yaml::Node::default(),
             document: None,
@@ -67,14 +67,17 @@ impl RequestDocument {
     }
 
     pub fn parse(path: &str, source: &str) -> Result<Self, Error> {
+        Self::parse_bytes(path, source.as_bytes())
+    }
+    pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
         // Go checks CRLF before request path validation.
-        if source.contains("\r\n") {
+        if source.windows(2).any(|v| v == b"\r\n") {
             return Err(Error(format!(
                 "{path}: has Windows line endings (\\r\\n); bn requires \\n"
             )));
         }
         let project = project_from_path(path)?;
-        let document = Frontmatter::parse(path, source)?;
+        let document = Frontmatter::parse_bytes(path, source)?;
         let mut metadata = RequestMetadata {
             project,
             ..RequestMetadata::default()
@@ -111,7 +114,9 @@ impl RequestDocument {
             .validate()
             .map_err(|error| Error(format!("{path}: {error}")))?;
         let sections = split_request_body(document.body());
-        let body = sections.before_log.to_owned();
+        let body = super::yaml_string::YamlString::from_bytes(
+            document.slice_bytes(sections.before_log).into(),
+        );
         let log = parse_section(sections.log);
         let original_log_len = log.len();
         Ok(Self {
@@ -134,12 +139,15 @@ impl RequestDocument {
 
     /// Replace all Markdown preceding the Log, retaining one final newline.
     pub fn set_body(&mut self, text: &str) {
-        let text = text.trim_end_matches('\n');
-        self.body = if text.is_empty() {
-            String::new()
-        } else {
-            format!("{text}\n")
-        };
+        self.set_body_bytes(text.as_bytes());
+    }
+    pub fn set_body_bytes(&mut self, text: &[u8]) {
+        let end = text.iter().rposition(|&b| b != b'\n').map_or(0, |i| i + 1);
+        let mut value = text[..end].to_vec();
+        if !value.is_empty() {
+            value.push(b'\n');
+        }
+        self.body = super::yaml_string::YamlString::from_bytes(value);
     }
 
     pub fn append_log(&mut self, entry: LogEntry) {
@@ -153,28 +161,41 @@ impl RequestDocument {
     }
 
     pub fn render_body(&self) -> Result<String, Error> {
+        String::from_utf8(self.render_body_bytes()?)
+            .map_err(|_| Error("body is not UTF-8; use render_body_bytes".into()))
+    }
+
+    pub fn render_body_bytes(&self) -> Result<Vec<u8>, Error> {
         let original = self.original_body();
-        let mut output = self.body.clone();
+        let mut output = self.body.as_bytes().to_vec();
         let entries = self.log.get(self.original_log_len..).unwrap_or_default();
         if !original.log.is_empty() {
-            output.push_str(&append_to_section(original.log, entries)?);
+            let raw = self.document.as_ref().unwrap().slice_bytes(original.log);
+            output.extend_from_slice(&super::log::append_to_section_bytes(raw, entries)?);
         } else if !entries.is_empty() {
-            if !output.is_empty() && !output.ends_with("---\n") {
-                if !output.ends_with('\n') {
-                    output.push_str("\n\n");
-                } else if !output.ends_with("\n\n") {
-                    output.push('\n');
+            if !output.is_empty() && !output.ends_with(b"---\n") {
+                if !output.ends_with(b"\n") {
+                    output.extend_from_slice(b"\n\n");
+                } else if !output.ends_with(b"\n\n") {
+                    output.push(b'\n');
                 }
             }
-            output.push_str("## Log\n");
+            output.extend_from_slice(b"## Log\n");
             for entry in entries {
-                output.push_str(&entry.line()?);
+                output.extend_from_slice(entry.line()?.as_bytes());
             }
         }
-        output.push_str(original.tail);
+        if let Some(document) = &self.document {
+            output.extend_from_slice(document.slice_bytes(original.tail));
+        }
         Ok(output)
     }
 
+    pub fn original_bytes(&self) -> &[u8] {
+        self.document
+            .as_ref()
+            .map_or(&[], Frontmatter::original_bytes)
+    }
     pub fn original(&self) -> &str {
         self.document.as_ref().map_or("", Frontmatter::original)
     }

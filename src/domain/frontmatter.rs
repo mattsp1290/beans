@@ -100,6 +100,8 @@ impl std::error::Error for Error {}
 #[derive(Clone, Debug)]
 pub struct Frontmatter {
     source: String,
+    raw: Vec<u8>,
+    offsets: Vec<usize>,
     fields: Vec<Field>,
     fm_start: usize,
     fm_end: usize,
@@ -122,6 +124,22 @@ pub struct EditResult {
 
 impl Frontmatter {
     pub fn parse(path: &str, source: &str) -> Result<Self, Error> {
+        Self::parse_bytes(path, source.as_bytes())
+    }
+
+    pub fn parse_bytes(path: &str, raw: &[u8]) -> Result<Self, Error> {
+        if let Ok(text) = std::str::from_utf8(raw) {
+            return Self::parse_text(path, text);
+        }
+        let view = super::source::Source::new(raw);
+        view.validate_frontmatter(path)?;
+        let mut document = Self::parse_text(path, &view.text)?;
+        document.raw = raw.into();
+        document.offsets = view.offsets;
+        Ok(document)
+    }
+
+    fn parse_text(path: &str, source: &str) -> Result<Self, Error> {
         if source.contains("\r\n") {
             return Err(Error(format!(
                 "{path}: has Windows line endings (\\r\\n); bn requires \\n"
@@ -205,6 +223,8 @@ impl Frontmatter {
         }
         Ok(Self {
             source: source.to_owned(),
+            raw: source.as_bytes().into(),
+            offsets: Vec::new(),
             fields,
             fm_start,
             fm_end,
@@ -212,6 +232,11 @@ impl Frontmatter {
         })
     }
 
+    pub fn original_bytes(&self) -> &[u8] {
+        &self.raw
+    }
+
+    /// A read-only Unicode view. Use original_bytes for preservation or writes.
     pub fn original(&self) -> &str {
         &self.source
     }
@@ -239,6 +264,23 @@ impl Frontmatter {
 
     pub fn body(&self) -> &str {
         &self.source[self.body_start..]
+    }
+
+    pub fn body_bytes(&self) -> &[u8] {
+        self.slice_bytes(self.body())
+    }
+
+    /// Slice only fragments borrowed from this document's parser view.
+    pub(crate) fn slice_bytes(&self, fragment: &str) -> &[u8] {
+        if fragment.is_empty() {
+            return &[];
+        }
+        let start = fragment.as_ptr() as usize - self.source.as_ptr() as usize;
+        if self.offsets.is_empty() {
+            &self.raw[start..start + fragment.len()]
+        } else {
+            &self.raw[self.offsets[start]..self.offsets[start + fragment.len()]]
+        }
     }
 
     /// Replace whole parsed top-level spans with already rendered field bytes.
@@ -273,7 +315,7 @@ impl Frontmatter {
         body: &[u8],
     ) -> Result<EditResult, Error> {
         let mut edits = super::splicing::owned_edits(
-            self.source.as_bytes(),
+            &self.raw,
             Span {
                 start: self.fm_start,
                 end: self.fm_end,
@@ -282,11 +324,11 @@ impl Frontmatter {
             owned_order,
             changes,
         )?;
-        if body != self.body().as_bytes() {
+        if body != self.body_bytes() {
             edits.push((
                 Span {
                     start: self.body_start,
-                    end: self.source.len(),
+                    end: self.raw.len(),
                 },
                 body.to_vec(),
             ));
@@ -300,6 +342,6 @@ impl Frontmatter {
     }
 
     fn apply_edits(&self, edits: Vec<(Span, &[u8])>) -> Result<EditResult, Error> {
-        super::byte_edit::apply(self.source.as_bytes(), edits)
+        super::byte_edit::apply(&self.raw, edits)
     }
 }

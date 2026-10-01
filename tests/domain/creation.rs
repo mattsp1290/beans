@@ -71,8 +71,8 @@ fn new_issue_files_match_go_encoding_and_reader_semantics() {
         let mut issue = IssueDocument::new(
             serde_json::from_value::<IssueMetadata>(case["metadata"].clone()).unwrap(),
         );
-        issue.description = case["description"].as_str().unwrap().to_owned();
-        issue.body = case["body"].as_str().unwrap().to_owned();
+        issue.description = case["description"].as_str().unwrap().into();
+        issue.body = case["body"].as_str().unwrap().into();
         issue.log = serde_json::from_value::<Vec<LogEntry>>(case["log"].clone()).unwrap();
         issue.new_extra = serde_json::from_value(case["new_extra"].clone()).unwrap();
         if let Some(error) = case.get("encode_error") {
@@ -112,10 +112,13 @@ fn new_issue_files_match_go_encoding_and_reader_semantics() {
                 case["name"]
             );
             assert_eq!(
-                parsed.description,
-                case["read_description"].as_str().unwrap()
+                parsed.description.as_bytes(),
+                case["read_description"].as_str().unwrap().as_bytes()
             );
-            assert_eq!(parsed.body, case["read_body"].as_str().unwrap());
+            assert_eq!(
+                parsed.body.as_bytes(),
+                case["read_body"].as_str().unwrap().as_bytes()
+            );
             assert_eq!(serde_json::to_value(&parsed.log).unwrap(), case["read_log"]);
             let unknown: Vec<_> = parsed
                 .unknown_fields()

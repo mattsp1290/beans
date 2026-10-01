@@ -35,7 +35,7 @@ impl IssueDocument {
             .iter()
             .map(|(key, value)| (*key, value.as_ref().map(|value| value.as_bytes())))
             .collect();
-        document.splice_owned(OWNED, &changes, self.render_body()?.as_bytes())
+        document.splice_owned(OWNED, &changes, &self.render_body_bytes()?)
     }
     fn encode_new(&self) -> Result<EditResult, Error> {
         let mut output = String::from("---\n");
@@ -46,9 +46,10 @@ impl IssueDocument {
         }
         output.push_str(&super::extra_encode::mapping_fields(&self.new_extra)?);
         output.push_str("---\n");
-        output.push_str(&self.render_body()?);
+        let mut output = output.into_bytes();
+        output.extend_from_slice(&self.render_body_bytes()?);
         Ok(EditResult {
-            bytes: output.into_bytes(),
+            bytes: output,
             copies: Vec::new(),
         })
     }

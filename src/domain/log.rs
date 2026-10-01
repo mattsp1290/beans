@@ -175,25 +175,33 @@ pub fn parse_section(raw: &str) -> Vec<LogEntry> {
 
 /// Append after the last nonblank line, preserving original blank lines.
 pub fn append_to_section(raw: &str, entries: &[LogEntry]) -> Result<String, Error> {
+    String::from_utf8(append_to_section_bytes(raw.as_bytes(), entries)?)
+        .map_err(|_| Error("log section is not UTF-8; use its byte representation".into()))
+}
+
+pub(crate) fn append_to_section_bytes(raw: &[u8], entries: &[LogEntry]) -> Result<Vec<u8>, Error> {
     if entries.is_empty() {
-        return Ok(raw.to_owned());
+        return Ok(raw.into());
     }
-    let mut lines: Vec<_> = raw.split_inclusive('\n').collect();
-    // Go SplitAfter retains an empty element after a terminal newline.
-    if raw.ends_with('\n') || raw.is_empty() {
-        lines.push("");
+    let mut lines: Vec<_> = raw.split_inclusive(|&b| b == b'\n').collect();
+    if raw.ends_with(b"\n") || raw.is_empty() {
+        lines.push(&[]);
     }
     let mut cut = lines.len();
-    while cut > 1 && lines[cut - 1].trim().is_empty() {
+    while cut > 1
+        && super::yaml_string::YamlString::from_bytes(lines[cut - 1].into())
+            .trimmed()
+            .is_empty()
+    {
         cut -= 1;
     }
     let mut output = lines[..cut].concat();
-    if !output.ends_with('\n') {
-        output.push('\n');
+    if !output.ends_with(b"\n") {
+        output.push(b'\n');
     }
     for entry in entries {
-        output.push_str(&entry.line()?);
+        output.extend_from_slice(entry.line()?.as_bytes());
     }
-    output.push_str(&lines[cut..].concat());
+    output.extend_from_slice(&lines[cut..].concat());
     Ok(output)
 }

@@ -181,7 +181,10 @@ fn reader_and_all_mutations_match_fixed_go() {
             memory::valid_type(&parsed.metadata.kind),
             c["valid_type"].as_bool().unwrap()
         );
-        assert_eq!(parsed.body, c["body"].as_str().unwrap());
+        assert_eq!(
+            parsed.body.as_bytes(),
+            c["body"].as_str().unwrap().as_bytes()
+        );
         assert_eq!(
             serde_json::to_value(parsed.unknown_fields().map(|f| &f.key).collect::<Vec<_>>())
                 .unwrap(),

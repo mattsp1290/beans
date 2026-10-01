@@ -32,6 +32,8 @@ mod plan_graph;
 mod plans;
 #[path = "domain/query.rs"]
 mod query;
+#[path = "domain/raw_codec.rs"]
+mod raw_codec;
 #[path = "domain/recovery.rs"]
 mod recovery;
 #[path = "domain/remote.rs"]
@@ -357,7 +359,10 @@ fn issue_body_mutations_match_go_without_rewriting_original_logs() {
             match mutation["kind"].as_str().unwrap() {
                 "description" => {
                     issue.set_description(mutation["input"].as_str().unwrap());
-                    assert_eq!(issue.description, mutation["description"].as_str().unwrap());
+                    assert_eq!(
+                        issue.description.as_bytes(),
+                        mutation["description"].as_str().unwrap().as_bytes()
+                    );
                 }
                 "append" => {
                     issue.append_log(

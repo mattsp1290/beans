@@ -1,4 +1,4 @@
-use super::source::{Source, display};
+use super::source::display;
 use super::*;
 use crate::vault::{DocMetadata, LinkKind, RawLink, doc_metadata};
 use crate::{
@@ -8,7 +8,7 @@ use crate::{
         memory::MemoryDocument,
         plan::{self, Plan},
         request::RequestDocument,
-        text::{self, Link},
+        text::Link,
     },
     markdown,
 };
@@ -122,15 +122,12 @@ impl Note {
             note.source = bytes.into();
             return Ok(note);
         }
-        let source = Source::new(bytes);
         let name = display(rel);
-        source.validate_frontmatter(&name)?;
         let (data, id, aliases, title, note_tags, description, body, raw) = match kind {
             NoteKind::Issue => {
-                let doc = IssueDocument::parse(&name, &source.text)?;
-                let parts = text::split_issue_body(source.body());
-                let description = source.slice(parts.description);
-                let body = source.slice(parts.body);
+                let doc = IssueDocument::parse_bytes(&name, bytes)?;
+                let description = doc.description.as_bytes().to_vec();
+                let body = doc.body.as_bytes().to_vec();
                 let mut raw = links(&[description.as_slice(), body.as_slice()].concat());
                 structural(&mut raw, &doc.metadata.parent, LinkKind::Parent);
                 for link in &doc.metadata.blocked_by {
@@ -155,8 +152,8 @@ impl Note {
                 )
             }
             NoteKind::Request => {
-                let doc = RequestDocument::parse(&name, &source.text)?;
-                let body = source.slice(text::split_request_body(source.body()).before_log);
+                let doc = RequestDocument::parse_bytes(&name, bytes)?;
+                let body = doc.body.as_bytes().to_vec();
                 let mut raw = links(&body);
                 for link in &doc.metadata.issues {
                     structural(&mut raw, link, LinkKind::RequestIssue);
@@ -180,8 +177,8 @@ impl Note {
                 )
             }
             NoteKind::Memory => {
-                let doc = MemoryDocument::parse(&name, &source.text)?;
-                let body = source.slice(source.body());
+                let doc = MemoryDocument::parse_bytes(&name, bytes)?;
+                let body = doc.body.as_bytes().to_vec();
                 let raw = links(&body);
                 let fields = (
                     doc.metadata.key.as_bytes().to_vec(),
@@ -199,8 +196,8 @@ impl Note {
                 )
             }
             NoteKind::Handoff => {
-                let doc = HandoffDocument::parse(&name, &source.text)?;
-                let body = source.slice(source.body());
+                let doc = HandoffDocument::parse_bytes(&name, bytes)?;
+                let body = doc.body.as_bytes().to_vec();
                 let mut raw = links(&body);
                 structural(&mut raw, &doc.metadata.issue, LinkKind::HandoffIssue);
                 let meta = &doc.metadata;

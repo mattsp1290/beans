@@ -6,12 +6,13 @@ WP3 is in progress. The current parser/editing primitives are implemented in
 `src/domain/issue.rs`; stored log rules are in `src/domain/log.rs`. Existing-issue encoding is in `src/domain/issue_encode.rs`, with owned YAML
 presentation in `src/domain/yaml_render.rs` and source-provenance planning in
 `src/domain/splicing.rs`. New-file construction uses the same owned-field renderer. New unknown Extra
-node construction, request codecs, other note kinds, plans, configuration,
-resolution and indexing remain to be ported. Go is still the
-default implementation, and no Go regression has been retired.
+construction, other note codecs, plans, configuration, resolution, indexing and
+queries are covered by the later sections below. Wider WP3 qualification remains
+in progress. Go is still the default implementation; all original Go tests
+remain in place.
 
-The parser retains original UTF-8 text and derives absolute byte ranges from
-line offsets. Semantic YAML nodes are separate from retained text; duplicate
+The parser retains original bytes and a separate Unicode view, deriving absolute
+frontmatter ranges from line offsets. Semantic YAML nodes are separate from retained text; duplicate
 unknown keys, comments, block styles and Markdown are not serialized again.
 Owned scalar/list decoding preserves yaml.v3's scalar spellings and null rules;
 aliases are separate nodes and fail scalar/list coercion. The typed issue reader
@@ -202,9 +203,8 @@ access; shared server lock/watcher wiring remains WP7 work.
 
 Original file bytes and extracted body/description/link bytes remain separate
 from a read-only UTF-8 parser view with offset translation. Typed NoteData
-documents are semantic read views, not a byte-preserving mutation source for
-invalid-UTF-8 files. Writers must use the qualified mutation codecs on original
-bytes. Wider raw-reader malformed-UTF-8/error-order and filesystem-fault
+now uses canonical byte bodies and original-byte frontmatter storage through the
+shared codecs, as qualified in the raw-byte slice below. Wider raw-reader malformed-UTF-8/error-order and filesystem-fault
 qualification remain mandatory; this adapter is not a lossless-codec waiver.
 
 `make compat-index` recaptures 26 disposable filesystem scenarios (32 load/reload
@@ -263,3 +263,47 @@ reports compare complete Go JSON directly. Fourteen independent original
 regressions bring the ledger to 96 ported and 129 pending. This slice does not
 qualify all vault filesystem faults, YAML reader/error ordering, watcher/server
 concurrency, CLI/API query transport or the wider WP3 lossless mutation gates.
+
+## Original-byte codec bodies
+
+All four issue/request/memory/handoff documents now expose `parse_bytes` and
+`original_bytes`. UTF-8 convenience readers delegate to the same path. The
+shared Frontmatter owns original bytes alongside a separate Unicode parser
+view; invalid body bytes map one-for-one to replacement runes with translated
+slice boundaries. Valid UTF-8 inputs use direct byte offsets. Bodies and issue
+descriptions use the existing byte-preserving YamlString value, so an authored
+replacement rune remains distinguishable from an original invalid byte.
+
+Encoders splice actual original bytes and canonical body bytes. Issue/request
+byte renderers preserve original raw log and tail fragments, append new entries
+without reserializing old logs, and retain surrounding blank lines. Byte-based
+description/request-body setters follow existing newline normalization. The
+older String render helpers are UTF-8 conveniences and return an error for a
+non-UTF-8 result; writers use byte renderers. Memory/handoff whole-body writers
+accept arbitrary byte values. Real index loading calls these same codecs and
+reads their canonical body fields, replacing the earlier index-only adaptation.
+
+`make compat-raw-codec` recaptures 1,056 immutable Go 1.25.7 inputs and 5,280
+parse/encode outcomes: every byte in descriptions, bodies, logs, continuations
+and tails, truncated/overlong encodings, closed and unterminated fences, absent
+final newlines and CRLF rejection. No-op, metadata edits, UTF-8 and raw-byte body
+replacements, and log append results compare complete output bytes and errors.
+Generated raw no-op/metadata properties assert exact preservation and copy
+geometry. `make compat-raw-codec-read` feeds 5,260 actual Rust outputs to the
+fixed Go reader and encoder, requiring acceptance and exact byte roundtrip. A
+real disk-index integration test encodes all four loaded payloads
+back to the original file bytes and checks that replacing an invalid byte with
+an authored replacement rune changes the file. All existing codec/index/query
+corpora remain required; this does not qualify wider malformed-frontmatter
+reader windows/error ordering, YAML syntax/aliases/coercion, new log argument
+byte handling, every generated edit sequence, filesystem faults or the full WP3
+production proof-coupling audit. No additional original Go regression is marked
+ported solely by this new corpus (ledger remains 96 ported /129 pending).
+
+The same 5,000-live-plus-one-archive fixture was remeasured after this change:
+three warmups and twenty release samples on Linux aarch64 gave Go median
+314.68 ms and Rust 137.39 ms (ratio 0.437). Full samples, toolchains and actual
+fixture/binary hashes are in
+`tests/contract/index-performance-raw-codec-linux-arm64.json`. This remains an
+in-process load measurement; CLI startup/output and dense-link measurements
+still require separate qualification.

@@ -38,7 +38,7 @@ pub struct MemoryMetadata {
 #[derive(Clone, Debug)]
 pub struct MemoryDocument {
     pub metadata: MemoryMetadata,
-    pub body: String,
+    pub body: super::yaml_string::YamlString,
     pub new_extra: authored_yaml::Node,
     document: Option<Frontmatter>,
     original_metadata: MemoryMetadata,
@@ -49,13 +49,16 @@ impl MemoryDocument {
         Self {
             original_metadata: metadata.clone(),
             metadata,
-            body: String::new(),
+            body: Default::default(),
             new_extra: authored_yaml::Node::default(),
             document: None,
         }
     }
     pub fn parse(path: &str, source: &str) -> Result<Self, Error> {
-        let document = Frontmatter::parse(path, source)?;
+        Self::parse_bytes(path, source.as_bytes())
+    }
+    pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
+        let document = Frontmatter::parse_bytes(path, source)?;
         let mut metadata = MemoryMetadata::default();
         let mut seen = HashSet::new();
         for field in document.fields() {
@@ -120,10 +123,15 @@ impl MemoryDocument {
         Ok(Self {
             original_metadata: metadata.clone(),
             metadata,
-            body: document.body().to_owned(),
+            body: super::yaml_string::YamlString::from_bytes(document.body_bytes().into()),
             new_extra: authored_yaml::Node::default(),
             document: Some(document),
         })
+    }
+    pub fn original_bytes(&self) -> &[u8] {
+        self.document
+            .as_ref()
+            .map_or(&[], Frontmatter::original_bytes)
     }
     pub fn original(&self) -> &str {
         self.document.as_ref().map_or("", Frontmatter::original)
@@ -144,9 +152,10 @@ impl MemoryDocument {
             }
             output.push_str(&super::extra_encode::mapping_fields(&self.new_extra)?);
             output.push_str("---\n");
-            output.push_str(&self.body);
+            let mut output = output.into_bytes();
+            output.extend_from_slice(self.body.as_bytes());
             return Ok(EditResult {
-                bytes: output.into_bytes(),
+                bytes: output,
                 copies: Vec::new(),
             });
         };

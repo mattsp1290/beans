@@ -237,3 +237,11 @@ compat-index:
 .PHONY: compat-query
 compat-query:
 	python3 -S tools/compat/query_reference.py --check tests/contract/query.json
+
+.PHONY: compat-raw-codec
+compat-raw-codec:
+	python3 -S tools/compat/raw_codec_reference.py --check tests/contract/raw-codec.json
+
+.PHONY: compat-raw-codec-read
+compat-raw-codec-read:
+	python3 -S tools/compat/raw_codec_cross_read.py

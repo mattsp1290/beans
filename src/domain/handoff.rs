@@ -26,7 +26,7 @@ pub struct HandoffMetadata {
 #[derive(Clone, Debug)]
 pub struct HandoffDocument {
     pub metadata: HandoffMetadata,
-    pub body: String,
+    pub body: super::yaml_string::YamlString,
     pub new_extra: authored_yaml::Node,
     document: Option<Frontmatter>,
     original_metadata: HandoffMetadata,
@@ -37,14 +37,17 @@ impl HandoffDocument {
         Self {
             original_metadata: metadata.clone(),
             metadata,
-            body: String::new(),
+            body: Default::default(),
             new_extra: authored_yaml::Node::default(),
             document: None,
         }
     }
 
     pub fn parse(path: &str, source: &str) -> Result<Self, Error> {
-        let document = Frontmatter::parse(path, source)?;
+        Self::parse_bytes(path, source.as_bytes())
+    }
+    pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
+        let document = Frontmatter::parse_bytes(path, source)?;
         let (project, archived) =
             path_info(path).ok_or_else(|| Error(format!("{path}: not a handoff path")))?;
         let mut metadata = HandoffMetadata {
@@ -120,12 +123,17 @@ impl HandoffDocument {
         Ok(Self {
             original_metadata: metadata.clone(),
             metadata,
-            body: document.body().to_owned(),
+            body: super::yaml_string::YamlString::from_bytes(document.body_bytes().into()),
             new_extra: authored_yaml::Node::default(),
             document: Some(document),
         })
     }
 
+    pub fn original_bytes(&self) -> &[u8] {
+        self.document
+            .as_ref()
+            .map_or(&[], Frontmatter::original_bytes)
+    }
     pub fn original(&self) -> &str {
         self.document.as_ref().map_or("", Frontmatter::original)
     }
@@ -147,9 +155,10 @@ impl HandoffDocument {
                 &self.new_extra.content,
             )?);
             output.push_str("---\n");
-            output.push_str(&self.body);
+            let mut output = output.into_bytes();
+            output.extend_from_slice(self.body.as_bytes());
             return Ok(EditResult {
-                bytes: output.into_bytes(),
+                bytes: output,
                 copies: Vec::new(),
             });
         };

@@ -6,6 +6,9 @@ impl YamlString {
     pub fn from_bytes(bytes: Vec<u8>) -> Self {
         Self(bytes)
     }
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
     pub fn as_bytes(&self) -> &[u8] {
         &self.0
     }

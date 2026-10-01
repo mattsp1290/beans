@@ -16,6 +16,7 @@ pub mod plan;
 pub mod request;
 mod request_document;
 mod request_encode;
+pub(crate) mod source;
 mod splicing;
 pub mod template;
 pub mod text;
