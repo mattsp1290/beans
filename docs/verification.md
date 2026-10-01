@@ -206,6 +206,19 @@ Reads leave files unchanged. One original actor regression is independently
 ported. CI requires context recapture. End-to-end CLI/ops/index wiring and wider
 filesystem faults remain work; these helpers do not expose Rust mutations yet.
 
+The vault graph core matches 40 immutable Go register/rebuild/remove snapshots
+and 847 raw-byte path classification cases. It retains first-owner basename and
+kind-specific ID collisions, alias precedence, exact/suffix/basename/alias/ID
+lookup, resolved and unresolved links, ordered backlinks and parse/duplicate/link
+warnings. Memory aliases are ignored; request IDs do not add a lookup fallback.
+Parse warnings are cleared separately from note removal, as in Go reload.
+The core consumes already decoded metadata; production disk traversal, note
+parsing/link extraction, recovery, queries and reload integration remain work.
+The corpus has no ambiguous case-insensitive basename collision: Go's map
+iteration does not define which such note wins, and no deterministic tie rule
+is claimed. CI requires graph/path recapture. Original full-index regressions
+remain pending until the production loader is ported.
+
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
 [compiler components](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/rust-toolchain.toml),

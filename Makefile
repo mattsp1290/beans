@@ -213,3 +213,7 @@ compat-resolve:
 .PHONY: compat-context
 compat-context:
 	python3 -S tools/compat/context_reference.py --check tests/contract/context.json
+
+.PHONY: compat-index-graph
+compat-index-graph:
+	python3 -S tools/compat/graph_reference.py --check tests/contract/graph.json
