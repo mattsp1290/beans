@@ -35,6 +35,29 @@ fn corpus() -> Value {
 }
 
 #[test]
+fn large_whitespace_execution_order_is_rejected() {
+    let p = Plan {
+        status: plan::READY.into(),
+        summary: Summary {
+            outcome: "outcome".into(),
+            affected_areas: "- area".into(),
+            execution_order: "\n".repeat(200_000),
+            risks: "- None.".into(),
+            ..Summary::default()
+        },
+        graph: ChangeGraph {
+            nodes: Some(vec![GraphNode::default()]),
+            ..ChangeGraph::default()
+        },
+        ..Plan::default()
+    };
+    assert_eq!(
+        plan::validate(Some(&p)).unwrap_err().to_string(),
+        "ready plans require ordered Execution order"
+    );
+}
+
+#[test]
 fn lifecycle_matches_fixed_go_errors_and_precedence() {
     for case in corpus()["lifecycle"].as_array().unwrap() {
         let mut p = Plan::default();

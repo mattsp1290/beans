@@ -79,10 +79,8 @@ fn ordered_items(value: &str) -> bool {
     // Go's (?m)^\s*\d+\.\s+\S uses ASCII Perl classes. The whitespace
     // may cross line boundaries; Unicode spaces and vertical tab are not \s.
     let bytes = value.as_bytes();
-    for start in 0..bytes.len() {
-        if start != 0 && bytes[start - 1] != b'\n' {
-            continue;
-        }
+    let mut start = 0;
+    while start < bytes.len() {
         let mut cursor = start;
         while bytes.get(cursor).is_some_and(|&b| regex_space(b)) {
             cursor += 1;
@@ -91,17 +89,22 @@ fn ordered_items(value: &str) -> bool {
         while bytes.get(cursor).is_some_and(u8::is_ascii_digit) {
             cursor += 1;
         }
-        if digits == cursor || bytes.get(cursor) != Some(&b'.') {
-            continue;
-        }
-        cursor += 1;
-        let spaces = cursor;
-        while bytes.get(cursor).is_some_and(|&b| regex_space(b)) {
+        if digits < cursor && bytes.get(cursor) == Some(&b'.') {
             cursor += 1;
+            let spaces = cursor;
+            while bytes.get(cursor).is_some_and(|&b| regex_space(b)) {
+                cursor += 1;
+            }
+            if spaces < cursor && bytes.get(cursor).is_some_and(|&b| !regex_space(b)) {
+                return true;
+            }
         }
-        if spaces < cursor && bytes.get(cursor).is_some_and(|&b| !regex_space(b)) {
-            return true;
-        }
+        // Leading ASCII whitespace can cross several lines. All starts inside
+        // that span reach the same candidate, so do not rescan it on failure.
+        let Some(next_line) = bytes[cursor..].iter().position(|&b| b == b'\n') else {
+            break;
+        };
+        start = cursor + next_line + 1;
     }
     false
 }
