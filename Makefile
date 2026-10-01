@@ -109,6 +109,13 @@ compat-ids:
 compat-request-lifecycle:
 	python3 -S tools/compat/request_lifecycle_reference.py --check tests/contract/request-lifecycle.json
 
+.PHONY: compat-requests compat-request-read
+compat-requests:
+	python3 -S tools/compat/request_reference.py --check tests/contract/requests.json
+
+compat-request-read:
+	python3 -S tools/compat/request_cross_read.py
+
 .PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py

@@ -132,17 +132,17 @@ impl IssueMetadata {
     }
 }
 
-fn instant(value: &Timestamp) -> (i64, u32) {
+pub(super) fn instant(value: &Timestamp) -> (i64, u32) {
     (value.seconds, value.nanoseconds)
 }
-fn comment_suffix(comment: &str) -> String {
+pub(super) fn comment_suffix(comment: &str) -> String {
     if comment.is_empty() {
         String::new()
     } else {
         format!(" {comment}")
     }
 }
-fn raw_link(link: &Link) -> String {
+pub(super) fn raw_link(link: &Link) -> String {
     if link.raw.is_empty() {
         format!("[[{}]]", link.target)
     } else {
@@ -150,7 +150,7 @@ fn raw_link(link: &Link) -> String {
     }
 }
 
-fn timestamp_pair(key: &str, value: &Timestamp, comment: &str) -> Result<String, Error> {
+pub(super) fn timestamp_pair(key: &str, value: &Timestamp, comment: &str) -> Result<String, Error> {
     let date = OffsetDateTime::from_unix_timestamp(value.seconds)
         .map_err(|_| Error("issue timestamp is out of range".into()))?;
     let year = if date.year() < 0 {
@@ -176,7 +176,7 @@ fn timestamp_pair(key: &str, value: &Timestamp, comment: &str) -> Result<String,
 
 // Locate a scalar's trailing comment without treating hashes inside quoted
 // values or block content as comments. The original slice remains immutable.
-fn scalar_comment(
+pub(super) fn scalar_comment(
     source: &str,
     start: usize,
     end: usize,

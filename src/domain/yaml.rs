@@ -17,6 +17,17 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
     let mut root = None;
     loop {
         let (event, marker) = parser.next_token().map_err(|error| {
+            if error.info() == "while parsing node, found unknown anchor" {
+                for token in Scanner::new(adapted.chars()) {
+                    if token.0.index() == error.marker().index()
+                        && let TokenType::Alias(name) = token.1
+                    {
+                        return Error(format!(
+                            "{path}: frontmatter: yaml: unknown anchor '{name}' referenced"
+                        ));
+                    }
+                }
+            }
             // Exact yaml.v3 syntax-error presentation is completed alongside
             // the typed codec differential corpus; scanner text is retained.
             Error(format!("{path}: frontmatter: {error}"))

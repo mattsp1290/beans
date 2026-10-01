@@ -44,7 +44,7 @@ impl Default for Timestamp {
 }
 
 impl Timestamp {
-    fn read(key: &str, node: &Node) -> Result<Self, Error> {
+    pub(super) fn read(key: &str, node: &Node) -> Result<Self, Error> {
         let raw = node.scalar(key)?;
         parse_timestamp(raw.trim()).ok_or_else(|| {
             Error(format!(

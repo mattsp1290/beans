@@ -1141,32 +1141,44 @@
       "test": "TestRequestRoundTripAndMutation",
       "line": 37,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::round_trip_and_mutation",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestRequestRoundTripFixtures",
       "line": 63,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::round_trip_fixtures",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestRequestParsingErrors",
       "line": 96,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::parsing_errors",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestSetRequestBody",
       "line": 111,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::set_request_body",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/request_test.go",

@@ -1,5 +1,6 @@
 //! Request-specific namespaces and the fixed authored lifecycle. Reverse issue
 //! links are derived from request documents, never owned by issue files.
+pub use super::request_document::{RequestDocument, RequestMetadata};
 use super::{frontmatter::Error, id, issue::quoted};
 
 pub const OPEN: &str = "open";
