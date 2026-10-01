@@ -1523,8 +1523,11 @@
       "test": "TestParseSummaryIgnoresHeadingsInFences",
       "line": 79,
       "destination": "tests/plans.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plan_graph::summary_ignores_headings_in_fences",
+      "rust_source": "tests/domain/plan_graph.rs",
+      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
     },
     {
       "source": "plan/plan_test.go",
@@ -1550,16 +1553,22 @@
       "test": "TestParseGraphRejectsUnknownFields",
       "line": 113,
       "destination": "tests/plans.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plan_graph::graph_rejects_unknown_fields",
+      "rust_source": "tests/domain/plan_graph.rs",
+      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestParseGraphRejectsAliasAndCustomTag",
       "line": 120,
       "destination": "tests/plans.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plan_graph::graph_rejects_alias_and_custom_tag",
+      "rust_source": "tests/domain/plan_graph.rs",
+      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
     },
     {
       "source": "plan/plan_test.go",

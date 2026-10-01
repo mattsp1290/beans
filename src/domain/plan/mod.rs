@@ -1,6 +1,10 @@
 //! Portable plan models. Lifecycle validation is distinct from manifest,
 //! graph and filesystem bundle validation.
+mod graph;
 pub mod id;
+mod summary;
+pub use graph::{GraphError, parse_graph};
+pub use summary::parse_summary;
 mod lifecycle;
 use super::issue::Timestamp;
 pub use lifecycle::{valid_status, validate};

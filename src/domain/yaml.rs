@@ -2,6 +2,21 @@ use super::frontmatter::{Error, Node, NodeKind};
 use yaml_rust2::parser::{Event, Parser, Tag};
 use yaml_rust2::scanner::{Scanner, TScalarStyle, TokenType};
 
+fn resolved_tag(tag: Option<&Tag>, default: &str) -> String {
+    let Some(tag) = tag else {
+        return default.to_owned();
+    };
+    let value = tag.handle.clone() + &tag.suffix;
+    if value == "!" {
+        return default.to_owned();
+    }
+    if let Some(short) = value.strip_prefix("tag:yaml.org,2002:") {
+        format!("!!{short}")
+    } else {
+        value
+    }
+}
+
 fn scalar_null(value: &str, style: TScalarStyle, tag: Option<&Tag>) -> bool {
     if let Some(tag) = tag {
         return tag.handle == "tag:yaml.org,2002:" && tag.suffix == "null";
@@ -35,6 +50,14 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
         let node = match event {
             Event::MappingStart(anchor, ref tag) | Event::SequenceStart(anchor, ref tag) => {
                 stack.push(Node {
+                    tag: resolved_tag(
+                        tag.as_ref(),
+                        if matches!(event, Event::MappingStart(..)) {
+                            "!!map"
+                        } else {
+                            "!!seq"
+                        },
+                    ),
                     kind: if matches!(event, Event::MappingStart(..)) {
                         NodeKind::Mapping
                     } else {
@@ -91,6 +114,18 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
                 };
                 let line = positions.node_line(line, anchor, tag.is_some());
                 Node {
+                    tag: resolved_tag(
+                        tag.as_ref(),
+                        if style == TScalarStyle::Plain {
+                            if value == "<<" {
+                                "!!merge"
+                            } else {
+                                super::yaml_render::implicit_tag(&value)
+                            }
+                        } else {
+                            "!!str"
+                        },
+                    ),
                     kind: NodeKind::Scalar,
                     line,
                     value: Some(value),
@@ -99,6 +134,7 @@ pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
                 }
             }
             Event::Alias(_) => Node {
+                tag: String::new(),
                 kind: NodeKind::Alias,
                 line: marker.line(),
                 value: None,
