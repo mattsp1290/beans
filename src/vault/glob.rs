@@ -1,3 +1,5 @@
+// Copyright 2010 The Go Authors. All rights reserved.
+// Adaptation is governed by the BSD-style license in GO_LICENSE.
 //! Linux filepath.Match/Glob semantics. Adapted from Go's BSD-licensed
 //! path/filepath/match.go; see GO_LICENSE.
 use super::paths::join;
