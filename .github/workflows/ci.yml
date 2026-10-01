@@ -110,6 +110,7 @@ jobs:
           make compat-paths
           make compat-remote
           make compat-resolve
+          make compat-context
       - name: Install the pinned Rust compiler for cross-language reading
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Read actual Rust-generated issue files with the fixed Go reader

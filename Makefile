@@ -209,3 +209,7 @@ compat-remote:
 .PHONY: compat-resolve
 compat-resolve:
 	python3 -S tools/compat/resolve_reference.py --check tests/contract/resolve.json
+
+.PHONY: compat-context
+compat-context:
+	python3 -S tools/compat/context_reference.py --check tests/contract/context.json

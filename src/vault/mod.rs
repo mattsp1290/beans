@@ -1,7 +1,7 @@
 //! Linux hub paths and project resolution.
 mod git;
 mod go_lower;
-mod paths;
+pub(crate) mod paths;
 mod project_name;
 mod remote;
 mod remote_ip;

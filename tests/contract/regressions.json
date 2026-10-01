@@ -13,8 +13,8 @@
       "source": "cmd/bn/app_test.go",
       "test": "TestResolveActorPrecedence",
       "line": 23,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/domain/context.rs::resolve_actor_original_precedence_regression",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1774,40 +1774,40 @@
       "source": "vault/resolve_test.go",
       "test": "TestResolveBasenameMatch",
       "line": 48,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/resolve.rs::resolve_basename_match_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveRemoteFallback",
       "line": 61,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/resolve.rs::resolve_remote_fallback_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveCollisionErrors",
       "line": 71,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/resolve.rs::resolve_collision_errors_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveOutsideGit",
       "line": 81,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/resolve.rs::resolve_outside_git_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveOverrides",
       "line": 93,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/resolve.rs::resolve_overrides_original",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

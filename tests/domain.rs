@@ -4,6 +4,8 @@ mod codec_regressions;
 mod config_codec;
 #[path = "domain/config_foundation.rs"]
 mod config_foundation;
+#[path = "domain/context.rs"]
+mod context;
 #[path = "domain/creation.rs"]
 mod creation;
 #[path = "domain/handoffs.rs"]

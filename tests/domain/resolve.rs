@@ -227,3 +227,110 @@ fn system_git_reads_real_repository_and_detached_head() {
     assert!(!SystemGit.branch(&root).found);
     assert!(!SystemGit.toplevel(&root.join("missing")).found);
 }
+
+struct OriginalHub {
+    hub: PathBuf,
+    git: Value,
+    env: String,
+}
+impl OriginalHub {
+    fn new() -> Self {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        static NEXT: AtomicUsize = AtomicUsize::new(0);
+        let hub = std::env::temp_dir().join(format!(
+            "beans-original-resolution-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        std::fs::create_dir(&hub).unwrap();
+        std::fs::create_dir(hub.join("projects")).unwrap();
+        Self {
+            hub,
+            env: String::new(),
+            git: serde_json::json!({"Root":"/code/exa","Remote":"git@github.com:o/exa.git","Head":"0123456789abcdef","Branch":"feature/x"}),
+        }
+    }
+    fn add(&self, name: &str, config: &str) {
+        let dir = self.hub.join("projects").join(name);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("beans.toml"), config).unwrap();
+    }
+    fn resolve(&self, flag: &str, write: bool, all_projects: bool) -> Result<Resolved, Error> {
+        let git = Fake {
+            input: &self.git,
+            calls: RefCell::new(Vec::new()),
+        };
+        let env = |_: &str| self.env.as_bytes().to_vec();
+        resolve(
+            &self.hub,
+            ResolveOptions {
+                cwd: Some(Path::new("/working")),
+                flag_project: flag.as_bytes(),
+                write,
+                all_projects,
+                git: Some(&git),
+                env: Some(&env),
+            },
+        )
+    }
+}
+impl Drop for OriginalHub {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.hub);
+    }
+}
+#[test]
+fn resolve_basename_match_original() {
+    let hub = OriginalHub::new();
+    hub.add("exa", "remotes=['https://github.com/o/exa']");
+    let res = hub.resolve("", false, false).unwrap();
+    assert_eq!(res.project, b"exa");
+    assert!(!res.created);
+    assert_eq!(res.repo_head, b"0123456");
+    assert_eq!(res.repo_branch, b"feature/x");
+    assert_eq!(res.repo_remote, b"https://github.com/o/exa");
+}
+#[test]
+fn resolve_remote_fallback_original() {
+    let hub = OriginalHub::new();
+    hub.add("renamed", "remotes=['https://github.com/o/exa']");
+    assert_eq!(hub.resolve("", false, false).unwrap().project, b"renamed");
+}
+#[test]
+fn resolve_collision_errors_original() {
+    let hub = OriginalHub::new();
+    hub.add("exa", "remotes=['https://github.com/other/exa']");
+    assert!(
+        hub.resolve("", false, false)
+            .unwrap_err()
+            .to_string()
+            .contains("projects/exa belongs to https://github.com/other/exa")
+    );
+}
+#[test]
+fn resolve_outside_git_original() {
+    let mut hub = OriginalHub::new();
+    hub.git["Root"] = Value::String(String::new());
+    assert_eq!(
+        hub.resolve("", false, false).unwrap_err().to_string(),
+        beans::vault::OUTSIDE_REPO
+    );
+    assert!(hub.resolve("", false, true).unwrap().project.is_empty());
+}
+#[test]
+fn resolve_overrides_original() {
+    let mut hub = OriginalHub::new();
+    hub.add("flagged", "name='flagged'");
+    let res = hub.resolve("flagged", false, false).unwrap();
+    assert_eq!(res.project, b"flagged");
+    assert!(!res.created);
+    hub.env = "flagged".into();
+    assert_eq!(hub.resolve("", false, false).unwrap().project, b"flagged");
+    hub.env.clear();
+    assert!(hub.resolve("nope", false, false).is_err());
+    let res = hub.resolve("nope", true, false).unwrap();
+    assert!(res.created);
+    assert_eq!(res.project, b"nope");
+    assert!(!hub.hub.join("projects/nope").exists());
+    assert!(hub.resolve("Bad Name", false, false).is_err());
+}

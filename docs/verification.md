@@ -190,9 +190,21 @@ errors. Before/after filesystem snapshots remain identical. A native system-Git
 test covers an unborn repository, configured origin, a real commit, branch and
 detached HEAD. A parser-token diagnostic fix preserves Go's EOF wording and line
 for arrays waiting for a value. Existing config and workflow recaptures pass.
-CI requires resolution recapture. Original resolution regressions remain in the
-ledger pending independent named ports; project creation, actor/opsEnv wiring,
+CI requires resolution recapture. Five original resolution regressions have independent named ports; project
+creation, end-to-end actor/opsEnv wiring,
 raw-filename and wider filesystem fault cases still require work.
+
+Actor precedence/cache handling and operation configuration are checked against
+576 actor cases and 240 operation cases from the immutable Go application.
+Flags/cache and USER retain raw bytes; environment/config/Git actor values trim
+Go whitespace. An empty result is reevaluated while nonempty actors stay cached.
+Operations snapshot hub bytes, retain malformed-hub zero type/ID fields, fall
+back to built-in workflows on errors and preserve raw nonempty prefixes.
+Project and explicit files remain live, including recovery from missing/invalid
+explicit workflows. Direct workflow loads still return the captured errors.
+Reads leave files unchanged. One original actor regression is independently
+ported. CI requires context recapture. End-to-end CLI/ops/index wiring and wider
+filesystem faults remain work; these helpers do not expose Rust mutations yet.
 
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),
