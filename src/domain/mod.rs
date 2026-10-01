@@ -24,6 +24,7 @@ mod yaml;
 mod yaml_decode;
 mod yaml_render;
 pub(crate) mod yaml_string;
+pub(crate) mod yaml_value;
 
 mod yaml_reader;
 

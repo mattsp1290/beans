@@ -148,3 +148,34 @@ references, Unicode prefixes, escapes, CR/CRLF and frontmatter delimiters. Two
 independent Rust assertions port `TestLinks` and `TestLinksAlias`. These tests
 qualify link extraction for the recorded inputs; they do not qualify rendered
 HTML, TOC, embeds, the disk index or end-to-end queries.
+
+## Forgiving document metadata
+
+`src/vault/document.rs` ports document frontmatter splitting, title fallback and
+tag filtering. Its exact leading `---\n` rule differs from Markdown link
+frontmatter and typed issue parsing; a missing closing fence keeps the original
+body. A title must be a decoded string. Otherwise the first trimmed `# ` line
+(including one inside a code fence) supplies the title, then the basename. Tags
+accept a nonempty string or only string items from a sequence. Empty sequences
+and absent/empty scalar tags retain their distinct non-nil/nil results.
+
+`src/domain/yaml_value.rs` and its scalar module decode the entire generic
+frontmatter map for indexing and later API use. Values retain raw strings,
+booleans, signed/unsigned integers, float bits, timestamps, sequences and both
+string-keyed and general maps. Aliases and merge precedence use YAML node
+identities; duplicate mappings are skipped as recoverable errors, while fatal
+value errors retain earlier top-level assignments. The decoder carries Go's
+alias expansion counters and ratio limits. It does not serialize or rewrite
+source YAML. Generic metadata is distinct from the typed codecs' permissive
+scalar-to-string fields.
+
+`make compat-doc-metadata` independently recaptures 995 immutable Go 1.25.7
+cases. It compares original split bytes, body/title/tags and all typed metadata
+values, including partially decoded results. Cases cover every byte in titles
+and bodies, syntax/type errors, tags, aliases and alias keys, merges, duplicate
+keys, BOM/Unicode, numeric boundaries, timestamps, and expanding alias trees.
+An independent Rust regression checks code-fence heading fallback, mixed tag
+types, fatal partial-map retention and CRLF opening-fence behavior. Whole-index
+loading/reload/search, API JSON errors for generic maps/non-finite floats, and
+wider YAML/reader/error-order qualification remain acceptance work. No existing
+whole-index Go test has been retired or marked ported by this metadata slice.

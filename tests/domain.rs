@@ -8,6 +8,8 @@ mod config_foundation;
 mod context;
 #[path = "domain/creation.rs"]
 mod creation;
+#[path = "domain/document.rs"]
+mod document;
 #[path = "domain/graph.rs"]
 mod graph;
 #[path = "domain/handoffs.rs"]

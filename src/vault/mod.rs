@@ -1,5 +1,6 @@
 //! Linux hub paths and project resolution.
 mod classify;
+mod document;
 mod git;
 mod go_lower;
 mod graph;
@@ -13,6 +14,7 @@ pub use classify::{
     classify, is_asset_path, is_plans_directory, plan_bundle_project, plan_manifest_project,
     skip_dir_name,
 };
+pub use document::{DocMetadata, YamlValue, doc_metadata, split_doc_frontmatter};
 pub use git::{GitCapture, GitResolver, SystemGit};
 pub use graph::{GraphNote, LinkKind, LinkRef, NoteGraph, NoteKind, RawLink, Warning};
 pub use paths::{Paths, check_hub, default_paths, default_paths_with};

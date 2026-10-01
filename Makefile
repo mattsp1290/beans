@@ -225,3 +225,7 @@ compat-recovery:
 .PHONY: compat-markdown-links
 compat-markdown-links:
 	python3 -S tools/compat/links_reference.py --check tests/contract/links.json
+
+.PHONY: compat-doc-metadata
+compat-doc-metadata:
+	python3 -S tools/compat/doc_reference.py --check tests/contract/doc.json

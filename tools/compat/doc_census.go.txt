@@ -1,0 +1,154 @@
+package vault
+
+import (
+	"encoding/json"
+	"fmt"
+	"gopkg.in/yaml.v3"
+	"math"
+	"os"
+	"sort"
+	"strings"
+	"testing"
+	"time"
+)
+
+func docBytes(s string) []int {
+	v := make([]int, len(s))
+	for i := 0; i < len(s); i++ {
+		v[i] = int(s[i])
+	}
+	return v
+}
+func docValue(v any) any {
+	switch v := v.(type) {
+	case nil:
+		return map[string]any{"kind": "null"}
+	case string:
+		return map[string]any{"kind": "string", "bytes": docBytes(v)}
+	case bool:
+		return map[string]any{"kind": "bool", "value": v}
+	case int:
+		return map[string]any{"kind": "int", "value": v}
+	case int64:
+		return map[string]any{"kind": "int", "value": v}
+	case uint64:
+		return map[string]any{"kind": "uint", "value": v}
+	case float64:
+		return map[string]any{"kind": "float", "bits": fmt.Sprintf("%016x", math.Float64bits(v))}
+	case time.Time:
+		_, offset := v.Zone()
+		return map[string]any{"kind": "timestamp", "seconds": v.Unix(), "nanoseconds": v.Nanosecond(), "offset": offset}
+	case []any:
+		items := make([]any, 0, len(v))
+		for _, item := range v {
+			items = append(items, docValue(item))
+		}
+		return map[string]any{"kind": "sequence", "items": items}
+	case map[string]any:
+		keys := make([]string, 0, len(v))
+		for k := range v {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		entries := make([]any, 0, len(v))
+		for _, k := range keys {
+			entries = append(entries, map[string]any{"key": docValue(k), "value": docValue(v[k])})
+		}
+		return map[string]any{"kind": "string_map", "entries": entries}
+	case map[any]any:
+		type entry struct {
+			key   string
+			value any
+		}
+		entries := []entry{}
+		for k, item := range v {
+			key, _ := json.Marshal(docValue(k))
+			entries = append(entries, entry{string(key), map[string]any{"key": docValue(k), "value": docValue(item)}})
+		}
+		sort.Slice(entries, func(i, j int) bool { return entries[i].key < entries[j].key })
+		out := make([]any, 0, len(entries))
+		for _, e := range entries {
+			out = append(out, e.value)
+		}
+		return map[string]any{"kind": "map", "entries": out}
+	default:
+		panic(fmt.Sprintf("unsupported %T", v))
+	}
+}
+func TestMigrationDocs(t *testing.T) {
+	inputs := []string{"", "# Heading", "```\n# heading in code\n```", "# \n# Later", "\u0085# Unicode \u00a0", "---\ntitle: Front\ntags: [one, two]\n---\n# Body [[note]]"}
+	values := []string{"null", "~", "true", "FALSE", "yes", "ON", "0", "01", "09", "-1", "0xff", "0b101", "0o12", "18446744073709551615", "9223372036854775808", "-9223372036854775808", "18446744073709551616", "1.5", "1e3", ".nan", ".inf", "-.inf", "-0.0", "2001-2-3", "2001-2-3t4:5:6.123Z", "2001-2-3 4:5:6", "2001-02-03T04:05:06+24:00", "''", "'null'", "'true'", "'09'", "'2001-2-3'", "[]", "[one, null, 1, true, '', yes]", "{one: two}", "!!str 2", "!!binary /w==", "!!binary !!!", "!!binary '!!!'", "!!bool nope", "!!int nope", "!!float 1", "!!float 18446744073709551615", "!!timestamp bad", "!custom 42", "&a [one, two]", "&a {x: y}", "-0", "0_1", "+0xFF", "0XFF", "0B10", "0O10", "08", "+.5", ".5_6", "1e-400", "1e400", "!!int 1.5", "!!float 0xff", "!!timestamp 2001-2-3", "2001-2-3T4:5:6Z", "2001-2-3t4:5:6,5Z", "2001-2-3 4:5:6.000000001", "2001-2-3T4:5:6+01:30"}
+	for _, value := range values {
+		for _, key := range []string{"title", "tags", "extra"} {
+			for _, form := range []string{key + ": " + value, "before: ok\n" + key + ": " + value + "\nafter: later"} {
+				inputs = append(inputs, "---\n"+form+"\n---\n# Body")
+			}
+		}
+	}
+	for _, fm := range []string{
+		"title: First\ntitle: Second", "tags: [one]\ntags: [two]", "good: one\nbad: {a: 1, a: 2}\ntitle: Later", "good: one\ntags: [{a: 1, a: 2}, string, null]\ntitle: Later",
+		"title: &t Named\ntags: [*t]", "defaults: &a {title: Base, tags: [x]}\n<<: *a", "defaults: &a {title: Base, tags: [x]}\n<<: *a\ntitle: Override", "defaults: &a {title: Base}\nsecond: &b {title: Second, tags: [two]}\n<<: [*a, *b]", "defaults: &a {title: Base}\n<<: [*a, 1]\ntags: Later", "title: Earlier\n<<: nope\ntags: Later", "title: Earlier\nextra: &a [*a]\ntags: Later", "title: Earlier\nextra: *absent\ntags: Later",
+		"1: one\ntrue: two\nnull: nil\ntitle: Name", "!!str 1: one\n1: two\ntitle: Name", "? [one, two]\n: value\ntitle: Name", "title: Before\nextra: {? [one, two]: value}\ntags: Later", "title: Before\nextra: {1: one, true: two, null: nil}\ntags: Later", "title: Before\nextra: {<<: {1: one}, x: two}\ntags: Later", "title: Before\nextra: {1: one, <<: {x: two}}\ntags: Later", "key: &a title\nextra: {*a: Name}", "key: &a 1\nextra: {*a: Name}", "1: First\n<<: {'1': Merged}", "title: {a: 1, a: 2}\n<<: {title: Merged}", "title: Before\n<<: [{tags: [First]}, 1, {tags: [Later]}]", "base: &a {x: one}\nextra: {<<: *a, x: two}", "base: &a {x: one}\nextra: {<<: [*a, {y: two}]}", "empty: &a null\ntitle: *a\ntags: [*a, string]", "!!null null: skip\n'': present", "---\ntitle: Name\n...", "title: Name\n...\ninvalid after document", "title: Name\n...\n---\ntitle: Later", "[one, two]", "null", "scalar", "{title: Name, tags: [a, b]}", "title: [", "\ufefftitle: BOM", "title: 'line\u0085break'", "title: 'line\u2028break'",
+	} {
+		inputs = append(inputs, "---\n"+fm+"\n---\n# Body")
+	}
+	for _, opening := range []string{"---\n", "---\r\n", "----\n", " ---\n", "\n---\n", "+++\n"} {
+		for _, closing := range []string{"---\n", "---\r\n", "---", "----\n", " ---\n", "...\n", ""} {
+			inputs = append(inputs, opening+"title: Name\ntags: [x]\n"+closing+"# Body")
+		}
+	}
+	for b := 0; b < 256; b++ {
+		inputs = append(inputs, "---\ntitle: x"+string([]byte{byte(b)})+"y\n---\n# Body", "# x"+string([]byte{byte(b)})+"y")
+	}
+	for levels := 1; levels <= 6; levels++ {
+		fm := "title: Before\na0: &a0 [one]\n"
+		for level := 1; level <= levels; level++ {
+			aliases := make([]string, 10)
+			for j := range aliases {
+				aliases[j] = fmt.Sprintf("*a%d", level-1)
+			}
+			fm += fmt.Sprintf("a%d: &a%d [%s]\n", level, level, strings.Join(aliases, ","))
+		}
+		inputs = append(inputs, "---\n"+fm+"tags: After\n---\n# Body")
+	}
+	rows := []any{}
+	for _, input := range inputs {
+		fm, body := splitDocFrontmatter([]byte(input))
+		var fields map[string]any
+		if len(strings.TrimSpace(string(fm))) > 0 {
+			_ = yaml.Unmarshal(fm, &fields)
+		}
+		title := stringField(fields, "title")
+		if title == "" {
+			title = firstHeading(body)
+		}
+		if title == "" {
+			title = "fallback"
+		}
+		var metadata any
+		if fields != nil {
+			metadata = docValue(fields)
+		}
+		tags := stringListField(fields, "tags")
+		var tagValues any
+		if tags != nil {
+			v := make([][]int, 0, len(tags))
+			for _, tag := range tags {
+				v = append(v, docBytes(tag))
+			}
+			tagValues = v
+		}
+		var fmValue any
+		if fm != nil {
+			fmValue = docBytes(string(fm))
+		}
+		rows = append(rows, map[string]any{"input": docBytes(input), "frontmatter_bytes": fmValue, "body": docBytes(string(body)), "title": docBytes(title), "tags": tagValues, "metadata": metadata})
+	}
+	data, e := json.Marshal(map[string]any{"cases": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_DOC_OUTPUT"), data, 0600); e != nil {
+		t.Fatal(e)
+	}
+}
