@@ -34,6 +34,9 @@ func newCLIEnv(t *testing.T) *cliEnv {
 	t.Setenv("BEANS_PROJECT", "")
 	t.Setenv("BN_ACTOR", "tester")
 	e.git("", "init", "-q", "--bare", "-b", "main", e.remote)
+	// A receive-pack maintenance process can outlive push and race TempDir
+	// cleanup. Fixture remotes need no background housekeeping.
+	e.git(e.remote, "config", "receive.autogc", "false")
 	e.git("", "init", "-q", "-b", "main", e.repo)
 	e.git(e.repo, "remote", "add", "origin", "git@github.com:o/myapp.git")
 	if err := os.WriteFile(filepath.Join(e.repo, "README"), []byte("x\n"), 0o644); err != nil {
