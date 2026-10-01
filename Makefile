@@ -245,3 +245,11 @@ compat-raw-codec:
 .PHONY: compat-raw-codec-read
 compat-raw-codec-read:
 	python3 -S tools/compat/raw_codec_cross_read.py
+
+.PHONY: compat-raw-reader
+compat-raw-reader:
+	python3 -S tools/compat/raw_reader_reference.py --check tests/contract/raw-reader.json
+
+.PHONY: compat-raw-reader-read
+compat-raw-reader-read:
+	python3 -S tools/compat/raw_reader_cross_read.py

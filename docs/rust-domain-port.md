@@ -307,3 +307,42 @@ fixture/binary hashes are in
 `tests/contract/index-performance-raw-codec-linux-arm64.json`. This remains an
 in-process load measurement; CLI startup/output and dense-link measurements
 still require separate qualification.
+
+## Raw UTF-8 YAML reader windows
+
+The production YAML reader now validates original UTF-8 bytes as the parser
+requests its 512-byte windows, checking trailing octets, minimum sequence length,
+Unicode range and printability in Go order. Frontmatter no longer prechecks the
+entire file. The parser follows Go's two-token comment lookahead for node-content
+errors: a following key can satisfy lookahead before its value is read, while a
+comment-only suffix requires scanning to its end. Explicit document-end behavior
+continues to limit which bytes reach the reader. Ignored malformed UTF-8 after
+that boundary can remain valid input and must retain its original bytes.
+
+Frontmatter fields now expose actual raw offsets; encoding translates these
+back to Unicode-view offsets only when inspecting inline comments. Frontmatter
+and body replacement spans use actual byte ranges, so no-op and first/last
+metadata edits preserve or replace the same regions as Go even when ignored
+frontmatter suffixes expand in the Unicode view.
+
+`make compat-raw-reader` recaptures 6,304 fixed-Go cases and 18,912 parse/edit
+outcomes across all four codecs, including every byte, sequence/trailing/range
+errors, 512-byte boundaries, early syntax faults with comments or later keys,
+explicit document ends, first/last field changes and opaque raw bodies. There
+are 2,076 accepted inputs. Tests compare exact errors and encoded bytes plus
+copy geometry and Go re-reading of the edited file.
+`make compat-raw-reader-read` tests 6,228 actual Rust outputs in Go: 5,911 accepted
+byte roundtrips and 317 matching rejections. Go last-field spans can include a
+document-end marker; replacing that span can make previously ignored malformed
+suffix bytes active again. These outcomes remain part of the captured contract.
+An independent regression verifies token-dependent precedence
+and actual disk-index roundtrip of ignored invalid frontmatter. Existing codec,
+workflow, generic-document, plan, index and query corpora remain required.
+
+This qualifies the captured UTF-8 reader behavior, not the full WP3 format gate.
+A separate fixed-Go probe confirms accepted UTF-16 LE/BE BOM frontmatter with an
+explicit document end; decoding, byte ranges and editing that encoding remain
+mandatory work. Wider YAML syntax and aliases, other multifault combinations,
+new raw log arguments, generated edit sequences, production proof-coupling
+audit and filesystem/transport/performance gates remain. The original-test
+ledger remains 96 ported and 129 pending.

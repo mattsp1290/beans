@@ -173,8 +173,8 @@ impl HandoffDocument {
                     .map_or(String::new(), |f| {
                         scalar_comment(
                             document.original(),
-                            f.start,
-                            f.end,
+                            document.view_offset(f.start),
+                            document.view_offset(f.end),
                             f.value.line,
                             f.key_line,
                         )

@@ -118,6 +118,7 @@ jobs:
           make compat-index
           make compat-query
           make compat-raw-codec
+          make compat-raw-reader
       - name: Install the pinned Rust compiler for cross-language reading
         run: rustup toolchain install 1.98.1 --profile minimal
       - name: Read actual Rust-generated issue files with the fixed Go reader
@@ -126,6 +127,8 @@ jobs:
         run: make compat-request-read
       - name: Read actual Rust-generated memories with the fixed Go reader
         run: make compat-memory-read
+      - name: Read actual Rust raw-frontmatter documents with the fixed Go reader
+        run: make compat-raw-reader-read
       - name: Read actual Rust raw-body documents with the fixed Go reader
         run: make compat-raw-codec-read
       - name: Read actual Rust-generated handoffs with the fixed Go reader

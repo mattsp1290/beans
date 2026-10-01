@@ -24,13 +24,13 @@ fn scalar_null(value: &str, style: TScalarStyle, tag: Option<&Tag>) -> bool {
     style == TScalarStyle::Plain && matches!(value, "" | "~" | "null" | "Null" | "NULL")
 }
 
-pub(crate) fn parse(path: &str, text: &str) -> Result<Node, Error> {
-    parse_optional(path, text)?
+pub(crate) fn parse_raw(path: &str, text: &str, raw: &[u8]) -> Result<Node, Error> {
+    parse_optional_inner(path, text, raw, None)?
         .ok_or_else(|| Error(format!("{path}: line 2: frontmatter is empty")))
 }
 
 pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Error> {
-    parse_optional_inner(path, text, None)
+    parse_optional_inner(path, text, text.as_bytes(), None)
 }
 type SyntaxFormatter = fn(&yaml_rust2::scanner::ScanError, &[Node]) -> Error;
 pub(crate) fn parse_optional_with_syntax(
@@ -38,14 +38,15 @@ pub(crate) fn parse_optional_with_syntax(
     text: &str,
     syntax: SyntaxFormatter,
 ) -> Result<Option<Node>, Error> {
-    parse_optional_inner(path, text, Some(syntax))
+    parse_optional_inner(path, text, text.as_bytes(), Some(syntax))
 }
 fn parse_optional_inner(
     path: &str,
     text: &str,
+    raw: &[u8],
     syntax: Option<SyntaxFormatter>,
 ) -> Result<Option<Node>, Error> {
-    let mut reader = super::yaml_reader::Reader::new(text);
+    let mut reader = super::yaml_reader::Reader::new_raw(text, raw);
     reader.check(path, 1, 0)?;
     let adapted = adapt_quote_indentation(text);
     let adapted = if syntax.is_some() {
@@ -63,6 +64,33 @@ fn parse_optional_inner(
                 reader.check(path, error.marker().line(), error.marker().col())
             {
                 return reader_error;
+            }
+            if error.info() == "while parsing a node, did not find expected node content" {
+                if let Err(reader_error) = reader.error_lookahead(
+                    path,
+                    &adapted,
+                    error.marker().line(),
+                    error.marker().col(),
+                ) {
+                    return reader_error;
+                }
+                if let Some(syntax) = syntax {
+                    return syntax(&error, &stack);
+                }
+                let context = stack.last().map_or(0, |n| n.line.saturating_sub(1));
+                let line = if context > 0 {
+                    context
+                } else {
+                    error.marker().line().saturating_sub(1)
+                };
+                let location = if line > 0 {
+                    format!("line {line}: ")
+                } else {
+                    String::new()
+                };
+                return Error(format!(
+                    "{path}: frontmatter: yaml: {location}did not find expected node content"
+                ));
             }
             if error.info() == "while parsing a block mapping, did not find expected key"
                 || (error.info() == "wrongly indented line in block scalar"

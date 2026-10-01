@@ -22,8 +22,8 @@ impl IssueDocument {
                     .map_or(String::new(), |field| {
                         scalar_comment(
                             document.original(),
-                            field.start,
-                            field.end,
+                            document.view_offset(field.start),
+                            document.view_offset(field.end),
                             field.value.line,
                             field.key_line,
                         )

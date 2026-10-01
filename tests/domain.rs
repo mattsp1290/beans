@@ -34,6 +34,8 @@ mod plans;
 mod query;
 #[path = "domain/raw_codec.rs"]
 mod raw_codec;
+#[path = "domain/raw_reader.rs"]
+mod raw_reader;
 #[path = "domain/recovery.rs"]
 mod recovery;
 #[path = "domain/remote.rs"]

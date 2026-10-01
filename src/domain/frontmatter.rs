@@ -129,17 +129,18 @@ impl Frontmatter {
 
     pub fn parse_bytes(path: &str, raw: &[u8]) -> Result<Self, Error> {
         if let Ok(text) = std::str::from_utf8(raw) {
-            return Self::parse_text(path, text);
+            return Self::parse_text(path, text, raw, Vec::new());
         }
         let view = super::source::Source::new(raw);
-        view.validate_frontmatter(path)?;
-        let mut document = Self::parse_text(path, &view.text)?;
-        document.raw = raw.into();
-        document.offsets = view.offsets;
-        Ok(document)
+        Self::parse_text(path, &view.text, raw, view.offsets)
     }
 
-    fn parse_text(path: &str, source: &str) -> Result<Self, Error> {
+    fn parse_text(
+        path: &str,
+        source: &str,
+        raw: &[u8],
+        mapping: Vec<usize>,
+    ) -> Result<Self, Error> {
         if source.contains("\r\n") {
             return Err(Error(format!(
                 "{path}: has Windows line endings (\\r\\n); bn requires \\n"
@@ -165,7 +166,8 @@ impl Frontmatter {
         let fm_end =
             fm_end.ok_or_else(|| Error(format!("{path}: frontmatter has no closing --- fence")))?;
         let text = &source[fm_start..fm_end];
-        let root = super::yaml::parse(path, text)?;
+        let map = |at: usize| mapping.get(at).copied().unwrap_or(at);
+        let root = super::yaml::parse_raw(path, text, &raw[map(fm_start)..map(fm_end)])?;
         if root.kind != NodeKind::Mapping {
             return Err(Error(format!(
                 "{path}: line {}: frontmatter must be a mapping",
@@ -221,10 +223,14 @@ impl Frontmatter {
             }
             fields[index].end = offsets[end_line];
         }
+        for field in &mut fields {
+            field.start = map(field.start);
+            field.end = map(field.end);
+        }
         Ok(Self {
             source: source.to_owned(),
-            raw: source.as_bytes().into(),
-            offsets: Vec::new(),
+            raw: raw.into(),
+            offsets: mapping,
             fields,
             fm_start,
             fm_end,
@@ -232,6 +238,16 @@ impl Frontmatter {
         })
     }
 
+    pub(crate) fn raw_offset(&self, view: usize) -> usize {
+        self.offsets.get(view).copied().unwrap_or(view)
+    }
+    pub(crate) fn view_offset(&self, raw: usize) -> usize {
+        if self.offsets.is_empty() {
+            raw
+        } else {
+            self.offsets.partition_point(|&v| v < raw)
+        }
+    }
     pub fn original_bytes(&self) -> &[u8] {
         &self.raw
     }
@@ -317,8 +333,8 @@ impl Frontmatter {
         let mut edits = super::splicing::owned_edits(
             &self.raw,
             Span {
-                start: self.fm_start,
-                end: self.fm_end,
+                start: self.raw_offset(self.fm_start),
+                end: self.raw_offset(self.fm_end),
             },
             &self.fields,
             owned_order,
@@ -327,7 +343,7 @@ impl Frontmatter {
         if body != self.body_bytes() {
             edits.push((
                 Span {
-                    start: self.body_start,
+                    start: self.raw_offset(self.body_start),
                     end: self.raw.len(),
                 },
                 body.to_vec(),
