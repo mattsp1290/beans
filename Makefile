@@ -116,6 +116,13 @@ compat-requests:
 compat-request-read:
 	python3 -S tools/compat/request_cross_read.py
 
+.PHONY: compat-memories compat-memory-read
+compat-memories:
+	python3 -S tools/compat/memory_reference.py --check tests/contract/memories.json
+
+compat-memory-read:
+	python3 -S tools/compat/memory_cross_read.py
+
 .PHONY: verify-toolchain verify-kernel
 verify-toolchain:
 	python3 -S tools/verification/qualify.py

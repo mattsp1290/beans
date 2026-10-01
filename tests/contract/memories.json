@@ -1,0 +1,2039 @@
+{
+  "schema": "beans-memories-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "harness_sha256": "5759e85c529337996cda48083c5be9f817861ac49c5b1b9f9780a25c136f7394",
+  "cases": [
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "original",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: frontmatter is missing required key \"key\"",
+      "input": "---\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "missing-key",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 9: duplicate frontmatter key \"key\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\nkey: null\n---\nBody text here.\n\nMore body.\n",
+      "name": "duplicate-key",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ntype: reference\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ntype: reference\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "missing-type",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 9: duplicate frontmatter key \"type\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ntype: null\n---\nBody text here.\n\nMore body.\n",
+      "name": "duplicate-type",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ntags: [\"true\", snow 雪]\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\ntags: [\"true\", snow 雪]\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "missing-tags",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 9: duplicate frontmatter key \"tags\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ntags: null\n---\nBody text here.\n\nMore body.\n",
+      "name": "duplicate-tags",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\ncreated: 2027-01-01T21:34:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\nupdated: 2027-01-02T03:04:05Z\ncreated: 2027-01-01T21:34:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "missing-created",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 9: duplicate frontmatter key \"created\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncreated: null\n---\nBody text here.\n\nMore body.\n",
+      "name": "duplicate-created",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        }
+      },
+      "name": "missing-updated",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 9: duplicate frontmatter key \"updated\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\nupdated: null\n---\nBody text here.\n\nMore body.\n",
+      "name": "duplicate-updated",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "error": "projects/beans/memories/sample.md: frontmatter is missing required key \"key\"",
+      "input": "---\nkey: null\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "key-0",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "error": "projects/beans/memories/sample.md: frontmatter is missing required key \"key\"",
+      "input": "---\nkey: ''\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "key-1",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: true\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: true\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: true\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: true\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: true\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: true\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: true\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: \"true\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: \"true\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: true\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: true\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "true",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "key-2",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: 'New Key 雪'\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "New Key 雪",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "key-3",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": false,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 2: key must be a string",
+      "input": "---\nkey: []\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "key-4",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: null\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "type-0",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: bogus\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "bogus",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "type-1",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": false
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 3: type must be a string",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: []\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "type-2",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: null\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntags: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: null\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "tags-0",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: true\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\"]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\"]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: true\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "true"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "tags-1",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [null, 42, '']\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"null\", \"42\", \"\"]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"null\", \"42\", \"\"]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [null, 42, '']\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "null",
+          "42",
+          ""
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "tags-2",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 4: tags must be a list of strings",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [{}]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "tags-3",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ncreated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: null\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "created-0",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ncreated: ''\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ''\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "created-1",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ncreated: ' '\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: ' '\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "created-2",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ncreated: 0001-01-01T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 0001-01-01T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "created-3",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 5: created must be an RFC3339 timestamp, got \"bad\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: bad\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "created-4",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 5: created must be a string",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: []\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "created-5",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T03:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T03:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-09-10T3:00:00,5Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 500000000,
+          "offset_seconds": 0,
+          "seconds": 1789009200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "created-6",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: null\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        }
+      },
+      "name": "updated-0",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: line 6: updated must be an RFC3339 timestamp, got \"bad\"",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: bad\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "updated-1",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-09T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-09T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00+24:00\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 86400,
+          "seconds": 1788912000
+        }
+      },
+      "name": "updated-2",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\n---\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\n---\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: x\ntype: reference\n---\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: x\ntags: [\"true\", snow 雪]\n---\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: x\ncreated: 2027-01-01T21:34:05Z\n---\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: x\nupdated: 2027-01-02T03:04:05Z\n---\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: x\n---\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: x\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: x\n---\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: x\n---\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: x\ncustom: '雪: value'\n---\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: x\n---\n",
+      "input": "---\nkey: x\n---\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        },
+        "key": "x",
+        "project": "beans",
+        "tags": [],
+        "type": "",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": -62135596800
+        }
+      },
+      "name": "minimal",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\ncustom: second\nanchor: &a {雪: [one, two]}\nreference: *a\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "unknown-duplicates",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom",
+        "custom",
+        "anchor",
+        "reference"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "error": "projects/beans/memories/sample.md: has Windows line endings (\\r\\n); bn requires \\n",
+      "input": "---\r\nkey: bean-counter-prod-schema\r\ntype: project\r\ntags: [deploy, prod]\r\ncreated: 2026-06-14T00:00:00Z\r\nupdated: 2026-09-10T00:00:00Z\r\n# a user comment\r\ncustom: keep me\r\n---\r\nBody text here.\r\n\r\nMore body.\r\n",
+      "name": "crlf",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "error": "projects/beans/memories/sample.md: frontmatter is missing required key \"key\"",
+      "input": "---\nkey:\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "name": "empty-key",
+      "path": "projects/beans/memories/sample.md"
+    },
+    {
+      "body": "Body text here.\n\nMore body.",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "beans",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "body-no-newline",
+      "path": "projects/beans/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "global",
+      "path": "memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    },
+    {
+      "body": "Body text here.\n\nMore body.\n",
+      "edits": [
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key"
+        },
+        {
+          "encoded": "---\nkey: \"\"\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "key-empty"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: reference\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "type"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [\"true\", snow 雪]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "tags"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "created"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "updated"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "clear-optionals"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "body"
+        },
+        {
+          "encoded": "---\nkey: New Key 雪\ntype: reference\ntags: [\"true\", snow 雪]\ncreated: 2027-01-01T21:34:05Z\nupdated: 2027-01-02T03:04:05Z\n# a user comment\ncustom: keep me\n---\nreplacement\n## Log\nopaque\n",
+          "kind": "all"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+          "kind": "same-instant"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new"
+        },
+        {
+          "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\ncustom: '雪: value'\n---\nBody text here.\n\nMore body.\n",
+          "kind": "new-extra"
+        }
+      ],
+      "encoded": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "input": "---\nkey: bean-counter-prod-schema\ntype: project\ntags: [deploy, prod]\ncreated: 2026-06-14T00:00:00Z\nupdated: 2026-09-10T00:00:00Z\n# a user comment\ncustom: keep me\n---\nBody text here.\n\nMore body.\n",
+      "metadata": {
+        "created": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1781395200
+        },
+        "key": "bean-counter-prod-schema",
+        "project": "last",
+        "tags": [
+          "deploy",
+          "prod"
+        ],
+        "type": "project",
+        "updated": {
+          "nanoseconds": 0,
+          "offset_seconds": 0,
+          "seconds": 1788998400
+        }
+      },
+      "name": "repeated-project",
+      "path": "projects/first/projects/last/memories/sample.md",
+      "unknown": [
+        "custom"
+      ],
+      "valid_key": true,
+      "valid_type": true
+    }
+  ]
+}

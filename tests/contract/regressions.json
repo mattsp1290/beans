@@ -1013,56 +1013,77 @@
       "test": "TestMemoryRoundTrip",
       "line": 22,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::round_trip",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestMemoryMutationSplicesOnlyChangedLines",
       "line": 46,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::mutation_splices_only_changed_lines",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestNewMemoryEncodesInKeyOrder",
       "line": 79,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::new_memory_encodes_in_key_order",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestParseMemoryMissingKeyIsError",
       "line": 114,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::missing_key_is_error",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestValidMemoryKey",
       "line": 122,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::valid_memory_key",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestValidMemoryType",
       "line": 152,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::valid_memory_type",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestParseMemoryRejectsCRLF",
       "line": 167,
       "destination": "tests/domain.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::rejects_crlf",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
     },
     {
       "source": "issue/mutation_test.go",
