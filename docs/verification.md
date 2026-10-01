@@ -207,7 +207,7 @@ ported. CI requires context recapture. End-to-end CLI/ops/index wiring and wider
 filesystem faults remain work; these helpers do not expose Rust mutations yet.
 
 The vault graph core matches 40 immutable Go register/rebuild/remove snapshots
-and 847 raw-byte path classification cases. It retains first-owner basename and
+and 1,087 raw-byte path classification cases. It retains first-owner basename and
 kind-specific ID collisions, alias precedence, exact/suffix/basename/alias/ID
 lookup, resolved and unresolved links, ordered backlinks and parse/duplicate/link
 warnings. Memory aliases are ignored; request IDs do not add a lookup fallback.
