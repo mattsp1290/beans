@@ -229,3 +229,7 @@ compat-markdown-links:
 .PHONY: compat-doc-metadata
 compat-doc-metadata:
 	python3 -S tools/compat/doc_reference.py --check tests/contract/doc.json
+
+.PHONY: compat-index
+compat-index:
+	python3 -S tools/compat/index_reference.py --check tests/contract/index.json

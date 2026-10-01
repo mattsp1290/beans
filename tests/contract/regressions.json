@@ -1582,48 +1582,48 @@
       "source": "vault/index_test.go",
       "test": "TestReloadPlanSectionRetainsLastValidAggregate",
       "line": 45,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_reload_section_keeps_last_valid_plan",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadWarnsForIncompletePlanRoot",
       "line": 100,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_incomplete_plan_warning",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadRecoversInterruptedPlanTree",
       "line": 119,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_load_recovers_interrupted_plan_tree",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/index_test.go",
       "test": "TestReloadRecoversInterruptedPlanTree",
       "line": 142,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_reload_recovers_interrupted_plan_tree",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadWarnings",
       "line": 179,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_load_warnings",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadBasics",
       "line": 206,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_load_basics",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1638,16 +1638,16 @@
       "source": "vault/index_test.go",
       "test": "TestLookup",
       "line": 276,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_lookup",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/index_test.go",
       "test": "TestBacklinks",
       "line": 296,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/domain/index.rs::index_original_backlinks",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

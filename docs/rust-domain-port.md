@@ -179,3 +179,48 @@ types, fatal partial-map retention and CRLF opening-fence behavior. Whole-index
 loading/reload/search, API JSON errors for generic maps/non-finite floats, and
 wider YAML/reader/error-order qualification remain acceptance work. No existing
 whole-index Go test has been retired or marked ported by this metadata slice.
+
+## Disk index loading and reload
+
+`src/vault/index.rs` and its note/walk/reload modules provide the production
+filesystem index. Configuration and workflow load before traversal. Project
+config discovery uses Linux Go-style globbing, including hidden and symlink
+project directories; the sorted note walk skips hidden directories and
+templates, handles assets without reading them, and distinguishes non-directory
+plan roots from Markdown files. It invokes actual plan tree/temp recovery and
+loads bundles with the existing size/path/section boundaries. Notes use the
+production issue/request/memory/handoff/plan decoders, doc metadata and Markdown
+link extraction, then rebuild the existing ownership/alias/backlink graph.
+
+Incremental reload removes only requested note paths and appends successful
+reparses in Go order. Invalid section edits retain the last valid aggregate;
+deleted plan roots remove it. Config reload builds a fresh index and only
+replaces the previous index after success. Parse/link warnings retain their
+distinct ordering and path keys. Plan recovery can still affect disk before a
+later load failure, as in Go. Mutable Rust borrowing supplies exclusive reload
+access; shared server lock/watcher wiring remains WP7 work.
+
+Original file bytes and extracted body/description/link bytes remain separate
+from a read-only UTF-8 parser view with offset translation. Typed NoteData
+documents are semantic read views, not a byte-preserving mutation source for
+invalid-UTF-8 files. Writers must use the qualified mutation codecs on original
+bytes. Wider raw-reader malformed-UTF-8/error-order and filesystem-fault
+qualification remain mandatory; this adapter is not a lossless-codec waiver.
+
+`make compat-index` recaptures 26 disposable filesystem scenarios (32 load/reload
+stages) and 216 byte/Unicode filepath matching cases from Go 1.25.7. Snapshots
+compare note order, metadata/body fields, raw/resolved links, ownership, aliases,
+backlinks, configuration/workflow, warnings and exact filesystem effects. Eight
+original index regressions have independent assertions, bringing the ledger to
+82 ported and 143 pending. Readiness/search/other queries and derived plan
+execution remain unported; these tests do not establish whole-vault parity.
+
+`tools/compat/index_benchmark.py` and `examples/index_load.rs` measure the actual
+Go and release Rust loaders on the same WP1 fixture (5,000 live issues plus one
+archived issue). On Linux aarch64, three warmups and twenty measured samples
+gave Go median 312.13 ms and Rust median 140.74 ms
+(ratio 0.451). Counts are checked in both implementations. The full
+samples, compiler pins, fixture and binary hashes are recorded in
+`tests/contract/index-performance-linux-arm64.json`. This is in-process load
+evidence, excluding CLI startup/output; end-to-end command measurements and
+pathological link-density qualification remain separate gates.

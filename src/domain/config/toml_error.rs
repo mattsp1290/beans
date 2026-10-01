@@ -100,6 +100,11 @@ pub(super) fn adapt(source: &str, error: toml::de::Error) -> Error {
         } else {
             "expected a comma (',') or array terminator (']'), but got end of file".into()
         }
+    } else if error.message().starts_with("unquoted keys cannot be empty")
+        && source[..offset].trim_end().ends_with('[')
+        && source[offset..].trim().is_empty()
+    {
+        "unexpected end of table name (table names cannot be empty)".into()
     } else if error.message() == "duplicate key"
         || error.message().starts_with("cannot extend value of type")
     {

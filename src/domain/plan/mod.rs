@@ -3,7 +3,8 @@
 mod bundle;
 mod parse;
 pub use bundle::{
-    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, load, load_snapshot, valid_section_path, write_scaffold,
+    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, load, load_path, load_snapshot, valid_section_path,
+    write_scaffold,
 };
 mod reference;
 pub use reference::set_node_ref;

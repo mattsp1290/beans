@@ -65,6 +65,9 @@ fn string(bytes: &[u8]) -> YamlString {
     YamlString::from_bytes(bytes.into())
 }
 impl NoteGraph {
+    pub(crate) fn replace_notes(&mut self, notes: Vec<GraphNote>) {
+        self.order = notes;
+    }
     pub fn register(&mut self, note: GraphNote) {
         self.order.push(note);
     }

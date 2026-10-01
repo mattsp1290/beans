@@ -16,6 +16,8 @@ mod graph;
 mod handoffs;
 #[path = "domain/ids.rs"]
 mod ids;
+#[path = "domain/index.rs"]
+mod index;
 #[path = "domain/links.rs"]
 mod links;
 #[path = "domain/memories.rs"]

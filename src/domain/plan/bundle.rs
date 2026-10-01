@@ -217,14 +217,17 @@ fn capture(
 }
 
 pub fn load(root: &str) -> Result<Bundle, Error> {
-    let path = Path::new(root);
+    load_path(Path::new(root))
+}
+pub fn load_path(path: &Path) -> Result<Bundle, Error> {
+    let root = crate::domain::file_io::path_name(path).to_string();
     let metadata = fs::symlink_metadata(path).map_err(|e| path_error("lstat", path, e))?;
     if !metadata.is_dir() || metadata.file_type().is_symlink() {
         return Err(Error(format!("{root}: bundle root must be a directory")));
     }
     let mut snapshot = BundleSnapshot::default();
     capture(path, path, &mut snapshot, &mut 0)?;
-    load_snapshot(root, &snapshot)
+    load_snapshot(&root, &snapshot)
 }
 
 pub fn write_scaffold(
