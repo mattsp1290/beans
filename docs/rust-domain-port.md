@@ -571,3 +571,38 @@ reload failures leave the index unchanged. The ledger is now 135 ported and
 regressions remain for server/watcher integration. WP3's wider schema/lossless,
 fault, transport and performance gates remain open; Go remains default, and
 the requested complete migration and final review/fix-review remain active.
+
+
+### Byte-preserving graph, parse-warning and recovery diagnostics
+
+Index warnings now retain the canonical `Error` rather than calling `Display`
+when recording them. Duplicate-owner paths, unresolved targets, parse warnings,
+and recovery wrappers concatenate original bytes. The four typed note loaders
+restore their canonical filename diagnostic prefix after parsing a Unicode view;
+this does not qualify raw metadata filenames or plan bundle models.
+
+The immutable Go graph corpus now includes 2,048 byte-array warning cases,
+covering every octet, four typed ID namespaces, two registration orders, and
+owner removal/promotion. It checks complete ordered warnings before and after
+removal, including quoted duplicate names/IDs and unquoted owner paths/targets.
+Another 2,032 real disk cases exercise four typed note parsers, two malformed
+inputs and every filename octet except NUL and slash, which are not valid single
+Linux filename components. Both implementations assert the source stays unchanged.
+These cases exposed an unfinished flow-value diagnostic whose Rust line number
+used the enclosing collection instead of the attempted node token. Production
+YAML and workflow syntax adapters now use the attempted token's location; the
+existing raw UTF-8, UTF-16 and scalar reader corpora also pass.
+
+The recovery corpus now compares canonical diagnostic arrays and complete trees
+for 7,236 real filesystem cases. Raw-name setup is separate from JSON strings;
+NUL and slash cases use an empty setup and still exercise the actual syscall or
+path handling. Backup restoration uses the shared Go-compatible rename primitive,
+and recovery context wrappers preserve inner bytes. This qualifies the bounded
+recovery helper corpus, not locks, transaction journaling, injected syscall faults,
+crash durability or mixed-client recovery in WP4.
+
+Plan diagnostic/model byte boundaries, broader YAML grammar/schema and multifault
+parity, CLI/API transports, performance and generated operation replay remain open.
+The test ledger remains 135 ported/90 pending with original Go tests retained.
+Go remains the default implementation; the complete migration and final requested
+review/fix-review are unfinished.

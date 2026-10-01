@@ -77,12 +77,9 @@ fn parse_optional_inner(
                 if let Some(syntax) = syntax {
                     return syntax(&error, &stack);
                 }
-                let context = stack.last().map_or(0, |n| n.line.saturating_sub(1));
-                let line = if context > 0 {
-                    context
-                } else {
-                    error.marker().line().saturating_sub(1)
-                };
+                // yaml.v3 parse_node uses the attempted node's token mark,
+                // not the enclosing collection's opening mark.
+                let line = error.marker().line().saturating_sub(1);
                 let location = if line > 0 {
                     format!("line {line}: ")
                 } else {

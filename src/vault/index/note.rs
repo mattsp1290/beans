@@ -125,7 +125,8 @@ impl Note {
         let name = display(rel);
         let (data, id, aliases, title, note_tags, description, body, raw) = match kind {
             NoteKind::Issue => {
-                let doc = IssueDocument::parse_bytes(&name, bytes)?;
+                let doc = IssueDocument::parse_bytes(&name, bytes)
+                    .map_err(|e| e.with_path(&name, rel))?;
                 let description = doc.description.as_bytes().to_vec();
                 let body = doc.body.as_bytes().to_vec();
                 let mut raw = links(&[description.as_slice(), body.as_slice()].concat());
@@ -152,7 +153,8 @@ impl Note {
                 )
             }
             NoteKind::Request => {
-                let doc = RequestDocument::parse_bytes(&name, bytes)?;
+                let doc = RequestDocument::parse_bytes(&name, bytes)
+                    .map_err(|e| e.with_path(&name, rel))?;
                 let body = doc.body.as_bytes().to_vec();
                 let mut raw = links(&body);
                 for link in &doc.metadata.issues {
@@ -177,7 +179,8 @@ impl Note {
                 )
             }
             NoteKind::Memory => {
-                let doc = MemoryDocument::parse_bytes(&name, bytes)?;
+                let doc = MemoryDocument::parse_bytes(&name, bytes)
+                    .map_err(|e| e.with_path(&name, rel))?;
                 let body = doc.body.as_bytes().to_vec();
                 let raw = links(&body);
                 let fields = (
@@ -196,7 +199,8 @@ impl Note {
                 )
             }
             NoteKind::Handoff => {
-                let doc = HandoffDocument::parse_bytes(&name, bytes)?;
+                let doc = HandoffDocument::parse_bytes(&name, bytes)
+                    .map_err(|e| e.with_path(&name, rel))?;
                 let body = doc.body.as_bytes().to_vec();
                 let mut raw = links(&body);
                 structural(&mut raw, &doc.metadata.issue, LinkKind::HandoffIssue);

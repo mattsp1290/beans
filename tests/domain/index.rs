@@ -48,7 +48,7 @@ fn snapshot(ix: &Index, root: &Path) -> Value {
         .graph
         .warnings()
         .iter()
-        .map(|w| json!({"path":w.path,"error":w.error.replace(root.to_str().unwrap(),"{ROOT}")}))
+        .map(|w| json!({"path":w.path,"error":w.error.to_string().replace(root.to_str().unwrap(),"{ROOT}")}))
         .collect();
     let projects: Vec<_> = ix.projects.iter().map(|(name,p)| json!({"name":name,"prefix":p.config.prefix.as_bytes(),"workflow":p.workflow})).collect();
     json!({"notes":notes,"owners":owners,"aliases":aliases,"backlinks":backlinks,"warnings":warnings,"assets":ix.assets,"projects":projects,"workflow":ix.workflow})
@@ -239,11 +239,11 @@ fn index_original_load_warnings() {
             .iter()
             .any(|w| w.path == b"projects/a/issues/broken.md")
     );
-    assert!(
-        warnings
-            .iter()
-            .any(|w| w.error.contains("unresolved link [[missing-page]]"))
-    );
+    assert!(warnings.iter().any(|w| {
+        w.error
+            .to_string()
+            .contains("unresolved link [[missing-page]]")
+    }));
 }
 #[test]
 fn index_original_lookup() {
@@ -275,9 +275,11 @@ fn index_original_incomplete_plan_warning() {
     std::fs::create_dir_all(root.0.join("projects/p/plans/incomplete")).unwrap();
     let ix = Index::load(&root.0).unwrap();
     assert!(
-        ix.graph.warnings().iter().any(
-            |w| w.path == b"projects/p/plans/incomplete" && w.error.contains("missing plan.md")
-        )
+        ix.graph
+            .warnings()
+            .iter()
+            .any(|w| w.path == b"projects/p/plans/incomplete"
+                && w.error.to_string().contains("missing plan.md"))
     );
 }
 fn scaffold(root: &Path) {
@@ -370,7 +372,7 @@ fn duplicate_basename_keeps_every_issue_original_regression() {
         ix.graph
             .warnings()
             .iter()
-            .filter(|w| w.error.contains("duplicate note basename"))
+            .filter(|w| w.error.to_string().contains("duplicate note basename"))
             .count(),
         2
     );

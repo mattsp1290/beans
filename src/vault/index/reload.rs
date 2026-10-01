@@ -82,7 +82,7 @@ impl Index {
         let manifest = [root, b"/plan.md"].concat();
         let full = self.hub_dir.join(path(root));
         if let Err(e) = crate::gitops::recover_tree(&full) {
-            self.warning(&manifest, format!("recover plan tree: {e}"));
+            self.warning(&manifest, e.context(b"recover plan tree"));
             return;
         }
         if fs::metadata(&full).is_err_and(|e| e.kind() == std::io::ErrorKind::NotFound) {

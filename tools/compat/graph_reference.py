@@ -17,7 +17,7 @@ def capture():
     baseline = json.loads((ROOT / "tests/contract/baseline.json").read_text())
     archive = subprocess.check_output(["git", "archive", baseline["source_sha"]], cwd=ROOT)
     harness = ROOT / "tools/compat/graph_census.go.txt"
-    result = {"schema": "beans-graph-v1", "source_sha": baseline["source_sha"],
+    result = {"schema": "beans-graph-v2", "source_sha": baseline["source_sha"],
               "harness_sha256": hashlib.sha256(harness.read_bytes()).hexdigest()}
     with tempfile.TemporaryDirectory(prefix="beans-graph-oracle-") as work:
         source = Path(work)
@@ -43,5 +43,5 @@ if __name__ == "__main__":
         print("fixed Go graph corpus matches")
     else:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+        args.output.write_text(json.dumps(result, separators=(",", ":"), ensure_ascii=False) + "\n")
         print(args.output)

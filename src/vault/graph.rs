@@ -1,7 +1,7 @@
 //! Ordered note ownership and link resolution, independent of disk effects.
 //! The disk index supplies metadata from the production domain decoders.
 use super::go_lower::lower;
-use crate::domain::yaml_string::YamlString;
+use crate::domain::{error::Error, yaml_string::YamlString};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -48,7 +48,7 @@ pub struct GraphNote {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Warning {
     pub path: Vec<u8>,
-    pub error: String,
+    pub error: Error,
 }
 #[derive(Default)]
 pub struct NoteGraph {
@@ -58,7 +58,7 @@ pub struct NoteGraph {
     ids: HashMap<(NoteKind, Vec<u8>), usize>,
     aliases: HashMap<Vec<u8>, Vec<u8>>,
     backlinks: HashMap<Vec<u8>, Vec<LinkRef>>,
-    parse_warnings: BTreeMap<Vec<u8>, String>,
+    parse_warnings: BTreeMap<Vec<u8>, Error>,
     warnings: Vec<Warning>,
 }
 fn string(bytes: &[u8]) -> YamlString {
@@ -79,7 +79,7 @@ impl NoteGraph {
     pub fn clear_parse_warning(&mut self, path: &[u8]) {
         self.parse_warnings.remove(path);
     }
-    pub fn add_parse_warning(&mut self, path: Vec<u8>, error: String) {
+    pub fn add_parse_warning(&mut self, path: Vec<u8>, error: Error) {
         self.parse_warnings.insert(path, error);
     }
     pub fn ordered_notes(&self) -> &[GraphNote] {
@@ -115,10 +115,17 @@ impl NoteGraph {
             if let Some(&first) = self.notes.get(note.basename.as_slice()) {
                 duplicates.push(Warning {
                     path: note.path.clone(),
-                    error: format!(
-                        "duplicate note basename {} (also {}); links resolve to the first",
-                        string(&note.basename).quoted(),
-                        string(&self.order[first].path)
+                    error: Error::from_bytes(
+                        [
+                            format!(
+                                "duplicate note basename {} (also ",
+                                string(&note.basename).quoted()
+                            )
+                            .as_bytes(),
+                            &self.order[first].path,
+                            b"); links resolve to the first",
+                        ]
+                        .concat(),
                     ),
                 });
             } else {
@@ -139,10 +146,14 @@ impl NoteGraph {
                     };
                     duplicates.push(Warning {
                         path: note.path.clone(),
-                        error: format!(
-                            "duplicate {kind} id {} (also {}); the first is used",
-                            string(id).quoted(),
-                            string(&self.order[first].path)
+                        error: Error::from_bytes(
+                            [
+                                format!("duplicate {kind} id {} (also ", string(id).quoted())
+                                    .as_bytes(),
+                                &self.order[first].path,
+                                b"); the first is used",
+                            ]
+                            .concat(),
                         ),
                     });
                 } else {
@@ -182,10 +193,14 @@ impl NoteGraph {
                 } else {
                     unresolved.push(Warning {
                         path: self.order[i].path.clone(),
-                        error: format!(
-                            "unresolved link [[{}]] in {}",
-                            string(&raw.target),
-                            string(&self.order[i].path)
+                        error: Error::from_bytes(
+                            [
+                                b"unresolved link [[".as_slice(),
+                                &raw.target,
+                                b"]] in ",
+                                &self.order[i].path,
+                            ]
+                            .concat(),
                         ),
                     });
                 }

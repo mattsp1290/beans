@@ -223,17 +223,10 @@ pub(super) fn decode(data: &[u8]) -> Result<WorkflowFile, Error> {
 }
 fn syntax_error(error: &yaml_rust2::scanner::ScanError, stack: &[Node]) -> Error {
     let (line, message) = match error.info() {
-        "while parsing a node, did not find expected node content" => {
-            let context = stack.last().map_or(0, |n| n.line.saturating_sub(1));
-            (
-                if context > 0 {
-                    context
-                } else {
-                    error.marker().line().saturating_sub(1)
-                },
-                "did not find expected node content",
-            )
-        }
+        "while parsing a node, did not find expected node content" => (
+            error.marker().line().saturating_sub(1),
+            "did not find expected node content",
+        ),
         "while parsing a flow sequence, expected ',' or ']'" => {
             let context = stack.last().map_or(0, |n| n.line.saturating_sub(1));
             (

@@ -14,10 +14,7 @@ impl Index {
         if !rel.is_empty() {
             if is_plans_directory(rel) {
                 crate::gitops::recover_trees(&full).map_err(|e| {
-                    Error::new(format!(
-                        "vault: recover plan trees in {}: {e}",
-                        path_name(&path(rel))
-                    ))
+                    e.context(&[b"vault: recover plan trees in ".as_slice(), rel].concat())
                 })?;
             }
             if skip_dir_name(rel.rsplit(|&b| b == b'/').next().unwrap()) {

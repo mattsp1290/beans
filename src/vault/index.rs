@@ -196,7 +196,7 @@ impl Index {
             self.order.remove(i);
         }
     }
-    fn warning(&mut self, rel: &[u8], error: impl ToString) {
-        self.graph.add_parse_warning(rel.into(), error.to_string());
+    fn warning(&mut self, rel: &[u8], error: impl Into<Error>) {
+        self.graph.add_parse_warning(rel.into(), error.into());
     }
 }

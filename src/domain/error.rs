@@ -22,6 +22,16 @@ impl Error {
     pub fn as_bytes(&self) -> &[u8] {
         self.message.as_bytes()
     }
+    /// A parser accepts a Unicode filename view; restore only its leading
+    /// filename diagnostic prefix to the caller's canonical bytes.
+    pub(crate) fn with_path(self, view: &str, raw: &[u8]) -> Self {
+        let prefix = [view.as_bytes(), b": "].concat();
+        if let Some(rest) = self.as_bytes().strip_prefix(prefix.as_slice()) {
+            Self::from_bytes([raw, b": ", rest].concat())
+        } else {
+            self
+        }
+    }
     /// Prefix the canonical message without formatting it through Display.
     pub fn context(self, prefix: &[u8]) -> Self {
         let mut bytes = prefix.to_vec();
@@ -36,3 +46,19 @@ impl std::fmt::Display for Error {
     }
 }
 impl std::error::Error for Error {}
+
+impl From<String> for Error {
+    fn from(message: String) -> Self {
+        Self::new(message)
+    }
+}
+impl From<&str> for Error {
+    fn from(message: &str) -> Self {
+        Self::new(message.into())
+    }
+}
+impl serde::Serialize for Error {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serde::Serialize::serialize(&self.message, serializer)
+    }
+}

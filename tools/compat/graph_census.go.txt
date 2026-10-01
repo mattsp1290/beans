@@ -1,47 +1,240 @@
 package vault
-import("encoding/json";"os";"testing";"errors";"github.com/mattsp1290/beans/issue";"github.com/mattsp1290/beans/plan")
+
+import (
+	"encoding/json"
+	"errors"
+	"github.com/mattsp1290/beans/issue"
+	"github.com/mattsp1290/beans/plan"
+	"os"
+	"path/filepath"
+	"testing"
+)
+
 func TestMigrationGraph(t *testing.T) {
- type raw struct {Target string;Kind LinkKind}
- type input struct {Kind Kind;Path,Basename,ID string;Aliases []string;Links []raw}
- type warning struct {Path,Error string}
- type stage struct {Owners,IDs,Aliases,Lookups map[string]string;Outlinks,Backlinks map[string][]LinkRef;Warnings []warning}
- type row struct {Notes []input;Targets []string;Remove string;Before,After stage}
- inputs:=[]input{
- {KindDoc,"docs/same.md","same","",[]string{"shared"," alias ","same"},[]raw{{"a1",LinkBody},{"missing",LinkEmbed}}},
- {KindIssue,"projects/a/issues/same.md","same","a1",[]string{"shared","issue-alias"},[]raw{{"same",LinkParent},{"alias",LinkBlockedBy}}},
- {KindIssue,"projects/b/issues/other.md","other","a1",[]string{"other-alias"},[]raw{{"projects/a/issues/same",LinkBody}}},
- {KindRequest,"projects/a/requests/req-slug.md","req-slug","req",[]string{"request-alias"},[]raw{{"a1",LinkRequestIssue}}},
- {KindMemory,"memories/mem.md","mem","",[]string{"ignored-memory-alias"},nil},
- {KindHandoff,"projects/a/handoffs/h-slug.md","h-slug","h1",[]string{"handoff-alias"},[]raw{{"a1",LinkHandoffIssue}}},
- {KindPlan,"projects/a/plans/p/plan.md","p1","p1",[]string{"plan-alias"},[]raw{{"h1",LinkBody}}},
- {KindDoc,"docs/UPPER.md","UPPER","",nil,nil},
- {KindDoc,"projects/b/docs/nested/same.md","same","",[]string{"last-alias"},nil},
- {KindDoc,"docs/Kelvin.md","Kelvin","",nil,nil},
- }
- targets:=[]string{"","same","same.md"," /same.md/ ","docs/same","projects/a/issues/same","nested/same","issues/same","docs/nested/same","a1","shared","alias","issue-alias","other-alias","req","request-alias","h1","handoff-alias","p1","plan-alias","ignored-memory-alias","upper","kelvin","unknown"}
- snapshot:=func(ix *Index)stage {
-  s:=stage{Owners:map[string]string{},IDs:map[string]string{},Aliases:ix.Aliases,Lookups:map[string]string{},Outlinks:map[string][]LinkRef{},Backlinks:ix.Backlinks,Warnings:[]warning{}}
-  for key,n:=range ix.Notes{s.Owners[key]=n.Path};for key,i:=range ix.Issues{s.IDs["issue:"+key]=i.Path};for key,i:=range ix.Requests{s.IDs["request:"+key]=i.Path};for key,i:=range ix.Plans{s.IDs["plan:"+key]=i.Path};for key,i:=range ix.Handoffs{s.IDs["handoff:"+key]=i.Path}
-  for _,target:=range targets{if n,ok:=ix.Lookup(target);ok{s.Lookups[target]=n.Path}else{s.Lookups[target]=""}}
-  for _,n:=range ix.order{s.Outlinks[n.Path]=n.Outlinks};for _,w:=range ix.Warnings{s.Warnings=append(s.Warnings,warning{w.Path,w.Err.Error()})};return s
- }
- var rows []row
- for rotation:=0;rotation<len(inputs);rotation++ {for _,removed:=range []string{"docs/same.md","projects/a/issues/same.md","nothing","docs/a.md"}{
-  notes:=append(append([]input{},inputs[rotation:]...),inputs[:rotation]...)
-  ix:=&Index{ByPath:map[string]*Note{},parseWarnings:map[string]error{"docs/z.md":errors.New("parse z"),"docs/a.md":errors.New("parse a")}}
-  for _,in:=range notes{
-   n:=&Note{Kind:in.Kind,Path:in.Path,Basename:in.Basename}
-   switch in.Kind{case KindIssue:n.Issue=&issue.Issue{ID:in.ID,Path:in.Path,Aliases:in.Aliases};case KindRequest:n.Request=&issue.Request{ID:in.ID,Path:in.Path,Aliases:in.Aliases};case KindPlan:n.Plan=&plan.Plan{ID:in.ID,Path:in.Path,Aliases:in.Aliases};case KindHandoff:n.Handoff=&issue.Handoff{ID:in.ID,Path:in.Path,Aliases:in.Aliases};case KindDoc:var aliases []any;for _,a:=range in.Aliases{aliases=append(aliases,a)};n.Frontmatter=map[string]any{"aliases":aliases}}
-   for _,link:=range in.Links{n.rawOut=append(n.rawOut,rawLink{link.Target,link.Kind})};ix.registerNote(in.Basename,n)
-  }
-  ix.rebuild();before:=snapshot(ix);ix.removeNoteByPath(removed);ix.rebuild();rows=append(rows,row{notes,targets,removed,before,snapshot(ix)})
- }}
- ints:=func(s string)[]int{v:=make([]int,len(s));for i:=0;i<len(s);i++{v[i]=int(s[i])};return v}
- type pathRow struct {Input []int;Kind Kind;Project []int;Classified,Asset,Skip,PlansDirectory bool;Bundle,Manifest []int;BundleOK,ManifestOK bool}
- var paths []pathRow
- for _,prefix:=range []string{"docs","memories","issues","archive","projects/p/issues","projects/p/archive","projects/p/docs","projects/p/memories","projects/p/requests","projects/p/handoffs","projects/p/plans","projects//plans","projects/p","","/docs"}{for _,file:=range []string{"x",".hidden","a/x","archive/2026/x","archive/💡/x","archive/123/x","nested/a/x","plan"}{for _,ext:=range []string{".md",".MD",".png",".JpEg",".gİf",".ſvg",".webp",".pdf",""}{
-  p:=prefix+"/"+file+ext;k,project,ok:=classify(p);b,bok:=planBundlePath(p);m,mok:=planManifestPath(p);paths=append(paths,pathRow{ints(p),k,ints(project),ok,isAssetPath(p),skipDirName(p),isPlansDirectory(p),ints(b),ints(m),bok,mok})
- }}}
- for _,p:=range []string{"templates",".git","projects/p/plans","projects//plans","projects/p/plans/x","projects/p/plans/x/plan.md","projects/\xff/handoffs/archive/\xff\xfe\x80\x81/x.md"}{k,project,ok:=classify(p);b,bok:=planBundlePath(p);m,mok:=planManifestPath(p);paths=append(paths,pathRow{ints(p),k,ints(project),ok,isAssetPath(p),skipDirName(p),isPlansDirectory(p),ints(b),ints(m),bok,mok})}
- out,e:=json.Marshal(map[string]any{"graphs":rows,"paths":paths});if e!=nil{t.Fatal(e)};if e=os.WriteFile(os.Getenv("BN_GRAPH_OUTPUT"),out,0600);e!=nil{t.Fatal(e)}
+	type raw struct {
+		Target string
+		Kind   LinkKind
+	}
+	type input struct {
+		Kind               Kind
+		Path, Basename, ID string
+		Aliases            []string
+		Links              []raw
+	}
+	type warning struct{ Path, Error string }
+	type stage struct {
+		Owners, IDs, Aliases, Lookups map[string]string
+		Outlinks, Backlinks           map[string][]LinkRef
+		Warnings                      []warning
+	}
+	type row struct {
+		Notes         []input
+		Targets       []string
+		Remove        string
+		Before, After stage
+	}
+	inputs := []input{
+		{KindDoc, "docs/same.md", "same", "", []string{"shared", " alias ", "same"}, []raw{{"a1", LinkBody}, {"missing", LinkEmbed}}},
+		{KindIssue, "projects/a/issues/same.md", "same", "a1", []string{"shared", "issue-alias"}, []raw{{"same", LinkParent}, {"alias", LinkBlockedBy}}},
+		{KindIssue, "projects/b/issues/other.md", "other", "a1", []string{"other-alias"}, []raw{{"projects/a/issues/same", LinkBody}}},
+		{KindRequest, "projects/a/requests/req-slug.md", "req-slug", "req", []string{"request-alias"}, []raw{{"a1", LinkRequestIssue}}},
+		{KindMemory, "memories/mem.md", "mem", "", []string{"ignored-memory-alias"}, nil},
+		{KindHandoff, "projects/a/handoffs/h-slug.md", "h-slug", "h1", []string{"handoff-alias"}, []raw{{"a1", LinkHandoffIssue}}},
+		{KindPlan, "projects/a/plans/p/plan.md", "p1", "p1", []string{"plan-alias"}, []raw{{"h1", LinkBody}}},
+		{KindDoc, "docs/UPPER.md", "UPPER", "", nil, nil},
+		{KindDoc, "projects/b/docs/nested/same.md", "same", "", []string{"last-alias"}, nil},
+		{KindDoc, "docs/Kelvin.md", "Kelvin", "", nil, nil},
+	}
+	targets := []string{"", "same", "same.md", " /same.md/ ", "docs/same", "projects/a/issues/same", "nested/same", "issues/same", "docs/nested/same", "a1", "shared", "alias", "issue-alias", "other-alias", "req", "request-alias", "h1", "handoff-alias", "p1", "plan-alias", "ignored-memory-alias", "upper", "kelvin", "unknown"}
+	snapshot := func(ix *Index) stage {
+		s := stage{Owners: map[string]string{}, IDs: map[string]string{}, Aliases: ix.Aliases, Lookups: map[string]string{}, Outlinks: map[string][]LinkRef{}, Backlinks: ix.Backlinks, Warnings: []warning{}}
+		for key, n := range ix.Notes {
+			s.Owners[key] = n.Path
+		}
+		for key, i := range ix.Issues {
+			s.IDs["issue:"+key] = i.Path
+		}
+		for key, i := range ix.Requests {
+			s.IDs["request:"+key] = i.Path
+		}
+		for key, i := range ix.Plans {
+			s.IDs["plan:"+key] = i.Path
+		}
+		for key, i := range ix.Handoffs {
+			s.IDs["handoff:"+key] = i.Path
+		}
+		for _, target := range targets {
+			if n, ok := ix.Lookup(target); ok {
+				s.Lookups[target] = n.Path
+			} else {
+				s.Lookups[target] = ""
+			}
+		}
+		for _, n := range ix.order {
+			s.Outlinks[n.Path] = n.Outlinks
+		}
+		for _, w := range ix.Warnings {
+			s.Warnings = append(s.Warnings, warning{w.Path, w.Err.Error()})
+		}
+		return s
+	}
+	var rows []row
+	for rotation := 0; rotation < len(inputs); rotation++ {
+		for _, removed := range []string{"docs/same.md", "projects/a/issues/same.md", "nothing", "docs/a.md"} {
+			notes := append(append([]input{}, inputs[rotation:]...), inputs[:rotation]...)
+			ix := &Index{ByPath: map[string]*Note{}, parseWarnings: map[string]error{"docs/z.md": errors.New("parse z"), "docs/a.md": errors.New("parse a")}}
+			for _, in := range notes {
+				n := &Note{Kind: in.Kind, Path: in.Path, Basename: in.Basename}
+				switch in.Kind {
+				case KindIssue:
+					n.Issue = &issue.Issue{ID: in.ID, Path: in.Path, Aliases: in.Aliases}
+				case KindRequest:
+					n.Request = &issue.Request{ID: in.ID, Path: in.Path, Aliases: in.Aliases}
+				case KindPlan:
+					n.Plan = &plan.Plan{ID: in.ID, Path: in.Path, Aliases: in.Aliases}
+				case KindHandoff:
+					n.Handoff = &issue.Handoff{ID: in.ID, Path: in.Path, Aliases: in.Aliases}
+				case KindDoc:
+					var aliases []any
+					for _, a := range in.Aliases {
+						aliases = append(aliases, a)
+					}
+					n.Frontmatter = map[string]any{"aliases": aliases}
+				}
+				for _, link := range in.Links {
+					n.rawOut = append(n.rawOut, rawLink{link.Target, link.Kind})
+				}
+				ix.registerNote(in.Basename, n)
+			}
+			ix.rebuild()
+			before := snapshot(ix)
+			ix.removeNoteByPath(removed)
+			ix.rebuild()
+			rows = append(rows, row{notes, targets, removed, before, snapshot(ix)})
+		}
+	}
+	ints := func(s string) []int {
+		v := make([]int, len(s))
+		for i := 0; i < len(s); i++ {
+			v[i] = int(s[i])
+		}
+		return v
+	}
+	type pathRow struct {
+		Input                                   []int
+		Kind                                    Kind
+		Project                                 []int
+		Classified, Asset, Skip, PlansDirectory bool
+		Bundle, Manifest                        []int
+		BundleOK, ManifestOK                    bool
+	}
+	var paths []pathRow
+	for _, prefix := range []string{"docs", "memories", "issues", "archive", "projects/p/issues", "projects/p/archive", "projects/p/docs", "projects/p/memories", "projects/p/requests", "projects/p/handoffs", "projects/p/plans", "projects//plans", "projects/p", "", "/docs"} {
+		for _, file := range []string{"x", ".hidden", "a/x", "archive/2026/x", "archive/💡/x", "archive/123/x", "nested/a/x", "plan"} {
+			for _, ext := range []string{".md", ".MD", ".png", ".JpEg", ".gİf", ".ſvg", ".webp", ".pdf", ""} {
+				p := prefix + "/" + file + ext
+				k, project, ok := classify(p)
+				b, bok := planBundlePath(p)
+				m, mok := planManifestPath(p)
+				paths = append(paths, pathRow{ints(p), k, ints(project), ok, isAssetPath(p), skipDirName(p), isPlansDirectory(p), ints(b), ints(m), bok, mok})
+			}
+		}
+	}
+	for _, p := range []string{"templates", ".git", "projects/p/plans", "projects//plans", "projects/p/plans/x", "projects/p/plans/x/plan.md", "projects/\xff/handoffs/archive/\xff\xfe\x80\x81/x.md"} {
+		k, project, ok := classify(p)
+		b, bok := planBundlePath(p)
+		m, mok := planManifestPath(p)
+		paths = append(paths, pathRow{ints(p), k, ints(project), ok, isAssetPath(p), skipDirName(p), isPlansDirectory(p), ints(b), ints(m), bok, mok})
+	}
+	type byteWarning struct{ Path, Error []int }
+	type warningRow struct {
+		Byte          int
+		Kind          Kind
+		Reverse       bool
+		Before, After []byteWarning
+	}
+	warningSnapshot := func(ix *Index) []byteWarning {
+		out := []byteWarning{}
+		for _, w := range ix.Warnings {
+			out = append(out, byteWarning{ints(w.Path), ints(w.Err.Error())})
+		}
+		return out
+	}
+	var rawWarnings []warningRow
+	for b := 0; b < 256; b++ {
+		for _, kind := range []Kind{KindIssue, KindRequest, KindHandoff, KindPlan} {
+			for _, reverse := range []bool{false, true} {
+				raw := string([]byte{byte(b)})
+				base := "same" + raw + "x"
+				id := "id" + raw + "x"
+				ix := &Index{ByPath: map[string]*Note{}, parseWarnings: map[string]error{"docs/parse" + raw + ".md": errors.New("parse error " + raw)}}
+				notes := []*Note{{Kind: kind, Path: "projects/a/docs/" + base + ".md", Basename: base}, {Kind: kind, Path: "projects/b/docs/" + base + ".md", Basename: base}, {Kind: kind, Path: "projects/c/docs/other.md", Basename: "other"}}
+				if reverse {
+					notes[0], notes[1] = notes[1], notes[0]
+				}
+				for _, n := range notes {
+					switch kind {
+					case KindIssue:
+						n.Issue = &issue.Issue{ID: id, Path: n.Path}
+					case KindRequest:
+						n.Request = &issue.Request{ID: id, Path: n.Path}
+					case KindHandoff:
+						n.Handoff = &issue.Handoff{ID: id, Path: n.Path}
+					case KindPlan:
+						n.Plan = &plan.Plan{ID: id, Path: n.Path}
+					}
+					n.rawOut = []rawLink{{"missing" + raw + "x", LinkBody}}
+					ix.registerNote(n.Basename, n)
+				}
+				ix.rebuild()
+				before := warningSnapshot(ix)
+				ix.removeNoteByPath(notes[0].Path)
+				ix.rebuild()
+				rawWarnings = append(rawWarnings, warningRow{b, kind, reverse, before, warningSnapshot(ix)})
+			}
+		}
+	}
+	type diskWarningRow struct {
+		Path, Data, Error []int
+		Warnings          []byteWarning
+	}
+	var diskWarnings []diskWarningRow
+	for b := 1; b < 256; b++ {
+		if b == '/' {
+			continue
+		}
+		for _, prefix := range []string{"projects/p/issues/", "projects/p/requests/", "projects/p/handoffs/", "memories/"} {
+			for _, data := range []string{"broken", "---\nid: a\ntitle: [\n---\nbody"} {
+				root := t.TempDir()
+				rel := prefix + "name" + string([]byte{byte(b)}) + "x.md"
+				full := filepath.Join(root, rel)
+				if e := os.MkdirAll(filepath.Dir(full), 0700); e != nil {
+					t.Fatal(e)
+				}
+				if e := os.WriteFile(full, []byte(data), 0600); e != nil {
+					t.Fatal(e)
+				}
+				ix, e := Load(root)
+				errorBytes := []int{}
+				warnings := []byteWarning{}
+				if e != nil {
+					errorBytes = ints(e.Error())
+				} else {
+					warnings = warningSnapshot(ix)
+				}
+				after, e := os.ReadFile(full)
+				if e != nil || string(after) != data {
+					t.Fatalf("load modified source %q: %v", rel, e)
+				}
+				diskWarnings = append(diskWarnings, diskWarningRow{ints(rel), ints(data), errorBytes, warnings})
+			}
+		}
+	}
+	out, e := json.Marshal(map[string]any{"graphs": rows, "paths": paths, "raw_warnings": rawWarnings, "disk_warnings": diskWarnings})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_GRAPH_OUTPUT"), out, 0600); e != nil {
+		t.Fatal(e)
+	}
 }

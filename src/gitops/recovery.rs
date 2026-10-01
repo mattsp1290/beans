@@ -96,26 +96,16 @@ pub fn recover_tree(target: &Path) -> Result<(), Error> {
     ]));
     match std::fs::symlink_metadata(&backup) {
         Ok(_) => match std::fs::symlink_metadata(target) {
-            Err(e) if e.kind() == io::ErrorKind::NotFound => std::fs::rename(&backup, target)
-                .map_err(|e| {
-                    Error::new(format!(
-                        "recover tree backup: rename {} {}: {}",
-                        YamlString::from_bytes(backup.as_os_str().as_bytes().into()),
-                        YamlString::from_bytes(target.as_os_str().as_bytes().into()),
-                        reason(e)
-                    ))
-                }),
-            Ok(_) => remove_all(&backup)
-                .map_err(|e| Error::new(format!("clear completed tree backup: {e}"))),
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {
+                crate::domain::file_io::rename(&backup, target)
+                    .map_err(|e| e.context(b"recover tree backup"))
+            }
+            Ok(_) => remove_all(&backup).map_err(|e| e.context(b"clear completed tree backup")),
             Err(e) => Err(path_error("lstat", target, e)),
         },
         Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
         Err(e) => Err(path_error("lstat", &backup, e)),
     }
-}
-fn reason(error: io::Error) -> String {
-    let s = error.to_string();
-    s.split(" (os error ").next().unwrap_or(&s).to_lowercase()
 }
 pub fn recover_trees(parent: &Path) -> Result<(), Error> {
     let entries = std::fs::read_dir(parent).map_err(|e| path_error("open", parent, e))?;

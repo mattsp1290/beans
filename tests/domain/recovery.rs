@@ -1,7 +1,8 @@
 use beans::gitops::{recover_plan_temp, recover_tree, recover_trees};
 use serde_json::{Value, json};
 use std::{
-    os::unix::ffi::OsStrExt,
+    ffi::OsString,
+    os::unix::ffi::{OsStrExt, OsStringExt},
     path::{Path, PathBuf},
 };
 fn snapshot(root: &Path) -> Value {
@@ -54,42 +55,72 @@ fn recovery_matches_fixed_go_filesystem_results_and_errors() {
         let root = base.join(i.to_string());
         std::fs::create_dir(&root).unwrap();
         let layout = &case["Layout"];
-        if let Some(dirs) = layout["Dirs"].as_array() {
-            for dir in dirs {
-                std::fs::create_dir_all(root.join(dir.as_str().unwrap())).unwrap();
+        let bytes = |v: &Value| {
+            v.as_array()
+                .unwrap()
+                .iter()
+                .map(|b| b.as_u64().unwrap() as u8)
+                .collect::<Vec<_>>()
+        };
+        let raw = bytes(&case["RawName"]);
+        let name = |text: &str| {
+            let mut out = Vec::new();
+            for (i, part) in text.split("__RAW__").enumerate() {
+                if i != 0 {
+                    out.extend_from_slice(&raw);
+                }
+                out.extend_from_slice(part.as_bytes());
             }
-        }
-        if let Some(files) = layout["Files"].as_object() {
-            for (name, data) in files {
-                let path = root.join(name);
-                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-                std::fs::write(path, data.as_str().unwrap()).unwrap();
+            PathBuf::from(OsString::from_vec(out))
+        };
+        let setup = !raw.contains(&0) && !raw.contains(&b'/');
+        if setup {
+            if let Some(dirs) = layout["Dirs"].as_array() {
+                for dir in dirs {
+                    std::fs::create_dir_all(root.join(name(dir.as_str().unwrap()))).unwrap();
+                }
             }
-        }
-        if let Some(links) = layout["Links"].as_object() {
-            for (name, to) in links {
-                let path = root.join(name);
-                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-                std::os::unix::fs::symlink(to.as_str().unwrap(), path).unwrap();
+            if let Some(files) = layout["Files"].as_object() {
+                for (file, data) in files {
+                    let path = root.join(name(file));
+                    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                    std::fs::write(path, data.as_str().unwrap()).unwrap();
+                }
+            }
+            if let Some(links) = layout["Links"].as_object() {
+                for (file, to) in links {
+                    let path = root.join(name(file));
+                    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                    std::os::unix::fs::symlink(to.as_str().unwrap(), path).unwrap();
+                }
             }
         }
         assert_eq!(snapshot(&root), case["Before"], "case{i} setup");
-        let target = PathBuf::from(
-            case["ResolvedTarget"]
-                .as_str()
-                .unwrap()
-                .replace("/oracle", root.to_str().unwrap()),
-        );
+        let resolved = bytes(&case["ResolvedTargetBytes"]);
+        let suffix = resolved.strip_prefix(b"/oracle").unwrap();
+        let target = PathBuf::from(OsString::from_vec(
+            [root.as_os_str().as_bytes(), suffix].concat(),
+        ));
         let result = match case["Mode"].as_str().unwrap() {
             "tree" => recover_tree(&target),
             "trees" => recover_trees(&target),
             "temp" => recover_plan_temp(&target),
             _ => unreachable!(),
         };
-        let error = result.err().map_or(String::new(), |e| {
-            e.to_string().replace(root.to_str().unwrap(), "/oracle")
+        let error = result.err().map_or(Vec::new(), |e| {
+            // Root normalization is a byte replacement, never a Unicode view.
+            let needle = root.as_os_str().as_bytes();
+            let mut rest = e.as_bytes();
+            let mut out = Vec::new();
+            while let Some(i) = rest.windows(needle.len()).position(|w| w == needle) {
+                out.extend_from_slice(&rest[..i]);
+                out.extend_from_slice(b"/oracle");
+                rest = &rest[i + needle.len()..];
+            }
+            out.extend_from_slice(rest);
+            out
         });
-        assert_eq!(error, case["Error"].as_str().unwrap(), "case{i}");
+        assert_eq!(error, bytes(&case["ErrorBytes"]), "case{i}");
         assert_eq!(snapshot(&root), case["After"], "case{i} after");
     }
 }

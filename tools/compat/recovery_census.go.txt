@@ -1,39 +1,172 @@
 package gitops
-import("encoding/json";"os";"io/fs";"path/filepath";"strings";"testing")
-func TestMigrationRecovery(t *testing.T){
- ints:=func(s string)[]int{v:=make([]int,len(s));for i:=0;i<len(s);i++{v[i]=int(s[i])};return v}
- type layout struct {Files map[string]string;Dirs []string;Links map[string]string}
- type entry struct {Path []int;Kind string;Data []int}
- type row struct {Layout layout;Mode,Target,ResolvedTarget,Error string;Before,After []entry}
- layouts:=[]layout{
- {},{Dirs:[]string{"plans"}},
- {Files:map[string]string{"plans/.bundle.backup/plan.md":"old\n"}},
- {Files:map[string]string{"plans/bundle/plan.md":"new\n","plans/.bundle.backup/old.md":"old\n"}},
- {Files:map[string]string{"plans/.bundle.backup":"old file"}},
- {Links:map[string]string{"plans/.bundle.backup":"../../missing"},Dirs:[]string{"plans"}},
- {Links:map[string]string{"plans/.bundle.backup":"../outside"},Files:map[string]string{"outside/sentinel":"keep"}},
- {Links:map[string]string{"plans/bundle":"../outside"},Files:map[string]string{"plans/.bundle.backup/old.md":"old","outside/sentinel":"keep"}},
- {Links:map[string]string{"plans/.bundle.backup/link":"../../outside"},Files:map[string]string{"plans/.bundle.backup/old.md":"old","plans/bundle/plan.md":"new","outside/sentinel":"keep"}},
- {Files:map[string]string{"plans":"regular"}},
- {Files:map[string]string{"plans/.z.backup/plan.md":"z","plans/.a.backup/plan.md":"a","plans/.orphan.stage-123/file":"stage","plans/plain/file":"plain"}},
- {Files:map[string]string{"plans/.backup/file":"skip","plans/..backup/file":"skip","plans/...backup/file":"skip"}},
- {Files:map[string]string{"plans/bundle":"target file","plans/.bundle.backup/old.md":"old"}},
- {Files:map[string]string{"plans/plan.md":"keep","plans/plan.md.tmp":"temp"}},
- {Dirs:[]string{"plans/plan.md.tmp"}},
- {Files:map[string]string{"plans/plan.md.tmp/child":"not empty"}},
- {Dirs:[]string{"plans"},Links:map[string]string{"plans/plan.md.tmp":"../outside"},Files:map[string]string{"outside/sentinel":"keep"}},
- {Files:map[string]string{"plans/.raw.backup/file":"raw"}},
- }
- var rows []row
- for _,in:=range layouts {for _,mode:=range []string{"tree","trees","temp"}{for _,target:=range []string{"plans/bundle","plans/bundle/","plans/plan.md","plans","missing/bundle","."}{
-  root:=t.TempDir()
-  for _,dir:=range in.Dirs{if e:=os.MkdirAll(filepath.Join(root,dir),0700);e!=nil{t.Fatal(e)}}
-  for name,data:=range in.Files{p:=filepath.Join(root,name);if e:=os.MkdirAll(filepath.Dir(p),0700);e!=nil{t.Fatal(e)};if e:=os.WriteFile(p,[]byte(data),0600);e!=nil{t.Fatal(e)}}
-  for name,to:=range in.Links{p:=filepath.Join(root,name);if e:=os.MkdirAll(filepath.Dir(p),0700);e!=nil{t.Fatal(e)};if e:=os.Symlink(to,p);e!=nil{t.Fatal(e)}}
-  snapshot:=func()[]entry{out:=[]entry{};e:=filepath.WalkDir(root,func(p string,d fs.DirEntry,e error)error{if e!=nil{return e};if p==root{return nil};rel,_:=filepath.Rel(root,p);kind:="file";data:=[]byte{};if d.IsDir(){kind="directory"}else if d.Type()&os.ModeSymlink!=0{kind="symlink";s,e:=os.Readlink(p);if e!=nil{return e};data=[]byte(s)}else{data,e=os.ReadFile(p);if e!=nil{return e}};out=append(out,entry{ints(rel),kind,ints(string(data))});return nil});if e!=nil{t.Fatal(e)};return out}
-  before:=snapshot();full:=filepath.Join(root,target)
-  var e error;switch mode{case "tree":e=RecoverTree(full);case "trees":e=RecoverTrees(full);case "temp":e=RecoverPlanTemp(full)}
-  errorText:="";if e!=nil{errorText=strings.ReplaceAll(e.Error(),root,"/oracle")};rows=append(rows,row{in,mode,target,strings.ReplaceAll(full,root,"/oracle"),errorText,before,snapshot()})
- }}}
- out,e:=json.Marshal(map[string]any{"cases":rows});if e!=nil{t.Fatal(e)};if e=os.WriteFile(os.Getenv("BN_RECOVERY_OUTPUT"),out,0600);e!=nil{t.Fatal(e)}
+
+import (
+	"encoding/json"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+func TestMigrationRecovery(t *testing.T) {
+	ints := func(s string) []int {
+		v := make([]int, len(s))
+		for i := 0; i < len(s); i++ {
+			v[i] = int(s[i])
+		}
+		return v
+	}
+	type layout struct {
+		Files map[string]string
+		Dirs  []string
+		Links map[string]string
+	}
+	type entry struct {
+		Path []int
+		Kind string
+		Data []int
+	}
+	type row struct {
+		Layout                                   layout
+		Mode, Target, ResolvedTarget, Error      string
+		Before, After                            []entry
+		RawName, ResolvedTargetBytes, ErrorBytes []int
+	}
+	layouts := []layout{
+		{}, {Dirs: []string{"plans"}},
+		{Files: map[string]string{"plans/.bundle.backup/plan.md": "old\n"}},
+		{Files: map[string]string{"plans/bundle/plan.md": "new\n", "plans/.bundle.backup/old.md": "old\n"}},
+		{Files: map[string]string{"plans/.bundle.backup": "old file"}},
+		{Links: map[string]string{"plans/.bundle.backup": "../../missing"}, Dirs: []string{"plans"}},
+		{Links: map[string]string{"plans/.bundle.backup": "../outside"}, Files: map[string]string{"outside/sentinel": "keep"}},
+		{Links: map[string]string{"plans/bundle": "../outside"}, Files: map[string]string{"plans/.bundle.backup/old.md": "old", "outside/sentinel": "keep"}},
+		{Links: map[string]string{"plans/.bundle.backup/link": "../../outside"}, Files: map[string]string{"plans/.bundle.backup/old.md": "old", "plans/bundle/plan.md": "new", "outside/sentinel": "keep"}},
+		{Files: map[string]string{"plans": "regular"}},
+		{Files: map[string]string{"plans/.z.backup/plan.md": "z", "plans/.a.backup/plan.md": "a", "plans/.orphan.stage-123/file": "stage", "plans/plain/file": "plain"}},
+		{Files: map[string]string{"plans/.backup/file": "skip", "plans/..backup/file": "skip", "plans/...backup/file": "skip"}},
+		{Files: map[string]string{"plans/bundle": "target file", "plans/.bundle.backup/old.md": "old"}},
+		{Files: map[string]string{"plans/plan.md": "keep", "plans/plan.md.tmp": "temp"}},
+		{Dirs: []string{"plans/plan.md.tmp"}},
+		{Files: map[string]string{"plans/plan.md.tmp/child": "not empty"}},
+		{Dirs: []string{"plans"}, Links: map[string]string{"plans/plan.md.tmp": "../outside"}, Files: map[string]string{"outside/sentinel": "keep"}},
+		{Files: map[string]string{"plans/.raw.backup/file": "raw"}},
+	}
+	type scenario struct {
+		Layout  layout
+		RawName string
+	}
+	scenarios := []scenario{}
+	for _, in := range layouts {
+		scenarios = append(scenarios, scenario{in, ""})
+	}
+	// Keep setup names separate from JSON text: encoding/json repairs invalid UTF-8.
+	for b := 0; b < 256; b++ {
+		name := "raw" + string([]byte{byte(b)}) + "x"
+		for _, in := range []layout{
+			{Files: map[string]string{"plans/.__RAW__.backup/plan.md": "old", "plans/plan.md.tmp/child": "not empty"}},
+			{Files: map[string]string{"plans": "regular"}},
+			{Dirs: []string{"plans"}, Links: map[string]string{"plans/.__RAW__.backup": "../../missing"}},
+		} {
+			scenarios = append(scenarios, scenario{in, name})
+		}
+	}
+	var rows []row
+	for _, scenario := range scenarios {
+		in := scenario.Layout
+		raw := func(s string) string { return strings.ReplaceAll(s, "__RAW__", scenario.RawName) }
+		targets := []string{"plans/bundle", "plans/bundle/", "plans/plan.md", "plans", "missing/bundle", "."}
+		if scenario.RawName != "" {
+			targets = []string{"plans/__RAW__", "plans/__RAW__/", "plans/plan.md"}
+		}
+		for _, mode := range []string{"tree", "trees", "temp"} {
+			for _, target := range targets {
+				root := t.TempDir()
+				setup := scenario.RawName == "" || !strings.ContainsAny(scenario.RawName, "\x00/")
+				if setup {
+					for _, dir := range in.Dirs {
+						if e := os.MkdirAll(filepath.Join(root, raw(dir)), 0700); e != nil {
+							t.Fatal(e)
+						}
+					}
+					for name, data := range in.Files {
+						p := filepath.Join(root, raw(name))
+						if e := os.MkdirAll(filepath.Dir(p), 0700); e != nil {
+							t.Fatal(e)
+						}
+						if e := os.WriteFile(p, []byte(data), 0600); e != nil {
+							t.Fatal(e)
+						}
+					}
+					for name, to := range in.Links {
+						p := filepath.Join(root, raw(name))
+						if e := os.MkdirAll(filepath.Dir(p), 0700); e != nil {
+							t.Fatal(e)
+						}
+						if e := os.Symlink(to, p); e != nil {
+							t.Fatal(e)
+						}
+					}
+				}
+				snapshot := func() []entry {
+					out := []entry{}
+					e := filepath.WalkDir(root, func(p string, d fs.DirEntry, e error) error {
+						if e != nil {
+							return e
+						}
+						if p == root {
+							return nil
+						}
+						rel, _ := filepath.Rel(root, p)
+						kind := "file"
+						data := []byte{}
+						if d.IsDir() {
+							kind = "directory"
+						} else if d.Type()&os.ModeSymlink != 0 {
+							kind = "symlink"
+							s, e := os.Readlink(p)
+							if e != nil {
+								return e
+							}
+							data = []byte(s)
+						} else {
+							data, e = os.ReadFile(p)
+							if e != nil {
+								return e
+							}
+						}
+						out = append(out, entry{ints(rel), kind, ints(string(data))})
+						return nil
+					})
+					if e != nil {
+						t.Fatal(e)
+					}
+					return out
+				}
+				before := snapshot()
+				full := filepath.Join(root, raw(target))
+				var e error
+				switch mode {
+				case "tree":
+					e = RecoverTree(full)
+				case "trees":
+					e = RecoverTrees(full)
+				case "temp":
+					e = RecoverPlanTemp(full)
+				}
+				errorText := ""
+				if e != nil {
+					errorText = strings.ReplaceAll(e.Error(), root, "/oracle")
+				}
+				rows = append(rows, row{in, mode, target, strings.ReplaceAll(full, root, "/oracle"), errorText, before, snapshot(), ints(scenario.RawName), ints(strings.ReplaceAll(full, root, "/oracle")), ints(errorText)})
+			}
+		}
+	}
+	out, e := json.Marshal(map[string]any{"cases": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_RECOVERY_OUTPUT"), out, 0600); e != nil {
+		t.Fatal(e)
+	}
 }

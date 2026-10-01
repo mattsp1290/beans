@@ -137,3 +137,106 @@ fn index_path_rules_match_fixed_go_raw_byte_paths() {
         }
     }
 }
+
+#[test]
+fn graph_warning_bytes_match_fixed_go_before_and_after_owner_removal() {
+    let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
+    for (i, case) in fixture["raw_warnings"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .enumerate()
+    {
+        let byte = case["Byte"].as_u64().unwrap() as u8;
+        let kind: NoteKind = serde_json::from_value(case["Kind"].clone()).unwrap();
+        let base = [b"same".as_slice(), &[byte], b"x"].concat();
+        let id = [b"id".as_slice(), &[byte], b"x"].concat();
+        let mut paths = [
+            [b"projects/a/docs/".as_slice(), &base, b".md"].concat(),
+            [b"projects/b/docs/".as_slice(), &base, b".md"].concat(),
+            b"projects/c/docs/other.md".to_vec(),
+        ];
+        if case["Reverse"].as_bool().unwrap() {
+            paths.swap(0, 1);
+        }
+        let mut graph = NoteGraph::default();
+        graph.add_parse_warning(
+            [b"docs/parse".as_slice(), &[byte], b".md"].concat(),
+            beans::domain::error::Error::from_bytes([b"parse error ".as_slice(), &[byte]].concat()),
+        );
+        for (n, path) in paths.iter().enumerate() {
+            graph.register(GraphNote {
+                kind,
+                path: path.clone(),
+                basename: if n == 2 {
+                    b"other".to_vec()
+                } else {
+                    base.clone()
+                },
+                id: Some(id.clone()),
+                aliases: vec![],
+                outlinks: vec![],
+                raw_out: vec![RawLink {
+                    target: [b"missing".as_slice(), &[byte], b"x"].concat(),
+                    kind: beans::vault::LinkKind::Body,
+                }],
+            });
+        }
+        let snapshot = |graph: &NoteGraph| {
+            Value::Array(
+                graph
+                    .warnings()
+                    .iter()
+                    .map(|w| json!({"Path":w.path,"Error":w.error.as_bytes()}))
+                    .collect(),
+            )
+        };
+        graph.rebuild();
+        assert_eq!(snapshot(&graph), case["Before"], "case{i} before");
+        graph.remove_path(&paths[0]);
+        graph.rebuild();
+        assert_eq!(snapshot(&graph), case["After"], "case{i} after");
+    }
+}
+
+#[test]
+fn typed_disk_parse_warning_paths_preserve_all_native_filename_octets() {
+    use std::{ffi::OsString, os::unix::ffi::OsStringExt};
+    let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
+    for (i, case) in fixture["disk_warnings"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .enumerate()
+    {
+        let root =
+            std::env::temp_dir().join(format!("beans-disk-warning-{}-{i}", std::process::id()));
+        std::fs::create_dir(&root).unwrap();
+        struct Cleanup(std::path::PathBuf);
+        impl Drop for Cleanup {
+            fn drop(&mut self) {
+                let _ = std::fs::remove_dir_all(&self.0);
+            }
+        }
+        let _cleanup = Cleanup(root.clone());
+        let path: Vec<u8> = serde_json::from_value(case["Path"].clone()).unwrap();
+        let data: Vec<u8> = serde_json::from_value(case["Data"].clone()).unwrap();
+        let full = root.join(OsString::from_vec(path));
+        std::fs::create_dir_all(full.parent().unwrap()).unwrap();
+        std::fs::write(&full, &data).unwrap();
+        let ix = beans::vault::Index::load(&root).unwrap();
+        assert_eq!(case["Error"], json!([]), "case{i} Go load error");
+        let warnings: Vec<_> = ix
+            .graph
+            .warnings()
+            .iter()
+            .map(|w| json!({"Path":w.path,"Error":w.error.as_bytes()}))
+            .collect();
+        assert_eq!(json!(warnings), case["Warnings"], "case{i}");
+        assert_eq!(
+            std::fs::read(full).unwrap(),
+            data,
+            "case{i} source unchanged"
+        );
+    }
+}
