@@ -1,6 +1,7 @@
 //! Linux bundle capture and portable snapshot validation, separate from hub writes.
 use super::{Bundle, BundleSnapshot, Section, YamlString, encode, id, parse, scaffold, validate};
 use crate::domain::{
+    file_io::path_error,
     frontmatter::Error,
     issue::{Timestamp, quoted},
 };
@@ -149,22 +150,6 @@ impl BundleSnapshot {
     pub fn paths(&self) -> Vec<YamlString> {
         self.files.keys().cloned().collect()
     }
-}
-
-fn path_error(operation: &str, path: &Path, error: io::Error) -> Error {
-    let message = if error.kind() == io::ErrorKind::InvalidInput
-        && path.as_os_str().as_bytes().contains(&0)
-    {
-        "invalid argument".into()
-    } else {
-        let text = error.to_string();
-        text.split(" (os error ")
-            .next()
-            .unwrap_or(&text)
-            .to_lowercase()
-    };
-    let path = YamlString::from_bytes(path.as_os_str().as_bytes().into());
-    Error(format!("{operation} {path}: {message}"))
 }
 
 fn read_file(path: &Path) -> Result<Vec<u8>, Error> {

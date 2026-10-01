@@ -713,32 +713,32 @@
       "source": "issue/config_test.go",
       "test": "TestLoadHubConfigMissingPathReturnsDefaults",
       "line": 11,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::load_hub_config_missing_path_returns_defaults",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/config_test.go",
       "test": "TestLoadHubConfigMalformedTOMLNamesFileAndLine",
       "line": 25,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::load_hub_config_malformed_toml_names_file_and_line",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/config_test.go",
       "test": "TestLoadProjectConfigReadsNamePrefixRemotes",
       "line": 44,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::load_project_config_reads_name_prefix_remotes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/config_test.go",
       "test": "TestEncodeProjectConfigRoundTrip",
       "line": 66,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::encode_project_config_round_trip",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -761,16 +761,16 @@
       "source": "issue/config_test.go",
       "test": "TestLoadUserConfigMissingReturnsDefaults",
       "line": 133,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::load_user_config_missing_returns_defaults",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/config_test.go",
       "test": "TestEncodeUserConfigDecodesBack",
       "line": 146,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_codec.rs::encode_user_config_decodes_back",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

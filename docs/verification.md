@@ -121,9 +121,23 @@ actual Go file loads of every Rust-generated output. The byte-oriented writer
 preserves Go's nil/empty distinctions, sorted transition keys, control escapes
 and raw invalid UTF-8. Of these outputs, 324 are accepted by Go and 26 reproduce
 Go's rejection; encoding does not promise that arbitrary Go strings form valid
-TOML. The same corpus captures 90 Go file-loading cases for the pending Rust
-decoder. Capturing loader behavior does not establish Rust loader parity or
-workflow source precedence. Neither encoder changes the input configuration.
+TOML. Rust hub, project and user file loaders now match 240 captured Go load
+cases and the readback of all 350 Go writer outputs. These checks cover missing
+files, directories, parent files, symlinks, defaults, typed errors, ignored
+unknown keys, Unicode case folding and selected malformed TOML. Inputs remain
+unchanged after successful and rejected reads. Six original loader/round-trip
+regressions and a 512-case Unicode round-trip property supplement the corpus.
+Neither encoder changes the input configuration.
+
+The TOML decoder retains actual parser byte spans for typed key-context errors.
+For duplicate-key diagnostics it replaces only the offending key in temporary
+memory and reparses to recover the table/dotted/inline context; repaired data is
+never returned or written. Selected syntax errors use observed Go wording.
+Other TOML syntax/error cases, error ordering when several faults coexist,
+filesystem race/fault behavior, workflow-file decoding and workflow source
+precedence remain migration obligations. Configuration parsing and filesystem
+effects are outside the verified pure kernel contracts. Shared Linux path-error
+formatting retains the existing bundle behavior and raw-byte path storage.
 
 Sources: [pinned release](https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832),
 [installation support](https://github.com/verus-lang/verus/blob/release/0.2026.09.27.3cf1832/INSTALL.md),

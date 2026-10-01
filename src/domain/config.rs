@@ -1,7 +1,12 @@
 //! Configuration models. Decoding and workflow source precedence are separate.
 use super::{duration::parse_duration, workflow::WorkflowFile, yaml_string::YamlString};
 use serde::{Deserialize, Serialize};
+mod decode;
 mod encode;
+pub use decode::{
+    decode_hub_config, decode_project_config, decode_user_config, load_hub_config,
+    load_project_config, load_user_config,
+};
 pub use encode::{encode_project_config, encode_user_config};
 pub const DEFAULT_FETCH_THROTTLE: i64 = 60_000_000_000;
 const DEFAULT_TYPES: &[&str] = &["task", "bug", "feature", "epic", "chore"];

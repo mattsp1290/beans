@@ -26,7 +26,7 @@ fn quoted(out: &mut Vec<u8>, value: &[u8]) {
     out.push(b'"');
 }
 
-fn key(out: &mut Vec<u8>, name: &[u8]) {
+pub(super) fn key(out: &mut Vec<u8>, name: &[u8]) {
     if !name.is_empty()
         && name
             .iter()

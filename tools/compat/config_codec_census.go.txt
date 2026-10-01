@@ -177,6 +177,38 @@ func TestMigrationConfigCodec(t *testing.T) {
 			reads = append(reads, map[string]any{"name": kind + "-" + fsKind, "kind": kind, "fs_kind": fsKind, "config": cfg, "error": strings.ReplaceAll(message, work+"/", "")})
 		}
 		inputs := []string{"", "# comment\n", "name = \"p\"\nprefix = \"prefix\"\nremotes = [\"one\", \"two\"]\n", "actor=\"matt\"\n[hub]\nremote=\"remote\"\nbranch=\"main\"\n[fetch]\nthrottle=\"5m\"\n", "[workflow]\nstatuses=[\"open\",\"closed\"]\ndefault=\"open\"\nactive=[\"open\"]\nterminal=[\"closed\"]\n", "[types]\nnames=[\"story\"]\n[ids]\nlength=8\n", "[types]\nnames=[]\n[ids]\nlength=0\n", "[ids]\nlength=-5\n", "NAME=\"upper\"\nACTOR=\"upper\"\n[WORKFLOW]\nDEFAULT=\"upper\"\n", "name=123\n", "actor=true\n", "remotes=[1]\n", "[workflow]\nstatuses=123\n", "[workflow]\ndefault=123\n", "[workflow]\nactive=[\"open\",1]\n", "[workflow.transitions]\nopen=\"closed\"\n", "[ids]\nlength=\"4\"\n", "[types]\nnames=[true]\n", "unknown=123\n[other]\nx=[true,1]\n", "[workflow]\nunknown=123\n", "[workflow]\nstatuses=[\"open\"\ndefault=\"open\"\n", "name=\"a\"\nname=\"b\"\n", "actor=\"\\xFF\"\n", "[workflow]\nstatuses=[]\n[workflow.transitions]\nopen=[]\n", string([]byte{255})}
+
+		inputs = append(inputs,
+			`name=1.5`, `name=false`, `name=["p"]`, `name={x=1}`, `name=2026-10-01`,
+			`actor=2026-10-01T12:00:00Z`, `actor=12:00:00`, `actor=["x"]`,
+			`hub=123`, `fetch=false`, `workflow="x"`, `types=[]`, `ids=1.2`,
+			"[ids]\nlength=true", "[ids]\nlength=1.5", "[ids]\nlength=[]",
+			"[types]\nnames=123", "[types]\nnames=[2026-10-01]",
+			"[workflow]\nstatuses=[\"open\",false]", "[workflow]\nstatuses={open=1}",
+			"[workflow]\nactive=[[\"open\"]]", "[workflow]\nterminal=[{}]",
+			"[workflow]\ndefault=2026-10-01", "[workflow]\ntransitions=123",
+			"[workflow]\ntransitions=2026-10-01", "[workflow]\ntransitions=[]",
+			"[workflow.transitions]\n\"a.b\"=123", "[workflow.transitions]\n\"雪\"=[false]",
+			"[workflow.transitions]\n\"\"=[{}]", "[workflow.transitions]\n\"a\\\"b\"=[1]",
+			"[workflow]\nstatuses=[\n\"open\",\nfalse\n]",
+			"[workflow]\ndefault=\n123",
+			"[\"worKflow\"]\n\"ſtatuſeſ\"=[\"open\"]\ndefault=\"open\"",
+			`"name"="one"`+"\n"+`"name"="two"`,
+			"[workflow]\ndefault=\"a\"\ndefault=\"b\"",
+			"workflow.default=\"a\"\nworkflow.default=\"b\"",
+			`workflow={default="a",default="b"}`,
+			`name="a"`+"\n"+`name.prefix="b"`,
+			"[workflow]\n[workflow]",
+			"[workflow]\nstatuses=[\"open\" \"closed\"]",
+			"[workflow]\nstatuses=[\"open\"",
+			"[ids]\nlength=9223372036854775807", "[ids]\nlength=9223372036854775808",
+			"[ids]\nlength=-9223372036854775809",
+			`actor="\u0000"`, `actor="\u007F"`, `actor="\uD800"`,
+			`unknown={"$__toml_private_datetime"="fake", other=1}`,
+			`workflow={transitions={"$__toml_private_datetime"=[]}}`,
+			`workflow={statuses=[], active=[], terminal=[], transitions={}}`,
+		)
+
 		for i, input := range inputs {
 			work := t.TempDir()
 			path := filepath.Join(work, "config.toml")
