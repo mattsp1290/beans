@@ -1,5 +1,7 @@
 #[path = "domain/codec_regressions.rs"]
 mod codec_regressions;
+#[path = "domain/config_foundation.rs"]
+mod config_foundation;
 #[path = "domain/creation.rs"]
 mod creation;
 #[path = "domain/handoffs.rs"]

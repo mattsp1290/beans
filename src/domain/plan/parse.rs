@@ -41,7 +41,7 @@ fn decoded_string(node: &Node) -> Result<YamlString, Error> {
         )));
     }
     if node.tag == "!!binary" {
-        return super::yaml_string::binary(value)
+        return crate::domain::yaml_string::binary(value)
             .map(YamlString::from_bytes)
             .ok_or_else(|| Error("yaml: !!binary value contains invalid base64 data".into()));
     }

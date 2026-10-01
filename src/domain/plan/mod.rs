@@ -8,9 +8,8 @@ pub use bundle::{
 mod reference;
 pub use reference::set_node_ref;
 mod scaffold;
+pub use super::yaml_string::YamlString;
 pub use scaffold::scaffold;
-mod yaml_string;
-pub use yaml_string::YamlString;
 mod timestamp;
 pub use parse::parse;
 mod encode;

@@ -753,8 +753,8 @@
       "source": "issue/config_test.go",
       "test": "TestUserConfigThrottleDuration",
       "line": 113,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::user_config_throttle_duration",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1306,8 +1306,8 @@
       "source": "issue/types_test.go",
       "test": "TestTypesConfigValidType",
       "line": 5,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::types_config_valid_type",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1410,40 +1410,40 @@
       "source": "issue/workflow_test.go",
       "test": "TestDefaultWorkflowConfigBuckets",
       "line": 5,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::default_workflow_config_buckets",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigUnknownStatusNotHold",
       "line": 51,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::workflow_config_unknown_status_not_hold",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigDefaultStateFallback",
       "line": 63,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::workflow_config_default_state_fallback",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigStatusNames",
       "line": 70,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::workflow_config_status_names",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigValidate",
       "line": 93,
-      "destination": "tests/domain.rs",
-      "status": "pending",
+      "destination": "tests/domain/config_foundation.rs::workflow_config_validate",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

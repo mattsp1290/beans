@@ -300,7 +300,7 @@ pub(crate) fn quoted(value: &str) -> String {
             '\\' => output.push_str("\\\\"),
             '"' => output.push_str("\\\""),
             ch if ch.is_ascii_control() => output.push_str(&format!("\\x{:02x}", ch as u32)),
-            ch if ch.is_control() || (ch != ' ' && ch.is_whitespace()) => {
+            ch if !super::go_print::printable(ch) => {
                 if ch as u32 <= 0xffff {
                     output.push_str(&format!("\\u{:04x}", ch as u32));
                 } else {

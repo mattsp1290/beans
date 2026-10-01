@@ -181,3 +181,7 @@ compat-plan-bundle:
 
 compat-plan-bundle-read:
 	python3 -S tools/compat/plan_bundle_read.py
+
+.PHONY: compat-config-foundation
+compat-config-foundation:
+	python3 -S tools/compat/config_foundation_reference.py --check tests/contract/config-foundation.json
