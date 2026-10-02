@@ -102,7 +102,8 @@ fn compare(ix: &Index, expected: &Value) {
 }
 #[test]
 fn queries_match_committed_contract_on_loaded_files_and_reload() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/query.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/query.json")).unwrap();
     for (i, case) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let hub = super::index::hub(&format!("query-{i}"), false);
         // The standalone fixture owns project configuration; clear the helper seed.

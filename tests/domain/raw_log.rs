@@ -56,7 +56,8 @@ fn input(kind: &str) -> (&'static str, Vec<u8>) {
 }
 #[test]
 fn raw_log_format_parse_and_append_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/raw-log.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/raw-log.json")).unwrap();
     for (index, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let e = entry(c);
         assert_eq!(

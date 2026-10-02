@@ -109,7 +109,7 @@ fn render(graph: &ChangeGraph) -> String {
     }
     out
 }
-/// Canonicalize the graph fence, preserving Go's in-memory failure side effects.
+/// Canonicalize the graph fence, retaining validated in-memory failure effects.
 /// Successful results expose the copy geometry from the production splice engine.
 pub fn set_node_ref(
     plan: Option<&mut Plan>,

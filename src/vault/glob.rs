@@ -230,7 +230,7 @@ mod tests {
     #[test]
     fn match_patterns_agree_with_fixed_go_byte_and_unicode_rules() {
         let corpus: serde_json::Value =
-            serde_json::from_str(include_str!("../../tests/contract/index.json")).unwrap();
+            serde_json::from_str(include_str!("../../tests/fixtures/expected/index.json")).unwrap();
         for (i, case) in corpus["patterns"].as_array().unwrap().iter().enumerate() {
             let pattern: Vec<u8> = serde_json::from_value(case["pattern"].clone()).unwrap();
             let name: Vec<u8> = serde_json::from_value(case["name"].clone()).unwrap();

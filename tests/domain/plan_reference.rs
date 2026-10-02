@@ -5,7 +5,8 @@ fn view(p: Option<&Plan>) -> Value {
 }
 #[test]
 fn reference_edits_match_committed_contract_bytes_errors_and_failure_state() {
-    let fixture: Value = serde_json::from_str(include_str!("../contract/plan-ref.json")).unwrap();
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/plan-ref.json")).unwrap();
     let mut mismatches = Vec::new();
     for row in fixture["refs"].as_array().unwrap() {
         let mut p: Option<Plan> = serde_json::from_value(row["plan"].clone()).unwrap();
@@ -84,7 +85,8 @@ fn set_node_ref_preserves_plan_and_canonicalizes_fence() {
 
 #[test]
 fn unicode_prose_survives_production_graph_splices() {
-    let fixture: Value = serde_json::from_str(include_str!("../contract/plan-ref.json")).unwrap();
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/plan-ref.json")).unwrap();
     let original: Plan = serde_json::from_value(fixture["refs"][2]["plan"].clone()).unwrap();
     for i in 0..512 {
         let mut p = original.clone();

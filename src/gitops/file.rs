@@ -30,7 +30,7 @@ fn mkdir_all(path: &Path) -> Result<(), Error> {
     }
     match DirBuilder::new().mode(0o755).create(path) {
         Ok(()) => Ok(()),
-        // Go also accepts a directory created by another writer in this gap.
+        // Accept a directory created by another writer in this gap.
         Err(_) if fs::symlink_metadata(path).is_ok_and(|m| m.is_dir()) => Ok(()),
         Err(e) => Err(path_error("mkdir", path, e)),
     }
@@ -64,7 +64,7 @@ fn temporary(parent: &Path) -> Result<(Temporary, File), Error> {
         parent.display()
     )))
 }
-/// Preserve Go WriteFile's mkdir/temp/write/close/rename order and 0600 mode.
+/// Atomically publish via mkdir/temp/write/close/rename with private 0600 mode.
 /// No fsync or stronger crash durability is implied.
 pub fn write_file(path: &Path, bytes: &[u8]) -> Result<(), Error> {
     let parent = path

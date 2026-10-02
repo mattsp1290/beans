@@ -38,7 +38,7 @@ class Tests(unittest.TestCase):
         app["confirmation_digest"] = helper.sha256(helper.canonical(app))
         (sections / "00-overview.md").write_text("# Overview\n\n```implementation-plan\n" + json.dumps(app) + "\n```\n")
         (sections / "01-work.md").write_bytes(source)
-        map_value = {"version": 1, "packages": [{"id": "work", "node_id": "work", "source": "sections/01-work.md", "source_digest": helper.sha256(normalized), "prerequisites": [], "paths": ["pkg/"], "validation": ["go test ./..."], "acceptance": ["tests pass"], "exclusions": ["no release"]}], "references": [{"node_id": "context", "reason": "context only"}]}
+        map_value = {"version": 1, "packages": [{"id": "work", "node_id": "work", "source": "sections/01-work.md", "source_digest": helper.sha256(normalized), "prerequisites": [], "paths": ["pkg/"], "validation": ["cargo test --workspace --locked"], "acceptance": ["tests pass"], "exclusions": ["no release"]}], "references": [{"node_id": "context", "reason": "context only"}]}
         graph = {"nodes": [{"id": "context"}, {"id": "work"}], "edges": []}
         (sections / "02-execution-handoff.md").write_text("# Handoff\n\n```bn-execution-map\n" + json.dumps(map_value) + "\n```\n")
         (bundle / "plan.md").write_text("---\nsections:\n  - sections/00-overview.md\n  - sections/01-work.md\n  - sections/02-execution-handoff.md\n---\n\n```bn-change-graph\n" + json.dumps(graph) + "\n```\n")
@@ -82,13 +82,15 @@ class Tests(unittest.TestCase):
     def test_approval_log_boundaries(self):
         marker = "bn-plan-loop:v1 approve plan=p node=n head=" + "a" * 40
         context = {"actor": "human", "repo": "repo", "sha": "aaaaaaa", "branch": "feature"}
-        valid = {"log": [{**context, "event": "status ready_for_review → ready_for_validation"}, {**context, "event": "note — " + marker}]}
+        valid = {"log": [{**context, "event": "status ready_for_review → ready_for_validation"}, {**context, "event": marker}]}
         self.assertTrue(helper.verify_approval_logs(valid, "p", "n", "a" * 40, "executor", "repo", "feature")["valid"])
         variants = [
+            {"log": [{**valid["log"][0], "event": "status ready_for_merge → ready_for_validation"}, valid["log"][1]]},
+            {"log": [valid["log"][0], {**context, "event": "unrelated"}, valid["log"][1]]},
             {"log": [valid["log"][1]]},
             {"log": [valid["log"][0], valid["log"][1], valid["log"][1]]},
             {"log": [{**valid["log"][0], "actor": "executor"}, {**valid["log"][1], "actor": "executor"}]},
-            {"log": [valid["log"][0], {**valid["log"][1], "event": "note — " + marker.replace("a" * 40, "b" * 40)}]},
+            {"log": [valid["log"][0], {**valid["log"][1], "event": marker.replace("a" * 40, "b" * 40)}]},
             {"log": [valid["log"][0], {**valid["log"][1], "sha": "different"}]},
         ]
         for issue in variants:
@@ -125,10 +127,9 @@ class Tests(unittest.TestCase):
             explicit.write_text("workflow:\n  default: open\n  terminal:\n    - done\n"); self.assertEqual(helper.load_workflow(explicit, project, hub)["terminal"], ["done"])
             yml = root / "valid.yml"; yml.write_text("workflow:\n  transitions:\n    open:\n      - in_progress\n")
             self.assertEqual(helper.load_workflow(yml, None, None)["transitions"], {"open": ["in_progress"]})
-            oracle = SCRIPTS / "workflow_oracle.go"
-            result = subprocess.run(["go", "run", str(oracle), "", str(project), str(hub)], cwd=ROOT.parents[2], capture_output=True, text=True, check=True)
-            go_wf = json.loads(result.stdout)
-            self.assertEqual(wf, go_wf)
+            result = subprocess.run(["cargo", "run", "--offline", "--locked", "--quiet", "--example", "agent_contract", "--", "workflow", "", str(project), str(hub)], cwd=ROOT.parents[2], capture_output=True, text=True, check=True)
+            native_wf = json.loads(result.stdout)
+            self.assertEqual(wf, native_wf)
             for name, raw in {
                 "flow.yaml": "---\nworkflow: {default: open}\n",
                 "comments.yml": "workflow:\n  default: open # accepted comment\n  transitions: {open: [in_progress]}\n",
@@ -136,9 +137,9 @@ class Tests(unittest.TestCase):
             }.items():
                 path = root / name; path.write_text(raw)
                 python_wf = helper.load_workflow(path, None, None)
-                got = subprocess.run(["go", "run", str(oracle), str(path), "", ""], cwd=ROOT.parents[2], capture_output=True, text=True, check=True)
-                oracle_wf = json.loads(got.stdout)
-                self.assertEqual(python_wf, oracle_wf)
+                got = subprocess.run(["cargo", "run", "--offline", "--locked", "--quiet", "--example", "agent_contract", "--", "workflow", str(path), "", ""], cwd=ROOT.parents[2], capture_output=True, text=True, check=True)
+                native_wf = json.loads(got.stdout)
+                self.assertEqual(python_wf, native_wf)
             bad = root / "bad.toml"; bad.write_text('[workflow]\nactive=["ready_for_review"]\n')
             with self.assertRaises(helper.ContractError): helper.load_workflow(bad, None, None)
 

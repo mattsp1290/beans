@@ -48,13 +48,13 @@ pub(super) fn body(note: &Note) -> Vec<u8> {
 }
 impl Index {
     pub fn search(&self, query: &[u8], options: &SearchOptions) -> Vec<Hit> {
-        let query = super::super::go_lower::lower(
+        let query = super::super::lowercase::lower(
             YamlString::from_bytes(query.into()).trimmed().as_bytes(),
         );
         if query.is_empty() {
             return vec![];
         }
-        let matched = |bytes: &[u8]| contains(&super::super::go_lower::lower(bytes), &query);
+        let matched = |bytes: &[u8]| contains(&super::super::lowercase::lower(bytes), &query);
         let mut hits = Vec::new();
         for note in self.ordered_notes() {
             if !options.include_archived_handoffs

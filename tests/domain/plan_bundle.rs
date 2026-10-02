@@ -35,7 +35,7 @@ impl Drop for Scratch {
     }
 }
 fn fixture() -> Value {
-    serde_json::from_str(include_str!("../contract/plan-bundle.json")).unwrap()
+    serde_json::from_str(include_str!("../fixtures/expected/plan-bundle.json")).unwrap()
 }
 fn now() -> Timestamp {
     Timestamp {

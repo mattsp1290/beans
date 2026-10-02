@@ -1,2 +1,0 @@
-> plain quote
-> second line

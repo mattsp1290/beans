@@ -1,32 +1,17 @@
-# Native qualification
+# Native verification
 
-`make verify-native` runs the locked Rust workspace tests without a historical
-ledger dependency. The additional cutover gate, `make qualify-native-dispositions`,
-checks all 225
-baseline scenarios in `tests/contract/regressions.json`. Each retained entry
-names an exact test compiled into a Rust test binary, including its suite.
-Missing selectors, pending entries, duplicate source identities, unjustified
-retirements and old cross-read export hooks fail the gate. Both gates execute the native suite. The generated report
-is `.verification/native/report.json`; it records the checkout SHA, ledger
-hash, platform, suite counts and distinct executable selectors. A selector audit
-establishes that a named regression runs, not that every possible input or every
-facet of an older test is covered.
+`make verify-native` executes the locked Rust workspace and writes suite counts,
+platform and exact checkout SHA to `.verification/native/report.json`.
+Native tests own static inputs and expected values under `tests/fixtures`.
+`native-baseline/provenance.json` records original authored-file hashes; byte
+preservation and independently authored semantic tests justify changes rather
+than regenerating expected values blindly. Historical cutover censuses and
+executable reference runners have been retired.
 
-The tests own their inputs and assertions. `tests/fixtures/native-baseline`
-contains the enduring authored files and import exports previously stored with
-Go sources; their bytes are unchanged. `tests/contract/fixtures.json` records
-source paths and SHA256 provenance. Committed corpora under `tests/contract`
-retain historical origin metadata and explicit expected values. Reading these
-static values does not build or execute a reference client. Native tests do not
-launch Go, require `tools/compat`, export cross-read candidates or access the old
-source fixture directories. Future expected-value changes must be justified by
-the stored format or intended native behavior, rather than regenerated blindly.
-
-The one retirement is literal CLI text formatting. Native command journeys
-instead assert IDs, semantic JSON fields, stored bytes, exit behavior and pushed
+Native command journeys assert IDs, semantic JSON fields, stored bytes, exit behavior and pushed
 Git history. Markdown deliberately uses Comrak: tests assert headings/TOC,
 links/aliases, bounded embeds, callouts, GFM and escaping rather than literal
-Goldmark HTML. Hashtags and embeds are represented by link/text AST nodes,
+a different renderer's HTML. Hashtags and embeds are represented by link/text AST nodes,
 with generated embed markup emitted only at its intended node. Comrak handles
 heading IDs, self-links and escaped metadata through one collision allocator;
 the same formatter callback records the outer TOC without scanning embedded
@@ -37,8 +22,16 @@ HTTP search follows that rendered query and finds a document through its tags. P
 replacing its whole tree. Native tests check destination bytes remain intact,
 escaping bundle paths are rejected before hub writes, valid exports contain the
 selected bundle, and legacy interrupted backups recover byte-for-byte before
-subsequent writes. These changed behaviors are recorded on the relevant ledger
-entries, not presented as exact old output parity.
+subsequent writes. These behaviors have direct native regression assertions.
+
+Native diagnostic quoting follows Rust's standard escaped representation.
+Tests compare error class, path, position, field and scalar bytes independently
+of escape spelling. Frontmatter validates its complete physical UTF-8 or UTF-16
+interval with native Unicode decoders. Malformed encoding or forbidden YAML
+controls are rejected even after a document-end marker; the index warns without
+rewriting source bytes. Bodies retain arbitrary octets. Valid edits still check
+exact encoded bytes and unchanged copy intervals. Unicode trimming/lowercasing
+uses native scalar APIs; no generated language-runtime Unicode tables are used.
 
 ## Real production effects
 
@@ -70,12 +63,12 @@ On native Linux x86_64 Ubuntu 24.04, install the pinned components and run:
 
 ```sh
 rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component rustc-dev --component llvm-tools
-make rust-check verify
+make lint verify
 ```
 
 `make verify` comprises the native gate, toolchain qualification, kernel proof,
 production codec coupling and production retry coupling. CI runs on `main`,
-`mvp/rust-only-cutover`, `mvp/rust-only-cutover-qualification` pushes and pull
+`mvp/rust-only-cutover`, `mvp/rust-only-cutover-cleanup` pushes and pull
 requests. All generated verification evidence lives in ignored `.verification`.
 
 `tools/verification/pins.json` fixes Verus release
@@ -83,9 +76,7 @@ requests. All generated verification evidence lives in ignored `.verification`.
 `3cf18325f0fd0c3040fbdec8c0f2255c0504c91a`, Rust 1.98.1, matching
 `vstd` 0.0.0-2026-09-20-0158 and Z3 4.16.0. Installation checks both archive and
 individual executable hashes. It rejects unsupported hosts; ordinary compilation
-on aarch64 is not a Verus proof success. Historical reports committed under
-`tests/contract` describe their recorded revisions only. Current proof evidence
-must come from the current candidate's native x86_64 CI run.
+on aarch64 is not a Verus proof success. Current proof evidence must come from the current candidate's native x86_64 CI run.
 
 `make verify-toolchain` qualifies Cargo erasure and verification of the same
 annotated executable body using the development probe. A deliberately incorrect

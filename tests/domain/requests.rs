@@ -29,7 +29,7 @@ fn ids_and_transitions() {
 #[test]
 fn lifecycle_and_namespace_match_committed_contract() {
     let corpus: serde_json::Value =
-        serde_json::from_str(include_str!("../contract/request-lifecycle.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/request-lifecycle.json")).unwrap();
     for case in corpus["ids"].as_array().unwrap() {
         let id = case["id"].as_str().unwrap();
         assert_eq!(
@@ -53,7 +53,11 @@ fn lifecycle_and_namespace_match_committed_contract() {
             .err()
             .map(|error| error.to_string())
             .unwrap_or_default();
-        assert_eq!(error, case["error"].as_str().unwrap(), "{from:?} -> {to:?}");
+        assert_eq!(
+            super::diagnostics::text(&error),
+            super::diagnostics::text(case["error"].as_str().unwrap()),
+            "{from:?} -> {to:?}"
+        );
     }
     for case in corpus["generation"].as_array().unwrap() {
         let prefix = case["prefix"].as_str().unwrap();

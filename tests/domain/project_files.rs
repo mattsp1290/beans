@@ -53,7 +53,7 @@ impl Drop for Cleanup {
 #[test]
 fn project_file_effects_and_repeated_creation_match_committed_contract() {
     let fixture: Value =
-        serde_json::from_str(include_str!("../contract/project-files.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/project-files.json")).unwrap();
     let base = std::env::temp_dir().join(format!("beans-project-files-{}", std::process::id()));
     std::fs::create_dir(&base).unwrap();
     let _clean = Cleanup(base.clone());

@@ -377,6 +377,24 @@ impl Operation for IssueMutation {
         {
             return Ok(Vec::new());
         }
+        // Derive status evidence from the current replay base. Invocation time,
+        // actor and repository context remain frozen; a surviving owned log is
+        // retained when rebase already applied this transition.
+        if !self.log_applied
+            && let IssueChange::Update { claim, .. } = &self.change
+        {
+            self.log.event = if document.metadata.status != original_metadata.status {
+                format!(
+                    "status {} → {}",
+                    original_metadata.status, document.metadata.status
+                )
+            } else if *claim {
+                "claimed".into()
+            } else {
+                "updated".into()
+            }
+            .into();
+        }
         let frozen = self.log.format_bytes()?;
         let matching = document
             .log

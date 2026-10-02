@@ -9,12 +9,17 @@ fn assert_result(actual: Result<Vec<u8>, Error>, case: &Value, value: &str, erro
         let bytes: Vec<u8> = serde_json::from_value(case[value].clone()).unwrap();
         assert_eq!(actual.unwrap(), bytes, "{case}");
     } else {
-        assert_eq!(actual.unwrap_err().to_string(), expected, "{case}");
+        assert_eq!(
+            super::diagnostics::text(&actual.unwrap_err().to_string()),
+            super::diagnostics::text(expected),
+            "{case}"
+        );
     }
 }
 #[test]
 fn remote_validation_normalization_host_and_second_pass_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/remote.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/remote.json")).unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let input: Vec<u8> = serde_json::from_value(case["Input"].clone()).unwrap();
         let error = case["ValidateError"].as_str().unwrap();
@@ -22,7 +27,11 @@ fn remote_validation_normalization_host_and_second_pass_match_committed_contract
         if error.is_empty() {
             actual.unwrap();
         } else {
-            assert_eq!(actual.unwrap_err().to_string(), error, "{case}");
+            assert_eq!(
+                super::diagnostics::text(&actual.unwrap_err().to_string()),
+                super::diagnostics::text(error),
+                "{case}"
+            );
         }
         assert_result(
             normalize_remote_url(&input),
@@ -39,7 +48,11 @@ fn remote_validation_normalization_host_and_second_pass_match_committed_contract
                 assert!(!case["HostOK"].as_bool().unwrap(), "{case}");
                 assert_eq!(case["HostError"], "");
             }
-            Err(e) => assert_eq!(e.to_string(), case["HostError"].as_str().unwrap(), "{case}"),
+            Err(e) => assert_eq!(
+                super::diagnostics::text(&e.to_string()),
+                super::diagnostics::text(case["HostError"].as_str().unwrap()),
+                "{case}"
+            ),
         }
         if case["NormalizeError"] == "" {
             let first: Vec<u8> = serde_json::from_value(case["Normalized"].clone()).unwrap();

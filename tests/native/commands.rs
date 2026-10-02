@@ -424,7 +424,7 @@ fn native_memory_docs_projects_import_diagnostics_cache_and_root() {
 #[test]
 fn retained_command_and_flag_census_is_callable() {
     let baseline: serde_json::Value =
-        serde_json::from_str(include_str!("../contract/commands.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/commands.json")).unwrap();
     let mut root = beans::cli::command();
     root.build();
     for command in baseline["commands"].as_array().unwrap() {

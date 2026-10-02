@@ -1,3 +1,0 @@
-name = "b"
-prefix = "b"
-remotes = ["git@github.com:example/b.git"]

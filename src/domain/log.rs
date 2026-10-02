@@ -1,4 +1,4 @@
-//! Stored log entries, including opaque list items. Parsing follows Go's
+//! Stored log entries, including opaque list items. Parsing uses
 //! ASCII regex whitespace rules; formatting follows Unicode token rules.
 use super::frontmatter::Error;
 use super::issue::{Timestamp, parse_timestamp};
@@ -69,7 +69,7 @@ impl LogEntry {
         let (first, rest) = text.split_once('\n').unwrap_or((text, ""));
         let (timestamp, fields) = first.strip_prefix("- ")?.split_once(' ')?;
         let at = log_timestamp(timestamp)?;
-        // The Go actor is lazy: the earliest colon with a valid actor/context
+        // Use the earliest colon with a valid actor/context
         // wins. Context may contain ')' in the branch, so consume its last ')'.
         for (index, _) in fields.match_indices(": ") {
             let prefix = &fields[..index];
@@ -263,18 +263,13 @@ pub(crate) fn append_to_section_bytes(raw: &[u8], entries: &[LogEntry]) -> Resul
 #[cfg(test)]
 mod tests {
     #[test]
-    fn production_log_tokens_match_fixed_go_whitespace_and_keep_invalid_octets() {
-        let corpus: serde_json::Value =
-            serde_json::from_str(include_str!("../../tests/contract/config-foundation.json"))
-                .unwrap();
-        let ranges: Vec<(u32, u32)> =
-            serde_json::from_value(corpus["space_ranges"].clone()).unwrap();
+    fn native_log_tokens_use_unicode_whitespace_and_keep_invalid_octets() {
         for cp in 0..=0x10ffff {
             let Some(ch) = char::from_u32(cp) else {
                 continue;
             };
             let input = super::YamlString::from(format!(" A {ch} Z "));
-            let expected = if ranges.iter().any(|&(start, end)| start <= cp && cp <= end) {
+            let expected = if ch.is_whitespace() {
                 b"A-Z".to_vec()
             } else {
                 format!("A-{ch}-Z").into_bytes()

@@ -107,7 +107,8 @@ fn files(root: &Path) -> Value {
 }
 #[test]
 fn disk_index_loading_recovery_and_reload_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/index.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/index.json")).unwrap();
     let base = std::env::temp_dir().join(format!("beans-index-{}", std::process::id()));
     std::fs::create_dir(&base).unwrap();
     struct Cleanup(PathBuf);

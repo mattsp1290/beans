@@ -47,7 +47,7 @@ impl Drop for Cleanup {
 #[test]
 fn canonical_diagnostic_bytes_and_write_effects_match_committed_contract() {
     let corpus: Value =
-        serde_json::from_str(include_str!("../contract/raw-diagnostics.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/raw-diagnostics.json")).unwrap();
     let cases = corpus["cases"].as_array().unwrap();
     assert_eq!(cases.len(), 4257);
     let base = std::env::temp_dir().join(format!("beans-raw-diagnostics-{}", std::process::id()));

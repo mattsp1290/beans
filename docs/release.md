@@ -1,26 +1,19 @@
 # Releasing bn
 
-Releases are annotated tags `vX.Y.Z` on `main`. The module lives at the
-repository root, so plain `v*` tags are what `go install` and `git describe`
-use.
+Releases use annotated `vX.Y.Z` tags on `main`. Publication is a separate manual
+operation; no crates.io or package-manager release is configured.
 
-1. Make sure `main` is green (`make ci`) and the working tree is clean.
-2. Tag and push:
-   ```bash
-   git tag -a v0.2.0 -m "bn 0.2.0: hub vault redesign"
-   git push origin v0.2.0
-   ```
-3. Smoke test the module path in a fresh directory:
-   ```bash
-   GOBIN=$(mktemp -d) go install github.com/mattsp1290/beans/cmd/bn@v0.2.0
-   $GOBIN/bn --version
-   ```
-   `go install` builds against the committed `ui/dist/index.html`
-   placeholder, so that binary serves the API and the CLI but not the board.
-   For a binary with the UI, run `make release-build` from the tagged
-   checkout and distribute `bin/bn`.
-4. `bn --version` from a checkout prints `git describe` output
-   (`v0.2.0`, or `v0.2.0-3-gabc1234-dirty` between releases).
+1. Validate a clean tagged checkout with `make ci` and native Linux x86_64
+   `make verify` using the pinned compiler components.
+2. Run `make release-build`; this embeds the complete Svelte assets in `bin/bn`.
+   Smoke-test CLI, HTTP asset responses and shutdown before distribution.
+3. Install locally with `make install`, or run `make ui-install ui-build` followed
+   by `cargo install --locked --path .`. Cargo's configured install root owns the
+   binary; no globally installed command is replaced during evaluation.
+4. Verify `bn --version`. Make uses `git describe --tags --match 'v*' --always
+   --dirty`, with `VERSION=...` as an override and `dev` when Git is unavailable.
+   Direct Cargo builds use the same Git fallback and accept `BN_VERSION=...`.
+5. Restore `ui/dist/index.html` to the committed placeholder. Generated assets
+   remain ignored and must never be committed.
 
-The pre-monorepo tags `v0.1.0` and `v0.1.1` point at an older tree and are
-kept as history.
+The pre-redesign tags `v0.1.0` and `v0.1.1` remain historical Git references.

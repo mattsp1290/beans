@@ -46,8 +46,7 @@ fn parse_optional_inner(
     raw: &[u8],
     syntax: Option<SyntaxFormatter>,
 ) -> Result<Option<Node>, Error> {
-    let mut reader = super::yaml_reader::Reader::new_raw(text, raw);
-    reader.check(path, 1, 0)?;
+    validate_encoding(path, raw)?;
     let adapted = adapt_flow_indentation(&adapt_quote_indentation(text));
     let adapted = if syntax.is_some() {
         adapt_alias_keys(&adapted)
@@ -60,28 +59,15 @@ fn parse_optional_inner(
     let mut root = None;
     loop {
         let (event, marker) = parser.next_token().map_err(|error| {
-            if let Err(reader_error) =
-                reader.check(path, error.marker().line(), error.marker().col())
-            {
-                return reader_error;
-            }
             if matches!(
                 error.info(),
                 "while parsing a node, did not find expected node content"
                     | "\"-\" is only valid inside a block"
             ) {
-                if let Err(reader_error) = reader.error_lookahead(
-                    path,
-                    &adapted,
-                    error.marker().line(),
-                    error.marker().col(),
-                ) {
-                    return reader_error;
-                }
                 if let Some(syntax) = syntax {
                     return syntax(&error, &stack);
                 }
-                // yaml.v3 parse_node uses the attempted node's token mark,
+                // Node diagnostics use the attempted node's token mark,
                 // not the enclosing collection's opening mark.
                 let line = error.marker().line().saturating_sub(1);
                 let location = if line > 0 {
@@ -99,15 +85,7 @@ fn parse_optional_inner(
                         .last()
                         .is_some_and(|node| node.kind == NodeKind::Mapping))
             {
-                if let Err(reader_error) = reader.error_lookahead(
-                    path,
-                    &adapted,
-                    error.marker().line(),
-                    error.marker().col(),
-                ) {
-                    return reader_error;
-                }
-                // yaml.v3 reports the parser context's zero-based line when
+                // Node diagnostics use the parser context's zero-based line when
                 // nonzero, falling back to the problem mark at the root.
                 let line = stack
                     .last()
@@ -143,14 +121,13 @@ fn parse_optional_inner(
                     error.marker().line().saturating_sub(1)
                 ));
             }
-            // Exact yaml.v3 syntax-error presentation is completed alongside
-            // the typed codec differential corpus; scanner text is retained.
+            // Typed document validation adds field context while
+            // native scanner text is retained.
             if let Some(syntax) = syntax {
                 return syntax(&error, &stack);
             }
             Error::new(format!("{path}: frontmatter: {error}"))
         })?;
-        reader.check(path, marker.line(), marker.col())?;
         let node = match event {
             Event::MappingStart(anchor, ref tag) | Event::SequenceStart(anchor, ref tag) => {
                 stack.push(Node {
@@ -201,7 +178,7 @@ fn parse_optional_inner(
                         Error::new(format!("{path}: could not locate block scalar header"))
                     })?;
                     // The scanner supplies a virtual LF at EOF for an empty
-                    // keep-chomp block. yaml.v3 retains only physical blank
+                    // keep-chomp block. retain only physical blank
                     // content lines; a header alone has an empty value.
                     if !value.is_empty()
                         && value.chars().all(|ch| ch == '\n')
@@ -260,7 +237,6 @@ fn parse_optional_inner(
                 children: Vec::new(),
             },
             Event::DocumentEnd => {
-                reader.document_end(path, &adapted, marker.line(), marker.col())?;
                 break;
             }
             Event::StreamEnd => break,
@@ -275,7 +251,7 @@ fn parse_optional_inner(
     Ok(root)
 }
 
-// yaml.v3 allows a multiline quoted scalar's closing quote at column zero.
+// Stored documents allow a multiline quoted scalar's closing quote at column zero.
 // yaml-rust2 rejects it before emitting the scalar token. Normalize only this
 // parser representation, guided by the scanner's opening marker and a complete
 // quoted lexeme; physical line numbers and retained document bytes stay intact.
@@ -496,7 +472,7 @@ fn adapt_alias_keys(text: &str) -> String {
     out
 }
 
-// yaml.v3 treats raw NEL/LS/PS as quoted-scalar line breaks; yaml-rust2's
+// Stored documents treat raw NEL/LS/PS as quoted-scalar line breaks; yaml-rust2's
 // YAML 1.2 scanner treats them as content. Adapt only the raw quoted lexeme,
 // then decode it with the same parser. Escaped \L/\P/\N remain untouched.
 fn adapt_quoted_unicode_breaks(text: &str, line: usize, column: usize) -> Option<String> {
@@ -563,7 +539,7 @@ fn adapt_quoted_unicode_breaks(text: &str, line: usize, column: usize) -> Option
     }
 }
 
-// yaml.v3 permits flow continuation tokens at columns that yaml-rust2 rejects.
+// Stored documents permit flow continuation tokens at columns that yaml-rust2 rejects.
 // Add parser-view indentation only where its scanner has stopped inside a flow
 // collection. Physical source bytes and node line positions remain unchanged.
 fn adapt_flow_indentation(text: &str) -> String {
@@ -611,4 +587,35 @@ fn adapt_flow_indentation(text: &str) -> String {
         adapted.insert_str(start, &" ".repeat(required - marker.col()));
     }
     adapted
+}
+
+fn validate_encoding(path: &str, raw: &[u8]) -> Result<(), Error> {
+    let invalid = |reason: &str| Error::new(format!("{path}: frontmatter: {reason}"));
+    let text = match raw.get(..2) {
+        Some([255, 254] | [254, 255]) => {
+            if !raw.len().is_multiple_of(2) {
+                return Err(invalid("incomplete UTF-16 code unit"));
+            }
+            let little = raw[0] == 255;
+            std::borrow::Cow::Owned(
+                char::decode_utf16(raw[2..].as_chunks::<2>().0.iter().map(|pair| {
+                    let pair = [pair[0], pair[1]];
+                    if little {
+                        u16::from_le_bytes(pair)
+                    } else {
+                        u16::from_be_bytes(pair)
+                    }
+                }))
+                .collect::<Result<String, _>>()
+                .map_err(|_| invalid("invalid UTF-16 surrogate pair"))?,
+            )
+        }
+        _ => std::borrow::Cow::Borrowed(
+            std::str::from_utf8(raw).map_err(|_| invalid("invalid UTF-8 encoding"))?,
+        ),
+    };
+    if text.chars().any(|ch| !matches!(ch, '\t' | '\n' | '\r' | ' '..='~' | '\u{85}' | '\u{a0}'..='\u{d7ff}' | '\u{e000}'..='\u{fffd}' | '\u{10000}'..='\u{10ffff}')) {
+        return Err(invalid("YAML control character is not allowed"));
+    }
+    Ok(())
 }

@@ -36,6 +36,13 @@ fn main() {
             println!("cargo:rerun-if-changed={path}");
         }
     }
+    // Dirty version metadata changes when any tracked file changes, including
+    // docs and build policy outside src. Cargo otherwise caches build scripts.
+    if let Some(files) = git_output(&["ls-files", "-z"]) {
+        for path in files.split('\0').filter(|path| !path.is_empty()) {
+            println!("cargo:rerun-if-changed={path}");
+        }
+    }
     println!("cargo:rerun-if-env-changed=BN_VERSION");
     let mut out = String::from("pub static ASSETS: &[(&str, &[u8])] = &[\n");
     walk(Path::new("ui/dist"), Path::new("ui/dist"), &mut out);

@@ -1,4 +1,4 @@
-//! yaml.v3's generic values, separate from owned-field string coercion.
+//! Generic YAML values, separate from owned-field string coercion.
 use super::{
     frontmatter::{Node, NodeKind},
     issue::Timestamp,
@@ -311,4 +311,8 @@ pub(crate) fn string_map(data: &[u8]) -> Option<BTreeMap<Vec<u8>, YamlValue>> {
     // fatal value error keeps previously assigned top-level map entries.
     let _ = decoder.string_map(&node, &mut result, &mut None);
     Some(result)
+}
+
+pub(crate) fn scalar_value(node: &Node) -> Result<YamlValue, ()> {
+    scalar(node)
 }

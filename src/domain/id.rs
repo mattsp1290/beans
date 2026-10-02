@@ -64,7 +64,7 @@ pub(super) fn normalized_slug(title: &str) -> String {
     let mut output = String::new();
     let mut last_dash = true;
     for character in title.chars() {
-        // Go uses simple Unicode lowercasing. Rust's full lowercase expansion
+        // IDs use one lowercased Unicode scalar. Rust's full lowercase expansion
         // for U+0130 adds a combining dot; only the simple first rune belongs
         // here. The corpus qualifies every non-ASCII rune that lowers to ASCII.
         let lower = character.to_lowercase().next().unwrap();

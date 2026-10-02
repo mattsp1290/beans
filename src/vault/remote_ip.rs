@@ -1,6 +1,6 @@
 // Copyright 2020 The Go Authors. All rights reserved.
 // Adapted from Go 1.25.7 net/url or net/netip; see GO_LICENSE for BSD terms.
-//! Validation and diagnostics for the IP-literal authority accepted by Go.
+//! Native remote IP-literal authority validation.
 use super::remote::quote;
 fn error(input: &[u8], message: &str, at: &[u8]) -> String {
     let mut out = format!("invalid host: ParseAddr({}): {message}", quote(input));

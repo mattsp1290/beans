@@ -45,74 +45,27 @@ When ending a work session, complete every step. Work is NOT complete until
    and attach it to its governing issue when applicable. Keep `bn note` for
    ordinary issue progress history.
 
-## Build & Test
+## Build, test and architecture
 
-Run from the repository root:
+Use `make ci` for the UI, locked Rust workspace and repository skill checks.
+`make build` writes release `bin/bn` and embeds current `ui/dist` without Node.
+`make release-build` and `make install` first build the complete UI. Direct
+`cargo install --locked --path .` embeds whichever assets are present; run
+`make ui-install ui-build` first for the full app. Restore the committed
+`ui/dist/index.html` placeholder after validation; never commit built assets.
 
-```bash
-make ci               # ui-install ui-test ui-check ui-build vet lint test build tidy-check
-make build            # bin/bn; embeds whatever ui/dist holds, needs no Node
-make test             # go test ./...
-make ui-build         # vite build into ui/dist/, picked up by the next make build
-make release-build    # build the UI, then the binary that embeds it
-bin/bn serve --open   # the issues board and wiki over ~/.beans/hub
-```
+`AGENTS.md` describes the Rust layout. `src/domain` owns lossless documents;
+`src/ops` re-reads files on every replay; `src/gitops/hub.rs` locks, commits hand
+edits, fetches/rebases, commits with a Bn-Run nonce and pushes. Three bounded
+attempts can replay only owned effects; unowned commits and authored bytes must
+survive. `src/server` shares native operations with CLI commands.
 
-`cmd/bn` and `internal/server` tests create bare git repositories under the
-test temp directory and run the real pipeline against them; the system `git`
-must be on PATH.
+`docs/format.md` is normative. Roundtrip fixtures and expected-value cases live
+under `tests/fixtures`; real Git/CLI/HTTP journeys use disposable repositories.
+System Git must be on PATH. No database or derived persistent index is required.
 
-## Architecture Overview
-
-One Go module, `github.com/mattsp1290/beans`, building one binary `bn`. The
-hub is a git repository cloned at `~/.beans/hub` (an Obsidian vault); every
-project's issues live under `projects/<name>/`.
-
-| Path | What it is |
-| --- | --- |
-| `cmd/bn/` | cobra + fang entry point and every command |
-| `issue/` | issue and memory model, the round-trip-safe frontmatter codec, ids, log lines, templates, config |
-| `plan/` | validated project plan bundles, lifecycle, sections, and change graph schema |
-| `vault/` | hub paths, project resolution, remote-URL normalization, the in-memory index, queries, watcher |
-| `gitops/` | the git write pipeline: lock, fetch throttle, rebase, commit, push with replay |
-| `markdown/` | goldmark renderer for Obsidian-flavored markdown (wikilinks, embeds, callouts, highlight) |
-| `internal/ops/` | every mutation as a replay-safe operation, shared by the CLI and the server |
-| `internal/server/` | Fiber v3 JSON API, SSE reload events, embedded UI |
-| `ui/` | Svelte 5 app; `ui/embed.go` embeds `ui/dist` |
-| `docs/` | `format.md` (normative file format), `prime.md` (agent rules), `decisions.md`, `release.md`, `beans.toml.example` |
-| `version/` | build-time version string |
-
-Write path for every mutation (CLI or UI): resolve hub and project, take
-`cache/hub.lock`, commit stray hand edits, fetch and rebase, apply the
-operation, commit `bn: <verb> <id> — <summary>` with a `Bn-Run` nonce
-trailer, push; on rejection fetch, rebase, and re-derive the operation on
-the new tip (up to three attempts). Only the commit this run created can
-ever be discarded. Details and invariants: `gitops/hub.go`.
-
-CI is one workflow, `.github/workflows/ci.yml`: the `ui` job builds the app
-and uploads `ui/dist`; the `go` job downloads it, then vets, lints, tests,
-builds, and checks `go mod tidy`. `main` is not protected; if a required
-check is added, require the `go` and `ui` jobs.
-
-## Conventions & Patterns
-
-- **Public packages** `vault`, `issue`, `markdown`, `gitops` live at the
-  module root; `internal/ops`, `internal/server`, and `cmd/bn` are private.
-  No stability commitment exists until an external consumer does.
-- **`docs/format.md` is normative.** The `issue` codec must keep
-  `Encode(Parse(x)) == x` for every valid file; a mutation touches only the
-  lines it changes. Fixtures under `issue/testdata/roundtrip/` are the gate.
-- **Operations are replay-safe.** An `internal/ops` `Apply` re-reads the
-  files it changes every time it runs; the pipeline may run it more than
-  once after a push race.
-- **The hub is the source of truth.** No database, no JSONL except the
-  one-time `bn import bd` path, no derived cache (measured: loading 5,000
-  issues takes about a third of a second).
-- **`ui/dist/index.html` is a placeholder.** `make ui-build` overwrites it
-  locally; never commit the built one. The rest of `ui/dist/` is gitignored.
-- **Tidy at the root.** `go mod tidy` then `git diff --exit-code go.mod
-  go.sum` is the `tidy-check` target.
-- **One lint policy**, `.golangci.yml`, an explicit allow-list.
-- **One `AGENTS.md` and one `CLAUDE.md`, both at the root.**
-- **`.agents/` is a historical record.** Plans and reviews under it are
-  dated, untracked, and not rewritten when paths change.
+CI retains the UI job and a Rust job that downloads those assets, builds the
+product and runs actual `make verify` on native Linux x86_64. Permanent Verus,
+property/model and production coupling controls have separate stated limits in
+`docs/verification.md`. Dependency checks use locked Cargo metadata; format and
+Clippy cover all workspace targets.

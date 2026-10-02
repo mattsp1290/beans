@@ -1,6 +1,6 @@
 //! Ordered note ownership and link resolution, independent of disk effects.
 //! The disk index supplies metadata from the production domain decoders.
-use super::go_lower::lower;
+use super::lowercase::lower;
 use crate::domain::{error::Error, yaml_string::YamlString};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};

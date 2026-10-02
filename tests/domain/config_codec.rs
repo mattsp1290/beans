@@ -53,7 +53,7 @@ fn load(kind: &str, path: &Path) -> (Value, String) {
 #[test]
 fn configuration_file_loads_match_committed_contract() {
     let corpus: Value =
-        serde_json::from_str(include_str!("../contract/config-codec.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/config-codec.json")).unwrap();
     let mut mismatches = Vec::new();
     assert_eq!(corpus["reads"].as_array().unwrap().len(), 240);
     for (rows, encoded) in [(&corpus["reads"], false), (&corpus["encodes"], true)] {
@@ -252,7 +252,7 @@ fn workflow(value: &Value) -> WorkflowFile {
 #[test]
 fn configuration_output_matches_committed_contract_bytes() {
     let corpus: Value =
-        serde_json::from_str(include_str!("../contract/config-codec.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/config-codec.json")).unwrap();
     let rows = corpus["encodes"].as_array().unwrap();
     assert_eq!(rows.len(), 350);
     for row in rows {

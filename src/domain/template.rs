@@ -37,7 +37,7 @@ pub fn load_request_template(project: &Path, hub: &Path) -> Vec<u8> {
 // filepath.Join cleans the complete Linux path before opening it, and a slash
 // at the start of a later argument does not replace the preceding directory.
 // PathBuf::push would replace it, while an uncleaned path can fail at a missing
-// component even when `..` eliminates that component in Go.
+// component even when `..` eliminates that component during lexical path normalization.
 fn template_path(directory: &Path, kind: &str) -> PathBuf {
     let mut raw = directory.as_os_str().as_bytes().to_vec();
     raw.extend_from_slice(b"/templates/");

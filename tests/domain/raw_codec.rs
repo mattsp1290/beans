@@ -11,7 +11,8 @@ fn bytes(v: &Value) -> Vec<u8> {
 }
 #[test]
 fn original_body_bytes_and_mutations_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/raw-codec.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/raw-codec.json")).unwrap();
     for c in corpus["cases"].as_array().unwrap() {
         let raw = bytes(&c["input"]);
         let path = c["path"].as_str().unwrap();

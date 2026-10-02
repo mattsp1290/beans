@@ -5,7 +5,8 @@ fn value(link: &Link) -> Value {
 }
 #[test]
 fn markdown_links_match_committed_contract_fields_context_and_deduplication() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/links.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/links.json")).unwrap();
     let mut mismatches = Vec::new();
     for (i, case) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let input: Vec<u8> = serde_json::from_value(case["Input"].clone()).unwrap();

@@ -21,13 +21,19 @@ second.
 ## Install
 
 ```bash
-go install github.com/mattsp1290/beans/cmd/bn@latest   # after a tagged release
-# or, from a checkout:
-make release-build && cp bin/bn ~/bin/
+# From a source checkout with Rust 1.98.1 and Node 24:
+make release-build
+# Install the same complete app into Cargo's configured bin directory:
+make install
+# Equivalent direct Cargo install, after building the UI:
+make ui-install ui-build
+cargo install --locked --path .
 ```
 
-`bn` needs `git` on PATH. Only `go install` builds without the UI; use
-`make release-build` for a binary that serves the board.
+`bn` needs system `git` on PATH. Assets are embedded during compilation;
+`make build` works without Node using the committed placeholder, while
+`make release-build` and `make install` embed the complete board and wiki.
+No package registry release is currently published.
 
 ## Quick start
 
@@ -86,7 +92,7 @@ merge the latest bundle rather than overwriting newer bindings.
 ## Development
 
 ```bash
-make ci               # everything CI runs: UI tests and build, vet, lint, Go tests, build, tidy check
+make ci               # UI and native checks: UI tests and build, vet, lint, Rust tests, build, tidy check
 make build            # bin/bn embedding whatever ui/dist holds
 ```
 

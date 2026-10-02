@@ -223,7 +223,7 @@ impl Note {
             }
             _ => unreachable!(),
         };
-        // Go derives issue/memory projects from the last `projects` path
+        // Derive issue/memory projects from the last `projects` path
         // component. Use the original Linux path bytes, not the parser view.
         let project = if matches!(kind, NoteKind::Issue | NoteKind::Memory) {
             let parts: Vec<_> = rel.split(|&b| b == b'/').collect();

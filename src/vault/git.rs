@@ -1,4 +1,4 @@
-//! Best-effort read-only system Git queries. Mutation/recovery belongs to WP4.
+//! Best-effort read-only system Git queries; mutations have a separate locked boundary.
 use crate::domain::{frontmatter::Error, yaml_string::YamlString};
 use std::{path::Path, process::Command};
 #[derive(Default)]

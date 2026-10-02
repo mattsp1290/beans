@@ -1,6 +1,6 @@
 // Copyright 2009 The Go Authors. All rights reserved.
 // Adapted from Go 1.25.7 net/url or net/netip; see GO_LICENSE for BSD terms.
-//! The net/url subset used by remote resolution, matching Go 1.25.7.
+//! Native remote URL authority/path parsing with decoded byte retention.
 //! Parsing retains decoded filename bytes and does not normalize URL paths.
 use super::remote::quote;
 #[derive(Default)]

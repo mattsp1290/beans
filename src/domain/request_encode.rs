@@ -6,7 +6,7 @@ use super::request_document::{OWNED, RequestDocument, RequestMetadata};
 use super::yaml_render::{flow_pair, link_pair, string_pair};
 
 impl RequestDocument {
-    /// Like Go EncodeRequest, repair the ID alias before validation. Parsed
+    /// Repair the ID alias before validation. Parsed
     /// requests retain opaque original logs and ignore edits to authored Extra.
     pub fn encode(&mut self) -> Result<EditResult, Error> {
         if !self.metadata.id.is_empty() && !self.metadata.aliases.contains(&self.metadata.id) {

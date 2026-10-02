@@ -80,7 +80,8 @@ fn new_id_default_length() {
 
 #[test]
 fn names_and_entire_unicode_ascii_lowercase_set_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/ids.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/ids.json")).unwrap();
     for case in corpus["slugs"].as_array().unwrap() {
         assert_eq!(
             slug(case["title"].as_str().unwrap()),

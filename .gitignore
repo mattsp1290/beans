@@ -1,15 +1,10 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
 # Binaries for programs and plugins
 bin/
-.compat/
 .verification/
 /target/
 __pycache__/
 # Anchored to the repository root so it cannot shadow a `bn` file or directory
-# inside a module. A stray root-level `go build -o bn` used to leave a 27 MB
-# untracked binary here that no pattern matched.
+# inside source or fixture directories.
 /bn
 *.exe
 *.exe~
@@ -17,8 +12,6 @@ __pycache__/
 *.so
 *.dylib
 
-# Test binary, built with `go test -c`
-*.test
 
 # Code coverage profiles and other test artifacts
 *.out
@@ -31,7 +24,7 @@ profile.cov
 node_modules/
 
 # Built UI: ui/dist/ is a build output except the committed placeholder that
-# lets `go build` embed something without Node.
+# lets Cargo embed something without Node.
 ui/dist/*
 !ui/dist/index.html
 ui/node_modules/

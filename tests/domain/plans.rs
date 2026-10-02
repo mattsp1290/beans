@@ -31,7 +31,7 @@ fn ready_requires_structured_summary() {
 }
 
 fn corpus() -> Value {
-    serde_json::from_str(include_str!("../contract/plan-foundation.json")).unwrap()
+    serde_json::from_str(include_str!("../fixtures/expected/plan-foundation.json")).unwrap()
 }
 
 #[test]

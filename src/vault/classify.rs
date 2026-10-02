@@ -1,6 +1,6 @@
 //! Hub-relative path rules; callers still decide which directories to walk.
-use super::go_lower::lower;
 use super::graph::NoteKind;
+use super::lowercase::lower;
 pub fn classify(path: &[u8]) -> Option<(NoteKind, Vec<u8>)> {
     if !path.ends_with(b".md") {
         return None;

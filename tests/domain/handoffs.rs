@@ -124,7 +124,8 @@ proptest! {
 }
 #[test]
 fn reader_and_all_mutations_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/handoffs.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/handoffs.json")).unwrap();
     for c in corpus["cases"].as_array().unwrap() {
         let path = c["path"].as_str().unwrap();
         let source = c["input"].as_str().unwrap();

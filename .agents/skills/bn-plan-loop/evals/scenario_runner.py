@@ -131,9 +131,9 @@ class Scenario:
         rows = self.bnrun("list", "--label", "plan-" + self.plan, "--archived", "--limit", "0", json_output=True)
         second = next(row["id"] for row in rows if marker in self.issue(row["id"]).get("description", ""))
         self.bn_tx("link", "second", ["plan", "link", self.plan, "second", second], ["plan", "status", self.plan], {"counts.distinct_issues": 2})
-        self.bn_tx("dependency", "second", ["dep", "add", second, self.first], ["show", second], {"blocked_by": [self.first]})
+        self.bn_tx("dependency", "second", ["dep", "add", second, self.first], ["show", second], {"blocked_by": [{"raw": "[[" + self.first + "]]", "target": self.first}]})
         detail = self.issue(second)
-        assert self.first in detail["blocked_by"]
+        assert self.first in [link["target"] for link in detail["blocked_by"]]
         return second
 
     def deliver(self, issue_id: str, node: str, filename: str, sequence: int) -> str:
@@ -157,6 +157,10 @@ class Scenario:
         self.resume_session()
         detail = self.issue(issue_id); events = [row["event"] for row in detail["log"]]
         assert any("status ready_for_review → ready_for_validation" in event for event in events)
+        detail_file = self.root / "approval.json"
+        detail_file.write_text(json.dumps(detail))
+        verified = self.session_run(["python3", str(HELPER), "verify-approval", "--issue-json", str(detail_file), "--plan", self.plan, "--node", node, "--head", head, "--executor-actor", "executor", "--repo", "fixture", "--branch", branch])
+        assert json.loads(verified)["valid"]
         assert sum(approval in event for event in events) == 1
         self.bn_tx("merge-hold", node, ["update", issue_id, "--status", "ready_for_merge"], ["show", issue_id], {"status": "ready_for_merge"})
         self.pause_session()

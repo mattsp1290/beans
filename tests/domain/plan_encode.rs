@@ -4,7 +4,7 @@ use serde_json::Value;
 #[test]
 fn plan_encoding_matches_committed_contract_bytes_and_errors() {
     let fixture: Value =
-        serde_json::from_str(include_str!("../contract/plan-encode.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/plan-encode.json")).unwrap();
     let mut mismatches = Vec::new();
     for row in fixture["encodes"].as_array().unwrap() {
         let mut value = row["plan"].clone();

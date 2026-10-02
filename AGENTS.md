@@ -1,51 +1,41 @@
 # Agent Instructions
 
-This repository is one Go module, `github.com/mattsp1290/beans`, that builds
-`bn`: a git-backed issue tracker and wiki for humans and coding agents.
-Issues, docs, and handoffs are markdown files in one git repository, the hub, cloned at
-`~/.beans/hub`; `bn serve` puts an issues board and a wiki over it.
+This repository is a Rust workspace that builds `bn`, a git-backed issue tracker
+and wiki for humans and coding agents. Markdown documents live in the separate
+hub cloned at `~/.beans/hub`; `bn serve` provides its board and wiki.
 
 ## Repository layout
 
-```text
-beans/
-├── go.mod                        module github.com/mattsp1290/beans
-├── Makefile                      build, test, vet, lint, ui-*, ci, release-build
-├── .golangci.yml                 one lint policy for the whole module
-├── .github/workflows/ci.yml      one workflow, jobs `ui` and `go`
-├── cmd/bn/                       cobra + fang entry point and every command
-├── issue/                        issue model, frontmatter codec, ids, log lines, templates, config
-├── plan/                         first-class plan bundle model, validation, lifecycle, graph schema
-├── vault/                        hub paths, project resolution, index, queries, watcher
-├── gitops/                       git resolver seam and the hub write pipeline
-├── markdown/                     goldmark renderer for Obsidian-flavored markdown
-├── internal/ops/                 mutations as replay-safe operations (CLI and server)
-├── internal/server/              Fiber v3 API, SSE, embedded UI serving
-├── ui/                           Svelte 5 app; ui/embed.go embeds ui/dist
-├── version/                      build-time version string
-├── docs/                         format.md, prime.md, decisions.md, release.md, beans.toml.example
-└── .agents/                      plans and dated records (untracked)
-```
-
-Public packages `vault`, `issue`, `gitops`, and `markdown` sit at the module
-root so a future consumer can import them; `internal/ops`, `internal/server`,
-and `cmd/bn` are private glue.
+| Path | Purpose |
+| --- | --- |
+| `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml` | Locked workspace and pinned compiler |
+| `src/cli/` | Command parsing and native command journeys |
+| `src/domain/` | Lossless frontmatter, note schemas, configuration and plans |
+| `src/vault/` | Hub resolution, nofollow index reads, queries and watcher |
+| `src/gitops/` | Locks, journal, Git replay and tree recovery |
+| `src/ops/` | Replay-safe mutations shared by CLI and HTTP |
+| `src/markdown/`, `src/server/` | Comrak rendering and Axum HTTP/SSE |
+| `crates/beans-kernel/` | Same-source verified retry and splice bodies |
+| `tests/`, `tools/verification/` | Native regressions, properties, models and proof controls |
+| `ui/`, `build.rs` | Svelte app and compile-time embedded assets |
+| `examples/agent_contract.rs` | Native YAML/workflow interface for repository skills |
+| `docs/`, `.agents/skills/` | Product format and agent workflows |
 
 ## Commands
 
-From the repository root:
-
 ```bash
-make ci               # ui-install ui-test ui-check ui-build vet lint test build tidy-check
-make build            # go build -o bin/bn (embeds whatever ui/dist holds; no Node needed)
-make test             # go test ./...
-make ui-build         # vite build into ui/dist/, picked up by the next make build
-make release-build    # ui-install ui-build build
+make ci               # UI checks/build, locked Rust checks/tests/build and skill tests
+make build            # release bin/bn; embeds current ui/dist, no Node needed
+make test             # locked workspace tests
+make ui-build         # compile Svelte app into ui/dist
+make release-build    # complete UI and release binary
+make install          # complete UI and locked Cargo installation
+make verify           # native tests, Verus proof and production coupling controls
 ```
 
-`ui/dist/index.html` is a committed placeholder so `go build` works without
-Node; `make ui-build` overwrites it locally and the rest of `ui/dist/` is
-gitignored. Do not commit a built `index.html`.
+`ui/dist/index.html` is the committed placeholder. Restore it after building;
+never commit generated UI assets. Native proof requires Linux x86_64, with
+pinned rustc-dev and llvm-tools components; aarch64 compilation is not proof.
 
 ## Issue tracking
 
@@ -88,7 +78,7 @@ cp -rf source dest          # NOT: cp -r source dest
 
 ## Workflow configuration
 
-Issue statuses come from `issue.WorkflowConfig`, loaded with the precedence
+Issue statuses come from `domain::workflow::WorkflowConfig`, loaded with the precedence
 `BN_CONFIG` > project `beans.toml` `[workflow]` > hub `beans.toml`
 `[workflow]` > built-in defaults, merged per key. Defaults include
 `ready_for_review`, `ready_for_validation`, and `ready_for_merge` as hold
@@ -97,8 +87,7 @@ blockers. See `docs/beans.toml.example`.
 
 ## Versioning
 
-`Makefile` derives `VERSION` from `git describe --tags --match 'v*'` and links
-it into `version.Version`; `bn --version` prints it. The `LDFLAGS` path must
-match the module path exactly: a wrong path is ignored by the linker with no
-build error and `bn --version` silently prints the `dev` default. Releases
-are tagged `vX.Y.Z` on `main`; see `docs/release.md`.
+`Makefile` derives `VERSION` from `git describe --tags --match 'v*' --always
+--dirty`, falling back to `dev` outside Git. `VERSION=...` overrides make builds;
+direct Cargo builds accept `BN_VERSION=...`. `build.rs` embeds the version and
+UI bytes. `bn --version` prints it. See `docs/release.md`.

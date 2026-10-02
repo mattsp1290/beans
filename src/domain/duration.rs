@@ -108,7 +108,7 @@ pub fn parse_duration(original: &[u8]) -> Result<i64, Error> {
                 return Err(error("invalid duration"));
             }
         }
-        // Preserve Go's unsigned accumulation, including two 2^63 terms
+        // Accumulate unsigned magnitudes, including two 2^63 terms
         // wrapping to zero before the range check.
         duration = duration.wrapping_add(value);
         if duration > LIMIT {

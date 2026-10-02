@@ -1,5 +1,5 @@
 //! Canonical diagnostic bytes. Rust Display is a read-only Unicode view;
-//! command transports must use as_bytes to preserve Go's raw path diagnostics.
+//! command transports must use as_bytes to preserve raw filename bytes in diagnostics.
 use super::yaml_string::YamlString;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Error {

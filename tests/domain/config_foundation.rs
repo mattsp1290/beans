@@ -40,7 +40,7 @@ fn input(value: &Value) -> WorkflowConfig {
     }
 }
 fn corpus() -> Value {
-    serde_json::from_str(include_str!("../contract/config-foundation.json")).unwrap()
+    serde_json::from_str(include_str!("../fixtures/expected/config-foundation.json")).unwrap()
 }
 #[test]
 fn workflow_validation_classification_and_merges_match_committed_contract() {
@@ -54,11 +54,13 @@ fn workflow_validation_classification_and_merges_match_committed_contract() {
             row["name"]
         );
         assert_eq!(
-            w.validate()
-                .err()
-                .map(|e| e.to_string())
-                .unwrap_or_default(),
-            row["error"],
+            super::diagnostics::text(
+                &w.validate()
+                    .err()
+                    .map(|e| e.to_string())
+                    .unwrap_or_default()
+            ),
+            super::diagnostics::text(row["error"].as_str().unwrap()),
             "{}",
             row["name"]
         );
@@ -102,12 +104,14 @@ fn workflow_validation_classification_and_merges_match_committed_contract() {
             row["name"]
         );
         assert_eq!(
-            result
-                .validate()
-                .err()
-                .map(|e| e.to_string())
-                .unwrap_or_default(),
-            row["error"],
+            super::diagnostics::text(
+                &result
+                    .validate()
+                    .err()
+                    .map(|e| e.to_string())
+                    .unwrap_or_default()
+            ),
+            super::diagnostics::text(row["error"].as_str().unwrap()),
             "{}",
             row["name"]
         );

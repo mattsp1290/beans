@@ -51,7 +51,7 @@ impl Hub {
             .truncate(false)
             .open(self.cache.join("hub.lock"))
             .map_err(io_error)?;
-        // Match the Go pipeline's flock; fail promptly so callers can retry.
+        // Take an exclusive nonblocking flock so callers can retry contention.
         if unsafe { libc::flock(file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } != 0 {
             return Err(Error::new(
                 "another bn is running on this hub (lock held)".into(),

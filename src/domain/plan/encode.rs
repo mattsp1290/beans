@@ -45,7 +45,7 @@ fn sequence(output: &mut String, key: &str, values: &[YamlString]) -> Result<(),
     Ok(())
 }
 fn timestamp(value: &Timestamp) -> String {
-    // Match Go's March-based absolute epoch and wrapping uint64 seconds,
+    // Use a March-based absolute epoch and wrapping uint64 seconds,
     // including time.Unix values outside ordinary date-library ranges.
     const ABSOLUTE_YEARS: u64 = 292_277_022_400;
     const UNIX_TO_ABSOLUTE: u64 = (ABSOLUTE_YEARS * 146_097 / 400 + 306 + 719_162) * 86_400;
@@ -75,7 +75,7 @@ fn timestamp(value: &Timestamp) -> String {
     )
 }
 
-/// Go's plan writer emits canonical owned frontmatter and retains the body.
+/// The plan writer emits canonical owned frontmatter and retains the body.
 /// It validates status only; manifest and lifecycle validation are separate.
 pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
     let p = plan.ok_or_else(|| Error::new("nil plan".into()))?;

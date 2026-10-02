@@ -70,7 +70,7 @@ impl RequestDocument {
         Self::parse_bytes(path, source.as_bytes())
     }
     pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
-        // Go checks CRLF before request path validation.
+        // Reject CRLF before validating the request path.
         if source.windows(2).any(|v| v == b"\r\n") {
             return Err(Error::new(format!(
                 "{path}: has Windows line endings (\\r\\n); bn requires \\n"

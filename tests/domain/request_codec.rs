@@ -179,7 +179,8 @@ fn set_request_body() {
 
 #[test]
 fn round_trip_fixtures() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/requests.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/requests.json")).unwrap();
     let fixtures: Vec<_> = corpus["cases"]
         .as_array()
         .unwrap()
@@ -200,7 +201,8 @@ fn round_trip_fixtures() {
 
 #[test]
 fn reader_and_all_mutations_match_committed_contract() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/requests.json")).unwrap();
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/requests.json")).unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let path = case["path"].as_str().unwrap();
         let source = case["input"].as_str().unwrap();

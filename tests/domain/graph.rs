@@ -61,7 +61,8 @@ fn snapshot(graph: &NoteGraph, targets: &Value) -> Value {
 }
 #[test]
 fn ordered_graph_rebuild_lookup_links_and_removal_match_committed_contract() {
-    let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/graph.json")).unwrap();
     for (i, case) in fixture["graphs"].as_array().unwrap().iter().enumerate() {
         let mut graph = NoteGraph::default();
         graph.add_parse_warning(b"docs/z.md".to_vec(), "parse z".into());
@@ -110,7 +111,8 @@ fn ordered_graph_rebuild_lookup_links_and_removal_match_committed_contract() {
 #[test]
 fn index_path_rules_match_committed_contract_raw_byte_paths() {
     use beans::vault::*;
-    let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/graph.json")).unwrap();
     for case in fixture["paths"].as_array().unwrap() {
         let bytes = |key| serde_json::from_value::<Vec<u8>>(case[key].clone()).unwrap();
         let path = bytes("Input");
@@ -140,7 +142,8 @@ fn index_path_rules_match_committed_contract_raw_byte_paths() {
 
 #[test]
 fn graph_warning_bytes_match_committed_contract_before_and_after_owner_removal() {
-    let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/graph.json")).unwrap();
     for (i, case) in fixture["raw_warnings"]
         .as_array()
         .unwrap()
@@ -192,17 +195,26 @@ fn graph_warning_bytes_match_committed_contract_before_and_after_owner_removal()
             )
         };
         graph.rebuild();
-        assert_eq!(snapshot(&graph), case["Before"], "case{i} before");
+        assert_eq!(
+            super::diagnostics::errors(snapshot(&graph)),
+            super::diagnostics::errors(case["Before"].clone()),
+            "case{i} before"
+        );
         graph.remove_path(&paths[0]);
         graph.rebuild();
-        assert_eq!(snapshot(&graph), case["After"], "case{i} after");
+        assert_eq!(
+            super::diagnostics::errors(snapshot(&graph)),
+            super::diagnostics::errors(case["After"].clone()),
+            "case{i} after"
+        );
     }
 }
 
 #[test]
 fn typed_disk_parse_warning_paths_preserve_all_native_filename_octets() {
     use std::{ffi::OsString, os::unix::ffi::OsStringExt};
-    let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/graph.json")).unwrap();
     for (i, case) in fixture["disk_warnings"]
         .as_array()
         .unwrap()

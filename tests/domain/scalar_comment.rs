@@ -25,7 +25,7 @@ fn source(c: &Value) -> Vec<u8> {
 #[test]
 fn scalar_comments_in_utf8_and_utf16_match_committed_contract() {
     let corpus: Value =
-        serde_json::from_str(include_str!("../contract/scalar-comment.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/scalar-comment.json")).unwrap();
     let mut failures = vec![];
     for (i, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let raw = source(c);
@@ -75,12 +75,23 @@ fn scalar_comments_in_utf8_and_utf16_match_committed_contract() {
                 }),
                 _ => unreachable!(),
             };
+            if let Some(reason) = super::diagnostics::encoding_error(&raw) {
+                let error = result.expect_err("malformed frontmatter must never produce an edit");
+                assert_eq!(
+                    error.to_string(),
+                    format!("{path}: frontmatter: {reason}"),
+                    "case{i} {mode}"
+                );
+                continue;
+            }
             let error = result
                 .as_ref()
                 .err()
                 .map(ToString::to_string)
                 .unwrap_or_default();
-            if error != expected["error"].as_str().unwrap() {
+            if super::diagnostics::text(&error)
+                != super::diagnostics::text(expected["error"].as_str().unwrap())
+            {
                 failures.push(
                     json!({"case":i,"mode":mode,"actual":error,"expected":expected["error"]}),
                 );
@@ -113,7 +124,9 @@ fn scalar_comments_in_utf8_and_utf16_match_committed_contract() {
                     .err()
                     .map(ToString::to_string)
                     .unwrap_or_default();
-                if reread_error != expected["reread_error"].as_str().unwrap() {
+                if super::diagnostics::text(&reread_error)
+                    != super::diagnostics::text(expected["reread_error"].as_str().unwrap())
+                {
                     failures.push(json!({"case":i,"mode":mode,"phase":"reread","actual":reread_error,"expected":expected["reread_error"]}));
                 }
                 if let Ok(reread) = reread {

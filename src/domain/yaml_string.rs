@@ -1,4 +1,4 @@
-//! yaml.v3 string lists can contain non-UTF-8 bytes decoded from !!binary.
+//! YAML string lists can retain non-UTF-8 bytes decoded from !!binary.
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct YamlString(Vec<u8>);
@@ -25,7 +25,7 @@ impl YamlString {
                 _ => return None,
             };
             let ch = std::str::from_utf8(bytes.get(..n)?).ok()?.chars().next()?;
-            matches!(ch, '\u{9}'..='\u{d}' | ' ' | '\u{85}' | '\u{a0}' | '\u{1680}' | '\u{2000}'..='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' | '\u{205f}' | '\u{3000}').then_some(n)
+            ch.is_whitespace().then_some(n)
         }
         let mut bytes = self.as_bytes();
         while let Some(n) = width(bytes) {
@@ -159,17 +159,12 @@ pub(super) fn binary(value: &str) -> Option<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn production_trimming_matches_go_for_every_unicode_scalar() {
-        let fixture: serde_json::Value =
-            serde_json::from_str(include_str!("../../tests/contract/config-foundation.json"))
-                .unwrap();
-        let ranges: Vec<(u32, u32)> =
-            serde_json::from_value(fixture["space_ranges"].clone()).unwrap();
+    fn native_whitespace_trimming_preserves_invalid_octets() {
         for cp in 0..=0x10ffff {
             let Some(ch) = char::from_u32(cp) else {
                 continue;
             };
-            let space = ranges.iter().any(|&(start, end)| start <= cp && cp <= end);
+            let space = ch.is_whitespace();
             let raw = super::YamlString::from(format!(" {ch} \t"));
             let expected = if space { String::new() } else { ch.to_string() };
             assert_eq!(raw.trimmed().as_bytes(), expected.as_bytes(), "U+{cp:04X}");

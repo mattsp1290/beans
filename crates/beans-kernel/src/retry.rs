@@ -1,4 +1,4 @@
-//! Decisions for the rejected-push/conflicting-rebase path in `gitops/hub.go`.
+//! Decisions for the rejected-push/conflicting-rebase path in `src/gitops/hub.rs`.
 use vstd::prelude::*;
 
 verus! {
