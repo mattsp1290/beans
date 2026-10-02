@@ -14,7 +14,7 @@ Fetch the code remote read-only. Resolve the default branch from repository guid
 
 Read plan show/status and retrieve a fresh bundle. Require lifecycle `ready`, meaningful overview/packages/handoff, exactly one valid application-context block and execution map, complete acceptance evidence, no blocking decision, one-to-one graph coverage, acyclic matching prerequisites, and permitted bindings. Reference-only nodes must not resolve to issues anywhere in the hub.
 
-Load workflow through the bundled Go oracle, which calls the same `issue.LoadWorkflow` implementation as `bn`. `BN_CONFIG` is total precedence and its extension must be `.toml`, `.yaml`, or `.yml`; otherwise Beans merges defaults, hub, then project per nonempty key. Reject unknown workflow keys and invalid structure. `ready_for_review`, `ready_for_validation`, and `ready_for_merge` must exist and be neither active nor terminal; `in_progress` must exist and a terminal state must be available. Stop if the repository-owned oracle cannot be built; do not substitute an approximate parser.
+Load workflow through the native `agent_contract` example, which calls the same `domain::workflow::load_workflow` implementation as `bn`. `BN_CONFIG` is total precedence and its extension must be `.toml`, `.yaml`, or `.yml`; otherwise Beans merges defaults, hub, then project per nonempty key. Reject unknown workflow keys and invalid structure. `ready_for_review`, `ready_for_validation`, and `ready_for_merge` must exist and be neither active nor terminal; `in_progress` must exist and a terminal state must be available. Stop if the repository-owned native helper cannot be built; do not substitute an approximate parser.
 
 ## Local state and fencing
 
@@ -58,3 +58,9 @@ For unstarted compatible drift, update only the skill-owned issue-description bl
 Fresh status must show lifecycle `ready`, execution `done`, mismatch true, zero runnable/in-progress/held/blocked/missing, and terminal issue bindings. Revalidate every reviewed head against refreshed base and run the handoff integration gate. Retrieve into a new temp child, change only manifest status to `complete`, validate and put. On one stale revision, retrieve/reconcile/retry once. Verify put reports pushed, hub ahead is zero, fresh show/status says lifecycle complete, execution done, mismatch false. Never forge `updated` or directly edit the hub.
 
 After all completion evidence has been persisted and the active goal is ready to complete, release the matching checkout-incarnation claim. Keep run state and feature branches as audit/recovery evidence; cleanup follows repository policy.
+
+Native `show --json` exposes relationship objects with `raw` authored text and
+`target` semantic IDs. Verify dependency mutations against that canonical shape,
+for example `{"blocked_by": [{"raw": "[[project-abcd]]", "target": "project-abcd"}]`.
+Do not reinterpret a successful command as sufficient mutation evidence; recovery
+and normal verification must inspect the same target and authored relationship.

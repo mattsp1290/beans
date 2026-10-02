@@ -32,7 +32,7 @@ pub struct ExecutionNode {
     pub hold_reason: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub issue: Option<ExecutionIssue>,
-    // Go initializes unbound nodes to [], but returns nil for bound nodes
+    // Unbound nodes expose [], while bound nodes expose null
     // without blockers. Retain this observable distinction in report JSON.
     pub blockers: Option<Vec<ExecutionBlocker>>,
 }

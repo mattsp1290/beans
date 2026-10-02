@@ -23,12 +23,10 @@ fn source(c: &Value) -> Vec<u8> {
     bytes(&c["bytes"])
 }
 #[test]
-fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
+fn native_utf16_validation_and_raw_lf_edits_preserve_bytes() {
     let corpus: Value =
-        serde_json::from_str(include_str!("../contract/utf16-reader.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/utf16-reader.json")).unwrap();
     let mut failures = vec![];
-    let capture = std::env::var_os("BN_RUST_UTF16_READER_OUTPUT");
-    let mut candidates = vec![];
     for (i, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let raw = source(c);
         let path = c["path"].as_str().unwrap();
@@ -77,21 +75,29 @@ fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
                 }),
                 _ => unreachable!(),
             };
+            if let Some(reason) = super::diagnostics::encoding_error(&raw) {
+                let error = result.expect_err("malformed frontmatter must never produce an edit");
+                assert_eq!(
+                    error.to_string(),
+                    format!("{path}: frontmatter: {reason}"),
+                    "case{i} {mode}"
+                );
+                continue;
+            }
             let error = result
                 .as_ref()
                 .err()
                 .map(ToString::to_string)
                 .unwrap_or_default();
-            if error != expected["error"].as_str().unwrap() {
+            if super::diagnostics::text(&error)
+                != super::diagnostics::text(expected["error"].as_str().unwrap())
+            {
                 failures.push(
                     json!({"case":i,"mode":mode,"actual":error,"expected":expected["error"]}),
                 );
                 continue;
             }
             if let Ok(output) = result {
-                if capture.is_some() {
-                    candidates.push(json!({"Kind":c["kind"],"Path":path,"ExpectedError":expected["reread_error"],"Bytes":output.bytes}));
-                }
                 let wanted = if mode == "noop" {
                     raw.clone()
                 } else {
@@ -118,7 +124,9 @@ fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
                     .err()
                     .map(ToString::to_string)
                     .unwrap_or_default();
-                if reread_error != expected["reread_error"].as_str().unwrap() {
+                if super::diagnostics::text(&reread_error)
+                    != super::diagnostics::text(expected["reread_error"].as_str().unwrap())
+                {
                     failures.push(json!({"case":i,"mode":mode,"phase":"reread","actual":reread_error,"expected":expected["reread_error"]}));
                 }
                 if let Ok(reread) = reread {
@@ -133,20 +141,17 @@ fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
             }
         }
     }
-    if let Some(path) = capture {
-        std::fs::write(path, serde_json::to_vec(&candidates).unwrap()).unwrap();
-    }
     if !failures.is_empty() {
-        std::fs::create_dir_all(".compat").unwrap();
+        std::fs::create_dir_all(".verification").unwrap();
         std::fs::write(
-            ".compat/utf16-reader-failures.json",
+            ".verification/utf16-reader-failures.json",
             serde_json::to_vec_pretty(&failures).unwrap(),
         )
         .unwrap();
     }
     assert!(
         failures.is_empty(),
-        "{} utf16-reader mismatches; see .compat/utf16-reader-failures.json",
+        "{} utf16-reader mismatches; see .verification/utf16-reader-failures.json",
         failures.len()
     );
 }

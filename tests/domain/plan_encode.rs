@@ -2,11 +2,10 @@ use beans::domain::plan::{Plan, encode};
 use serde_json::Value;
 
 #[test]
-fn plan_encoding_matches_fixed_go_bytes_and_errors() {
+fn plan_encoding_matches_committed_contract_bytes_and_errors() {
     let fixture: Value =
-        serde_json::from_str(include_str!("../contract/plan-encode.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/plan-encode.json")).unwrap();
     let mut mismatches = Vec::new();
-    let mut exports = Vec::new();
     for row in fixture["encodes"].as_array().unwrap() {
         let mut value = row["plan"].clone();
         if !value.is_null() {
@@ -21,18 +20,12 @@ fn plan_encoding_matches_fixed_go_bytes_and_errors() {
             Ok(x) => (String::from_utf8(x).unwrap(), String::new()),
             Err(e) => (String::new(), e.to_string()),
         };
-        if error.is_empty() {
-            exports.push(serde_json::json!({"name":row["name"],"input":output}));
-        }
         if output != row["output"] || error != row["error"] {
             mismatches.push(format!(
                 "{}: {output:?} {error:?}; expected {} {}",
                 row["name"], row["output"], row["error"]
             ));
         }
-    }
-    if let Ok(path) = std::env::var("BN_PLAN_ENCODE_RUST_OUTPUT") {
-        std::fs::write(path, serde_json::to_vec_pretty(&exports).unwrap()).unwrap();
     }
     assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
 }

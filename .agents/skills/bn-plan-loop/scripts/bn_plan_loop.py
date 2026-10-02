@@ -75,14 +75,17 @@ def fenced(text: str, tag: str) -> list[str]:
     return found
 
 
-def restricted_yaml(text: str) -> dict[str, Any]:
-    """Parse contract YAML with the repository's yaml.v3 implementation."""
-    source = Path(__file__).with_name("yaml_oracle.go")
+def native_contract(args: list[str], text: str | None = None):
     repo_root = Path(__file__).resolve().parents[4]
-    if not source.is_file() or not (repo_root / "go.mod").is_file():
-        raise ContractError("canonical YAML parser is unavailable")
-    proc = subprocess.run(["go", "run", str(source)], cwd=repo_root, input=text, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if proc.returncode: raise ContractError(proc.stderr.strip() or "YAML parser failed")
+    proc = subprocess.run(["cargo", "run", "--offline", "--locked", "--quiet", "--example", "agent_contract", "--", *args], cwd=repo_root, input=text, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if proc.returncode:
+        raise ContractError(proc.stderr.strip() or "native contract parser failed")
+    return proc
+
+
+def restricted_yaml(text: str) -> dict[str, Any]:
+    """Parse restricted YAML through Beans' native document parser."""
+    proc = native_contract(["yaml"], text)
     value = json.loads(proc.stdout)
     if not isinstance(value, dict): raise ContractError("contract root must be an object")
     return value
@@ -227,13 +230,7 @@ def contract(bundle: Path, graph: dict[str, Any] | None = None) -> dict[str, Any
 
 
 def load_workflow(explicit: Path | None, project: Path | None, hub: Path | None) -> dict[str, Any]:
-    source = Path(__file__).with_name("workflow_oracle.go")
-    repo_root = Path(__file__).resolve().parents[4]
-    if not source.is_file() or not (repo_root / "go.mod").is_file():
-        raise ContractError("canonical Beans workflow oracle is unavailable")
-    argv = ["go", "run", str(source), str(explicit or ""), str(project or ""), str(hub or "")]
-    proc = subprocess.run(argv, cwd=repo_root, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if proc.returncode: raise ContractError(proc.stderr.strip() or "workflow oracle failed")
+    proc = native_contract(["workflow", str(explicit or ""), str(project or ""), str(hub or "")])
     result = json.loads(proc.stdout)
     holds = {"ready_for_review", "ready_for_validation", "ready_for_merge"}
     if not holds <= set(result["statuses"]) or holds & (set(result["active"]) | set(result["terminal"])):
@@ -247,7 +244,7 @@ def verify_approval_logs(issue: dict[str, Any], plan_id: str, node_id: str, head
     marker = f"bn-plan-loop:v1 approve plan={plan_id} node={node_id} head={head}"
     logs = issue.get("log")
     if not isinstance(logs, list): raise ContractError("issue has no structured log")
-    matches = [i for i, row in enumerate(logs) if isinstance(row, dict) and row.get("event") == "note — " + marker]
+    matches = [i for i, row in enumerate(logs) if isinstance(row, dict) and row.get("event") == marker]
     if len(matches) != 1: raise ContractError("approval marker must be unique")
     index = matches[0]
     if index == 0: raise ContractError("approval marker lacks adjacent status transition")

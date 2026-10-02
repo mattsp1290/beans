@@ -1,5 +1,5 @@
 //! Byte geometry for lossless top-level field edits. YAML interpretation and
-//! actual byte copying remain codec responsibilities, checked separately in WP3.
+//! actual byte copying remain codec responsibilities, checked by production codec coupling tests.
 use vstd::prelude::*;
 
 verus! {

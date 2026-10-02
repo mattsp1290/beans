@@ -1,2 +1,0 @@
-IDB [open] Second thing
-  IDA [open] First thing

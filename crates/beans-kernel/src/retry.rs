@@ -1,4 +1,4 @@
-//! Decisions for the rejected-push/conflicting-rebase path in `gitops/hub.go`.
+//! Decisions for the rejected-push/conflicting-rebase path in `src/gitops/hub.rs`.
 use vstd::prelude::*;
 
 verus! {
@@ -53,7 +53,7 @@ pub fn decide_retry(facts: RetryFacts) -> (action: RetryAction)
 }
 
 /// One mutation invocation owns one budget. Private state and absence of Clone
-/// prevent callers from replenishing or duplicating a live budget. WP4 must
+/// prevent callers from replenishing or duplicating a live budget. Production callers
 /// create it once and obtain a grant immediately before every real push.
 pub struct AttemptBudget {
     remaining: u8,

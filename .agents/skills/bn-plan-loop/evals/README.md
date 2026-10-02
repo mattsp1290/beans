@@ -3,11 +3,11 @@
 Run from the repository root:
 
 ```text
-gofmt -d .agents/skills/bn-plan-loop/scripts/workflow_oracle.go
+cargo fmt --all --check
 python3 .agents/skills/bn-plan-loop/evals/run_tests.py
 ```
 
-The unit suite covers application-context and execution-map validation, semantic drift, workflow precedence/hold classification against the Go `issue.LoadWorkflow` oracle, state CAS, local lease exclusion, inert adversarial argv, monitor startup races, unchanged-monitor mutation exclusion, routing, and scenario discovery. `fixture_repo.py` proves the real repository-built `bn` can initialize an isolated hub/project, publish a valid ready two-node plan, link a marker issue, and leave local bare remotes current.
+The unit suite covers application-context and execution-map validation, semantic drift, workflow precedence/hold classification against the native `domain::workflow::load_workflow` helper, state CAS, local lease exclusion, inert adversarial argv, monitor startup races, unchanged-monitor mutation exclusion, routing, and scenario discovery. `fixture_repo.py` proves the real repository-built `bn` can initialize an isolated hub/project, publish a valid ready two-node plan, link a marker issue, and leave local bare remotes current.
 
 Every fixture path, remote, trace, config, and fake executable must resolve beneath one `mktemp` root. The fake accepts only state and trace files beneath `BN_PLAN_LOOP_FIXTURE_ROOT`; it never delegates to a live hub. Set fixture-specific `BEANS_HUB`, `BEANS_PROJECT`, `BN_ACTOR`, and `GIT_CONFIG_GLOBAL`. Never point an evaluation at `~/.beans`, GitHub, or a network remote.
 

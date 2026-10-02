@@ -43,7 +43,7 @@ pub(crate) fn clean(path: &[u8]) -> Vec<u8> {
     result
 }
 
-// Go Join concatenates before cleaning; PathBuf::push resets on absolute parts.
+// Hub-relative lexical joins concatenate before cleaning, retaining root ownership.
 pub(crate) fn join(parts: &[&[u8]]) -> Vec<u8> {
     let parts: Vec<_> = parts.iter().copied().filter(|p| !p.is_empty()).collect();
     if parts.is_empty() {
@@ -134,7 +134,7 @@ mod tests {
     #[test]
     fn lexical_paths_match_fixed_go() {
         let fixture: serde_json::Value =
-            serde_json::from_str(include_str!("../../tests/contract/paths.json")).unwrap();
+            serde_json::from_str(include_str!("../../tests/fixtures/expected/paths.json")).unwrap();
         for case in fixture["lexical"].as_array().unwrap() {
             let parts: Vec<Vec<u8>> = serde_json::from_value(case["Parts"].clone()).unwrap();
             let expected_clean: Vec<u8> = serde_json::from_value(case["Clean"].clone()).unwrap();

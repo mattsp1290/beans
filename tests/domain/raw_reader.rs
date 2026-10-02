@@ -18,11 +18,10 @@ fn source(c: &Value) -> Vec<u8> {
     raw
 }
 #[test]
-fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/raw-reader.json")).unwrap();
+fn native_yaml_encoding_rejection_and_valid_raw_edits_preserve_bytes() {
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/raw-reader.json")).unwrap();
     let mut failures = vec![];
-    let capture = std::env::var_os("BN_RUST_RAW_READER_OUTPUT");
-    let mut candidates = vec![];
     for (i, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let raw = source(c);
         let path = c["path"].as_str().unwrap();
@@ -71,21 +70,29 @@ fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
                 }),
                 _ => unreachable!(),
             };
+            if let Some(reason) = super::diagnostics::encoding_error(&raw) {
+                let error = result.expect_err("malformed frontmatter must never produce an edit");
+                assert_eq!(
+                    error.to_string(),
+                    format!("{path}: frontmatter: {reason}"),
+                    "case{i} {mode}"
+                );
+                continue;
+            }
             let error = result
                 .as_ref()
                 .err()
                 .map(ToString::to_string)
                 .unwrap_or_default();
-            if error != expected["error"].as_str().unwrap() {
+            if super::diagnostics::text(&error)
+                != super::diagnostics::text(expected["error"].as_str().unwrap())
+            {
                 failures.push(
                     json!({"case":i,"mode":mode,"actual":error,"expected":expected["error"]}),
                 );
                 continue;
             }
             if let Ok(output) = result {
-                if capture.is_some() {
-                    candidates.push(json!({"Kind":c["kind"],"Path":path,"ExpectedError":expected["reread_error"],"Bytes":output.bytes}));
-                }
                 let wanted = if mode == "noop" {
                     raw.clone()
                 } else {
@@ -112,7 +119,9 @@ fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
                     .err()
                     .map(ToString::to_string)
                     .unwrap_or_default();
-                if reread_error != expected["reread_error"].as_str().unwrap() {
+                if super::diagnostics::text(&reread_error)
+                    != super::diagnostics::text(expected["reread_error"].as_str().unwrap())
+                {
                     failures.push(json!({"case":i,"mode":mode,"phase":"reread","actual":reread_error,"expected":expected["reread_error"]}));
                 }
                 if let Ok(reread) = reread {
@@ -127,77 +136,75 @@ fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
             }
         }
     }
-    if let Some(path) = capture {
-        std::fs::write(path, serde_json::to_vec(&candidates).unwrap()).unwrap();
-    }
     if !failures.is_empty() {
-        std::fs::create_dir_all(".compat").unwrap();
+        std::fs::create_dir_all(".verification").unwrap();
         std::fs::write(
-            ".compat/raw-reader-failures.json",
+            ".verification/raw-reader-failures.json",
             serde_json::to_vec_pretty(&failures).unwrap(),
         )
         .unwrap();
     }
     assert!(
         failures.is_empty(),
-        "{} raw-reader mismatches; see .compat/raw-reader-failures.json",
+        "{} raw-reader mismatches; see .verification/raw-reader-failures.json",
         failures.len()
     );
 }
 
 #[test]
-fn raw_reader_error_precedence_follows_tokens_and_preserves_ignored_bytes() {
+fn malformed_frontmatter_is_rejected_across_document_end_and_reader_boundaries() {
     let path = "projects/p/issues/p-one.md";
     let head=b"id: p-one\ntitle: Title\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n";
-    let prefix = "projects/p/issues/p-one.md: frontmatter: yaml: ";
-    let build = |start: &[u8], padding: usize, ending: &[u8]| {
-        let mut v = b"---\n".to_vec();
-        v.extend_from_slice(start);
-        v.resize(v.len() + padding, b'x');
-        v.extend_from_slice(ending);
-        v.extend_from_slice(b"---\nbody\xff\n");
-        v
-    };
-    let far = build(b"bad: [}\npadding: '", 1024, b"\xff'\n");
+    for (prefix, padding, ending) in [
+        (
+            b"bad: [}\npadding: '".as_slice(),
+            1024,
+            b"\xff'\n".as_slice(),
+        ),
+        (
+            b"bad: [}\npadding: '".as_slice(),
+            4,
+            b"\xc0\xaf'\n".as_slice(),
+        ),
+        (
+            b"...\nkey: value\n# ".as_slice(),
+            1024,
+            b"\xff\n".as_slice(),
+        ),
+    ] {
+        let mut raw = b"---\n".to_vec();
+        raw.extend_from_slice(head);
+        raw.extend_from_slice(prefix);
+        raw.resize(raw.len() + padding, b'x');
+        raw.extend_from_slice(ending);
+        raw.extend_from_slice(b"---\nbody\xff\n");
+        assert!(
+            IssueDocument::parse_bytes(path, &raw)
+                .unwrap_err()
+                .to_string()
+                .contains("invalid UTF-8 encoding")
+        );
+        let hub = super::index::hub("native-invalid-frontmatter", false);
+        let file = hub.0.join(path);
+        std::fs::create_dir_all(file.parent().unwrap()).unwrap();
+        std::fs::write(&file, &raw).unwrap();
+        let ix = beans::vault::Index::load(&hub.0).unwrap();
+        assert!(
+            ix.note_by_id(beans::vault::NoteKind::Issue, b"p-one")
+                .is_none()
+        );
+        assert_eq!(ix.graph.warnings().len(), 1);
+        assert_eq!(std::fs::read(file).unwrap(), raw);
+    }
+    let mut valid = b"---\n".to_vec();
+    valid.extend_from_slice(head);
+    valid.extend_from_slice(b"...\nkey: value\n---\nbody\xff\n");
     assert_eq!(
-        IssueDocument::parse_bytes(path, &far)
-            .unwrap_err()
-            .to_string(),
-        format!("{prefix}did not find expected node content")
+        IssueDocument::parse_bytes(path, &valid)
+            .unwrap()
+            .encode()
+            .unwrap()
+            .bytes,
+        valid
     );
-    let near = build(b"bad: [}\npadding: '", 4, b"\xc0\xaf'\n");
-    assert_eq!(
-        IssueDocument::parse_bytes(path, &near)
-            .unwrap_err()
-            .to_string(),
-        format!("{prefix}invalid length of a UTF-8 sequence")
-    );
-    let mut comments = head.to_vec();
-    comments.extend_from_slice(b"bad: [}\n# ");
-    let raw = build(&comments, 1024, b"\xff\n");
-    assert_eq!(
-        IssueDocument::parse_bytes(path, &raw)
-            .unwrap_err()
-            .to_string(),
-        format!("{prefix}invalid leading UTF-8 octet")
-    );
-    let mut ignored = head.to_vec();
-    ignored.extend_from_slice(b"...\nkey: value\n# ");
-    let raw = build(&ignored, 1024, b"\xff\n");
-    let document = IssueDocument::parse_bytes(path, &raw).unwrap();
-    assert_eq!(document.original_bytes(), raw);
-    assert_eq!(document.encode().unwrap().bytes, raw);
-    let hub = super::index::hub("raw-reader-index", false);
-    let file = hub.0.join(path);
-    std::fs::create_dir_all(file.parent().unwrap()).unwrap();
-    std::fs::write(file, &raw).unwrap();
-    let ix = beans::vault::Index::load(&hub.0).unwrap();
-    assert!(ix.graph.warnings().is_empty());
-    let note = ix
-        .note_by_id(beans::vault::NoteKind::Issue, b"p-one")
-        .unwrap();
-    let beans::vault::NoteData::Issue(d) = &note.data else {
-        panic!()
-    };
-    assert_eq!(d.encode().unwrap().bytes, raw);
 }

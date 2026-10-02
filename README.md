@@ -21,27 +21,34 @@ second.
 ## Install
 
 ```bash
-go install github.com/mattsp1290/beans/cmd/bn@latest   # after a tagged release
-# or, from a checkout:
-make release-build && cp bin/bn ~/bin/
+# From a source checkout with Rust 1.98.1 and Node 24:
+make release-build
+# Install the same complete app into Cargo's configured bin directory:
+make install
+# Equivalent direct Cargo install, after building the UI:
+make ui-install ui-build
+cargo install --locked --path .
 ```
 
-`bn` needs `git` on PATH. Only `go install` builds without the UI; use
-`make release-build` for a binary that serves the board.
+`bn` needs system `git` on PATH. Assets are embedded during compilation;
+`make build` works without Node using the committed placeholder, while
+`make release-build` and `make install` embed the complete board and wiki.
+No package registry release is currently published.
 
 ## Quick start
 
 ```bash
-bn init git@github.com:you/beans-hub.git    # clone (or initialize) the hub
+bn init git@github.com:you/beans-hub.git       # clone the hub repository
 cd ~/git/myapp                               # the project is the repository you are in
-bn create "Fix the login redirect" -p 1 -l bug
+issue=$(bn create "Fix the login redirect" -p 1 -l bug)
 bn ready                                     # issues with no open blockers
-bn update myapp-a3f2 --claim
-bn close myapp-a3f2 -r "shipped in 4c1d2e"
+bn update "$issue" --claim
+bn close "$issue" -r "shipped in 4c1d2e"
 bn plan init "Add authentication" --output ./auth-plan
 bn plan validate ./auth-plan
 bn plan put ./auth-plan
-bn serve --open                              # the board and wiki in a browser
+bn serve --host 127.0.0.1 --port 3000          # leave this running in its terminal
+# Open http://127.0.0.1:3000 in your browser; use a second terminal for bn prime.
 bn prime                                     # the rules, for agents
 ```
 
@@ -68,6 +75,8 @@ bn prime                                     # the rules, for agents
         └── templates/<type>.md
 ```
 
+The complete [CLI command/flag reference](docs/cli.md) covers output, exit codes and shell/browser integration; the [server reference](docs/server.md) covers HTTP, rendering and filesystem security.
+
 The file format is specified in [`docs/format.md`](docs/format.md); `bn`
 preserves every key, comment, and line it does not own, so hand edits in
 Obsidian or any editor are first class. The next `bn` command commits them
@@ -86,7 +95,7 @@ merge the latest bundle rather than overwriting newer bindings.
 ## Development
 
 ```bash
-make ci               # everything CI runs: UI tests and build, vet, lint, Go tests, build, tidy check
+make ci               # UI and native checks: UI tests and build, vet, lint, Rust tests, build, tidy check
 make build            # bin/bn embedding whatever ui/dist holds
 ```
 

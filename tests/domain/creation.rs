@@ -37,8 +37,10 @@ fn encode_new_with_extra_and_raw_log() {
 #[test]
 fn parsed_unknown_fields_keep_source_bytes_when_authored_extra_changes() {
     use beans::domain::{authored_yaml::Node, issue::IssueDocument};
-    let corpus: Value =
-        serde_json::from_str(include_str!("../contract/frontmatter-primitives.json")).unwrap();
+    let corpus: Value = serde_json::from_str(include_str!(
+        "../fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let input = case["input"].as_str().unwrap();
         let Ok(mut issue) = IssueDocument::parse(case["path"].as_str().unwrap(), input) else {
@@ -59,14 +61,15 @@ fn parsed_unknown_fields_keep_source_bytes_when_authored_extra_changes() {
 }
 
 #[test]
-fn new_issue_files_match_go_encoding_and_reader_semantics() {
+fn new_issue_files_match_committed_contract_encoding_and_reader_semantics() {
     use beans::domain::{
         issue::{IssueDocument, IssueMetadata},
         log::LogEntry,
     };
-    let corpus: Value =
-        serde_json::from_str(include_str!("../contract/frontmatter-primitives.json")).unwrap();
-    let mut candidates = Vec::new();
+    let corpus: Value = serde_json::from_str(include_str!(
+        "../fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["new_issues"].as_array().unwrap() {
         let mut issue = IssueDocument::new(
             serde_json::from_value::<IssueMetadata>(case["metadata"].clone()).unwrap(),
@@ -93,8 +96,6 @@ fn new_issue_files_match_go_encoding_and_reader_semantics() {
             case["name"]
         );
         let output = String::from_utf8(encoded.bytes).unwrap();
-        candidates
-            .push(serde_json::json!({"name":case["name"],"path":case["path"],"input":output}));
         let parsed = IssueDocument::parse(case["path"].as_str().unwrap(), &output);
         if let Some(error) = case.get("read_error") {
             assert_eq!(
@@ -131,8 +132,5 @@ fn new_issue_files_match_go_encoding_and_reader_semantics() {
                 case["name"]
             );
         }
-    }
-    if let Some(path) = std::env::var_os("BN_RUST_ISSUE_EXPORT") {
-        std::fs::write(path, serde_json::to_vec_pretty(&candidates).unwrap()).unwrap();
     }
 }

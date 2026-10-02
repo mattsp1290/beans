@@ -1,7 +1,7 @@
 use super::{DRAFT, Plan, encode, id::slug};
 use crate::domain::{frontmatter::Error, issue::Timestamp};
 const TEMPLATE: &str = include_str!("templates/plan.md");
-/// Construct the same initial draft manifest as Go's embedded template.
+/// Construct the initial draft manifest from the native embedded template.
 pub fn scaffold(id: &str, title: &str, now: &Timestamp) -> Result<Vec<u8>, Error> {
     let body = TEMPLATE[4..]
         .find("\n---\n")

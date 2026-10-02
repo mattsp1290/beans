@@ -33,8 +33,9 @@ fn value(v: &YamlValue) -> Value {
     }
 }
 #[test]
-fn doc_metadata_matches_fixed_go_forgiving_frontmatter_and_generic_values() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/doc.json")).unwrap();
+fn doc_metadata_matches_committed_contract_forgiving_frontmatter_and_generic_values() {
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/doc.json")).unwrap();
     let mut failures = Vec::new();
     for (i, case) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let input: Vec<u8> = serde_json::from_value(case["input"].clone()).unwrap();
@@ -60,7 +61,7 @@ fn doc_metadata_matches_fixed_go_forgiving_frontmatter_and_generic_values() {
 }
 
 #[test]
-fn doc_titles_tags_and_partial_errors_retain_independent_go_rules() {
+fn doc_titles_tags_and_partial_errors_retain_stored_format_rules() {
     let source = b"---\ntitle: 42\ntags: [one, null, 2, false, '']\n---\n```\n# Heading in code\n```\nraw\xff";
     let doc = doc_metadata(b"fallback", source);
     assert_eq!(doc.title, b"Heading in code");

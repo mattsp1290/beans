@@ -59,7 +59,7 @@ fn run_case(kind: &str, encoding: &str) {
     let first = parsed.fields().iter().find(|f| f.key == first_key).unwrap();
     let updated = parsed.fields().iter().find(|f| f.key == "updated").unwrap();
     // Independently locate raw physical LF lines, without consulting field
-    // offsets or the kernel. Go's UTF-16 edits also use these physical lines.
+    // offsets or the kernel. The fixture UTF-16 edits also use these physical lines.
     let mut lines = Vec::new();
     let mut at = 4;
     for line in raw[4..].split_inclusive(|b| *b == b'\n') {

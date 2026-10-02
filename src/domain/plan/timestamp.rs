@@ -1,4 +1,4 @@
-//! Plan timestamps expose Go RFC3339 parse diagnostics and require UTC location.
+//! Plan timestamps require UTC and expose field-specific RFC3339 diagnostics.
 use crate::domain::{
     frontmatter::Error,
     issue::{Timestamp, parse_timestamp},

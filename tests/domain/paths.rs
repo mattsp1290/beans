@@ -24,9 +24,9 @@ fn resolve(home: Vec<u8>, hub: Vec<u8>, flag: Vec<u8>, user_home: Vec<u8>) -> Re
 }
 
 #[test]
-fn default_paths_match_fixed_go_environment_and_flag_precedence() {
+fn default_paths_match_committed_contract_environment_and_flag_precedence() {
     let fixture: serde_json::Value =
-        serde_json::from_str(include_str!("../contract/paths.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/paths.json")).unwrap();
     for case in fixture["cases"].as_array().unwrap() {
         let input = &case["Input"];
         let bytes = |key| input[key].as_str().unwrap().as_bytes().to_vec();
@@ -121,9 +121,9 @@ fn hub_check_follows_directory_symlinks_and_rejects_worktree_files() {
 }
 
 #[test]
-fn project_name_matches_fixed_go_without_collapsing_hyphens() {
+fn project_name_matches_committed_contract_without_collapsing_hyphens() {
     let fixture: serde_json::Value =
-        serde_json::from_str(include_str!("../contract/paths.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/expected/paths.json")).unwrap();
     for case in fixture["names"].as_array().unwrap() {
         let input: Vec<u8> = serde_json::from_value(case["Input"].clone()).unwrap();
         assert_eq!(

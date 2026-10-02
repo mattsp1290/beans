@@ -107,7 +107,7 @@ impl Drop for Scratch {
 }
 fn setup(root: &Path, files: &Value) {
     for f in files.as_array().into_iter().flatten() {
-        // Go's setup uses filepath.Join; the production load keeps the raw root.
+        // The fixture setup joins paths; the production load keeps the raw root.
         let relative = bytes(&f["Path"]);
         let mut full = root.to_path_buf();
         for part in relative.split(|&b| b == b'/') {
@@ -166,8 +166,9 @@ fn expand(value: &Value, blobs: &[Value]) -> Value {
     }
 }
 #[test]
-fn canonical_plan_models_diagnostics_and_filesystems_match_native_go() {
-    let fixture: Value = serde_json::from_str(include_str!("../contract/plan-bytes.json")).unwrap();
+fn canonical_plan_models_diagnostics_and_filesystems_match_committed_contract() {
+    let fixture: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/plan-bytes.json")).unwrap();
     let blobs = fixture["blobs"].as_array().unwrap();
     for (i, c) in fixture["cases"].as_array().unwrap().iter().enumerate() {
         let c = expand(c, blobs);

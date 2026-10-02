@@ -1,4 +1,4 @@
-//! Parsed TOML values retain real byte spans for Go's key-context diagnostics.
+//! Parsed TOML values retain real byte spans for key-context diagnostics.
 use serde::{
     Deserialize,
     de::{MapAccess, SeqAccess, Visitor},

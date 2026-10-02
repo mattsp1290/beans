@@ -34,7 +34,7 @@ pub struct Timestamp {
 
 impl Default for Timestamp {
     fn default() -> Self {
-        // Go time.Time's zero value is 0001-01-01T00:00:00Z.
+        // The stored timestamp zero value is 0001-01-01T00:00:00Z.
         Self {
             seconds: -62_135_596_800,
             nanoseconds: 0,
@@ -82,7 +82,7 @@ pub struct IssueDocument {
     pub description: super::yaml_string::YamlString,
     pub body: super::yaml_string::YamlString,
     /// Authored unknown fields for a new issue. Parsed documents retain their
-    /// original unknown bytes and ignore changes to this tree, as Go does.
+    /// original unknown bytes and ignore changes to the semantic unknown-field view.
     pub new_extra: super::authored_yaml::Node,
     pub(super) document: Option<Frontmatter>,
     pub(super) original_metadata: IssueMetadata,
@@ -308,34 +308,9 @@ impl IssueMetadata {
     }
 }
 
-// Go %q error messages use mnemonic control escapes and literal printable
-// Unicode. Retaining raw scalar text here avoids quoting a coerced value.
+// Diagnostics quote scalar text with Rust's standard escaped debug representation.
 pub(crate) fn quoted(value: &str) -> String {
-    let mut output = String::from("\"");
-    for ch in value.chars() {
-        match ch {
-            '\x07' => output.push_str("\\a"),
-            '\x08' => output.push_str("\\b"),
-            '\x0c' => output.push_str("\\f"),
-            '\n' => output.push_str("\\n"),
-            '\r' => output.push_str("\\r"),
-            '\t' => output.push_str("\\t"),
-            '\x0b' => output.push_str("\\v"),
-            '\\' => output.push_str("\\\\"),
-            '"' => output.push_str("\\\""),
-            ch if ch.is_ascii_control() => output.push_str(&format!("\\x{:02x}", ch as u32)),
-            ch if !super::go_print::printable(ch) => {
-                if ch as u32 <= 0xffff {
-                    output.push_str(&format!("\\u{:04x}", ch as u32));
-                } else {
-                    output.push_str(&format!("\\U{:08x}", ch as u32));
-                }
-            }
-            ch => output.push(ch),
-        }
-    }
-    output.push('"');
-    output
+    format!("{value:?}")
 }
 
 // time.Parse(RFC3339) accepts a one-digit hour, comma fractions, and zone
@@ -418,4 +393,13 @@ pub(crate) fn parse_timestamp(value: &str) -> Option<Timestamp> {
         nanoseconds,
         offset_seconds: offset,
     })
+}
+
+#[cfg(test)]
+mod native_diagnostics {
+    #[test]
+    fn quoted_diagnostics_escape_controls_and_keep_visible_unicode() {
+        assert_eq!(super::quoted("one\0\n\u{85}two"), "\"one\\0\\n\\u{85}two\"");
+        assert_eq!(super::quoted("é界"), "\"é界\"");
+    }
 }

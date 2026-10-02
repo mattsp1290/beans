@@ -9,7 +9,7 @@ pub struct Link {
     pub embed: bool,
 }
 fn display(bytes: &[u8]) -> String {
-    // Goldmark's reader only splits on LF. Comrak also splits on lone CR;
+    // Authored link lines split on LF. Comrak also splits on lone CR;
     // mask those bytes in the context view without changing byte offsets.
     let bytes = bytes
         .iter()
@@ -114,7 +114,7 @@ fn excluded(source: &str, at: usize, width: usize) -> bool {
         start <= at && at <= end
     })
 }
-/// Raw link fields come from the Go-compatible inline grammar. Temporary
+/// Raw link fields retain the authored inline grammar. Temporary
 /// markers let the Markdown parser handle enclosing block and inline context.
 /// Caller bytes are never changed or serialized by this adapter.
 pub fn links(source: &[u8]) -> Vec<Link> {

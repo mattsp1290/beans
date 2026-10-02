@@ -106,8 +106,9 @@ fn files(root: &Path) -> Value {
     json!(result)
 }
 #[test]
-fn disk_index_loading_recovery_and_reload_match_fixed_go() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/index.json")).unwrap();
+fn disk_index_loading_recovery_and_reload_match_committed_contract() {
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/index.json")).unwrap();
     let base = std::env::temp_dir().join(format!("beans-index-{}", std::process::id()));
     std::fs::create_dir(&base).unwrap();
     struct Cleanup(PathBuf);
@@ -149,9 +150,9 @@ fn disk_index_loading_recovery_and_reload_match_fixed_go() {
             }
             let actual = json!({"error":error,"index":index.as_ref().map(|ix| snapshot(ix,&root)),"files":files(&root)});
             if actual != *expected {
-                std::fs::create_dir_all(".compat/index-failures").unwrap();
+                std::fs::create_dir_all(".verification/index-failures").unwrap();
                 std::fs::write(
-                    format!(".compat/index-failures/{i}-{stage}.json"),
+                    format!(".verification/index-failures/{i}-{stage}.json"),
                     serde_json::to_vec_pretty(&json!({"actual":actual,"expected":expected}))
                         .unwrap(),
                 )
@@ -162,7 +163,7 @@ fn disk_index_loading_recovery_and_reload_match_fixed_go() {
     }
     assert!(
         failures.is_empty(),
-        "index mismatches {failures:?}; see .compat/index-failures"
+        "index mismatches {failures:?}; see .verification/index-failures"
     );
 }
 
@@ -188,7 +189,7 @@ pub(super) fn hub(name: &str, fixture: bool) -> TestHub {
     }
     if fixture {
         copy(
-            Path::new("tests/fixtures/go-baseline/vault/testdata/hub"),
+            Path::new("tests/fixtures/native-baseline/vault/testdata/hub"),
             &root,
         );
     } else {

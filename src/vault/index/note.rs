@@ -223,7 +223,7 @@ impl Note {
             }
             _ => unreachable!(),
         };
-        // Go derives issue/memory projects from the last `projects` path
+        // Derive issue/memory projects from the last `projects` path
         // component. Use the original Linux path bytes, not the parser view.
         let project = if matches!(kind, NoteKind::Issue | NoteKind::Memory) {
             let parts: Vec<_> = rel.split(|&b| b == b'/').collect();
@@ -256,15 +256,26 @@ impl Index {
             return;
         };
         let full = self.hub_dir.join(path(rel));
-        match read(&full).and_then(|bytes| Note::parse(kind, project, rel, &bytes)) {
+        let bytes = if self.recover {
+            read(&full)
+        } else if let Some(reader) = self.snapshot_reader.as_mut() {
+            reader.read(&path(rel))
+        } else {
+            crate::vault::public_read::read_snapshot_file(&self.hub_dir, &path(rel))
+        };
+        match bytes.and_then(|bytes| Note::parse(kind, project, rel, &bytes)) {
             Ok(note) => self.order.push(note),
             Err(e) => self.warning(rel, e),
         }
     }
     pub(super) fn load_plan(&mut self, project: &[u8], rel: &[u8]) {
         let full = self.hub_dir.join(path(rel));
-        let result = crate::gitops::recover_plan_temp(&full.join("plan.md"))
-            .and_then(|_| plan::load_path(&full));
+        let result = if self.recover {
+            crate::gitops::recover_plan_temp(&full.join("plan.md"))
+        } else {
+            Ok(())
+        }
+        .and_then(|_| plan::load_path(&full));
         let mut bundle = match result {
             Ok(b) => b,
             Err(e) => {

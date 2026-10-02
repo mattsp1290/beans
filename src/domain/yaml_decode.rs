@@ -1,4 +1,4 @@
-//! Shared yaml.v3 scalar and aggregate-error conventions.
+//! Shared scalar validation and aggregate diagnostics.
 use super::{
     frontmatter::{Error, Node, NodeKind},
     issue::quoted,
@@ -29,7 +29,7 @@ pub(crate) fn type_error(node: &Node, target: &str) -> String {
         String::new()
     } else {
         let value = if value.len() > 10 {
-            // yaml.v3 truncates to seven bytes. Go's JSON encoder replaces
+            // Diagnostic snippets bound their length to seven bytes, replacing
             // each invalid trailing byte separately when a rune is split.
             let end = value.floor_char_boundary(7);
             format!("{}{}...", &value[..end], "�".repeat(7 - end))

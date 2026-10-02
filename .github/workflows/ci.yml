@@ -6,207 +6,46 @@ on:
   push:
     branches:
       - main
-      - mvp/rust-yaml-compatibility
+      - mvp/rust-only-cutover
+      - mvp/rust-only-cutover-cleanup
+      - mvp/rust-only-cutover-final-journey
   pull_request:
 
 permissions:
   contents: read
 
 jobs:
-  yaml-upstream:
-    name: YAML upstream compatibility (Linux)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version: '1.25.7'
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-      - name: Install the pinned Rust compiler
-        run: rustup toolchain install 1.98.1 --profile minimal
-      - name: Recapture immutable Go and compare every production YAML observation
-        run: make compat-yaml-upstream
-      - name: Preserve exact-head recapture, comparisons, negative controls and demo
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: yaml-upstream-linux-${{ github.sha }}
-          path: .compat/yaml-upstream
-          if-no-files-found: error
-
   rust:
-    name: Rust foundation (Linux)
+    name: Rust product and verification (Linux)
+    needs: ui
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+      - name: Download the built UI
+        uses: actions/download-artifact@v8
+        with:
+          name: ui-dist
+          path: ui/dist
       - name: Install the pinned compiler and checks
-        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools
-      - name: Build, test, format and lint the locked workspace
-        run: make rust-build rust-test rust-check
-      - name: Observe real codec calls to the verified splice bodies
-        run: make verify-codec-coupling
+        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools --component rustc-dev
+      - name: Build and check the Rust product with the complete UI
+        run: make build vet lint tidy-check skill-test
+      - name: Execute native safety, proofs and production coupling controls
+        run: make verify
       - name: Preserve compiler coverage and coupling evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: codec-kernel-coupling-linux
-          path: .compat/verification/codec-coupling
-          if-no-files-found: error
-
-  toolchain:
-    name: Verus toolchain (Linux)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-      - name: Install the pinned compiler components
-        run: rustup toolchain install 1.98.1 --profile minimal --component rustc-dev --component llvm-tools
-      - name: Qualify Cargo erasure, verification and a rejected body mutation
-        run: make verify-toolchain
-      - name: Verify kernel contracts and reject removed safety guards
-        run: make verify-kernel
-      - name: Preserve toolchain evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: verus-toolchain-linux
           path: |
-            .compat/verification/*.json
-            .compat/verification/*.log
-          if-no-files-found: warn
-
-  native-baseline:
-    name: native-baseline (Linux)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-      - name: Qualify the immutable Go baseline on this native runner
-        run: python -S tools/compat/native.py
-      - name: Preserve native evidence, including failures
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: native-baseline-linux
-          path: .compat/native
+            .verification/codec-coupling
+            .verification/native/report.json
+            .verification/retry-coupling
+            .verification/*.json
+            .verification/*.log
+          include-hidden-files: true
           if-no-files-found: error
-
-  contract:
-    name: contract
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-      - name: Build fixed baseline and reconcile the command census
-        run: |
-          make compat-reference
-          diff -u tests/contract/commands.json .compat/reference/commands.json
-          python3 -S tools/compat/build_reference.py --output .compat/version-override --version contract-override
-          make compat-frontmatter
-          make compat-templates
-          make compat-ids
-          make compat-request-lifecycle
-          make compat-requests
-          make compat-memories
-          make compat-handoffs
-          make compat-plan-foundation
-          make compat-plan-graph
-          make compat-plan-encode
-          make compat-plan-parse
-          make compat-plan-ref
-          make compat-plan-bundle
-          make compat-plan-bytes
-          make compat-config-foundation
-          make compat-config-codec
-          make compat-workflow-file
-          make compat-paths
-          make compat-remote
-          make compat-resolve
-          make compat-project-files
-          make compat-raw-diagnostics
-          make compat-context
-          make compat-index-graph
-          make compat-recovery
-          make compat-markdown-links
-          make compat-doc-metadata
-          make compat-index
-          make compat-query
-          make compat-raw-codec
-          make compat-raw-reader
-          make compat-utf16-reader
-          make compat-scalar-comment
-          make compat-raw-log
-      - name: Install the pinned Rust compiler for cross-language reading
-        run: rustup toolchain install 1.98.1 --profile minimal
-      - name: Read actual Rust-generated issue files with the fixed Go reader
-        run: make compat-domain-read
-      - name: Read actual Rust-generated requests with the fixed Go reader
-        run: make compat-request-read
-      - name: Read actual Rust-generated memories with the fixed Go reader
-        run: make compat-memory-read
-      - name: Read actual Rust raw-frontmatter documents with the fixed Go reader
-        run: make compat-raw-reader-read
-      - name: Read actual Rust UTF-16 frontmatter documents with the fixed Go reader
-        run: make compat-utf16-reader-read
-      - name: Read actual Rust scalar comment edits with the fixed Go reader
-        run: make compat-scalar-comment-read
-      - name: Read actual Rust raw log appends with the fixed Go reader
-        run: make compat-raw-log-read
-      - name: Read actual Rust raw-body documents with the fixed Go reader
-        run: make compat-raw-codec-read
-      - name: Read actual Rust-generated handoffs with the fixed Go reader
-        run: make compat-handoff-read
-      - name: Read actual Rust-generated plan manifests with the fixed Go reader
-        run: make compat-plan-encode-read
-      - name: Read actual Rust graph-reference edits with the fixed Go reader
-        run: make compat-plan-ref-read
-      - name: Read actual Rust bundle snapshots with the fixed Go validator
-        run: make compat-plan-bundle-read
-      - name: Read actual Rust configuration files with the fixed Go loaders
-        run: make compat-config-codec-read
-      - name: Read actual Rust project files with the fixed Go strict workflow decoder
-        run: make compat-workflow-file-read
-      - name: Replay the oracle and reject deliberately broken candidates
-        run: make compat-cli compat-http compat-journey compat-signals compat-io compat-test
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24.12.0'
-      - name: Build and compare full embedded UI assets
-        run: make compat-assets-reference compat-assets
-      - name: Preserve contract mismatches
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: contract-failures-linux
-          path: |
-            .compat/failures
-            .compat/cross-read
-          if-no-files-found: ignore
 
   ui:
     name: ui
@@ -238,58 +77,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      # The go job embeds this build so the release binary carries the real
-      # UI; a plain `go build` without it still compiles against the
-      # committed placeholder.
+      # The Rust job embeds and tests this complete app.
       - name: Upload the built UI
         uses: actions/upload-artifact@v7
         with:
           name: ui-dist
           path: ui/dist
           if-no-files-found: error
-
-  go:
-    name: go
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: ui
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Download the built UI
-        uses: actions/download-artifact@v8
-        with:
-          name: ui-dist
-          path: ui/dist
-
-      - name: Setup Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: Vet
-        run: make vet
-
-      # The action runs `golangci-lint run` itself with the pinned version and
-      # the repository's .golangci.yml; locally, `make lint` is the same command.
-      - name: Lint
-        uses: golangci/golangci-lint-action@v8
-        with:
-          version: v2.12.2
-
-      - name: Test
-        run: make test
-
-      - name: Build
-        run: make build
-
-      - name: Tidy check
-        run: make tidy-check
-
-      - name: Version is linked and the UI is embedded
-        run: |
-          ./bin/bn --version
-          ./bin/bn --help >/dev/null
-          test "$(ls ui/dist/assets | wc -l)" -gt 0

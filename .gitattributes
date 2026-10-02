@@ -1,4 +1,4 @@
-# Migration contracts are bytes, including intentionally invalid CRLF input.
+# Lossless native fixtures retain exact bytes, including intentionally invalid CRLF.
 tests/fixtures/** -text
-tests/fixtures/go-baseline/issue/testdata/roundtrip/err_windows.md -diff
+tests/fixtures/native-baseline/issue/testdata/roundtrip/err_windows.md -diff
 tests/fixtures/**/*.png -diff

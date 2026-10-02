@@ -43,7 +43,7 @@ pub(crate) fn rename_error(from: &Path, to: &Path, error: io::Error) -> Error {
     Error::from_bytes(bytes)
 }
 
-/// Go os.Rename checks a directory destination first and reports EEXIST,
+/// Directory destinations are reported as EEXIST,
 /// prioritizing a bad source path before that error. Linux rename alone reports
 /// EISDIR for a regular file onto a directory.
 pub(crate) fn rename(from: &Path, to: &Path) -> Result<(), Error> {

@@ -1,4 +1,4 @@
-//! yaml.v3 issue codecs splice physical lines, including coincident spans in
+//! Lossless codecs splice physical lines, including coincident spans in
 //! flow-root mappings. Replay that ordering with source provenance, then derive
 //! nonoverlapping original-byte edits for the verified byte-copy engine.
 use super::frontmatter::{Error, Field};
@@ -91,7 +91,7 @@ pub(super) fn owned_edits(
         ));
     }
     // Stable descending start; a pure insertion at a replacement's start is
-    // replayed first. This also reproduces Go's same-line flow mapping quirks.
+    // replayed first so coincident physical-line replacements remain ordered.
     edits.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| (b.0 == b.1).cmp(&(a.0 == a.1))));
     for (start, end, lines) in edits {
         if start > end || end > pieces.len() {

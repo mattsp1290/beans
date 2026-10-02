@@ -14,7 +14,7 @@ mod syntax;
 mod tree;
 use tree::{Node, line};
 
-pub(super) fn equal_field(actual: &str, expected: &str) -> bool {
+pub(crate) fn equal_field(actual: &str, expected: &str) -> bool {
     actual
         .chars()
         .map(|c| match c {
@@ -76,7 +76,7 @@ impl<'a> Context<'a> {
     }
     fn list(&self, value: &Spanned<Node>) -> Result<States, Error> {
         if let Node::Array(values) = value.get_ref() {
-            // Go retains the array field's line/key even for bad later items.
+            // Keep the array field's line/key when a later item is invalid.
             values
                 .iter()
                 .map(|v| self.string(v))
@@ -113,7 +113,7 @@ impl<'a> Context<'a> {
             } else if equal_field(key, "terminal") {
                 cfg.terminal = context.list(value)?;
             } else if equal_field(key, "transitions") {
-                // Go's map unifier silently ignores non-table values.
+                // Non-table values do not supply transition entries.
                 if let Node::Table(values) = value.get_ref()
                     && value.get_ref().go_type(self.source, value.span()) == "map[string]any"
                 {

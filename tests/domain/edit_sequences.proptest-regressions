@@ -1,5 +1,5 @@
 # The initial model incorrectly expected a plain supplementary Unicode scalar.
-# Go-compatible YAML emits the supplementary scalar as a quoted \U escape;
+# The native YAML emitter writes the supplementary scalar as a quoted \U escape;
 # the independent byte model now spells out that representation.
 # Seeds for failure cases proptest has generated in the past. It is
 # automatically read and these particular cases re-run before any

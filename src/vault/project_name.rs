@@ -19,7 +19,7 @@ pub fn project_name(mut input: &[u8]) -> String {
             ),
         };
         for ch in std::str::from_utf8(&input[..valid]).unwrap().chars() {
-            // Go applies simple Unicode lowercasing, not expanding case folding.
+            // Stored project names use one lowercased scalar rather than case folding.
             let ch = ch.to_lowercase().next().unwrap();
             name.push(
                 if ch.is_ascii_lowercase() || ch.is_ascii_digit() || ch == '-' {
@@ -29,7 +29,7 @@ pub fn project_name(mut input: &[u8]) -> String {
                 },
             );
         }
-        // Go's range loop emits one replacement rune for each malformed byte.
+        // Each malformed byte contributes one separator.
         name.extend(std::iter::repeat_n('-', invalid));
         input = &input[valid + invalid..];
     }
@@ -40,9 +40,9 @@ pub fn project_name(mut input: &[u8]) -> String {
 mod tests {
     use super::*;
     #[test]
-    fn every_unicode_scalar_matches_go_project_name_lowering() {
+    fn every_unicode_scalar_preserves_project_name_rules() {
         let fixture: serde_json::Value =
-            serde_json::from_str(include_str!("../../tests/contract/paths.json")).unwrap();
+            serde_json::from_str(include_str!("../../tests/fixtures/expected/paths.json")).unwrap();
         let mapping: Vec<(u32, u32)> =
             serde_json::from_value(fixture["ascii_lower"].clone()).unwrap();
         for cp in 0..=0x10ffff {

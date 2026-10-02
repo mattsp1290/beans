@@ -8,6 +8,8 @@ mod config_foundation;
 mod context;
 #[path = "domain/creation.rs"]
 mod creation;
+#[path = "domain/diagnostics.rs"]
+mod diagnostics;
 #[path = "domain/document.rs"]
 mod document;
 #[path = "domain/graph.rs"]
@@ -57,9 +59,11 @@ use proptest::prelude::*;
 use serde_json::Value;
 
 #[test]
-fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture() {
-    let corpus: Value = serde_json::from_str(include_str!("contract/frontmatter-primitives.json"))
-        .expect("committed Go corpus");
+fn frontmatter_nodes_and_byte_spans_match_committed_contract_for_every_roundtrip_fixture() {
+    let corpus: Value = serde_json::from_str(include_str!(
+        "fixtures/expected/frontmatter-primitives.json"
+    ))
+    .expect("committed stored-format corpus");
     let cases = corpus["cases"].as_array().unwrap();
     assert_eq!(cases.len(), 70);
     for case in cases {
@@ -109,9 +113,11 @@ fn frontmatter_nodes_and_byte_spans_match_fixed_go_for_every_roundtrip_fixture()
 }
 
 #[test]
-fn link_parsing_and_creation_match_go_without_normalizing_bare_ids() {
-    let corpus: Value =
-        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+fn link_parsing_and_creation_match_committed_contract_without_normalizing_bare_ids() {
+    let corpus: Value = serde_json::from_str(include_str!(
+        "fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["links"].as_array().unwrap() {
         let input = case["input"].as_str().unwrap();
         let parsed = Link::parse(input);
@@ -171,7 +177,7 @@ fn invalid_edit_requests_leave_the_original_document_untouched() {
 }
 
 #[test]
-fn scalar_and_list_coercion_distinguish_null_and_aliases_like_go() {
+fn scalar_and_list_coercion_distinguish_null_and_aliases_per_stored_format() {
     let source = "---\nnull: null\nquoted: 'null'\nlist: [null, ~, true, 12]\noriginal: &s value\nalias: *s\n---\n";
     let parsed = Frontmatter::parse("x.md", source).unwrap();
     let fields = parsed.fields();
@@ -247,10 +253,12 @@ proptest! {
 }
 
 #[test]
-fn typed_issue_metadata_and_validation_match_fixed_go() {
+fn typed_issue_metadata_and_validation_match_committed_contract() {
     use beans::domain::issue::IssueDocument;
-    let corpus: Value =
-        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    let corpus: Value = serde_json::from_str(include_str!(
+        "fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let input = case["input"].as_str().unwrap();
         let result = IssueDocument::parse(case["path"].as_str().unwrap(), input);
@@ -293,10 +301,12 @@ fn typed_issue_metadata_and_validation_match_fixed_go() {
 }
 
 #[test]
-fn stored_logs_match_go_parsing_formatting_and_section_appending() {
+fn stored_logs_match_committed_contract_parsing_formatting_and_section_appending() {
     use beans::domain::log::{LogEntry, append_to_section, parse_section};
-    let corpus: Value =
-        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    let corpus: Value = serde_json::from_str(include_str!(
+        "fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["log_cases"].as_array().unwrap() {
         let parsed = LogEntry::parse(case["input"].as_str().unwrap());
         assert_eq!(
@@ -344,10 +354,12 @@ fn stored_logs_match_go_parsing_formatting_and_section_appending() {
 }
 
 #[test]
-fn issue_body_mutations_match_go_without_rewriting_original_logs() {
+fn issue_body_mutations_match_committed_contract_without_rewriting_original_logs() {
     use beans::domain::{issue::IssueDocument, log::LogEntry};
-    let corpus: Value =
-        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    let corpus: Value = serde_json::from_str(include_str!(
+        "fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let Some(mutations) = case.get("mutations") else {
             continue;
@@ -400,10 +412,12 @@ fn issue_body_mutations_match_go_without_rewriting_original_logs() {
 }
 
 #[test]
-fn issue_owned_field_edits_match_go_full_documents() {
+fn issue_owned_field_edits_match_committed_contract_full_documents() {
     use beans::domain::{issue::IssueDocument, text::Link};
-    let corpus: Value =
-        serde_json::from_str(include_str!("contract/frontmatter-primitives.json")).unwrap();
+    let corpus: Value = serde_json::from_str(include_str!(
+        "fixtures/expected/frontmatter-primitives.json"
+    ))
+    .unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let Some(edits) = case.get("edits") else {
             continue;
@@ -518,6 +532,3 @@ mod raw_diagnostics;
 
 #[path = "domain/plan_bytes.rs"]
 mod plan_bytes;
-
-#[path = "domain/yaml_upstream.rs"]
-mod yaml_upstream;

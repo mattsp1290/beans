@@ -125,3 +125,12 @@ Graph-node refs are the sole plan-to-issue binding. Direct replay-safe link
 mutations avoid stale whole-bundle replacement; execution is derived from live
 issue workflow and blockers, never changes plan lifecycle, and stale `put`
 requires a fresh base and explicit merge.
+
+## 2026-10-02: Rust product and native safety checks
+
+The current product is a locked Rust workspace. Native domain, CLI and HTTP
+regressions own their fixtures; build/install/release commands compile Rust and
+embed Svelte assets. Same-source retry/splice proofs have executable negative
+controls and production LLVM coupling checks. Agent workflows call the canonical
+Rust workflow and restricted YAML interfaces. Earlier dated implementation
+references document decisions at the time and do not define current build paths.

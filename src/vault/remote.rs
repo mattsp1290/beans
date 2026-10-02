@@ -1,5 +1,5 @@
 use super::{
-    go_lower::lower,
+    lowercase::lower,
     paths::clean,
     remote_url::{self, Url},
 };

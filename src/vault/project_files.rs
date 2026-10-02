@@ -11,14 +11,32 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// Existing files (including directories and valid symlinks) are left alone.
-/// Stat errors other than ENOENT are skipped as in the Go implementation.
+/// Existing regular files and directories are left alone. The complete batch
+/// rejects symlink destinations and unsafe ancestors before any writes.
 /// On failure earlier writes remain, but no staging paths are returned.
 pub fn create_project_files(
     hub: &Path,
     name: &[u8],
     remote: &[u8],
 ) -> Result<Option<Vec<Vec<u8>>>, Error> {
+    // Validate the complete batch before creating any project files.
+    for tail in [
+        "beans.toml",
+        "issues/.gitkeep",
+        "archive/.gitkeep",
+        "docs/.gitkeep",
+        "memories/.gitkeep",
+        "requests/.gitkeep",
+        "handoffs/.gitkeep",
+        "handoffs/archive/.gitkeep",
+    ] {
+        let relative = PathBuf::from(OsString::from_vec(join(&[
+            b"projects",
+            name,
+            tail.as_bytes(),
+        ])));
+        crate::gitops::check_hub_write_path(hub, &relative)?;
+    }
     let mut paths = Vec::new();
     for tail in [
         b"beans.toml".as_slice(),
@@ -48,7 +66,11 @@ pub fn create_project_files(
         } else {
             Vec::new()
         };
-        crate::gitops::write_file(&full, &bytes)?;
+        crate::gitops::write_hub_file(
+            hub,
+            &PathBuf::from(OsString::from_vec(relative.clone())),
+            &bytes,
+        )?;
         paths.push(relative);
     }
     Ok((!paths.is_empty()).then_some(paths))

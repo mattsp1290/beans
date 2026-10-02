@@ -35,7 +35,7 @@ fn valid_file_name(name: &[u8]) -> bool {
     name == b"plan.md" || valid_section_path(name)
 }
 
-// Go's path.Join is lexical and uses '/' even when the root contains redundant
+// Bundle path joining is lexical and uses '/' even when the root contains redundant
 // separators or dot segments. The root retained on Bundle itself is unmodified.
 pub fn load_snapshot(root: &str, snapshot: &BundleSnapshot) -> Result<Bundle, Error> {
     load_snapshot_bytes(root.as_bytes(), snapshot)
@@ -112,7 +112,7 @@ pub fn load_snapshot_bytes(root: &[u8], snapshot: &BundleSnapshot) -> Result<Bun
 }
 
 impl Bundle {
-    /// Go deliberately ignores manifest encoding errors here; publication
+    /// Snapshot capture retains manifest bytes; publication
     /// validation is a separate operation. Sections overwrite repeated paths.
     pub fn snapshot(&self) -> BundleSnapshot {
         let mut snapshot = BundleSnapshot::default();
@@ -204,6 +204,11 @@ pub fn load(root: &str) -> Result<Bundle, Error> {
     load_path(Path::new(root))
 }
 pub fn load_path(path: &Path) -> Result<Bundle, Error> {
+    let snapshot = capture_snapshot(path)?;
+    load_snapshot_bytes(path.as_os_str().as_bytes(), &snapshot)
+}
+/// Capture validated bundle bytes without normalizing authored manifest text.
+pub fn capture_snapshot(path: &Path) -> Result<BundleSnapshot, Error> {
     let root = path.as_os_str().as_bytes();
     let metadata = fs::symlink_metadata(path).map_err(|e| path_error("lstat", path, e))?;
     if !metadata.is_dir() || metadata.file_type().is_symlink() {
@@ -211,7 +216,8 @@ pub fn load_path(path: &Path) -> Result<Bundle, Error> {
     }
     let mut snapshot = BundleSnapshot::default();
     capture(path, path, &mut snapshot, &mut 0)?;
-    load_snapshot_bytes(root, &snapshot)
+    load_snapshot_bytes(root, &snapshot)?;
+    Ok(snapshot)
 }
 
 pub fn write_scaffold(
@@ -242,7 +248,7 @@ pub fn write_scaffold_path(
             .mode(0o644)
             .open(&file_path)
             .map_err(|e| path_error("open", &file_path, e))?;
-        // Go File.Write retries EINTR but reports a successful short write
+        // Writes retry EINTR but report a successful short write
         // instead of silently completing it with a second write.
         let written = loop {
             match file.write(&data) {

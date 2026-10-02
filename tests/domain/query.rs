@@ -101,8 +101,9 @@ fn compare(ix: &Index, expected: &Value) {
     assert_eq!(json!(ix.cycles()), expected["cycles"]);
 }
 #[test]
-fn queries_match_fixed_go_on_loaded_files_and_reload() {
-    let corpus: Value = serde_json::from_str(include_str!("../contract/query.json")).unwrap();
+fn queries_match_committed_contract_on_loaded_files_and_reload() {
+    let corpus: Value =
+        serde_json::from_str(include_str!("../fixtures/expected/query.json")).unwrap();
     for (i, case) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let hub = super::index::hub(&format!("query-{i}"), false);
         // The standalone fixture owns project configuration; clear the helper seed.

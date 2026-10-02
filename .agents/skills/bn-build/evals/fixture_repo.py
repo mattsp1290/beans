@@ -6,6 +6,7 @@ import json
 import argparse
 import os
 from pathlib import Path
+import shutil
 import re
 import subprocess
 import sys
@@ -34,16 +35,12 @@ def build_bn(root: Path) -> Path:
     binary = root / "bin/bn"
     binary.parent.mkdir(parents=True, exist_ok=True)
     env = isolated_env(root)
-    env.update({"GOPROXY": "off", "GOSUMDB": "off", "GOTOOLCHAIN": "local", "GOCACHE": str(root / "go-build-cache")})
-    # Invoke an already installed module toolchain directly: auto-toolchain mode
-    # otherwise insists on checksum-service verification even when cached.
-    modcache = subprocess.run(["go", "env", "GOMODCACHE"], env=env, text=True,
-                              capture_output=True, check=True).stdout.strip()
-    version = re.search(r"^go (\S+)$", (REPOSITORY / "go.mod").read_text(), re.M).group(1)
-    candidates = sorted(Path(modcache).glob(f"golang.org/toolchain@v*-go{version}.*/bin/go"))
-    compiler = str(candidates[0]) if candidates else "go"
-    result = subprocess.run([compiler, "build", "-o", str(binary), "./cmd/bn"], cwd=REPOSITORY,
+    target = root / "rust-build-cache"
+    env["CARGO_TARGET_DIR"] = str(target)
+    result = subprocess.run(["cargo", "build", "--offline", "--locked", "--bin", "bn"], cwd=REPOSITORY,
                             env=env, text=True, capture_output=True)
+    if result.returncode == 0:
+        shutil.copy2(target / "debug/bn", binary)
     if result.returncode:
         raise RuntimeError("offline source build failed: " + result.stderr)
     return binary

@@ -1,4 +1,4 @@
-//! Development-only measurement of the production loader on the WP1 fixture.
+//! Development-only measurement of the production loader on a supplied hub fixture.
 use beans::vault::{Index, NoteData};
 use serde_json::json;
 use std::{path::PathBuf, time::Instant};

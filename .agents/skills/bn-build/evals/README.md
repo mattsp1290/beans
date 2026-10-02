@@ -10,17 +10,16 @@ Latest local mechanism verification: **18 tests passed in 96.756 seconds**. This
 result includes the first-parent integration, publication and exclusive-home
 regressions; it is not a forward-agent or product-pilot qualification claim.
 
-This command builds the evaluated `cmd/bn` source offline into a fresh temporary
+This command builds the evaluated `src` Rust source offline into a fresh temporary
 root and runs the public helper as subprocesses against actual Git repositories
 and actual Beans mutations. Each case has independent builder/auditor source and
 hub clones, local bare remotes, configuration, Beans caches, traces, and ownership
 state. `BEANS_HOME`, `BEANS_HUB`, project, actor and Git global configuration are
 explicit. Inherited `BN_CONFIG` and Git configuration overrides are removed;
 the workflow override case adds one explicit disposable `BN_CONFIG`.
-`GIT_ALLOW_PROTOCOL=file` prevents network Git transports. The Go compiler and
-already cached dependency modules are read-only build inputs; `GOPROXY=off`,
-`GOSUMDB=off`, `GOTOOLCHAIN=local` and a disposable Go build cache prevent downloads
-and avoid changing global binaries. Missing cached build prerequisites fail the
+`GIT_ALLOW_PROTOCOL=file` prevents network Git transports. The pinned Rust compiler and cached crates are read-only build inputs;
+`cargo build --offline --locked` with a disposable target directory prevents
+downloads and global binary changes. Missing cached prerequisites fail the
 evaluation. No fixture accesses the user's real Beans hub.
 
 Before its first mutation the fixture asserts configuration/cache/hub paths are

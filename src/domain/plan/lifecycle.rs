@@ -84,7 +84,7 @@ fn regex_space(byte: u8) -> bool {
     matches!(byte, b' ' | b'\t' | b'\n' | b'\r' | 0x0c)
 }
 fn ordered_items(value: &str) -> bool {
-    // Go's (?m)^\s*\d+\.\s+\S uses ASCII Perl classes. The whitespace
+    // Numbered execution steps use ASCII whitespace and digit classes. The whitespace
     // may cross line boundaries; Unicode spaces and vertical tab are not \s.
     let bytes = value.as_bytes();
     let mut start = 0;

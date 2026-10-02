@@ -5,13 +5,13 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 fn corpus() -> Value {
-    serde_json::from_str(include_str!("../contract/workflow-file.json")).unwrap()
+    serde_json::from_str(include_str!("../fixtures/expected/workflow-file.json")).unwrap()
 }
 fn bytes(value: &Value) -> Vec<u8> {
     serde_json::from_value(value.clone()).unwrap()
 }
 #[test]
-fn strict_workflow_files_match_go() {
+fn strict_workflow_files_match_committed_contract() {
     let corpus = corpus();
     let mut mismatches = Vec::new();
     assert_eq!(corpus["decodes"].as_array().unwrap().len(), 374);
@@ -22,7 +22,10 @@ fn strict_workflow_files_match_go() {
             Err(e) => (WorkflowFile::default(), e.to_string()),
         };
         let cfg = serde_json::to_value(cfg).unwrap();
-        if cfg != row["file_config"] || error != row["error"] {
+        if cfg != row["file_config"]
+            || super::diagnostics::text(&error)
+                != super::diagnostics::text(row["error"].as_str().unwrap())
+        {
             mismatches.push(format!(
                 "{}: config {cfg} != {}; error {error:?} != {}",
                 row["name"], row["file_config"], row["error"]
@@ -50,7 +53,7 @@ impl Drop for TempDir {
     }
 }
 #[test]
-fn workflow_source_precedence_and_explicit_files_match_go() {
+fn workflow_source_precedence_and_explicit_files_match_committed_contract() {
     let corpus = corpus();
     let mut mismatches = Vec::new();
     assert_eq!(corpus["loads"].as_array().unwrap().len(), 131);
@@ -93,7 +96,10 @@ fn workflow_source_precedence_and_explicit_files_match_go() {
             ),
         };
         let cfg = serde_json::to_value(cfg).unwrap();
-        if cfg != row["config"] || error != row["error"] {
+        if cfg != row["config"]
+            || super::diagnostics::text(&error)
+                != super::diagnostics::text(row["error"].as_str().unwrap())
+        {
             mismatches.push(format!(
                 "{}: config {cfg} != {}; error {error:?} != {}",
                 row["name"], row["config"], row["error"]

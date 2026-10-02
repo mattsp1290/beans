@@ -59,7 +59,7 @@ pub fn parse_summary_bytes(path: &[u8], body: &str) -> Result<(Summary, ChangeGr
     }
     for i in 0..5 {
         let Some(current) = starts[i] else {
-            // Go formats the missing index (-1), not its name, using %q.
+            // A missing section index is -1; the diagnostic quotes that index.
             return Err(fail("missing Summary subsection '�'"));
         };
         if i > 0 && current < starts[i - 1].unwrap() {

@@ -1,14 +1,24 @@
-//! Application boundaries are added after the mandatory kernel gate passes.
-//! Go remains the installed/default implementation during the migration.
+//! Native application boundaries built on the verified kernel and retained domain.
 pub use beans_kernel as kernel;
 pub mod cli;
 pub mod domain;
 pub mod gitops;
 pub mod markdown;
 pub mod ops;
+pub mod server;
 pub mod vault;
 
-/// Process entry wiring; command adapters are implemented in WP6.
+/// Native command dispatch.
 pub fn run() -> std::process::ExitCode {
-    std::process::ExitCode::FAILURE
+    if std::env::args_os().len() == 1 {
+        println!("{}", cli::command().render_long_help());
+        return std::process::ExitCode::SUCCESS;
+    }
+    match cli::execute(cli::command().get_matches()) {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("bn: {error}");
+            std::process::ExitCode::FAILURE
+        }
+    }
 }

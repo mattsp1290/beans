@@ -1,5 +1,5 @@
 //! Byte-oriented output matching the existing BurntSushi configuration writer.
-//! Go strings can contain invalid UTF-8, so output deliberately remains bytes.
+//! Authored fields can contain invalid UTF-8, so output remains bytes.
 use super::{ProjectConfig, UserConfig};
 use crate::domain::{workflow::States, yaml_string::YamlString};
 

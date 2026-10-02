@@ -1,2 +1,0 @@
-- [ ] Todo item
-- [x] Done item

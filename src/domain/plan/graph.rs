@@ -90,14 +90,7 @@ pub fn parse_graph(path: &str, text: &str) -> Result<ChangeGraph, GraphError> {
     parse_graph_bytes(path.as_bytes(), text)
 }
 pub fn parse_graph_bytes(path: &[u8], text: &str) -> Result<ChangeGraph, GraphError> {
-    parse_graph_raw(path, text.as_bytes())
-}
-
-/// Parse a graph document while preserving raw YAML bytes, including BOM encoding.
-pub fn parse_graph_raw(path: &[u8], raw: &[u8]) -> Result<ChangeGraph, GraphError> {
     let view = YamlString::from_bytes(path.into()).to_string();
-    let source = crate::domain::source::Source::new(raw);
-    let text = source.text.as_str();
     let empty = ChangeGraph::default();
     let lines: Vec<_> = text.split('\n').collect();
     let mut start = None;
@@ -122,19 +115,7 @@ pub fn parse_graph_raw(path: &[u8], raw: &[u8]) -> Result<ChangeGraph, GraphErro
             empty,
         ));
     }
-    let content_start = lines[..=start]
-        .iter()
-        .map(|line| line.len() + 1)
-        .sum::<usize>();
-    let content_end = lines[..end]
-        .iter()
-        .map(|line| line.len() + 1)
-        .sum::<usize>()
-        .saturating_sub(1)
-        .max(content_start);
-    let yaml_raw = &raw[source.offsets[content_start]..source.offsets[content_end]];
-    let yaml_source = crate::domain::source::Source::yaml(yaml_raw);
-    let yaml = yaml_source.text;
+    let yaml = lines[start + 1..end].join("\n");
     if yaml.trim().is_empty() {
         return Err(failure(
             path,
@@ -142,7 +123,7 @@ pub fn parse_graph_raw(path: &[u8], raw: &[u8]) -> Result<ChangeGraph, GraphErro
             empty,
         ));
     }
-    let root = crate::domain::yaml::parse_optional_raw(&view, &yaml, yaml_raw)
+    let root = crate::domain::yaml::parse_optional(&view, &yaml)
         .map_err(|error| GraphError {
             graph: empty.clone(),
             message: graph_yaml_error(error, &view, path),

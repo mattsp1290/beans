@@ -99,7 +99,7 @@ impl Index {
         out
     }
     pub fn project_requests(&self, filter: &RequestFilter) -> Vec<&Note> {
-        let query = super::go_lower::lower(
+        let query = super::lowercase::lower(
             YamlString::from_bytes(filter.query.clone())
                 .trimmed()
                 .as_bytes(),
@@ -137,7 +137,7 @@ impl Index {
                     n.body.as_slice(),
                 ]
                 .join(&b'\n');
-                contains(&super::go_lower::lower(&fields), &query)
+                contains(&super::lowercase::lower(&fields), &query)
             })
             .collect();
         out.sort_by(|a, b| {

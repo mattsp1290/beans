@@ -34,7 +34,7 @@ pub struct Node {
 }
 
 impl Node {
-    /// yaml.v3's owned string fields accept any scalar's text, including
+    /// Owned string fields accept any scalar's text, including
     /// numeric and boolean spellings. Null becomes empty; aliases are rejected.
     pub fn scalar(&self, key: &str) -> Result<&str, Error> {
         if self.kind != NodeKind::Scalar {
@@ -80,7 +80,7 @@ pub struct Field {
     pub key_line: usize,
     pub value: Node,
     /// Absolute byte positions in the original document, excluding preceding
-    /// or trailing blank/comment lines, matching Go's closeSpans policy.
+    /// or trailing blank/comment lines.
     pub start: usize,
     pub end: usize,
 }
@@ -281,7 +281,7 @@ impl Frontmatter {
             .unwrap_or(&self.source[self.fm_start..self.fm_end])
     }
 
-    /// Diagnostic lines follow yaml.v3's raw Unicode line-break counting.
+    /// Diagnostic lines include raw Unicode line breaks.
     /// Physical LF byte ranges remain separate for preservation/splicing.
     pub(crate) fn diagnostic_line(&self, yaml_line: usize) -> usize {
         let extra = self

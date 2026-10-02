@@ -45,7 +45,7 @@ fn sequence(output: &mut String, key: &str, values: &[YamlString]) -> Result<(),
     Ok(())
 }
 fn timestamp(value: &Timestamp) -> String {
-    // Match Go's March-based absolute epoch and wrapping uint64 seconds,
+    // Use a March-based absolute epoch and wrapping uint64 seconds,
     // including time.Unix values outside ordinary date-library ranges.
     const ABSOLUTE_YEARS: u64 = 292_277_022_400;
     const UNIX_TO_ABSOLUTE: u64 = (ABSOLUTE_YEARS * 146_097 / 400 + 306 + 719_162) * 86_400;
@@ -75,7 +75,7 @@ fn timestamp(value: &Timestamp) -> String {
     )
 }
 
-/// Go's plan writer emits canonical owned frontmatter and retains the body.
+/// The plan writer emits canonical owned frontmatter and retains the body.
 /// It validates status only; manifest and lifecycle validation are separate.
 pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
     let p = plan.ok_or_else(|| Error::new("nil plan".into()))?;
@@ -103,4 +103,23 @@ pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
         output.push('\n');
     }
     Ok(output.into_bytes())
+}
+
+/// Edit revision/body while retaining unrelated manifest spelling and comments.
+pub fn revise_manifest(source: &[u8], plan: &Plan) -> Result<Vec<u8>, Error> {
+    let document = crate::domain::frontmatter::Frontmatter::parse_bytes("plan.md", source)?;
+    let comment = document
+        .fields()
+        .iter()
+        .find(|f| f.key == "updated")
+        .map(|f| document.scalar_comment(f))
+        .unwrap_or_default();
+    let field = format!("updated: {}{}\n", timestamp(&plan.updated), comment);
+    Ok(document
+        .splice_owned(
+            &["updated"],
+            &[("updated", Some(field.as_bytes()))],
+            plan.body.as_bytes(),
+        )?
+        .bytes)
 }

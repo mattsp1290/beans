@@ -19,5 +19,5 @@
     "rust_verify": "0b701b0953e9ddc07cfac33e6b950efd90c812ce75dbe46c01831cf2529467a0"
   },
   "z3_version": "4.16.0",
-  "qualification": "Toolchain and mandatory WP2 pure kernel contracts plus 10 guard mutations passed on Linux x86_64 in CI run 36772355158; production caller coupling remains WP3/WP4."
+  "qualification": "Pinned native verification toolchain for the shipped retry/splice kernel. Production LLVM coupling and negative controls are permanent checks; exact-head proof evidence must come from native Linux x86_64 CI."
 }

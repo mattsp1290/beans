@@ -44,7 +44,9 @@ def sync_barrier(repo, c, hub, bn, allowed):
                 "pending commit changes files outside known milestone issues; recover manually", "unsynchronized")
     require(not git(hub, "status", "--porcelain", "--untracked-files=all"), "hub changed during preflight", "unsynchronized")
     synchronized = json.loads(run([bn, "sync", "--json"], repo).stdout)
-    require(synchronized.get("ahead") == 0 and synchronized.get("behind") == 0,
+    synchronized_status = synchronized.get("status")
+    require(synchronized.get("synced") is True and isinstance(synchronized_status, dict) and
+            synchronized_status.get("ahead") == 0 and synchronized_status.get("behind") == 0,
             "bn sync did not establish ahead=0, behind=0", "unsynchronized")
     head = git(hub, "rev-parse", "HEAD")
     actual = remote_refs(hub, remote, "refs/heads/" + branch)

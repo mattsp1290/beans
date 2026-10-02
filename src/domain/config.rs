@@ -5,6 +5,7 @@ mod decode;
 mod encode;
 mod toml_metadata;
 pub(crate) use decode::decode_workflow_toml;
+pub(crate) use decode::equal_field;
 pub use decode::{
     decode_hub_config, decode_project_config, decode_user_config, load_hub_config,
     load_project_config, load_user_config,

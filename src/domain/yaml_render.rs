@@ -130,7 +130,7 @@ pub(crate) fn scalar_value_indented(
             ""
         };
         let mut output = format!("|{indent}{chomp}\n");
-        // yaml.v3 emits the header break lazily. A leading LF in the
+        // Emit the header break lazily. A leading LF in the
         // value supplies that break rather than an extra content line.
         let content = value.strip_prefix('\n').unwrap_or(value);
         for line in content.split_inclusive('\n') {
@@ -272,7 +272,7 @@ pub(crate) fn implicit_tag(value: &str) -> &'static str {
     {
         return "!!int";
     }
-    // Go's numeric resolver only accepts decimal float syntax here.
+    // The numeric resolver accepts decimal float syntax here.
     if !number
         .chars()
         .all(|ch| ch.is_ascii_digit() || matches!(ch, '+' | '-' | '.' | 'e' | 'E'))
@@ -347,7 +347,7 @@ mod tests {
     #[test]
     fn owned_string_presentations_match_go() {
         let corpus: serde_json::Value = serde_json::from_str(include_str!(
-            "../../tests/contract/frontmatter-primitives.json"
+            "../../tests/fixtures/expected/frontmatter-primitives.json"
         ))
         .unwrap();
         for case in corpus["scalar_pairs"].as_array().unwrap() {
