@@ -29,6 +29,10 @@ SIGINT and SIGTERM close SSE producers, drain HTTP and stop the watcher.
 The existing UI routes and wire fields remain supported: health/projects;
 project issues, ready, requests and plans; issue/request/plan details; graph;
 docs tree and wildcard pages; indexed image assets; search; and `/api/events`.
+Known `created`, `updated` and log `at` fields are HTTP RFC3339 strings, preserving
+fractional nanoseconds and original numeric offsets. Shared domain/CLI JSON
+serialization remains unchanged. Requests body search uses the native request
+filter directly, including its case folding and surrounding-whitespace trimming.
 Issue POST/PATCH, note, close, reopen, dependency POST and dependency DELETE
 use `IssueMutation` through `Hub::mutate`. Request and plan HTTP resources are
 read-only. A project called `_all` selects all projects. Project configuration
@@ -52,7 +56,12 @@ filtered. Wikilinks resolve through the index, including aliases and heading
 fragments; note embeds expand one level, while nested note embeds become links.
 Indexed image embeds and Markdown images use the asset endpoint, with encoded
 spaces supported. Code spans and fences preserve literal wikilinks/embeds.
-Highlights, tables, tasks, footnotes, heading anchors and a heading TOC work.
+Local Markdown image destinations are percent-decoded exactly once before index
+lookup, then the canonical indexed path is encoded into the asset URL. Encoded
+spaces and angle-bracket space destinations work; traversal, encoded separators,
+double encoding and scheme-bearing decoded destinations cannot become indexed
+asset rewrites. Highlights, tables, tasks, footnotes, heading anchors and a heading
+TOC work.
 Callouts accept case-insensitive Obsidian markers and custom titles. Existing
 `.wikilink`, `.embed` and `.callout` CSS hooks remain present.
 
@@ -68,6 +77,15 @@ issue/config files cannot be read through those routes. Absolute paths, dot
 components, traversal, double-encoded traversal, backslashes and symlinks are
 rejected. Descriptor-relative `openat` with `O_NOFOLLOW` checks every component
 and requires a regular file.
+
+Hub-authored SVG retains its source bytes and image MIME type, but GET and HEAD
+apply `Content-Security-Policy: sandbox; default-src 'none'; script-src 'none';
+connect-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none';
+form-action 'none'`. The sandbox grants neither scripts nor same-origin access.
+Self-contained diagrams, inline styling and embedded data images remain usable;
+external SVG resources are blocked. This protects direct navigation and active
+object embeds as well as image display. The policy does not apply to trusted
+embedded application HTML/JavaScript. MIME and SVG recognition are case-insensitive.
 
 Two shared repairs accompany the HTTP adapter. Dependency add/remove compares
 resolved issue identity, so an ID can remove an older basename/alias edge
@@ -93,7 +111,7 @@ build metadata; otherwise the build uses the established
 `git describe --tags --match 'v*' --always --dirty` behavior, with worktree
 HEAD/index/ref inputs registered for Cargo rebuilds.
 
-This slice ran `cargo test --locked --workspace` (297 tests, including 12
+This slice ran `cargo test --locked --workspace` (301 tests, including 16
 native server tests), `cargo fmt --all --check`, `cargo clippy --workspace
 --all-targets --locked -- -D warnings`, UI tests (53), UI checking (zero errors
 or warnings), UI production build, release Cargo build and `git diff --check`.
@@ -119,3 +137,24 @@ resolver/tree regression mappings remain qualification work. Retained Go
 fixtures/source removal, native x86 proof CI, repository `make ci`, and final
 browser/manual acceptance belong to later coordination; this document does
 not claim all 225 retained regressions or the Rust-only product are qualified.
+
+
+The first review repair batch adds four real HTTP regressions for timestamp
+strings/fractions/offsets and unchanged domain JSON, native request-body query
+retention with surrounding whitespace, encoded/angle-space Markdown image
+rewrite and fetch boundaries, and SVG GET/HEAD sandbox policy with unchanged
+source bytes. Workspace, strict Clippy, formatting and diff checks passed;
+the unchanged UI also passed all 53 tests and checking with no errors/warnings.
+
+An actual Chromium 153.0.8010.12 security precheck exercised direct SVG
+navigation, image embeds, active object embeds and SVG link navigation. The
+protected document's script did not run, the image reported natural width 120,
+and sentinel issue bytes plus local/remote Git HEADs stayed unchanged. The same
+payload served by an explicitly unprotected test-only proxy executed and pushed
+a native issue note, establishing a working vulnerable control. Native server
+SIGTERM exited zero. That evolving repaired executable had SHA256
+`c883e94ab1a22fb7cf79770e8f1e348e61993e095c45aabd5698126348a2508d` and version
+`v0.2.0-133-gbdc6abd-dirty`; its ephemeral check source/result are
+`/tmp/craj-svg-policy-check.py` and `/tmp/craj-svg-policy-check.json`. This is
+repair evidence, not the new candidate's fresh independent attestations or
+final milestone browser acceptance, which remain coordinator-owned.

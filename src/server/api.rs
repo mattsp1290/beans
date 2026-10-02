@@ -135,7 +135,7 @@ pub fn handle(app: &App, method: &Method, uri: &Uri, body: &[u8]) -> Response {
             if *kind=="issues" && !q.get("archived").is_some_and(|v|v=="true") && q.get("status").is_none_or(|v|v.is_empty()) {
                 notes.retain(|n| !matches!(&n.data,NoteData::Issue(d) if index.workflow_for(&n.project).is_terminal(d.metadata.status.as_bytes())));
             }
-            json_response(notes.into_iter().map(|n|wire::note(&index,n,false)).filter(|v|["status","type"].iter().all(|k|q.get(*k).is_none_or(|expected|v[*k]==*expected)) && q.get("label").is_none_or(|l|v["labels"].as_array().is_some_and(|a|a.contains(&json!(l)))) && q.get("q").is_none_or(|s|v.to_string().to_lowercase().contains(&s.to_lowercase()))).collect::<Vec<_>>())
+            json_response(notes.into_iter().map(|n|wire::note(&index,n,false)).filter(|v|["status","type"].iter().all(|k|q.get(*k).is_none_or(|expected|v[*k]==*expected)) && q.get("label").is_none_or(|l|v["labels"].as_array().is_some_and(|a|a.contains(&json!(l)))) && (*kind=="requests" || q.get("q").is_none_or(|s|v.to_string().to_lowercase().contains(&s.to_lowercase())))).collect::<Vec<_>>())
         }
         ["api",kind @ ("issues" | "requests" | "plans"),id] => {
             let kind = match *kind {"issues"=>NoteKind::Issue,"requests"=>NoteKind::Request,_=>NoteKind::Plan};
@@ -156,7 +156,7 @@ pub fn handle(app: &App, method: &Method, uri: &Uri, body: &[u8]) -> Response {
             if !files::valid(&path) { return error(400,"invalid_path","invalid public path"); }
             if *kind == "assets" {
                 if !index.assets.contains(path.as_bytes()) { return error(404,"not_found","asset not found"); }
-                return match files::read(&app.hub.dir,&path) {Ok(bytes)=>files::response(&path,bytes),Err(_)=>error(404,"not_found","asset unavailable")};
+                return match files::read(&app.hub.dir,&path) {Ok(bytes)=>files::hub_asset_response(&path,bytes),Err(_)=>error(404,"not_found","asset unavailable")};
             }
             if !path.ends_with(".md") { path.push_str(".md"); }
             if let Some(note) = index.note_by_path(path.as_bytes()).filter(|n| matches!(n.graph.kind, NoteKind::Doc | NoteKind::Memory | NoteKind::Handoff)) {

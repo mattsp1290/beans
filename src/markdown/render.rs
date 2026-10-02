@@ -161,7 +161,9 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
                 *value = expanded.into();
             }
             NodeValue::Image(link) if !link.url.contains(':') && !link.url.starts_with('/') => {
-                if let Some(asset) = asset(index, path, &link.url) {
+                if let Some(target) = local_destination(&link.url)
+                    && let Some(asset) = asset(index, path, &target)
+                {
                     link.url = format!("/api/assets/{}", encode(&asset));
                 }
             }
@@ -304,4 +306,29 @@ fn callouts<'a>(root: &'a comrak::nodes::AstNode<'a>) {
             paragraph.detach();
         }
     }
+}
+
+// Markdown destinations are URL text; decode exactly once before index lookup.
+// Reject traversal and encoded separators even if basename lookup could resolve.
+fn local_destination(url: &str) -> Option<String> {
+    let mut bytes = Vec::new();
+    let mut input = url.bytes();
+    while let Some(byte) = input.next() {
+        if byte == b'%' {
+            let high = (input.next()? as char).to_digit(16)?;
+            let low = (input.next()? as char).to_digit(16)?;
+            let decoded = (high * 16 + low) as u8;
+            if matches!(decoded, b'/' | b'\\') {
+                return None;
+            }
+            bytes.push(decoded);
+        } else {
+            bytes.push(byte);
+        }
+    }
+    let target = String::from_utf8(bytes).ok()?;
+    if !crate::vault::valid_public_path(&target) || target.contains(':') {
+        return None;
+    }
+    Some(target)
 }

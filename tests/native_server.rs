@@ -7,3 +7,5 @@ mod api;
 mod lifecycle;
 #[path = "native_server/markdown.rs"]
 mod markdown;
+#[path = "native_server/repairs.rs"]
+mod repairs;

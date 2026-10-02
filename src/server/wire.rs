@@ -13,6 +13,7 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
     let mut v = match &n.data {
         NoteData::Issue(d) => {
             let mut v = serde_json::to_value(&d.metadata).unwrap();
+            timestamps(&mut v, &d.metadata.created, &d.metadata.updated);
             v["parent"] = json!(d.metadata.parent.target);
             v["blocked_by"] = json!(
                 d.metadata
@@ -22,7 +23,7 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
                     .collect::<Vec<_>>()
             );
             v["description"] = json!(d.description.to_string());
-            v["log"] = json!(d.log);
+            v["log"] = log_entries(&d.log);
             v["workflow"] = json!(index.workflow_for(&n.project));
             v["children"] = json!(
                 index
@@ -44,6 +45,7 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
         }
         NoteData::Request(d) => {
             let mut v = serde_json::to_value(&d.metadata).unwrap();
+            timestamps(&mut v, &d.metadata.created, &d.metadata.updated);
             v["issue_count"] = json!(d.metadata.issues.len());
             v["issues"] = json!(
                 d.metadata
@@ -56,11 +58,12 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
                         .unwrap_or_else(|| json!({"id":l.target,"missing":true})))
                     .collect::<Vec<_>>()
             );
-            v["log"] = json!(d.log);
+            v["log"] = log_entries(&d.log);
             v
         }
         NoteData::Plan(d) => {
             let mut v = serde_json::to_value(d).unwrap();
+            timestamps(&mut v, &d.created, &d.updated);
             v["section_count"] = json!(d.sections.len());
             if detail {
                 v["summary"] = json!({"status":d.status,"outcome_html":markdown::render(&d.summary.outcome,index,&s(&n.graph.path)).html,"affected_areas_html":markdown::render(&d.summary.affected_areas,index,&s(&n.graph.path)).html,"execution_order_html":markdown::render(&d.summary.execution_order,index,&s(&n.graph.path)).html,"risks_html":markdown::render(&d.summary.risks,index,&s(&n.graph.path)).html,"graph":{"version":d.graph.version,"nodes":d.graph.nodes.as_deref().unwrap_or_default(),"edges":d.graph.edges.as_deref().unwrap_or_default()}});
@@ -125,4 +128,60 @@ fn yaml(v: &crate::vault::YamlValue) -> Value {
         Y::StringMap(v) => Value::Object(v.iter().map(|(k, v)| (s(k), yaml(v))).collect()),
         Y::Map(_) => Value::Null,
     }
+}
+
+// HTTP owns RFC3339 strings; retained domain Serialize stays numeric for fixtures.
+fn timestamps(
+    value: &mut Value,
+    created: &crate::domain::issue::Timestamp,
+    updated: &crate::domain::issue::Timestamp,
+) {
+    value["created"] = json!(timestamp(created));
+    value["updated"] = json!(timestamp(updated));
+}
+fn timestamp(value: &crate::domain::issue::Timestamp) -> String {
+    // Parsed timestamps have bounded calendar years; express their original offset
+    // without normalizing away fractional precision or changing the shared codec.
+    let date = time::OffsetDateTime::from_unix_timestamp(value.seconds)
+        .expect("parsed timestamp has a representable calendar")
+        + time::Duration::seconds(i64::from(value.offset_seconds));
+    let fraction = if value.nanoseconds == 0 {
+        String::new()
+    } else {
+        format!(".{:09}", value.nanoseconds)
+            .trim_end_matches('0')
+            .to_owned()
+    };
+    let offset = if value.offset_seconds == 0 {
+        "Z".to_owned()
+    } else {
+        let seconds = value.offset_seconds.unsigned_abs();
+        format!(
+            "{}{:02}:{:02}",
+            if value.offset_seconds < 0 { '-' } else { '+' },
+            seconds / 3600,
+            seconds % 3600 / 60
+        )
+    };
+    format!(
+        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}{fraction}{offset}",
+        date.year(),
+        date.month() as u8,
+        date.day(),
+        date.hour(),
+        date.minute(),
+        date.second()
+    )
+}
+fn log_entries(entries: &[crate::domain::log::LogEntry]) -> Value {
+    json!(
+        entries
+            .iter()
+            .map(|entry| {
+                let mut value = serde_json::to_value(entry).unwrap();
+                value["at"] = json!(timestamp(&entry.at));
+                value
+            })
+            .collect::<Vec<_>>()
+    )
 }
