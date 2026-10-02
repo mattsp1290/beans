@@ -607,6 +607,10 @@ fn native_alias_registry_closed_filters_and_partial_close_failure() {
     assert!(!out.status.success());
     s.ok(&["sync"]);
     assert_eq!(json(&s, &["--json", "show", &a])["status"], "closed");
+    assert!(
+        !s.ok(&["--json=false", "list", "--closed=false", "--limit", "-1"])
+            .contains(&a)
+    );
     let closed = json(&s, &["--json", "list", "--closed"]);
     assert!(closed.as_array().unwrap().iter().any(|i| i["id"] == a));
     assert!(!closed.as_array().unwrap().iter().any(|i| i["id"] == b));
@@ -658,4 +662,146 @@ fn native_alias_registry_closed_filters_and_partial_close_failure() {
     );
     request.id = "demo-collision".into();
     assert!(hub.mutate(&mut request).is_err());
+}
+#[test]
+fn native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors() {
+    let empty = Sandbox::new();
+    assert!(!empty.cli(&["ready"]).status.success());
+    assert!(!empty.cli(&["request", "list"]).status.success());
+    assert!(empty.ok(&["man"]).starts_with(".TH BN 1"));
+    assert_eq!(empty.ok(&["prime"]), include_str!("../../docs/prime.md"));
+    assert_eq!(empty.cli(&["create"]).status.code(), Some(2));
+    let s = fixture();
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("cmd/bn/testdata/beans_export_2026-09-10.jsonl");
+    let report = json(
+        &s,
+        &[
+            "--json",
+            "--project",
+            "beans",
+            "import",
+            "bd",
+            path.to_str().unwrap(),
+        ],
+    );
+    assert!(report["report"]["issues"].as_u64().unwrap() > 10);
+    assert!(report["report"]["rejected"].as_array().unwrap().is_empty());
+    let hub = s.path("home/hub");
+    let before = git(&hub, &["rev-parse", "HEAD"]);
+    let repeated = json(
+        &s,
+        &[
+            "--json",
+            "--project",
+            "beans",
+            "import",
+            "bd",
+            path.to_str().unwrap(),
+            "--force",
+        ],
+    );
+    assert!(
+        repeated["report"]["rejected"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(
+        git(&hub, &["rev-parse", "HEAD"]),
+        before,
+        "{}",
+        git(&hub, &["show", "--format=", "--"])
+    );
+}
+#[test]
+fn native_basename_parent_cycle_alias_registry_and_second_import_fixture() {
+    let s = fixture();
+    let a = s
+        .ok(&["create", "alias owner", "--silent"])
+        .trim()
+        .to_owned();
+    let b = s.ok(&["create", "dependent", "--silent"]).trim().to_owned();
+    let path = issue_path(&s, &a);
+    let basename = path.file_stem().unwrap().to_str().unwrap();
+    s.ok(&["dep", "add", &b, basename]);
+    s.ok(&["dep", "add", &b, basename, "--type", "parent-child"]);
+    let cycle = s.cli(&["dep", "add", &a, &b, "--type", "parent-child"]);
+    assert!(!cycle.status.success());
+    assert!(String::from_utf8_lossy(&cycle.stderr).contains("cycle"));
+    s.ok(&["sync"]);
+    let source = fs::read(&path).unwrap();
+    let mut authored = beans::domain::issue::IssueDocument::parse_bytes(
+        "projects/demo/issues/authored.md",
+        &source,
+    )
+    .unwrap();
+    authored.metadata.aliases.push("demo-alias".into());
+    fs::write(&path, authored.encode().unwrap().bytes).unwrap();
+    let hub = Hub {
+        dir: s.path("home/hub"),
+        cache: s.path("home/cache"),
+        branch: "main".into(),
+        actor: "Native Tester".into(),
+        no_sync: false,
+        throttle: Duration::ZERO,
+    };
+    let mut op = beans::ops::IssueMutation::new(
+        beans::vault::Resolved {
+            project: b"demo".to_vec(),
+            ..Default::default()
+        },
+        String::new(),
+        beans::ops::IssueChange::Create {
+            title: "collision".into(),
+            kind: "task".into(),
+            priority: 2,
+            description: None,
+        },
+        "Native Tester".into(),
+        None,
+    );
+    op.id = "demo-alias".into();
+    assert!(hub.mutate(&mut op).is_err());
+    assert!(fs::read_to_string(&path).unwrap().contains("demo-alias"));
+    s.ok(&["sync"]);
+    let export = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("cmd/bn/testdata/gastownhall_beads_export.jsonl");
+    let report = json(
+        &s,
+        &[
+            "--json",
+            "--project",
+            "gastownhall",
+            "import",
+            "bd",
+            export.to_str().unwrap(),
+        ],
+    );
+    assert!(report["report"]["issues"].as_u64().unwrap() > 0);
+    assert!(report["report"]["rejected"].as_array().unwrap().is_empty());
+    let ready = s.ok(&["create", "unblocked", "--silent"]).trim().to_owned();
+    let blocker = s.ok(&["create", "blocker", "--silent"]).trim().to_owned();
+    let waiting = s
+        .ok(&["create", "waiting", "--blocked-by", &blocker, "--silent"])
+        .trim()
+        .to_owned();
+    let result = json(
+        &s,
+        &["--json", "close", &blocker, "-r", "done", "--suggest-next"],
+    );
+    assert!(
+        result["next_ready"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v["id"] == waiting)
+    );
+    assert!(
+        !result["next_ready"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v["id"] == ready)
+    );
 }

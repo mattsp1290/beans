@@ -5,8 +5,8 @@
       "source": "cmd/bn/app_test.go",
       "test": "TestRootCommandWithoutArgsPrintsHelp",
       "line": 9,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -21,128 +21,128 @@
       "source": "cmd/bn/app_test.go",
       "test": "TestWriteJSONTo",
       "line": 33,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_handoff_test.go",
       "test": "TestHandoffCLIWorkflow",
       "line": 11,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestCreateReadyCloseRoundTrip",
       "line": 92,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestRequestCLIWorkflow",
       "line": 165,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestDepCyclesAndTree",
       "line": 204,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestMemoriesDocsSearchArchive",
       "line": 230,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestImportBDFromLiveExport",
       "line": 264,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestCLIImportBDReportsUnmappedDependencyTypes",
       "line": 308,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestPrimeMatchesDocs",
       "line": 357,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestExitCodes",
       "line": 381,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestCloseMultipleIDsPartialFailure",
       "line": 401,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_alias_registry_closed_filters_and_partial_close_failure",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestImportForceRerunIsNoChange",
       "line": 419,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
       "test": "TestTextOutputGoldens",
       "line": 439,
-      "destination": "tests/cli.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "docs/rust-native-cli.md",
+      "status": "retired",
+      "retirement_rationale": "Literal Go text formatting is intentionally replaced by native compact lists, raw authored details and structured reports. Native command journeys verify stable IDs, semantic JSON fields, stored-byte preservation, errors and real pushed Git history; no behavioral safety check is retired."
     },
     {
       "source": "cmd/bn/cli_test.go",
       "test": "TestInitStatusProjectRoundTrip",
       "line": 76,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/cli_test.go",
       "test": "TestCommandsWithoutHubFail",
       "line": 152,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "cmd/bn/json_test.go",
       "test": "TestWriteJSONGoesToStdout",
       "line": 8,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -421,168 +421,168 @@
       "source": "internal/ops/handoff_test.go",
       "test": "TestHandoffCreateMissingIssueDoesNotBootstrapProject",
       "line": 11,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/handoff_test.go",
       "test": "TestHandoffCreatePreservesExistingFinalNewlines",
       "line": 23,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/import_test.go",
       "test": "TestImportBDReportsUnmappedDependencyTypes",
       "line": 43,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/import_test.go",
       "test": "TestImportBDLiveExport",
       "line": 110,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/import_test.go",
       "test": "TestParseBDExportSkipsBlankCommentsAndBadRows",
       "line": 170,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/import_test.go",
       "test": "TestImportBDGastownhallFixture",
       "line": 180,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestCreateWritesFileAndIsReplaySafe",
       "line": 44,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::native_first_cli_journey_second_clone_sees_closed_full_history",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestPlanPutRejectsDuplicateIDInAnotherProject",
       "line": 70,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestUpdateFieldsAndLog",
       "line": 100,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestCloseReopenIdempotent",
       "line": 130,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_alias_registry_closed_filters_and_partial_close_failure",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestDepAddRefusesCycleAndDeleteRefusesBacklinks",
       "line": 152,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestArchiveMovesOldTerminalIssues",
       "line": 192,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/ops_test.go",
       "test": "TestDepAddAcceptsBasenamesAndRefusesParentCycle",
       "line": 226,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/plan_test.go",
       "test": "TestPlanPutRemovesDroppedSections",
       "line": 13,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/plan_test.go",
       "test": "TestPlanPutRejectsStaleRevision",
       "line": 64,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/plan_test.go",
       "test": "TestPlanLinkAndUnlinkAreIdempotent",
       "line": 101,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/request_test.go",
       "test": "TestRequestCreateUpdateAndLinks",
       "line": 12,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/request_test.go",
       "test": "TestRequestLinkIsAtomicAndFindIsExact",
       "line": 51,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/request_test.go",
       "test": "TestRequestCreateExplicitEmptyBodySkipsTemplate",
       "line": 68,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/request_test.go",
       "test": "TestArtifactIDRegistrySeesAliasesAndBasenames",
       "line": 81,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/ops/request_test.go",
       "test": "TestArtifactIDRegistrySeesHubGlobalBasenames",
       "line": 98,
-      "destination": "tests/operations.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::retained_commands::native_alias_registry_closed_filters_and_partial_close_failure",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

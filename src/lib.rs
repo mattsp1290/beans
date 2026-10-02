@@ -7,7 +7,7 @@ pub mod markdown;
 pub mod ops;
 pub mod vault;
 
-/// Native command dispatch for the first CLI slice.
+/// Native command dispatch.
 pub fn run() -> std::process::ExitCode {
     if std::env::args_os().len() == 1 {
         println!("{}", cli::command().render_long_help());

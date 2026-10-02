@@ -175,6 +175,9 @@ impl Operation for ImportMutation {
                         ..Default::default()
                     })
                 };
+                let old_metadata = d.metadata.clone();
+                let old_description = d.description.clone();
+                let old_body = d.body.clone();
                 d.metadata.title = title;
                 d.metadata.kind = kind;
                 d.metadata.status = status;
@@ -261,7 +264,16 @@ impl Operation for ImportMutation {
                 if terminal {
                     archived += 1;
                 }
-                (relative, d.encode()?.bytes)
+                let bytes = if !d.original_bytes().is_empty()
+                    && d.metadata == old_metadata
+                    && d.description.to_string().trim() == old_description.to_string().trim()
+                    && d.body.to_string().trim() == old_body.to_string().trim()
+                {
+                    d.original_bytes().to_vec()
+                } else {
+                    d.encode()?.bytes
+                };
+                (relative, bytes)
             };
             if !paths_seen.insert(relative.clone()) {
                 rejected.push(format!(

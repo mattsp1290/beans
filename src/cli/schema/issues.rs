@@ -1,19 +1,28 @@
 use clap::{Arg, ArgAction, Command};
 pub(super) fn commands() -> Vec<Command> {
     vec![
+        Command::new("parents")
+            .about("List ancestor issues")
+            .arg(Arg::new("id").required(true)),
         Command::new("archive")
             .about("Move closed issues older than --older-than into archive/<year>/")
             .arg(
                 Arg::new("all-projects")
                     .long("all-projects")
                     .help("every project in the hub")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("dry-run")
                     .long("dry-run")
                     .help("list without moving")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("older-than")
@@ -28,7 +37,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("all-projects")
                     .long("all-projects")
                     .help("every project in the hub")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             ),
         Command::new("children")
             .about("List the issues whose parent is <id>")
@@ -40,7 +52,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("force")
                     .long("force")
                     .help("close without a reason")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("reason")
@@ -53,7 +68,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("suggest-next")
                     .long("suggest-next")
                     .help("print ids that became ready")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             ),
         Command::new("create")
             .about("Create an issue in the current project")
@@ -98,13 +116,17 @@ pub(super) fn commands() -> Vec<Command> {
                     .help("priority 0 (critical) to 4 (backlog)")
                     .short('p')
                     .value_parser(clap::value_parser!(i64))
+                    .allow_negative_numbers(true)
                     .default_value("2"),
             )
             .arg(
                 Arg::new("silent")
                     .long("silent")
                     .help("print only the new id")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("type")
@@ -122,7 +144,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("force")
                     .long("force")
                     .help("also remove links from other issues")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             ),
         Command::new("dep")
             .about("Manage dependencies between issues")
@@ -165,7 +190,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("all-projects")
                             .long("all-projects")
                             .help("every project in the hub")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             ),
         Command::new("list")
@@ -174,13 +202,19 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("all-projects")
                     .long("all-projects")
                     .help("every project in the hub")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("archived")
                     .long("archived")
                     .help("include archived issues")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("assignee")
@@ -192,7 +226,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("closed")
                     .long("closed")
                     .help("only terminal issues (implies --archived)")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("label")
@@ -206,6 +243,7 @@ pub(super) fn commands() -> Vec<Command> {
                     .help("maximum rows (0 = all)")
                     .short('n')
                     .value_parser(clap::value_parser!(i64))
+                    .allow_negative_numbers(true)
                     .default_value("50"),
             )
             .arg(
@@ -237,7 +275,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("all-projects")
                     .long("all-projects")
                     .help("every project in the hub")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("limit")
@@ -245,6 +286,7 @@ pub(super) fn commands() -> Vec<Command> {
                     .help("maximum rows (0 = all)")
                     .short('n')
                     .value_parser(clap::value_parser!(i64))
+                    .allow_negative_numbers(true)
                     .default_value("0"),
             ),
         Command::new("reopen")
@@ -257,13 +299,19 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("include-archived-handoffs")
                     .long("include-archived-handoffs")
                     .help("include historical handoff backlinks")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("raw")
                     .long("raw")
                     .help("print the issue file as is")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             ),
         Command::new("update")
             .about("Change fields of an issue (one commit, one log line per field)")
@@ -278,7 +326,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("claim")
                     .long("claim")
                     .help("set status in_progress and assign yourself")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("description")
@@ -290,7 +341,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("force")
                     .long("force")
                     .help("allow leaving a terminal status")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("label")
@@ -315,7 +369,8 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("priority")
                     .long("priority")
                     .help("new priority 0-4")
-                    .value_parser(clap::value_parser!(i64)),
+                    .value_parser(clap::value_parser!(i64))
+                    .allow_negative_numbers(true),
             )
             .arg(
                 Arg::new("status")

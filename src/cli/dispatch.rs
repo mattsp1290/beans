@@ -221,6 +221,20 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
         if name == "dep" {
             ids = vec![value(m.subcommand().unwrap().1, "child")];
         }
+        let mut before_ready = if name == "close" && flag(m, "suggest-next") {
+            Index::load_snapshot(
+                &hub.dir,
+                LoadOptions {
+                    explicit_workflow: explicit.clone(),
+                },
+            )?
+            .ready(&resolved.project, false)
+            .iter()
+            .filter_map(|n| n.graph.id.clone())
+            .collect::<std::collections::HashSet<_>>()
+        } else {
+            Default::default()
+        };
         for id in ids {
             let change = match name {
                 "create" => IssueChange::Create {
@@ -269,7 +283,6 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
                 url: optional(m, "url"),
             };
             let result = hub.mutate(&mut op)?;
-            mutation_output(&op.id, result, json)?;
             if name == "close" && flag(m, "suggest-next") {
                 let ix = Index::load_snapshot(
                     &hub.dir,
@@ -277,7 +290,28 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
                         explicit_workflow: explicit.clone(),
                     },
                 )?;
-                print_notes(ix.ready(&op.resolved.project, false), json)?;
+                let ready = ix.ready(&op.resolved.project, false);
+                let next: Vec<_> = ready
+                    .iter()
+                    .copied()
+                    .filter(|n| {
+                        !n.graph
+                            .id
+                            .as_ref()
+                            .is_some_and(|id| before_ready.contains(id))
+                    })
+                    .collect();
+                if json {
+                    output(
+                        &serde_json::json!({"id":op.id,"commit":result.sha,"sha":result.sha,"pushed":result.pushed,"message":result.message,"next_ready":next.iter().map(|n|note_json(n)).collect::<Vec<_>>()}),
+                    )?;
+                } else {
+                    mutation_output(&op.id, result, false)?;
+                    print_notes(next, false)?;
+                }
+                before_ready.extend(ready.into_iter().filter_map(|n| n.graph.id.clone()));
+            } else {
+                mutation_output(&op.id, result, json)?;
             }
         }
         return Ok(());
@@ -351,7 +385,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
                 }
             }
         };
-        let mut op = ContentMutation::new(resolved, change);
+        let mut op = ContentMutation::new(resolved, change).with_actor(actor);
         let result = hub.mutate(&mut op)?;
         return mutation_output(&op.id, result, json);
     }

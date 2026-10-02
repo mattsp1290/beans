@@ -82,15 +82,15 @@ Flags with no default select no change/filter unless otherwise described.
 | `request` | — |
 | `create <title>` | `--body-file`, `--description` (`-d`), `--issue` repeatable, `--label` (`-l`) repeatable, `--priority` (`-p`) default `2`, `--requested-by`, `--silent`, `--stdin` |
 | `link <request-id> <issue-id...>` | — |
-| `list` | `--all-projects`, `--label`, `--priority` (`-p`) (unchanged when absent), `--query`, `--status`, `--terminal` |
+| `list` | `--all-projects`, `--label`, `--priority` (`-p`) (unset when absent), `--query`, `--status`, `--terminal` |
 | `show <request-id>` | — |
 | `unlink <request-id> <issue-id...>` | — |
-| `update <request-id>` | `--body-file`, `--description` (`-d`), `--force`, `--label` repeatable, `--priority` (unchanged when absent), `--requested-by`, `--status`, `--stdin`, `--title`, `--unlabel` repeatable |
+| `update <request-id>` | `--body-file`, `--description` (`-d`), `--force`, `--label` repeatable, `--priority` (unset when absent), `--requested-by`, `--status`, `--stdin`, `--title`, `--unlabel` repeatable |
 | `search <query...>` | `--all-projects`, `--include-archived-handoffs`, `--kind` |
 | `show <id>` | `--include-archived-handoffs`, `--raw` |
 | `status` | — |
 | `sync` | — |
-| `update <id>` | `--assignee`, `--claim`, `--description`, `--force`, `--label` repeatable, `--note`, `--parent`, `--priority` (unchanged when absent), `--status`, `--title`, `--type`, `--unlabel` repeatable |
+| `update <id>` | `--assignee`, `--claim`, `--description`, `--force`, `--label` repeatable, `--note`, `--parent`, `--priority` (unset when absent), `--status`, `--title`, `--type`, `--unlabel` repeatable |
 
 `create`, `request create`, and `handoff create` print only the stable ID in plain
 mode; `--silent` retains that guarantee. JSON mutation results expose `id`, `key`
@@ -116,7 +116,8 @@ useful diagnostic, without retiring not-found detection or usage validation.
 
 `close` requires `--reason` or `--force`; multiple IDs are separate commits and an
 error leaves already completed IDs intact. `--suggest-next` prints newly available
-work after closure. Leaving terminal status through update requires `--force`;
+work after closure; JSON includes a `next_ready` array in that result. Multi-ID
+mutations emit one JSON record per operation (newline-delimited JSON). Leaving terminal status through update requires `--force`;
 `reopen` restores archived issues to `issues/`, and repeated closes/reopens and
 unchanged updates are no-ops. Update flags, including `--note`, form one operation
 and commit. `dep --type parent-child` sets/removes the parent; `blocks` sets/removes

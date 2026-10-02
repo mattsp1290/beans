@@ -43,6 +43,7 @@ pub(super) fn commands() -> Vec<Command> {
                             .help("priority 0 to 4")
                             .short('p')
                             .value_parser(clap::value_parser!(i64))
+                            .allow_negative_numbers(true)
                             .default_value("2"),
                     )
                     .arg(
@@ -55,13 +56,19 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("silent")
                             .long("silent")
                             .help("print only the new id")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("stdin")
                             .long("stdin")
                             .help("read request Markdown from stdin")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             )
             .subcommand(
@@ -77,7 +84,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("all-projects")
                             .long("all-projects")
                             .help("every project")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("label")
@@ -90,7 +100,8 @@ pub(super) fn commands() -> Vec<Command> {
                             .long("priority")
                             .help("only this priority")
                             .short('p')
-                            .value_parser(clap::value_parser!(i64)),
+                            .value_parser(clap::value_parser!(i64))
+                            .allow_negative_numbers(true),
                     )
                     .arg(
                         Arg::new("query")
@@ -108,7 +119,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("terminal")
                             .long("terminal")
                             .help("include terminal requests")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             )
             .subcommand(
@@ -143,7 +157,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("force")
                             .long("force")
                             .help("allow any valid status correction")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("label")
@@ -156,7 +173,8 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("priority")
                             .long("priority")
                             .help("new priority")
-                            .value_parser(clap::value_parser!(i64)),
+                            .value_parser(clap::value_parser!(i64))
+                            .allow_negative_numbers(true),
                     )
                     .arg(
                         Arg::new("requested-by")
@@ -174,7 +192,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("stdin")
                             .long("stdin")
                             .help("read body from stdin")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("title")

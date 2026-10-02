@@ -3,7 +3,7 @@ pub(super) fn render() -> String {
     let mut root = super::command();
     root.build();
     let mut out = format!(
-        ".TH BN 1 \"\" \"Beans {}\"\n.SH NAME\nbn \\ - git-backed issues and wiki\n.SH SYNOPSIS\n.nf\n{}\n.fi\n.SH COMMANDS\n",
+        ".TH BN 1 \"\" \"Beans {}\"\n.SH NAME\nbn \\- git-backed issues and wiki\n.SH SYNOPSIS\n.nf\n{}\n.fi\n.SH COMMANDS\n",
         env!("CARGO_PKG_VERSION"),
         escape(&root.render_usage().to_string())
     );

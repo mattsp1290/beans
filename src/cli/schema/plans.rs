@@ -37,7 +37,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("force")
                             .long("force")
                             .help("replace an existing ref")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             )
             .subcommand(

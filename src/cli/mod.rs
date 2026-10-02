@@ -1,4 +1,4 @@
-//! Command adapters are assembled in WP6.
+//! Native command adapters over shared hub operations.
 mod actor;
 pub use actor::Actor;
 mod commands;

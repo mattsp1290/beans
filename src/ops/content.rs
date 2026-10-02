@@ -40,15 +40,25 @@ pub struct ContentMutation {
     pub resolved: Resolved,
     pub change: ContentChange,
     pub id: String,
+    pub actor: String,
+    pub explicit_workflow: Option<PathBuf>,
     present: bool,
     at: crate::domain::issue::Timestamp,
 }
 impl ContentMutation {
+    pub fn with_actor(mut self, actor: &str) -> Self {
+        self.actor = actor.into();
+        self
+    }
     pub fn new(resolved: Resolved, change: ContentChange) -> Self {
         Self {
             resolved,
             change,
             id: String::new(),
+            actor: "bn".into(),
+            explicit_workflow: std::env::var_os("BN_CONFIG")
+                .filter(|v| !v.is_empty())
+                .map(PathBuf::from),
             present: false,
             at: super::records::now(),
         }
@@ -65,7 +75,12 @@ impl Operation for ContentMutation {
         let project = String::from_utf8_lossy(&self.resolved.project);
         let base = PathBuf::from("projects").join(project.as_ref());
         check_hub_write_path(hub, &base.join("beans.toml"))?;
-        let ix = Index::load_snapshot(hub, LoadOptions::default())?;
+        let ix = Index::load_snapshot(
+            hub,
+            LoadOptions {
+                explicit_workflow: self.explicit_workflow.clone(),
+            },
+        )?;
         let (relative, bytes) = match &self.change {
             ContentChange::Remember {
                 key,
@@ -107,6 +122,14 @@ impl Operation for ContentMutation {
                         ..Default::default()
                     })
                 };
+                if !doc.original_bytes().is_empty()
+                    && doc.body.as_bytes() == body.as_bytes()
+                    && doc.metadata.kind == *kind
+                    && doc.metadata.tags == *tags
+                {
+                    self.id = key;
+                    return Ok(vec![]);
+                }
                 doc.body = body.clone().into();
                 doc.metadata.kind = kind.clone();
                 doc.metadata.tags = tags.clone();
@@ -137,6 +160,9 @@ impl Operation for ContentMutation {
                 return Ok(vec![p]);
             }
             ContentChange::Doc { path, global } => {
+                if path.trim().is_empty() {
+                    return Err(Error::new("doc path must not be empty".into()));
+                }
                 let path = if path.ends_with(".md") {
                     path.clone()
                 } else {
@@ -233,7 +259,16 @@ impl Operation for ContentMutation {
                             d.append_log(crate::domain::log::LogEntry {
                                 at: self.at.clone(),
                                 event: format!("removed dependency {}", doc.metadata.id).into(),
-                                actor: "bn".into(),
+                                actor: self.actor.clone().into(),
+                                repo: crate::domain::yaml_string::YamlString::from_bytes(
+                                    self.resolved.project.clone(),
+                                ),
+                                sha: crate::domain::yaml_string::YamlString::from_bytes(
+                                    self.resolved.repo_head.clone(),
+                                ),
+                                branch: crate::domain::yaml_string::YamlString::from_bytes(
+                                    self.resolved.repo_branch.clone(),
+                                ),
                                 ..Default::default()
                             });
                             let path =

@@ -13,13 +13,19 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("all-projects")
                             .long("all-projects")
                             .help("all projects")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("dry-run")
                             .long("dry-run")
                             .help("report without moving")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("older-than")
@@ -54,7 +60,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("silent")
                             .long("silent")
                             .help("print only the handoff ID")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             )
             .subcommand(
@@ -69,13 +78,19 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("all-projects")
                             .long("all-projects")
                             .help("all projects")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("archived")
                             .long("archived")
                             .help("include archived handoffs")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("issue")
@@ -88,6 +103,7 @@ pub(super) fn commands() -> Vec<Command> {
                             .long("limit")
                             .help("maximum entries (0 = all)")
                             .value_parser(clap::value_parser!(i64))
+                            .allow_negative_numbers(true)
                             .default_value("50"),
                     )
                     .arg(
@@ -117,7 +133,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("raw")
                             .long("raw")
                             .help("write exact stored Markdown")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             ),
     ]

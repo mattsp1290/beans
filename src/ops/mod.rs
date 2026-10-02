@@ -1,4 +1,4 @@
-//! Shared operation context; mutation families are implemented in WP5.
+//! Replay-safe shared operations for native command and server adapters.
 mod context;
 pub use context::{OperationConfig, prefix_for};
 pub(crate) mod issues;

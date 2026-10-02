@@ -28,7 +28,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("global")
                             .long("global")
                             .help("hub-level docs only")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             )
             .subcommand(
@@ -39,7 +42,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("global")
                             .long("global")
                             .help("hub-level docs/ instead of the project's")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             ),
         Command::new("doctor")
@@ -48,7 +54,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("all-projects")
                     .long("all-projects")
                     .help("every project in the hub")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             ),
         Command::new("forget")
             .about("Delete a memory")
@@ -57,7 +66,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("global")
                     .long("global")
                     .help("hub-wide memory instead of the project's")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             ),
         Command::new("import")
             .about("One-time imports into the hub")
@@ -71,13 +83,19 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("dry-run")
                             .long("dry-run")
                             .help("report the mapping and write nothing")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     )
                     .arg(
                         Arg::new("force")
                             .long("force")
                             .help("overwrite files that already exist")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             ),
         Command::new("init")
@@ -91,7 +109,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("all")
                     .long("all")
                     .help("hub-wide, not just the current project")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("limit")
@@ -99,6 +120,7 @@ pub(super) fn commands() -> Vec<Command> {
                     .help("maximum entries (0 = all)")
                     .short('n')
                     .value_parser(clap::value_parser!(i64))
+                    .allow_negative_numbers(true)
                     .default_value("0"),
             )
             .arg(
@@ -125,7 +147,10 @@ pub(super) fn commands() -> Vec<Command> {
                         Arg::new("link")
                             .long("link")
                             .help("record the current repository's remote in the new project")
-                            .action(ArgAction::SetTrue),
+                            .action(ArgAction::SetTrue)
+                            .num_args(0..=1)
+                            .require_equals(true)
+                            .default_missing_value("true"),
                     ),
             )
             .subcommand(
@@ -146,7 +171,10 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("global")
                     .long("global")
                     .help("hub-wide memory instead of the project's")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("key")
@@ -174,13 +202,19 @@ pub(super) fn commands() -> Vec<Command> {
                 Arg::new("all-projects")
                     .long("all-projects")
                     .help("every project in the hub")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("include-archived-handoffs")
                     .long("include-archived-handoffs")
                     .help("include historical handoffs")
-                    .action(ArgAction::SetTrue),
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
             )
             .arg(
                 Arg::new("kind")

@@ -45,21 +45,30 @@ pub fn command() -> Command {
             .long("json")
             .global(true)
             .help("machine-readable JSON output")
-            .action(ArgAction::SetTrue),
+            .action(ArgAction::SetTrue)
+            .num_args(0..=1)
+            .require_equals(true)
+            .default_missing_value("true"),
     );
     let root = root.arg(
         Arg::new("no-fetch")
             .long("no-fetch")
             .global(true)
             .help("reads: skip the throttled fetch")
-            .action(ArgAction::SetTrue),
+            .action(ArgAction::SetTrue)
+            .num_args(0..=1)
+            .require_equals(true)
+            .default_missing_value("true"),
     );
     let root = root.arg(
         Arg::new("no-sync")
             .long("no-sync")
             .global(true)
             .help("mutations: commit locally without fetching or pushing")
-            .action(ArgAction::SetTrue),
+            .action(ArgAction::SetTrue)
+            .num_args(0..=1)
+            .require_equals(true)
+            .default_missing_value("true"),
     );
     let root = root.arg(
         Arg::new("project")

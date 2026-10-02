@@ -24,6 +24,7 @@ pub struct PlanMutation {
     pub change: PlanChange,
     pub updated: Timestamp,
     pub path: PathBuf,
+    pub explicit_workflow: Option<PathBuf>,
     present: bool,
     at: Timestamp,
 }
@@ -35,6 +36,9 @@ impl PlanMutation {
             change,
             updated: Default::default(),
             path: PathBuf::new(),
+            explicit_workflow: std::env::var_os("BN_CONFIG")
+                .filter(|v| !v.is_empty())
+                .map(PathBuf::from),
             present: false,
             at: super::records::now(),
         }
@@ -52,7 +56,12 @@ impl Operation for PlanMutation {
             .join(String::from_utf8_lossy(&self.resolved.project).as_ref())
             .join("plans");
         check_hub_write_path(hub, &base.join("containment-check"))?;
-        let ix = Index::load_snapshot(hub, LoadOptions::default())?;
+        let ix = Index::load_snapshot(
+            hub,
+            LoadOptions {
+                explicit_workflow: self.explicit_workflow.clone(),
+            },
+        )?;
         let existing = ix.note_by_id(NoteKind::Plan, self.id.as_bytes());
         if let Some(n) = existing
             && n.project != self.resolved.project
