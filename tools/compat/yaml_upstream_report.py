@@ -40,10 +40,10 @@ def validate(corpus):
         raise ValueError("missing or changed projection/input")
 
 
-def run(corpus_path, report_path):
+def run(corpus_path, report_path, rust_output=None):
     corpus = json.loads(corpus_path.read_text())
     validate(corpus)
-    output = ROOT / ".compat/yaml-upstream-rust.json"
+    output = rust_output or ROOT / ".compat/yaml-upstream-rust.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     env = dict(
         os.environ,
@@ -222,5 +222,6 @@ if __name__ == "__main__":
     p.add_argument(
         "--report", type=Path, default=ROOT / ".compat/yaml-upstream-report.json"
     )
+    p.add_argument("--rust-output", type=Path)
     a = p.parse_args()
-    raise SystemExit(run(a.corpus, a.report))
+    raise SystemExit(run(a.corpus, a.report, a.rust_output))

@@ -290,3 +290,7 @@ verify-codec-coupling:
 .PHONY: compat-plan-bytes
 compat-plan-bytes:
 	python3 -S tools/compat/plan_bytes_reference.py --check tests/contract/plan-bytes.json
+
+.PHONY: compat-yaml-upstream
+compat-yaml-upstream:
+	python3 -S tools/compat/yaml_upstream_gate.py

@@ -86,3 +86,7 @@ license are embedded in the corpus alongside all copied fixture expressions.
 The source SHA and corpus/report hashes make observations independently auditable.
 The initial local Rust build reused CARGO_TARGET_DIR=/home/punk1290/git/beans/target;
 Cargo's source fingerprints rebuilt beans and beans-kernel for this worktree.
+
+The independent Linux gate is `make compat-yaml-upstream`. See
+[the repeatable gate and saved-note journey](../../../docs/yaml-compatibility.md)
+for retained recapture, negative controls, exact-head CI evidence, and scope limits.
