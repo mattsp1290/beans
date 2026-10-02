@@ -1,0 +1,266 @@
+package plan
+
+import (
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"testing"
+	"time"
+)
+
+func TestMigrationPlanBytes(t *testing.T) {
+	ints := func(s string) []int {
+		v := make([]int, len(s))
+		for i := 0; i < len(s); i++ {
+			v[i] = int(s[i])
+		}
+		return v
+	}
+	now := time.Date(2026, 9, 11, 12, 0, 0, 0, time.UTC)
+	base := string(Scaffold("beans-plan-a3f2", "x", now))
+	type file struct {
+		Path, Data []int
+		Kind       string
+		Size       int
+	}
+	type entry struct {
+		Path, Data []int
+		Kind       string
+		Mode       uint32
+	}
+	type row struct {
+		Operation               string
+		Root, Name, Data, Error []int
+		Files                   []file
+		Result                  any
+		Before, After           []entry
+	}
+	snapshot := func(root string) []entry {
+		out := []entry{}
+		e := filepath.WalkDir(root, func(p string, d fs.DirEntry, e error) error {
+			if e != nil {
+				return e
+			}
+			if p == root {
+				return nil
+			}
+			rel, _ := filepath.Rel(root, p)
+			info, e := d.Info()
+			if e != nil {
+				return e
+			}
+			kind := "file"
+			data := ""
+			if d.IsDir() {
+				kind = "directory"
+			} else if d.Type()&os.ModeSymlink != 0 {
+				kind = "symlink"
+				data, e = os.Readlink(p)
+			} else if d.Type()&os.ModeNamedPipe != 0 {
+				kind = "fifo"
+			} else {
+				var b []byte
+				b, e = os.ReadFile(p)
+				data = string(b)
+			}
+			if e != nil {
+				return e
+			}
+			out = append(out, entry{ints(rel), ints(data), kind, uint32(info.Mode().Perm())})
+			return nil
+		})
+		if e != nil {
+			t.Fatal(e)
+		}
+		return out
+	}
+	planView := func(p *Plan) any {
+		if p == nil {
+			return nil
+		}
+		paths := [][]int{}
+		for _, s := range p.Sections {
+			paths = append(paths, ints(s))
+		}
+		sections := []any{}
+		for _, s := range p.SectionBodies {
+			sections = append(sections, map[string]any{"path": ints(s.Path), "markdown": s.Markdown})
+		}
+		return map[string]any{"path": ints(p.Path), "json_path": p.Path, "body": p.Body, "graph": p.Graph, "sections": paths, "section_bodies": sections}
+	}
+	bundleView := func(b *Bundle) any {
+		if b == nil {
+			return nil
+		}
+		return map[string]any{"root": ints(b.Root), "plan": planView(b.Plan), "sections": func() []any {
+			out := []any{}
+			for _, s := range b.Sections {
+				out = append(out, map[string]any{"path": ints(s.Path), "markdown": s.Markdown})
+			}
+			return out
+		}()}
+	}
+	var rows []row
+	add := func(op, root, name, data string, files []file) {
+		r := row{Operation: op, Root: ints(root), Name: ints(name), Data: ints(data), Files: files, Error: []int{}, Before: []entry{}, After: []entry{}}
+		var e error
+		switch op {
+		case "snapshot":
+			s := BundleSnapshot{Files: map[string][]byte{}}
+			for _, f := range files {
+				p := stringBytes(f.Path)
+				b := []byte(stringBytes(f.Data))
+				if f.Size > 0 {
+					b = bytes.Repeat([]byte{'x'}, f.Size)
+					b[len(b)-1] = '\n'
+				}
+				s.Files[p] = b
+			}
+			var b *Bundle
+			b, e = LoadSnapshot(root, s)
+			r.Result = bundleView(b)
+		case "parse":
+			var p *Plan
+			p, e = Parse(root, []byte(data))
+			r.Result = planView(p)
+		case "graph":
+			var g ChangeGraph
+			g, e = ParseGraph(root, data)
+			r.Result = g
+		case "summary":
+			var p *Plan
+			p, e = Parse(root, []byte(data))
+			r.Result = planView(p)
+		case "reference", "reference_valid":
+			kind := "task"
+			if op == "reference_valid" {
+				kind = "component"
+			}
+			p := &Plan{Path: root, Status: StatusDraft, Body: data, Graph: ChangeGraph{Version: 1, Nodes: []GraphNode{{ID: "node", Label: "x", Kind: kind}}}}
+			e = SetNodeRef(p, "node", "[[beans-a1b2]]")
+			r.Result = planView(p)
+		case "validation":
+			v := &ValidationError{Issues: []ValidationIssue{{Path: root, Line: 3, Code: name, Message: data}}}
+			e = v
+			r.Result = v.Issues
+		case "disk", "scaffold":
+			parent := t.TempDir()
+			full := parent + "/" + root
+			for _, f := range files {
+				p := filepath.Join(parent, stringBytes(f.Path))
+				if e := os.MkdirAll(filepath.Dir(p), 0755); e != nil {
+					t.Fatal(e)
+				}
+				switch f.Kind {
+				case "directory":
+					if e := os.MkdirAll(p, 0755); e != nil {
+						t.Fatal(e)
+					}
+				case "symlink":
+					if e := os.Symlink(stringBytes(f.Data), p); e != nil {
+						t.Fatal(e)
+					}
+				case "fifo":
+					if e := syscall.Mkfifo(p, 0600); e != nil {
+						t.Fatal(e)
+					}
+				default:
+					if e := os.WriteFile(p, []byte(stringBytes(f.Data)), 0644); e != nil {
+						t.Fatal(e)
+					}
+				}
+			}
+			r.Before = snapshot(parent)
+			if op == "disk" {
+				var b *Bundle
+				b, e = Load(full)
+				r.Result = bundleView(b)
+			} else {
+				e = WriteScaffold(full, "beans-plan-a3f2", "x", now)
+			}
+			// Normalize only the disposable root, including raw canonical model paths.
+			if e != nil {
+				eText := strings.ReplaceAll(e.Error(), parent, "/oracle")
+				r.Error = ints(eText)
+			}
+			if r.Result != nil {
+				b := r.Result.(map[string]any)
+				if b["root"] != nil {
+					b["root"] = ints(strings.ReplaceAll(stringBytes(b["root"].([]int)), parent, "/oracle"))
+				}
+				if p := b["plan"]; p != nil {
+					v := p.(map[string]any)
+					v["path"] = ints(strings.ReplaceAll(stringBytes(v["path"].([]int)), parent, "/oracle"))
+					v["json_path"] = strings.ReplaceAll(v["json_path"].(string), parent, "/oracle")
+				}
+			}
+			r.After = snapshot(parent)
+		}
+		if e != nil && op != "disk" && op != "scaffold" {
+			r.Error = ints(e.Error())
+		}
+		rows = append(rows, r)
+	}
+	f := func(p, d, k string) file { return file{Path: ints(p), Data: ints(d), Kind: k} }
+	names := []string{}
+	for b := 0; b < 256; b++ {
+		names = append(names, "raw"+string([]byte{byte(b)})+"x")
+	}
+	names = append(names, "Kelvin", "🌱", "e\u0301", "raw\xc0\x80x", "raw\xed\xa0\x80x", "raw\xf4\x90\x80\x80x", ": frontmatter: ", "a/../b//.")
+	for _, name := range names {
+		section := "sections/" + name + ".md"
+		listed := strings.Replace(base, "updated:", "sections: [!!binary "+base64.StdEncoding.EncodeToString([]byte(section))+"]\nupdated:", 1)
+		for _, root := range []string{name, "/prefix//" + name + "/../" + name + "/.", ""} {
+			add("snapshot", root, name, "", nil)
+			add("snapshot", root, name, "", []file{f("plan.md", base, "file")})
+			add("snapshot", root, name, "", []file{f("plan.md", "broken", "file")})
+			add("snapshot", root, name, "", []file{f("plan.md", base, "file"), f(name, "x\n", "file")})
+			add("snapshot", root, name, "", []file{f("plan.md", listed, "file")})
+			add("snapshot", root, name, "", []file{f("plan.md", listed, "file"), f(section, "# section\n", "file")})
+			add("snapshot", root, name, "", []file{f("plan.md", listed, "file"), f(section, "bad\r\n", "file")})
+			add("snapshot", root, name, "", []file{f("plan.md", base, "file"), f(section, "# section\n", "file")})
+		}
+		for _, data := range []string{base, "broken", strings.Replace(base, "id: beans-plan-a3f2", "id: [", 1), strings.Replace(base, "## Summary", "## Missing", 1), strings.Replace(base, "version: 1", "version: 2", 1), strings.Replace(base, "aliases:\n    - beans-plan-a3f2\n", "aliases: [\nbeans-plan-a3f2\n]\n", 1)} {
+			add("parse", name+"/plan.md", name, data, nil)
+		}
+		for _, data := range []string{"", "```bn-change-graph\nversion: [\n```", "```bn-change-graph\nversion: 1\nnodes: []\nedges: []\n```", "```bn-change-graph\nversion: 1\nnodes: [\n{id: node, label: x, kind: component}\n]\nedges: []\n```"} {
+			add("graph", name+"/plan.md", name, data, nil)
+		}
+		for _, data := range []string{"", "```bn-change-graph\n", base[strings.Index(base, "## Summary"):]} {
+			add("reference", name+"/plan.md", name, data, nil)
+		}
+		add("reference_valid", name+"/plan.md", name, base[strings.Index(base, "## Summary"):], nil)
+		add("validation", name+"/plan.md", name, "message "+name, nil)
+		root := "bundle-" + name
+		add("disk", root, name, "", nil)
+		add("scaffold", root, name, "", nil)
+		if strings.ContainsRune(name, 0) {
+			continue
+		}
+		add("disk", root, name, "", []file{f(root, "regular", "file")})
+		add("disk", root, name, "", []file{f(root+"/plan.md", base, "file")})
+		for _, kind := range []string{"file", "directory", "symlink", "fifo"} {
+			add("disk", "bundle", name, "", []file{f("bundle/plan.md", base, "file"), f("bundle/"+name, "outside", kind)})
+		}
+		add("disk", "bundle", name, "", []file{f("bundle/plan.md", listed, "file"), f("bundle/"+section, "# section\n", "file")})
+	}
+	out, e := json.Marshal(map[string]any{"base": base, "cases": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_PLAN_BYTES_OUTPUT"), out, 0600); e != nil {
+		t.Fatal(e)
+	}
+}
+func stringBytes(v []int) string {
+	b := make([]byte, len(v))
+	for i, n := range v {
+		b[i] = byte(n)
+	}
+	return string(b)
+}

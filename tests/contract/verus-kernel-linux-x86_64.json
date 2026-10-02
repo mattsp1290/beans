@@ -1,0 +1,276 @@
+{
+  "schema": "beans-verus-kernel-verification-v1",
+  "pins": {
+    "schema": "beans-verus-pins-v1",
+    "rust": "1.98.1",
+    "vstd": "0.0.0-2026-09-20-0158",
+    "release": "release/0.2026.09.27.3cf1832",
+    "version": "0.2026.09.27.3cf1832",
+    "commit": "3cf18325f0fd0c3040fbdec8c0f2255c0504c91a",
+    "asset": "verus-0.2026.09.27.3cf1832-x86-linux.zip",
+    "archive_sha256": "43814031e10df043221d83c7fa842e3ebd662cb7b0090fc1eb4d7a8673226978",
+    "directory": "verus-x86-linux",
+    "platform": {
+      "os": "Linux",
+      "arch": "x86_64"
+    },
+    "binaries": {
+      "z3": "e583c4186a45e72411fa2cb2048401eed03f0f8e5f24694676a8f6271a50b765",
+      "verus": "2fe2fca366846ec5aaaaaf80edf061f7d19564c097cb9840c7638719e8bc1854",
+      "cargo-verus": "952f6d93db61e0aef610c468f7f7a45248589a6c8a37f4139f9747f611063988",
+      "rust_verify": "0b701b0953e9ddc07cfac33e6b950efd90c812ce75dbe46c01831cf2529467a0"
+    },
+    "z3_version": "4.16.0",
+    "qualification": "toolchain probe passed on Linux x86_64 in CI run 36760127737; production kernel obligations remain pending"
+  },
+  "source_sha256": {
+    "crates/beans-kernel/src/lib.rs": "08f8dcc1c2670fba5b27a57a6e310e3196b2a6ee2896739722620e6f00b3372e",
+    "crates/beans-kernel/src/retry.rs": "67bd49a389f61e4e0ea93c295fe66d871a906c5ae7a27c0d46a77c198ba9643e",
+    "crates/beans-kernel/src/splice.rs": "6d33a21294a1599fd7709d40d2d263e0bfb7ff263ea533da32b4ad2c229b8674"
+  },
+  "lock_sha256": "2c6b3de25319b7fe72c1ae8185bb504cb69dbb38ba2738c1658c9cc2765dc17c",
+  "observations": {
+    "proof": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 0,
+      "log": "kernel-proof.log",
+      "verification_results": [
+        {
+          "verified": 2059,
+          "errors": 0
+        },
+        {
+          "verified": 12,
+          "errors": 0
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 43.53s\n"
+    },
+    "unowned-operation": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-unowned-operation.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nnote: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n  --> crates/beans-kernel/src/retry.rs:28:1\n   |\n28 | pub fn decide_retry(facts: RetryFacts) -> (action: RetryAction)\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:31:9\n   |\n31 | /         (action == RetryAction::DiscardOwnedAndReplay) == (\n32 | |             facts.push_attempts < 3\n33 | |             && facts.operation_present\n34 | |             && facts.head_is_operation\n35 | |             && facts.local_commits == 1\n36 | |             && facts.owned_by_run\n37 | |         ),\n   | |_________^ failed this postcondition\n...\n42 | /     if facts.push_attempts >= 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.head_is_operation\n...  |\n51 | |         RetryAction::PreserveAndFail\n52 | |     }\n   | |_____- at the end of the function body\n\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:38:9\n   |\n38 |           !facts.owned_by_run ==> action != RetryAction::DiscardOwnedAndReplay,\n   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n...\n42 | /     if facts.push_attempts >= 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.head_is_operation\n...  |\n51 | |         RetryAction::PreserveAndFail\n52 | |     }\n   | |_____- at the end of the function body\n\nerror: could not compile `beans-kernel` (lib) due to 2 previous errors\n"
+    },
+    "stale-head": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-stale-head.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:31:9\n   |\n31 | /         (action == RetryAction::DiscardOwnedAndReplay) == (\n32 | |             facts.push_attempts < 3\n33 | |             && facts.operation_present\n34 | |             && facts.head_is_operation\n35 | |             && facts.local_commits == 1\n36 | |             && facts.owned_by_run\n37 | |         ),\n   | |_________^ failed this postcondition\n...\n42 | /     if facts.push_attempts >= 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.local_commits == 1\n...  |\n50 | |         RetryAction::PreserveAndFail\n51 | |     }\n   | |_____- at the end of the function body\n\nerror: could not compile `beans-kernel` (lib) due to 1 previous error\n"
+    },
+    "multiple-local-commits": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-multiple-local-commits.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nnote: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n  --> crates/beans-kernel/src/retry.rs:28:1\n   |\n28 | pub fn decide_retry(facts: RetryFacts) -> (action: RetryAction)\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:31:9\n   |\n31 | /         (action == RetryAction::DiscardOwnedAndReplay) == (\n32 | |             facts.push_attempts < 3\n33 | |             && facts.operation_present\n34 | |             && facts.head_is_operation\n35 | |             && facts.local_commits == 1\n36 | |             && facts.owned_by_run\n37 | |         ),\n   | |_________^ failed this postcondition\n...\n42 | /     if facts.push_attempts >= 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.head_is_operation\n...  |\n50 | |         RetryAction::PreserveAndFail\n51 | |     }\n   | |_____- at the end of the function body\n\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:39:9\n   |\n39 |           facts.local_commits != 1 ==> action != RetryAction::DiscardOwnedAndReplay,\n   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n...\n42 | /     if facts.push_attempts >= 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.head_is_operation\n...  |\n50 | |         RetryAction::PreserveAndFail\n51 | |     }\n   | |_____- at the end of the function body\n\nerror: could not compile `beans-kernel` (lib) due to 2 previous errors\n"
+    },
+    "missing-operation": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-missing-operation.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:31:9\n   |\n31 | /         (action == RetryAction::DiscardOwnedAndReplay) == (\n32 | |             facts.push_attempts < 3\n33 | |             && facts.operation_present\n34 | |             && facts.head_is_operation\n35 | |             && facts.local_commits == 1\n36 | |             && facts.owned_by_run\n37 | |         ),\n   | |_________^ failed this postcondition\n...\n42 | /     if facts.push_attempts >= 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if true\n45 | |         && facts.head_is_operation\n...  |\n51 | |         RetryAction::PreserveAndFail\n52 | |     }\n   | |_____- at the end of the function body\n\nerror: could not compile `beans-kernel` (lib) due to 1 previous error\n"
+    },
+    "fourth-push": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-fourth-push.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nnote: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n  --> crates/beans-kernel/src/retry.rs:28:1\n   |\n28 | pub fn decide_retry(facts: RetryFacts) -> (action: RetryAction)\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:30:9\n   |\n30 |           (action == RetryAction::Exhausted) == (facts.push_attempts >= 3),\n   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n...\n42 | /     if facts.push_attempts > 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.head_is_operation\n...  |\n51 | |         RetryAction::PreserveAndFail\n52 | |     }\n   | |_____- at the end of the function body\n\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:31:9\n   |\n31 | /         (action == RetryAction::DiscardOwnedAndReplay) == (\n32 | |             facts.push_attempts < 3\n33 | |             && facts.operation_present\n34 | |             && facts.head_is_operation\n35 | |             && facts.local_commits == 1\n36 | |             && facts.owned_by_run\n37 | |         ),\n   | |_________^ failed this postcondition\n...\n42 | /     if facts.push_attempts > 3 {\n43 | |         RetryAction::Exhausted\n44 | |     } else if facts.operation_present\n45 | |         && facts.head_is_operation\n...  |\n51 | |         RetryAction::PreserveAndFail\n52 | |     }\n   | |_____- at the end of the function body\n\nerror: could not compile `beans-kernel` (lib) due to 2 previous errors\n"
+    },
+    "unconsumed-budget": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-unconsumed-budget.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nerror: postcondition not satisfied\n  --> crates/beans-kernel/src/retry.rs:85:9\n   |\n85 |           granted ==> final(budget).available() + 1 == old(budget).available(),\n   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n...\n90 | /     if budget.remaining == 0 {\n91 | |         false\n92 | |     } else {\n93 | |         budget.remaining -= 0;\n94 | |         true\n95 | |     }\n   | |_____- at the end of the function body\n\nerror: could not compile `beans-kernel` (lib) due to 1 previous error\n"
+    },
+    "overlap": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-overlap.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nnote: while loop: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n  --> crates/beans-kernel/src/splice.rs:28:5\n   |\n28 |     while i < spans.len()\n   |     ^^^^^^^^^^^^^^^^^^^^^\n\nerror: invariant not satisfied at end of loop body\n  --> crates/beans-kernel/src/splice.rs:36:13\n   |\n36 |             forall|k: int| #![trigger spans@[k]] 0 <= k < i ==> spans@[k].end <= previous_end,\n   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: invariant not satisfied at end of loop body\n  --> crates/beans-kernel/src/splice.rs:37:13\n   |\n37 | /             forall|j: int, k: int| #![trigger spans@[j], spans@[k]] 0 <= j < k < i ==>\n38 | |                 spans@[j].end <= spans@[k].start,\n   | |________________________________________________^\n\nerror: could not compile `beans-kernel` (lib) due to 2 previous errors\n"
+    },
+    "out-of-bounds": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-out-of-bounds.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nnote: while loop: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n  --> crates/beans-kernel/src/splice.rs:28:5\n   |\n28 |     while i < spans.len()\n   |     ^^^^^^^^^^^^^^^^^^^^^\n\nerror: invariant not satisfied at end of loop body\n  --> crates/beans-kernel/src/splice.rs:31:13\n   |\n31 |             previous_end <= source_len,\n   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: invariant not satisfied at end of loop body\n  --> crates/beans-kernel/src/splice.rs:34:13\n   |\n34 | /             forall|k: int| #![trigger spans@[k]] 0 <= k < i ==>\n35 | |                 spans@[k].start <= spans@[k].end <= source_len,\n   | |______________________________________________________________^\n\nerror: could not compile `beans-kernel` (lib) due to 2 previous errors\n"
+    },
+    "reversed-span": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-reversed-span.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nnote: while loop: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n  --> crates/beans-kernel/src/splice.rs:28:5\n   |\n28 |     while i < spans.len()\n   |     ^^^^^^^^^^^^^^^^^^^^^\n\nerror: invariant not satisfied at end of loop body\n  --> crates/beans-kernel/src/splice.rs:34:13\n   |\n34 | /             forall|k: int| #![trigger spans@[k]] 0 <= k < i ==>\n35 | |                 spans@[k].start <= spans@[k].end <= source_len,\n   | |______________________________________________________________^\n\nerror: invariant not satisfied at end of loop body\n  --> crates/beans-kernel/src/splice.rs:36:13\n   |\n36 |             forall|k: int| #![trigger spans@[k]] 0 <= k < i ==> spans@[k].end <= previous_end,\n   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: could not compile `beans-kernel` (lib) due to 2 previous errors\n"
+    },
+    "translation-overflow": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 101,
+      "log": "kernel-translation-overflow.log",
+      "verification_results": [
+        {
+          "verified": 11,
+          "errors": 1
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\nerror: possible arithmetic underflow/overflow\n   --> crates/beans-kernel/src/splice.rs:111:14\n    |\n111 |         Some(destination_start + distance)\n    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: could not compile `beans-kernel` (lib) due to 1 previous error\n"
+    },
+    "restored-proof": {
+      "argv": [
+        "cargo",
+        "verus",
+        "verify",
+        "-p",
+        "beans-kernel",
+        "--locked"
+      ],
+      "exit": 0,
+      "log": "kernel-restored-proof.log",
+      "verification_results": [
+        {
+          "verified": 12,
+          "errors": 0
+        }
+      ],
+      "proof_output": " v0.1.0 (/home/runner/work/beans/beans/crates/beans-kernel)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.75s\n"
+    },
+    "passed": true
+  },
+  "ci": {
+    "run_id": 36772355158,
+    "url": "https://github.com/mattsp1290/beans/actions/runs/36772355158",
+    "source_commit": "5af204fa3244840ddde484d0cfa2b7a701471a21",
+    "runner": "ubuntu-24.04",
+    "arch": "x86_64",
+    "all_six_jobs": "success"
+  },
+  "scope": "WP2 pure helper contracts only; production codec and Git caller coupling remains WP3/WP4; full migration remains incomplete."
+}

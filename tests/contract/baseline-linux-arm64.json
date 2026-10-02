@@ -1,0 +1,13 @@
+{
+  "schema": "beans-go-baseline-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "version": "migration-oracle",
+  "ui": "committed-placeholder",
+  "runtime": "Python >= 3.12 (development harness only)",
+  "binary_sha256": "2189f57a12b3d38db3452294a6447110f3c8243fc36fcb4d953871e987b29801",
+  "os": "Linux",
+  "arch": "aarch64",
+  "go_version": "go version go1.26.0 linux/arm64",
+  "git_version": "git version 2.43.0",
+  "ui_sha256": "3514ab205cf8207c6751221fe7b2ffc86431da27825703ed03f5c32fe45d0a24"
+}

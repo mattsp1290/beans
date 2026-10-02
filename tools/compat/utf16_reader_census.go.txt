@@ -1,0 +1,269 @@
+package issue
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+	"time"
+	"unicode/utf16"
+)
+
+func readerInts(b []byte) []int {
+	v := make([]int, len(b))
+	for i, b := range b {
+		v[i] = int(b)
+	}
+	return v
+}
+func TestMigrationUTF16Reader(t *testing.T) {
+	heads := map[string]string{
+		"issue":   "id: p-one\ntitle: Title # keep\ntype: task\nstatus: open\npriority: 2\n",
+		"request": "id: p-r-one\naliases: [p-r-one]\ntitle: Title # keep\nstatus: open\npriority: 2\n",
+		"memory":  "key: key\ntype: reference # keep\n",
+		"handoff": "id: p-one\ntitle: Title # keep\n",
+	}
+	stamp := "created: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n"
+	rows := []any{}
+	for _, kind := range []string{"issue", "request", "memory", "handoff"} {
+		path := "projects/p/issues/p-one.md"
+		switch kind {
+		case "request":
+			path = "projects/p/requests/p-r-one.md"
+		case "memory":
+			path = "projects/p/memories/key.md"
+		case "handoff":
+			path = "projects/p/handoffs/p-one.md"
+		}
+		for _, le := range []bool{true, false} {
+			encode := func(text string) []byte {
+				out := []byte{}
+				for _, u := range utf16.Encode([]rune(text)) {
+					if le {
+						out = append(out, byte(u), byte(u>>8))
+					} else {
+						out = append(out, byte(u>>8), byte(u))
+					}
+				}
+				return out
+			}
+			for _, variant := range []string{"base", "unicode", "syntax", "blank", "comments"} {
+				base := heads[kind] + stamp
+				switch variant {
+				case "unicode":
+					base = strings.ReplaceAll(base, "Title", "α😀")
+				case "syntax":
+					base = "bad: [}\n" + base
+				case "blank":
+					base = "\n" + base
+				case "comments":
+					base = "# leading\n" + base
+				}
+				for _, end := range []string{"", "...\n", "...\nkey: value\n"} {
+					for _, fault := range []string{"none", "low", "high", "pair", "odd", "control", "noncharacter", "validpair", "truncated_high", "truncated_unit"} {
+						for _, target := range []int{0, 510, 512, 514, 1024, 4096} {
+							padding := (target - 2 - len(encode(base+end+"# "))) / 2
+							if padding < 0 {
+								padding = 0
+							}
+							raw := []byte{254, 255}
+							if le {
+								raw = []byte{255, 254}
+							}
+							raw = append(raw, encode(base+end+"# "+strings.Repeat("x", padding))...)
+							units := []uint16{}
+							switch fault {
+							case "low":
+								units = []uint16{0xdc00}
+							case "high":
+								units = []uint16{0xd800}
+							case "pair":
+								units = []uint16{0xd800, 0x41}
+							case "control":
+								units = []uint16{0}
+							case "noncharacter":
+								units = []uint16{0xffff}
+							case "validpair":
+								units = []uint16{0xd83d, 0xde00}
+							case "truncated_high":
+								units = []uint16{0xd800}
+							}
+							for _, u := range units {
+								if le {
+									raw = append(raw, byte(u), byte(u>>8))
+								} else {
+									raw = append(raw, byte(u>>8), byte(u))
+								}
+							}
+							if fault == "odd" {
+								raw = append(raw, 65)
+							}
+							if fault == "truncated_high" || fault == "truncated_unit" {
+								raw = append(raw, 10)
+							} else {
+								raw = append(raw, encode("\n")...)
+								raw = append(raw, 10, 10)
+							}
+							input := append([]byte("---\n"), raw...)
+							input = append(input, []byte("---\nbody\xff\n")...)
+							outputs := map[string]any{}
+							for _, mode := range []string{"noop", "first", "last"} {
+								var output []byte
+								var e error
+								now := time.Date(2027, 1, 1, 0, 0, 0, 0, time.UTC)
+								switch kind {
+								case "issue":
+									d, err := Parse(path, input)
+									e = err
+									if e == nil {
+										if mode == "first" {
+											d.Title = "Changed"
+										}
+										if mode == "last" {
+											d.Updated = now
+										}
+										output, e = Encode(d)
+									}
+								case "request":
+									d, err := ParseRequest(path, input)
+									e = err
+									if e == nil {
+										if mode == "first" {
+											d.Title = "Changed"
+										}
+										if mode == "last" {
+											d.Updated = now
+										}
+										output, e = EncodeRequest(d)
+									}
+								case "memory":
+									d, err := ParseMemory(path, input)
+									e = err
+									if e == nil {
+										if mode == "first" {
+											d.Type = "feedback"
+										}
+										if mode == "last" {
+											d.Updated = now
+										}
+										output, e = EncodeMemory(d)
+									}
+								case "handoff":
+									d, err := ParseHandoff(path, input)
+									e = err
+									if e == nil {
+										if mode == "first" {
+											d.Title = "Changed"
+										}
+										if mode == "last" {
+											d.Updated = now
+										}
+										output, e = EncodeHandoff(d)
+									}
+								}
+								message := ""
+								if e != nil {
+									message = e.Error()
+								}
+								out := map[string]any{"error": message}
+								if e == nil {
+									if mode == "noop" && !bytes.Equal(input, output) {
+										t.Fatal("UTF16 no-op changes input")
+									}
+									out["bytes"] = readerInts(output)
+									reread, readError := readerRead(kind, path, output)
+									readMessage := ""
+									if readError != nil {
+										readMessage = readError.Error()
+									} else if !bytes.Equal(reread, output) {
+										t.Fatal("Go reread changes UTF16 output")
+									}
+									out["reread_error"] = readMessage
+								}
+								outputs[mode] = out
+							}
+							rows = append(rows, map[string]any{"kind": kind, "path": path, "little_endian": le, "variant": variant, "document_end": end, "fault": fault, "padding": padding, "target": target, "bytes": readerInts(input), "outputs": outputs})
+						}
+					}
+				}
+			}
+		}
+	}
+	data, e := json.Marshal(map[string]any{"cases": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e := os.WriteFile(os.Getenv("BN_UTF16_READER_OUTPUT"), data, 0600); e != nil {
+		t.Fatal(e)
+	}
+	fmt.Println("UTF16 reader cases", len(rows))
+}
+
+func readerRead(kind, path string, input []byte) ([]byte, error) {
+	switch kind {
+	case "issue":
+		d, e := Parse(path, input)
+		if e != nil {
+			return nil, e
+		}
+		return Encode(d)
+	case "request":
+		d, e := ParseRequest(path, input)
+		if e != nil {
+			return nil, e
+		}
+		return EncodeRequest(d)
+	case "memory":
+		d, e := ParseMemory(path, input)
+		if e != nil {
+			return nil, e
+		}
+		return EncodeMemory(d)
+	case "handoff":
+		d, e := ParseHandoff(path, input)
+		if e != nil {
+			return nil, e
+		}
+		return EncodeHandoff(d)
+	}
+	panic("unknown kind")
+}
+func TestMigrationRawReaderRead(t *testing.T) {
+	raw, e := os.ReadFile(os.Getenv("BN_RUST_RAW_READER_INPUT"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	var rows []struct {
+		Kind, Path, ExpectedError string
+		Bytes                     []int
+	}
+	if e := json.Unmarshal(raw, &rows); e != nil {
+		t.Fatal(e)
+	}
+	accepted, rejected := 0, 0
+	for i, r := range rows {
+		input := make([]byte, len(r.Bytes))
+		for j, b := range r.Bytes {
+			input[j] = byte(b)
+		}
+		output, e := readerRead(r.Kind, r.Path, input)
+		message := ""
+		if e != nil {
+			message = e.Error()
+		}
+		if message != r.ExpectedError {
+			t.Fatalf("%d: got %s want %s", i, message, r.ExpectedError)
+		}
+		if e == nil {
+			accepted++
+			if !bytes.Equal(input, output) {
+				t.Fatalf("Go rewrites Rust output %d", i)
+			}
+		} else {
+			rejected++
+		}
+	}
+	t.Logf("Go read %d actual Rust outputs: %d accepted, %d matching rejections", len(rows), accepted, rejected)
+}

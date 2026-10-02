@@ -1,0 +1,5364 @@
+{
+  "schema": "beans-plan-foundation-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "harness_sha256": "dd70a787902fc3bd0f31470f6262b191762529a9d8d7b159adc559576ca0b893",
+  "generation": [
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": -1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": -1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": -1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": -1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": -1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": 0,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": 0,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": 0,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": 0,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": 0,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "collisions": 0,
+      "length": 1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "collisions": 7,
+      "length": 1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "collisions": 8,
+      "length": 1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ],
+      "collisions": 16,
+      "length": 1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "collisions": 24,
+      "length": 1,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": 4,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": 4,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": 4,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": 4,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": 4,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7
+      ],
+      "collisions": 0,
+      "length": 7,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "collisions": 7,
+      "length": 7,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8
+      ],
+      "collisions": 8,
+      "length": 7,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9
+      ],
+      "collisions": 16,
+      "length": 7,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "collisions": 24,
+      "length": 7,
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": -1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": -1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": -1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": -1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": -1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": 0,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": 0,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": 0,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": 0,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": 0,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "collisions": 0,
+      "length": 1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "collisions": 7,
+      "length": 1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "collisions": 8,
+      "length": 1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ],
+      "collisions": 16,
+      "length": 1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "collisions": 24,
+      "length": 1,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": 4,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": 4,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": 4,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": 4,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": 4,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7
+      ],
+      "collisions": 0,
+      "length": 7,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "collisions": 7,
+      "length": 7,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8
+      ],
+      "collisions": 8,
+      "length": 7,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9
+      ],
+      "collisions": 16,
+      "length": 7,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "collisions": 24,
+      "length": 7,
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": -1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": -1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": -1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": -1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": -1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": 0,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": 0,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": 0,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": 0,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": 0,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "collisions": 0,
+      "length": 1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "collisions": 7,
+      "length": 1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "collisions": 8,
+      "length": 1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3
+      ],
+      "collisions": 16,
+      "length": 1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "collisions": 24,
+      "length": 1,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4
+      ],
+      "collisions": 0,
+      "length": 4,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "collisions": 7,
+      "length": 4,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5
+      ],
+      "collisions": 8,
+      "length": 4,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6
+      ],
+      "collisions": 16,
+      "length": 4,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "collisions": 24,
+      "length": 4,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7
+      ],
+      "collisions": 0,
+      "length": 7,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "collisions": 7,
+      "length": 7,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8
+      ],
+      "collisions": 8,
+      "length": 7,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9
+      ],
+      "collisions": 16,
+      "length": 7,
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "attempts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "collisions": 24,
+      "length": 7,
+      "prefix": "a.b",
+      "valid": true
+    }
+  ],
+  "graph_models": [
+    {
+      "version": 0,
+      "nodes": null,
+      "edges": null
+    },
+    {
+      "version": 1,
+      "nodes": [],
+      "edges": []
+    },
+    {
+      "version": 1,
+      "nodes": [
+        {
+          "id": "model",
+          "label": "Model",
+          "kind": "component"
+        },
+        {
+          "id": "work",
+          "label": "Work",
+          "kind": "workflow",
+          "ref": "[[beans-abc]]"
+        }
+      ],
+      "edges": [
+        {
+          "from": "model",
+          "to": "work",
+          "kind": "precedes"
+        },
+        {
+          "from": "work",
+          "to": "model",
+          "kind": "affects",
+          "label": "change"
+        }
+      ]
+    }
+  ],
+  "ids": [
+    {
+      "id": "beans-plan-a1b2",
+      "prefix": "beans",
+      "valid": true
+    },
+    {
+      "id": "beans-plan-",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "beans-plan-A1",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "beans-plan-a.1",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "beans-plan-a-1",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "beans-plan-a\n",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "beans-plan-١",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "other-plan-abc",
+      "prefix": "beans",
+      "valid": false
+    },
+    {
+      "id": "-plan-a1b2",
+      "prefix": "",
+      "valid": true
+    },
+    {
+      "id": "-plan-",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "-plan-A1",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "-plan-a.1",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "-plan-a-1",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "-plan-a\n",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "-plan-١",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "other-plan-abc",
+      "prefix": "",
+      "valid": false
+    },
+    {
+      "id": "a.b-plan-a1b2",
+      "prefix": "a.b",
+      "valid": true
+    },
+    {
+      "id": "a.b-plan-",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "a.b-plan-A1",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "a.b-plan-a.1",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "a.b-plan-a-1",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "a.b-plan-a\n",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "a.b-plan-١",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "other-plan-abc",
+      "prefix": "a.b",
+      "valid": false
+    },
+    {
+      "id": "Upper-plan-a1b2",
+      "prefix": "Upper",
+      "valid": true
+    },
+    {
+      "id": "Upper-plan-",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "Upper-plan-A1",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "Upper-plan-a.1",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "Upper-plan-a-1",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "Upper-plan-a\n",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "Upper-plan-١",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "other-plan-abc",
+      "prefix": "Upper",
+      "valid": false
+    },
+    {
+      "id": "a\nb-plan-a1b2",
+      "prefix": "a\nb",
+      "valid": true
+    },
+    {
+      "id": "a\nb-plan-",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "a\nb-plan-A1",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "a\nb-plan-a.1",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "a\nb-plan-a-1",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "a\nb-plan-a\n",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "a\nb-plan-١",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "other-plan-abc",
+      "prefix": "a\nb",
+      "valid": false
+    },
+    {
+      "id": "foreign-project-plan-a1b2",
+      "prefix": "foreign-project",
+      "valid": true
+    },
+    {
+      "id": "foreign-project-plan-",
+      "prefix": "foreign-project",
+      "valid": false
+    },
+    {
+      "id": "foreign-project-plan-A1",
+      "prefix": "foreign-project",
+      "valid": false
+    },
+    {
+      "id": "foreign-project-plan-a.1",
+      "prefix": "foreign-project",
+      "valid": false
+    },
+    {
+      "id": "foreign-project-plan-a-1",
+      "prefix": "foreign-project",
+      "valid": false
+    },
+    {
+      "id": "foreign-project-plan-a\n",
+      "prefix": "foreign-project",
+      "valid": false
+    },
+    {
+      "id": "foreign-project-plan-١",
+      "prefix": "foreign-project",
+      "valid": false
+    },
+    {
+      "id": "other-plan-abc",
+      "prefix": "foreign-project",
+      "valid": false
+    }
+  ],
+  "lifecycle": [
+    {
+      "error": "nil plan",
+      "nil": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "prose",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- ",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "* area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": " - area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "draft",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "prose",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- ",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "* area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": " - area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "blocked plans require a BLOCKER: Risks item",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "blocked",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "ready plans require Affected areas list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "prose",
+      "error": "ready plans require Affected areas list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- ",
+      "error": "ready plans require Affected areas list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "* area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": " - area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require Risks list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require Risks list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require Risks list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require a graph node",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "ready plans require Affected areas list",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "ready",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "ready plans require Affected areas list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "prose",
+      "error": "ready plans require Affected areas list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- ",
+      "error": "ready plans require Affected areas list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "* area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": " - area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require ordered Execution order",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require Risks list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require Risks list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require Risks list",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans cannot contain bn:todo markers",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "ready plans require a graph node",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "Summary Outcome must contain meaningful text",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "",
+      "error": "ready plans require Affected areas list",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "complete",
+      "valid_status": true
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "prose",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- ",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "* area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": " - area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "",
+      "error": "invalid plan status",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "prose",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- ",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "* area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": " - area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "",
+      "error": "invalid plan status",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "READY",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " \n\t",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- hidden -->",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a\n雪 -->",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- a --> <!-- b -->",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- unclosed",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "text <!-- bn:todo -->",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": " ",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "prose",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- ",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "* area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": " - area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- <!-- bn:todo -->",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "prose",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "  12.\tstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\nstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\n\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. ",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "١. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": " 1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\u000b1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\u000bstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "\f1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1.\fstep",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "line\n2. x",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "<!-- bn:todo -->\n1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "prose",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- ",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- BLOCKER:",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "* BLOCKER: thing",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "-   BLOCKER: thing",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- blocker: thing",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- <!-- bn:todo -->",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "<!-- comment -->\n- BLOCKER: x",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 0,
+      "order": "1. step",
+      "outcome": "outcome",
+      "risks": "- None.",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "- area",
+      "error": "invalid plan status",
+      "nodes": 1,
+      "order": "1. step",
+      "outcome": "<!-- bn:todo -->",
+      "risks": "- BLOCKER: x",
+      "status": "later",
+      "valid_status": false
+    },
+    {
+      "areas": "",
+      "error": "invalid plan status",
+      "nodes": 0,
+      "order": "",
+      "outcome": "outcome",
+      "risks": "",
+      "status": "later",
+      "valid_status": false
+    }
+  ],
+  "slug_grammar": [
+    {
+      "slug": "",
+      "valid": false
+    },
+    {
+      "slug": "a",
+      "valid": true
+    },
+    {
+      "slug": "0",
+      "valid": true
+    },
+    {
+      "slug": "a-b",
+      "valid": true
+    },
+    {
+      "slug": "-a",
+      "valid": false
+    },
+    {
+      "slug": "a-",
+      "valid": false
+    },
+    {
+      "slug": "a--b",
+      "valid": false
+    },
+    {
+      "slug": "Upper",
+      "valid": false
+    },
+    {
+      "slug": "a_b",
+      "valid": false
+    },
+    {
+      "slug": "a.b",
+      "valid": false
+    },
+    {
+      "slug": "a\n",
+      "valid": false
+    },
+    {
+      "slug": "雪",
+      "valid": false
+    },
+    {
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid": true
+    }
+  ],
+  "slugs": [
+    {
+      "directory": "beans-plan-abc-plan",
+      "slug": "plan",
+      "title": "",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-plan",
+      "slug": "plan",
+      "title": "!!!",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-hello-world",
+      "slug": "hello-world",
+      "title": "Hello, World!!!",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-istanbul-k",
+      "slug": "istanbul-k",
+      "title": "İstanbul K",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-plan",
+      "slug": "plan",
+      "title": "雪",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-plan",
+      "slug": "plan",
+      "title": "ΟΣ Σς",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-a-b",
+      "slug": "a-b",
+      "title": "a\u0000B",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  bb",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-one-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "one-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "title": "one bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid": true
+    },
+    {
+      "directory": "beans-plan-abc-a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "slug": "a-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "title": "a bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "valid": true
+    }
+  ],
+  "validation_errors": [
+    {
+      "error": "invalid plan",
+      "issues": null
+    },
+    {
+      "error": "plan.md: first",
+      "issues": [
+        {
+          "path": "plan.md",
+          "code": "invalid",
+          "message": "first"
+        }
+      ]
+    },
+    {
+      "error": "x.md: 雪",
+      "issues": [
+        {
+          "path": "x.md",
+          "line": 2,
+          "code": "invalid",
+          "message": "雪"
+        },
+        {
+          "path": "later.md",
+          "code": "",
+          "message": "second"
+        }
+      ]
+    }
+  ]
+}

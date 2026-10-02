@@ -1,0 +1,1408 @@
+{
+  "schema": "beans-embedded-assets-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "node_version": "v24.12.0",
+  "npm_version": "11.6.2",
+  "ui_lock_sha256": "39449ba8e15d2d9a948b445b136c05abc9b7987f08f84d3ff4500157cdc49d5a",
+  "manifest": {
+    ".gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "assets/index-BYZnj1vv.css": "748873f94716e713631edce047930d02247a566fa53422361d557456fbf69fae",
+    "assets/index-BooIaW9g.js": "3924a37202beecce475ce0d90dc967d765dd2e00aa3341115fedc6758fe24789",
+    "index.html": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+  },
+  "cases": [
+    {
+      "method": "GET",
+      "path": "/.gitkeep",
+      "body": null,
+      "id": "asset-000:GET:/.gitkeep",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/.gitkeep",
+      "body": null,
+      "id": "asset-001:HEAD:/.gitkeep",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/.gitkeep?cache=contract",
+      "body": null,
+      "id": "asset-002:GET:/.gitkeep?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/.gitkeep?cache=contract",
+      "body": null,
+      "id": "asset-003:HEAD:/.gitkeep?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/.GITKEEP",
+      "body": null,
+      "id": "asset-004:GET:/.GITKEEP",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/.GITKEEP",
+      "body": null,
+      "id": "asset-005:HEAD:/.GITKEEP",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/.gitkeep/",
+      "body": null,
+      "id": "asset-006:GET:/.gitkeep/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/.gitkeep/",
+      "body": null,
+      "id": "asset-007:HEAD:/.gitkeep/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/.gitkeep",
+      "body": null,
+      "headers": {
+        "Range": "bytes=0-31"
+      },
+      "id": "asset-008:GET:/.gitkeep",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/plain; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "0"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BYZnj1vv.css",
+      "body": null,
+      "id": "asset-009:GET:/assets/index-BYZnj1vv.css",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 17353,
+        "body_sha256": "748873f94716e713631edce047930d02247a566fa53422361d557456fbf69fae"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/index-BYZnj1vv.css",
+      "body": null,
+      "id": "asset-010:HEAD:/assets/index-BYZnj1vv.css",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BYZnj1vv.css?cache=contract",
+      "body": null,
+      "id": "asset-011:GET:/assets/index-BYZnj1vv.css?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 17353,
+        "body_sha256": "748873f94716e713631edce047930d02247a566fa53422361d557456fbf69fae"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/index-BYZnj1vv.css?cache=contract",
+      "body": null,
+      "id": "asset-012:HEAD:/assets/index-BYZnj1vv.css?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/ASSETS/INDEX-BYZNJ1VV.CSS",
+      "body": null,
+      "id": "asset-013:GET:/ASSETS/INDEX-BYZNJ1VV.CSS",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/ASSETS/INDEX-BYZNJ1VV.CSS",
+      "body": null,
+      "id": "asset-014:HEAD:/ASSETS/INDEX-BYZNJ1VV.CSS",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BYZnj1vv.css/",
+      "body": null,
+      "id": "asset-015:GET:/assets/index-BYZnj1vv.css/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 17353,
+        "body_sha256": "748873f94716e713631edce047930d02247a566fa53422361d557456fbf69fae"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/index-BYZnj1vv.css/",
+      "body": null,
+      "id": "asset-016:HEAD:/assets/index-BYZnj1vv.css/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BYZnj1vv.css",
+      "body": null,
+      "headers": {
+        "Range": "bytes=0-31"
+      },
+      "id": "asset-017:GET:/assets/index-BYZnj1vv.css",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/css; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "17353"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 17353,
+        "body_sha256": "748873f94716e713631edce047930d02247a566fa53422361d557456fbf69fae"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BooIaW9g.js",
+      "body": null,
+      "id": "asset-018:GET:/assets/index-BooIaW9g.js",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 318049,
+        "body_sha256": "3924a37202beecce475ce0d90dc967d765dd2e00aa3341115fedc6758fe24789"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/index-BooIaW9g.js",
+      "body": null,
+      "id": "asset-019:HEAD:/assets/index-BooIaW9g.js",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BooIaW9g.js?cache=contract",
+      "body": null,
+      "id": "asset-020:GET:/assets/index-BooIaW9g.js?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 318049,
+        "body_sha256": "3924a37202beecce475ce0d90dc967d765dd2e00aa3341115fedc6758fe24789"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/index-BooIaW9g.js?cache=contract",
+      "body": null,
+      "id": "asset-021:HEAD:/assets/index-BooIaW9g.js?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/ASSETS/INDEX-BOOIAW9G.JS",
+      "body": null,
+      "id": "asset-022:GET:/ASSETS/INDEX-BOOIAW9G.JS",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/ASSETS/INDEX-BOOIAW9G.JS",
+      "body": null,
+      "id": "asset-023:HEAD:/ASSETS/INDEX-BOOIAW9G.JS",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BooIaW9g.js/",
+      "body": null,
+      "id": "asset-024:GET:/assets/index-BooIaW9g.js/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 318049,
+        "body_sha256": "3924a37202beecce475ce0d90dc967d765dd2e00aa3341115fedc6758fe24789"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/index-BooIaW9g.js/",
+      "body": null,
+      "id": "asset-025:HEAD:/assets/index-BooIaW9g.js/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/index-BooIaW9g.js",
+      "body": null,
+      "headers": {
+        "Range": "bytes=0-31"
+      },
+      "id": "asset-026:GET:/assets/index-BooIaW9g.js",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/javascript; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "318049"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 318049,
+        "body_sha256": "3924a37202beecce475ce0d90dc967d765dd2e00aa3341115fedc6758fe24789"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/index.html",
+      "body": null,
+      "id": "asset-027:GET:/index.html",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/index.html",
+      "body": null,
+      "id": "asset-028:HEAD:/index.html",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/index.html?cache=contract",
+      "body": null,
+      "id": "asset-029:GET:/index.html?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/index.html?cache=contract",
+      "body": null,
+      "id": "asset-030:HEAD:/index.html?cache=contract",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/INDEX.HTML",
+      "body": null,
+      "id": "asset-031:GET:/INDEX.HTML",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/INDEX.HTML",
+      "body": null,
+      "id": "asset-032:HEAD:/INDEX.HTML",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/index.html/",
+      "body": null,
+      "id": "asset-033:GET:/index.html/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/index.html/",
+      "body": null,
+      "id": "asset-034:HEAD:/index.html/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/index.html",
+      "body": null,
+      "headers": {
+        "Range": "bytes=0-31"
+      },
+      "id": "asset-035:GET:/index.html",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "body": null,
+      "id": "asset-036:GET:/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/",
+      "body": null,
+      "id": "asset-037:HEAD:/",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ],
+          [
+            "last-modified",
+            "Mon, 01 Jan 0001 00:00:00 GMT"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/issues/alpha-a1b2",
+      "body": null,
+      "id": "asset-038:GET:/issues/alpha-a1b2",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/issues/alpha-a1b2",
+      "body": null,
+      "id": "asset-039:HEAD:/issues/alpha-a1b2",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/deep/wiki/route",
+      "body": null,
+      "id": "asset-040:GET:/deep/wiki/route",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/deep/wiki/route",
+      "body": null,
+      "id": "asset-041:HEAD:/deep/wiki/route",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/assets/missing.js",
+      "body": null,
+      "id": "asset-042:GET:/assets/missing.js",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/assets/missing.js",
+      "body": null,
+      "id": "asset-043:HEAD:/assets/missing.js",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/missing.css",
+      "body": null,
+      "id": "asset-044:GET:/missing.css",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/missing.css",
+      "body": null,
+      "id": "asset-045:HEAD:/missing.css",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/unknown",
+      "body": null,
+      "id": "asset-046:GET:/api/unknown",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 52,
+        "body_sha256": "dea78f843e46c45482b84c9d9db6d16b10a294376e65bcf67a43484f071428c1"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/unknown",
+      "body": null,
+      "id": "asset-047:HEAD:/api/unknown",
+      "expected": {
+        "status": 404,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "application/json; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "52"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/API/unknown",
+      "body": null,
+      "id": "asset-048:GET:/API/unknown",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ]
+        ],
+        "body_bytes": 389,
+        "body_sha256": "c13f4be13fb26eff30ac5cb8cea721e9690a7e177333c75748766741e3b38f50"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/API/unknown",
+      "body": null,
+      "id": "asset-049:HEAD:/API/unknown",
+      "expected": {
+        "status": 200,
+        "headers": [
+          [
+            "date",
+            "${TRANSPORT_DATE}"
+          ],
+          [
+            "content-type",
+            "text/html; charset=utf-8"
+          ],
+          [
+            "content-length",
+            "389"
+          ]
+        ],
+        "body_bytes": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "post_state": {
+    "changed_files": {},
+    "removed_files": [],
+    "git": {
+      "status": "",
+      "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+      "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+      "staged": ""
+    },
+    "server_exit": 0
+  }
+}

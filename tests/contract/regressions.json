@@ -1,0 +1,1928 @@
+{
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "entries": [
+    {
+      "source": "cmd/bn/app_test.go",
+      "test": "TestRootCommandWithoutArgsPrintsHelp",
+      "line": 9,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/app_test.go",
+      "test": "TestResolveActorPrecedence",
+      "line": 23,
+      "destination": "tests/domain/context.rs::resolve_actor_original_precedence_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/app_test.go",
+      "test": "TestWriteJSONTo",
+      "line": 33,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_handoff_test.go",
+      "test": "TestHandoffCLIWorkflow",
+      "line": 11,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestCreateReadyCloseRoundTrip",
+      "line": 92,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestRequestCLIWorkflow",
+      "line": 165,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestDepCyclesAndTree",
+      "line": 204,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestMemoriesDocsSearchArchive",
+      "line": 230,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestImportBDFromLiveExport",
+      "line": 264,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestCLIImportBDReportsUnmappedDependencyTypes",
+      "line": 308,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestPrimeMatchesDocs",
+      "line": 357,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestExitCodes",
+      "line": 381,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestCloseMultipleIDsPartialFailure",
+      "line": 401,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestImportForceRerunIsNoChange",
+      "line": 419,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_issues_test.go",
+      "test": "TestTextOutputGoldens",
+      "line": 439,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_test.go",
+      "test": "TestInitStatusProjectRoundTrip",
+      "line": 76,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/cli_test.go",
+      "test": "TestCommandsWithoutHubFail",
+      "line": 152,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "cmd/bn/json_test.go",
+      "test": "TestWriteJSONGoesToStdout",
+      "line": 8,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestCloneEmptyRemoteInitializesAndMutateSucceeds",
+      "line": 13,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestCloneNonEmptyRemoteReadsDefaultBranch",
+      "line": 39,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestRaceRetriesOnceAndKeepsBothOperations",
+      "line": 52,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestConflictInReplayIsIdempotent",
+      "line": 83,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestOfflinePushLeavesLocalCommitAndSyncPushes",
+      "line": 116,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestThrottleFetchesOncePerWindow",
+      "line": 144,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestHandEditIsCommittedBeforeOperation",
+      "line": 164,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestHandEditPlusRaceKeepsHandEdit",
+      "line": 180,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestConflictingOperationWithHandEditExits3WithoutReset",
+      "line": 219,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestRetryExhaustionExits3AndKeepsCommit",
+      "line": 257,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestPartialWriteRecovery",
+      "line": 281,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestSameCloneReadDoesNotMergeWhileWriteHoldsLock",
+      "line": 312,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestInterruptedRebaseExits3UntilAborted",
+      "line": 364,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestOwnedTempsAreDeletedAndUserTempsSurvive",
+      "line": 401,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestDetachedHeadErrorsWithoutCommit",
+      "line": 431,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestLockTimeoutExits4",
+      "line": 451,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestNoSyncCommitsLocallyOnly",
+      "line": 471,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestSyncConflictAbortsRebaseAndExits3",
+      "line": 486,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestHandEditSurvivesDroppedOperationCommit",
+      "line": 526,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestStrandedCommitIsPushedByNextIdempotentMutate",
+      "line": 578,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestNoSyncApplyErrorLeavesCleanTree",
+      "line": 613,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestSubjectCollisionCannotDiscardHandEdit",
+      "line": 646,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/hub_test.go",
+      "test": "TestOperationCommitCarriesNonceAndSurvivesRebaseDiscardCheck",
+      "line": 702,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestFakeGitResolverHeadCommitRecordsCallArgs",
+      "line": 74,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestFakeGitResolverHeadCommitReturnsConfiguredInvalidOutput",
+      "line": 90,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestRealGitResolverHeadCommitReturnsExactHeadInCommonRepoStates",
+      "line": 103,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestRealGitResolverHeadCommitReturnsExactHeadDuringMergeState",
+      "line": 129,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestRealGitResolverHeadCommitReturnsExactHeadDuringRebaseState",
+      "line": 147,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestRealGitResolverHeadCommitBestEffortFailures",
+      "line": 167,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/resolver_test.go",
+      "test": "TestIsFullLowercaseHexCommit",
+      "line": 213,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/tree_swap_test.go",
+      "test": "TestReplaceTreeReplacesCompleteContents",
+      "line": 9,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/tree_swap_test.go",
+      "test": "TestReplaceTreeRejectsEscapingPath",
+      "line": 32,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/tree_swap_test.go",
+      "test": "TestReplaceTreeRecoversInterruptedBackup",
+      "line": 38,
+      "destination": "tests/git_pipeline.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "gitops/tree_swap_test.go",
+      "test": "TestRecoverTreesRestoresInterruptedBackup",
+      "line": 59,
+      "destination": "tests/domain/recovery.rs::recover_trees_restores_interrupted_backup_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/handoff_test.go",
+      "test": "TestHandoffCreateMissingIssueDoesNotBootstrapProject",
+      "line": 11,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/handoff_test.go",
+      "test": "TestHandoffCreatePreservesExistingFinalNewlines",
+      "line": 23,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/import_test.go",
+      "test": "TestImportBDReportsUnmappedDependencyTypes",
+      "line": 43,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/import_test.go",
+      "test": "TestImportBDLiveExport",
+      "line": 110,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/import_test.go",
+      "test": "TestParseBDExportSkipsBlankCommentsAndBadRows",
+      "line": 170,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/import_test.go",
+      "test": "TestImportBDGastownhallFixture",
+      "line": 180,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestCreateWritesFileAndIsReplaySafe",
+      "line": 44,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestPlanPutRejectsDuplicateIDInAnotherProject",
+      "line": 70,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestUpdateFieldsAndLog",
+      "line": 100,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestCloseReopenIdempotent",
+      "line": 130,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestDepAddRefusesCycleAndDeleteRefusesBacklinks",
+      "line": 152,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestArchiveMovesOldTerminalIssues",
+      "line": 192,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/ops_test.go",
+      "test": "TestDepAddAcceptsBasenamesAndRefusesParentCycle",
+      "line": 226,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/plan_test.go",
+      "test": "TestPlanPutRemovesDroppedSections",
+      "line": 13,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/plan_test.go",
+      "test": "TestPlanPutRejectsStaleRevision",
+      "line": 64,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/plan_test.go",
+      "test": "TestPlanLinkAndUnlinkAreIdempotent",
+      "line": 101,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/request_test.go",
+      "test": "TestRequestCreateUpdateAndLinks",
+      "line": 12,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/request_test.go",
+      "test": "TestRequestLinkIsAtomicAndFindIsExact",
+      "line": 51,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/request_test.go",
+      "test": "TestRequestCreateExplicitEmptyBodySkipsTemplate",
+      "line": 68,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/request_test.go",
+      "test": "TestArtifactIDRegistrySeesAliasesAndBasenames",
+      "line": 81,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/ops/request_test.go",
+      "test": "TestArtifactIDRegistrySeesHubGlobalBasenames",
+      "line": 98,
+      "destination": "tests/operations.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestHandoffWikiRenderingAndArchivedSearch",
+      "line": 31,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestReadsAndMutations",
+      "line": 141,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestPlanReadEndpointsAreGetOnly",
+      "line": 209,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestDocsGraphSearchAssetsAndSPA",
+      "line": 225,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestRequestReadAPIAndRelationships",
+      "line": 277,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestEventsStreamReload",
+      "line": 312,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestProjectNameIsValidatedAndCycleIs409NotValidation",
+      "line": 331,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestAssetWithSpaceInName",
+      "line": 350,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestSSEHeartbeatReapsClosedClient",
+      "line": 368,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "internal/server/server_test.go",
+      "test": "TestParentChildDepsOverAPI",
+      "line": 397,
+      "destination": "tests/server.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/codec_test.go",
+      "test": "TestRoundTrip",
+      "line": 37,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::round_trip",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/codec_test.go",
+      "test": "TestMutationsTouchOnlyTheirLines",
+      "line": 57,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::mutations_touch_only_their_lines",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/codec_test.go",
+      "test": "TestNewIssueEncodeAndLogCreation",
+      "line": 109,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::new_issue_encode_and_log_creation",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/codec_test.go",
+      "test": "TestParseErrors",
+      "line": 162,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "codec_regressions::parse_errors_name_the_file",
+      "rust_source": "tests/domain/codec_regressions.rs",
+      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestLoadHubConfigMissingPathReturnsDefaults",
+      "line": 11,
+      "destination": "tests/domain/config_codec.rs::load_hub_config_missing_path_returns_defaults",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestLoadHubConfigMalformedTOMLNamesFileAndLine",
+      "line": 25,
+      "destination": "tests/domain/config_codec.rs::load_hub_config_malformed_toml_names_file_and_line",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestLoadProjectConfigReadsNamePrefixRemotes",
+      "line": 44,
+      "destination": "tests/domain/config_codec.rs::load_project_config_reads_name_prefix_remotes",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestEncodeProjectConfigRoundTrip",
+      "line": 66,
+      "destination": "tests/domain/config_codec.rs::encode_project_config_round_trip",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestEncodeProjectConfigWithoutWorkflow",
+      "line": 102,
+      "destination": "tests/domain/config_codec.rs::encode_project_config_without_workflow",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestUserConfigThrottleDuration",
+      "line": 113,
+      "destination": "tests/domain/config_foundation.rs::user_config_throttle_duration",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestLoadUserConfigMissingReturnsDefaults",
+      "line": 133,
+      "destination": "tests/domain/config_codec.rs::load_user_config_missing_returns_defaults",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/config_test.go",
+      "test": "TestEncodeUserConfigDecodesBack",
+      "line": 146,
+      "destination": "tests/domain/config_codec.rs::encode_user_config_decodes_back",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestParseAdditionalErrors",
+      "line": 13,
+      "destination": "tests/domain/parser_regressions.rs::additional_owned_and_yaml_errors",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestParseNoTrailingNewlineAfterClosingFence",
+      "line": 40,
+      "destination": "tests/domain/parser_regressions.rs::closing_fence_without_trailing_newline",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestParseEmptyBodyAfterFence",
+      "line": 54,
+      "destination": "tests/domain/parser_regressions.rs::empty_body_after_fence",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestScalarIntoNullValue",
+      "line": 67,
+      "destination": "tests/domain/parser_regressions.rs::null_scalar",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestStringListNullAndEmpty",
+      "line": 80,
+      "destination": "tests/domain/parser_regressions.rs::null_string_list",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestBlockedBySkipsEmptyElements",
+      "line": 94,
+      "destination": "tests/domain/parser_regressions.rs::blocker_list_skips_empty_elements",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestParseLinkPipeAndHeading",
+      "line": 117,
+      "destination": "tests/domain/parser_regressions.rs::link_alias_and_heading_targets",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestEncodeNewWithExtraAndRawLog",
+      "line": 145,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "creation::encode_new_with_extra_and_raw_log",
+      "rust_source": "tests/domain/creation.rs",
+      "validation": "cargo test --locked --test domain creation::encode_new_with_extra_and_raw_log; original Go regression retained until cutover"
+    },
+    {
+      "source": "issue/coverage_test.go",
+      "test": "TestSectionSeparatorBranches",
+      "line": 175,
+      "destination": "tests/domain/parser_regressions.rs::new_document_section_separators",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/handoff_test.go",
+      "test": "TestHandoffRoundTripAndMinimalAttachmentEdit",
+      "line": 11,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "handoffs::round_trip_and_minimal_attachment_edit",
+      "rust_source": "tests/domain/handoffs.rs",
+      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/handoff_test.go",
+      "test": "TestParseHandoffRejectsBadInput",
+      "line": 35,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "handoffs::rejects_bad_input",
+      "rust_source": "tests/domain/handoffs.rs",
+      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/handoff_test.go",
+      "test": "TestParseHandoffRejectsMisleadingPath",
+      "line": 49,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "handoffs::rejects_misleading_path",
+      "rust_source": "tests/domain/handoffs.rs",
+      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestSlug",
+      "line": 8,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::slug_examples",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestSlugLongTitleCutsAtWordBoundary",
+      "line": 31,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::slug_long_title_cuts_at_word_boundary",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestSlugEmptyFilenameFallback",
+      "line": 60,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::slug_empty_filename_fallback",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestFilename",
+      "line": 71,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::filenames",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestValidID",
+      "line": 99,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::valid_ids",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestNewID",
+      "line": 115,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::new_id_eight_collisions",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestNewIDAllGeneratedAreValid",
+      "line": 138,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::new_id_all_generated_are_valid",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/id_test.go",
+      "test": "TestNewIDDefaultLength",
+      "line": 147,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "ids::new_id_default_length",
+      "rust_source": "tests/domain/ids.rs",
+      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/log_test.go",
+      "test": "TestFormatParseLogEntryRoundTrip",
+      "line": 8,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::format_parse_log_entry_round_trip_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/log_test.go",
+      "test": "TestFormatLogEntryOmitsParensWithoutRepoInfo",
+      "line": 52,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::format_log_entry_omits_parens_without_repo_info_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/log_test.go",
+      "test": "TestFormatLogEntryRepoAndShaNoBranch",
+      "line": 62,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::format_log_entry_repo_and_sha_no_branch_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/log_test.go",
+      "test": "TestParseLogEntryMinutePrecision",
+      "line": 72,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::parse_log_entry_minute_precision_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/log_test.go",
+      "test": "TestParseLogEntryNonMatchingLines",
+      "line": 86,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::parse_log_entry_non_matching_lines_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/log_test.go",
+      "test": "TestParseLogEntryMultiLineContinuation",
+      "line": 101,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "raw_log::parse_log_entry_multi_line_continuation_original_regression",
+      "rust_source": "tests/domain/raw_log.rs",
+      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestMemoryRoundTrip",
+      "line": 22,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::round_trip",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestMemoryMutationSplicesOnlyChangedLines",
+      "line": 46,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::mutation_splices_only_changed_lines",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestNewMemoryEncodesInKeyOrder",
+      "line": 79,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::new_memory_encodes_in_key_order",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestParseMemoryMissingKeyIsError",
+      "line": 114,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::missing_key_is_error",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestValidMemoryKey",
+      "line": 122,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::valid_memory_key",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestValidMemoryType",
+      "line": 152,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::valid_memory_type",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/memory_test.go",
+      "test": "TestParseMemoryRejectsCRLF",
+      "line": 167,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "memories::rejects_crlf",
+      "rust_source": "tests/domain/memories.rs",
+      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationSetStatus",
+      "line": 55,
+      "destination": "tests/domain/mutation_regressions.rs::set_status",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationAppendLog",
+      "line": 77,
+      "destination": "tests/domain/mutation_regressions.rs::append_log",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationSetDescription",
+      "line": 109,
+      "destination": "tests/domain/mutation_regressions.rs::set_description",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationAddBlocker",
+      "line": 132,
+      "destination": "tests/domain/mutation_regressions.rs::add_blocker",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationRemoveBlockerToZero",
+      "line": 153,
+      "destination": "tests/domain/mutation_regressions.rs::remove_blocker_to_zero",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationSetAbsentAssignee",
+      "line": 174,
+      "destination": "tests/domain/mutation_regressions.rs::set_absent_assignee",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationClearParent",
+      "line": 211,
+      "destination": "tests/domain/mutation_regressions.rs::clear_parent",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationAppendLogWhenLogNotLast",
+      "line": 249,
+      "destination": "tests/domain/mutation_regressions.rs::append_log_when_log_not_last",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/mutation_test.go",
+      "test": "TestMutationKeepsInlineCommentOnRewrittenScalar",
+      "line": 279,
+      "destination": "tests/domain/mutation_regressions.rs::keeps_inline_comment_on_rewritten_scalar",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/request_codec_test.go",
+      "test": "TestRequestRoundTripAndMutation",
+      "line": 37,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::round_trip_and_mutation",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/request_codec_test.go",
+      "test": "TestRequestRoundTripFixtures",
+      "line": 63,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::round_trip_fixtures",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/request_codec_test.go",
+      "test": "TestRequestParsingErrors",
+      "line": 96,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::parsing_errors",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/request_codec_test.go",
+      "test": "TestSetRequestBody",
+      "line": 111,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "request_codec::set_request_body",
+      "rust_source": "tests/domain/request_codec.rs",
+      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+    },
+    {
+      "source": "issue/request_test.go",
+      "test": "TestRequestIDsAndTransitions",
+      "line": 5,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "requests::ids_and_transitions",
+      "rust_source": "tests/domain/requests.rs",
+      "validation": "cargo test --locked --test domain requests::; make compat-request-lifecycle; original Go regression retained until cutover"
+    },
+    {
+      "source": "issue/review_regression_test.go",
+      "test": "TestFencedHeadingsAreNotSections",
+      "line": 31,
+      "destination": "tests/domain/parser_regressions.rs::fenced_headings_are_not_sections",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/review_regression_test.go",
+      "test": "TestLogEntryTokensRoundTrip",
+      "line": 53,
+      "destination": "tests/domain/parser_regressions.rs::log_tokens_round_trip",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/review_regression_test.go",
+      "test": "TestEncodeProjectConfigEscapesControlCharacters",
+      "line": 75,
+      "destination": "tests/domain/parser_regressions.rs::project_config_control_characters",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/review_regression_test.go",
+      "test": "TestParseMemoryDuplicateKey",
+      "line": 97,
+      "destination": "tests/domain/parser_regressions.rs::memory_duplicate_owned_key",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/review_regression_test.go",
+      "test": "TestUnclosedFenceDoesNotHideHeadings",
+      "line": 105,
+      "destination": "tests/domain/parser_regressions.rs::unclosed_fence_does_not_hide_headings",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/roundtrip_test.go",
+      "test": "TestRoundTripFixtures",
+      "line": 13,
+      "destination": "tests/domain/mutation_regressions.rs::round_trip_fixtures",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/template_test.go",
+      "test": "TestDefaultTemplateBuiltins",
+      "line": 9,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "templates::default_template_builtins",
+      "rust_source": "tests/domain/templates.rs",
+      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/template_test.go",
+      "test": "TestDefaultTemplateUnknownTypeFallsBackToTask",
+      "line": 24,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "templates::default_template_unknown_type_falls_back_to_task",
+      "rust_source": "tests/domain/templates.rs",
+      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/template_test.go",
+      "test": "TestLoadTemplatePrefersProjectThenHubThenBuiltin",
+      "line": 32,
+      "destination": "tests/domain.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "templates::load_template_prefers_project_then_hub_then_builtin",
+      "rust_source": "tests/domain/templates.rs",
+      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
+    },
+    {
+      "source": "issue/types_test.go",
+      "test": "TestTypesConfigValidType",
+      "line": 5,
+      "destination": "tests/domain/config_foundation.rs::types_config_valid_type",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_file_test.go",
+      "test": "TestDecodeWorkflowFileTOMLAndYAML",
+      "line": 5,
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_toml_and_yaml",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_file_test.go",
+      "test": "TestMergeWorkflowFilePartialInheritsBase",
+      "line": 39,
+      "destination": "tests/domain/workflow_file.rs::merge_workflow_file_partial_inherits_base",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_file_test.go",
+      "test": "TestDecodeWorkflowFileUnknownKeysFailFast",
+      "line": 54,
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_unknown_keys_fail_fast",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_file_test.go",
+      "test": "TestDecodeWorkflowFileIgnoresOtherTOMLTables",
+      "line": 69,
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_ignores_other_toml_tables",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_file_test.go",
+      "test": "TestDecodeWorkflowFileUnsupportedExtension",
+      "line": 80,
+      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_unsupported_extension",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_file_test.go",
+      "test": "TestMergedInvalidBucketFailsValidate",
+      "line": 87,
+      "destination": "tests/domain/workflow_file.rs::merged_invalid_bucket_fails_validate",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_load_test.go",
+      "test": "TestLoadWorkflowExplicitWinsOverProjectAndHub",
+      "line": 10,
+      "destination": "tests/domain/workflow_file.rs::explicit_workflow_wins_over_project_and_hub",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_load_test.go",
+      "test": "TestLoadWorkflowProjectOverridesHubKeyByKey",
+      "line": 43,
+      "destination": "tests/domain/workflow_file.rs::project_workflow_overrides_hub_per_key",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_load_test.go",
+      "test": "TestLoadWorkflowMissingExplicitPathErrors",
+      "line": 71,
+      "destination": "tests/domain/workflow_file.rs::missing_explicit_workflow_errors",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_load_test.go",
+      "test": "TestLoadWorkflowInvalidVocabularyErrors",
+      "line": 78,
+      "destination": "tests/domain/workflow_file.rs::invalid_inherited_workflow_vocabulary_errors",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_load_test.go",
+      "test": "TestLoadWorkflowTOMLWithTypesTableLoadsFine",
+      "line": 97,
+      "destination": "tests/domain/workflow_file.rs::workflow_with_types_and_ids_tables_loads",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_load_test.go",
+      "test": "TestLoadWorkflowNoConfigUsesDefaults",
+      "line": 120,
+      "destination": "tests/domain/workflow_file.rs::workflow_without_config_uses_built_in_defaults",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_test.go",
+      "test": "TestDefaultWorkflowConfigBuckets",
+      "line": 5,
+      "destination": "tests/domain/config_foundation.rs::default_workflow_config_buckets",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_test.go",
+      "test": "TestWorkflowConfigUnknownStatusNotHold",
+      "line": 51,
+      "destination": "tests/domain/config_foundation.rs::workflow_config_unknown_status_not_hold",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_test.go",
+      "test": "TestWorkflowConfigDefaultStateFallback",
+      "line": 63,
+      "destination": "tests/domain/config_foundation.rs::workflow_config_default_state_fallback",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_test.go",
+      "test": "TestWorkflowConfigStatusNames",
+      "line": 70,
+      "destination": "tests/domain/config_foundation.rs::workflow_config_status_names",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "issue/workflow_test.go",
+      "test": "TestWorkflowConfigValidate",
+      "line": 93,
+      "destination": "tests/domain/config_foundation.rs::workflow_config_validate",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "markdown/render_test.go",
+      "test": "TestGolden",
+      "line": 43,
+      "destination": "tests/markdown.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "markdown/render_test.go",
+      "test": "TestHeadingsTOC",
+      "line": 85,
+      "destination": "tests/markdown.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "markdown/render_test.go",
+      "test": "TestLinks",
+      "line": 111,
+      "destination": "tests/domain/links.rs::links_original_code_and_duplicate_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "markdown/render_test.go",
+      "test": "TestLinksAlias",
+      "line": 142,
+      "destination": "tests/domain/links.rs::links_original_alias_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "markdown/render_test.go",
+      "test": "TestNoEmbedsRendersEmbedAsLink",
+      "line": 153,
+      "destination": "tests/markdown.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestScaffoldLoadsAsDraft",
+      "line": 11,
+      "destination": "tests/domain/plan_bundle.rs::scaffold_loads_as_draft",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestScaffoldSafelyEncodesSpecialTitle",
+      "line": 26,
+      "destination": "tests/domain/plan_bundle.rs::scaffold_safely_encodes_special_title",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestParseRejectsUnknownFrontmatter",
+      "line": 41,
+      "destination": "tests/domain/plan_parse.rs::parse_rejects_unknown_frontmatter",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestLoadRetainsOrderedSectionBodies",
+      "line": 49,
+      "destination": "tests/domain/plan_bundle.rs::load_retains_ordered_section_bodies",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestParseSummaryIgnoresHeadingsInFences",
+      "line": 79,
+      "destination": "tests/plans.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plan_graph::summary_ignores_headings_in_fences",
+      "rust_source": "tests/domain/plan_graph.rs",
+      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestLoadRejectsUnlistedSection",
+      "line": 86,
+      "destination": "tests/domain/plan_bundle.rs::load_rejects_unlisted_section",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestReadyRequiresStructuredSummary",
+      "line": 102,
+      "destination": "tests/plans.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plans::ready_requires_structured_summary",
+      "rust_source": "tests/domain/plans.rs",
+      "validation": "cargo test --locked --test domain plans::; make compat-plan-foundation; original Go regression retained until cutover"
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestParseGraphRejectsUnknownFields",
+      "line": 113,
+      "destination": "tests/plans.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plan_graph::graph_rejects_unknown_fields",
+      "rust_source": "tests/domain/plan_graph.rs",
+      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestParseGraphRejectsAliasAndCustomTag",
+      "line": 120,
+      "destination": "tests/plans.rs",
+      "status": "ported",
+      "retirement_rationale": null,
+      "rust_scenario": "plan_graph::graph_rejects_alias_and_custom_tag",
+      "rust_source": "tests/domain/plan_graph.rs",
+      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
+    },
+    {
+      "source": "plan/plan_test.go",
+      "test": "TestSetNodeRefPreservesPlanAndCanonicalizesFence",
+      "line": 131,
+      "destination": "tests/domain/plan_reference.rs::set_node_ref_preserves_plan_and_canonicalizes_fence",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestReloadPlanSectionRetainsLastValidAggregate",
+      "line": 45,
+      "destination": "tests/domain/index.rs::index_original_reload_section_keeps_last_valid_plan",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestLoadWarnsForIncompletePlanRoot",
+      "line": 100,
+      "destination": "tests/domain/index.rs::index_original_incomplete_plan_warning",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestLoadRecoversInterruptedPlanTree",
+      "line": 119,
+      "destination": "tests/domain/index.rs::index_original_load_recovers_interrupted_plan_tree",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestReloadRecoversInterruptedPlanTree",
+      "line": 142,
+      "destination": "tests/domain/index.rs::index_original_reload_recovers_interrupted_plan_tree",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestLoadWarnings",
+      "line": 179,
+      "destination": "tests/domain/index.rs::index_original_load_warnings",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestLoadBasics",
+      "line": 206,
+      "destination": "tests/domain/index.rs::index_original_load_basics",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestHandoffsAreIndexedSearchableAndArchivedOptIn",
+      "line": 238,
+      "destination": "tests/domain/query.rs::query_original_handoffs_archived_opt_in",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestLookup",
+      "line": 276,
+      "destination": "tests/domain/index.rs::index_original_lookup",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestBacklinks",
+      "line": 296,
+      "destination": "tests/domain/index.rs::index_original_backlinks",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/index_test.go",
+      "test": "TestReloadFlipsReady",
+      "line": 310,
+      "destination": "tests/domain/query.rs::query_original_reload_flips_ready",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/plan_execution_test.go",
+      "test": "TestPlanExecutionClassifiesBindingsDeterministically",
+      "line": 10,
+      "destination": "tests/domain/query.rs::query_original_plan_execution_classifies_bindings_deterministically",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestPlanSearchBodyIncludesSectionBodies",
+      "line": 14,
+      "destination": "tests/domain/query.rs::query_original_plan_section_search",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestReadyExcludesBlocked",
+      "line": 21,
+      "destination": "tests/domain/query.rs::query_original_ready_excludes_blocked",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestReadyExcludesEpicWithChildren",
+      "line": 33,
+      "destination": "tests/domain/query.rs::query_original_ready_excludes_epic_with_children",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestChildrenAcrossProjects",
+      "line": 42,
+      "destination": "tests/domain/query.rs::query_original_children_across_projects",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestParents",
+      "line": 53,
+      "destination": "tests/domain/query.rs::query_original_parents",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestBlockers",
+      "line": 61,
+      "destination": "tests/domain/query.rs::query_original_blockers",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestBlocked",
+      "line": 76,
+      "destination": "tests/domain/query.rs::query_original_blocked",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestGraphCrossProjectEdge",
+      "line": 93,
+      "destination": "tests/domain/query.rs::query_original_graph_cross_project_edge",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestCyclesEmptyOnFixture",
+      "line": 116,
+      "destination": "tests/domain/query.rs::query_original_cycles_empty_on_fixture",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestCyclesDetectsCrossProjectCycle",
+      "line": 124,
+      "destination": "tests/domain/query.rs::query_original_cycles_detects_cross_project_cycle",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/query_test.go",
+      "test": "TestSearchParity",
+      "line": 157,
+      "destination": "tests/domain/query.rs::query_original_search_parity",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/remote_test.go",
+      "test": "TestNormalizeRemoteURL",
+      "line": 8,
+      "destination": "tests/domain/remote.rs::remote_validation_normalization_host_and_second_pass_match_fixed_go",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/remote_test.go",
+      "test": "TestNormalizeRemoteURLIdempotent",
+      "line": 116,
+      "destination": "tests/domain/remote.rs::original_remote_transport_equivalence_and_idempotence",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestResolveBasenameMatch",
+      "line": 48,
+      "destination": "tests/domain/resolve.rs::resolve_basename_match_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestResolveRemoteFallback",
+      "line": 61,
+      "destination": "tests/domain/resolve.rs::resolve_remote_fallback_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestResolveCollisionErrors",
+      "line": 71,
+      "destination": "tests/domain/resolve.rs::resolve_collision_errors_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestResolveOutsideGit",
+      "line": 81,
+      "destination": "tests/domain/resolve.rs::resolve_outside_git_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestResolveOverrides",
+      "line": 93,
+      "destination": "tests/domain/resolve.rs::resolve_overrides_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestResolveAutoCreateOnWriteNotRead",
+      "line": 124,
+      "destination": "tests/domain/resolve.rs::resolve_auto_create_on_write_not_read_original",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestProjectName",
+      "line": 156,
+      "destination": "tests/domain/paths.rs::project_name_matches_fixed_go_without_collapsing_hyphens",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/resolve_test.go",
+      "test": "TestDefaultPaths",
+      "line": 164,
+      "destination": "tests/domain/paths.rs::default_paths_original_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/review_regression_test.go",
+      "test": "TestDuplicateBasenameKeepsEveryIssue",
+      "line": 35,
+      "destination": "tests/domain/index.rs::duplicate_basename_keeps_every_issue_original_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/review_regression_test.go",
+      "test": "TestReloadBeansTOMLRefreshesWorkflow",
+      "line": 81,
+      "destination": "tests/domain/index.rs::reload_project_config_refreshes_workflow_original_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/review_regression_test.go",
+      "test": "TestReloadRejectsPathsOutsideHub",
+      "line": 103,
+      "destination": "tests/domain/index.rs::reload_rejects_paths_outside_hub_original_regression",
+      "status": "ported",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/review_regression_test.go",
+      "test": "TestConcurrentReloadAndLockedReads",
+      "line": 113,
+      "destination": "tests/vault.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/review_regression_test.go",
+      "test": "TestWatchPicksUpBeansTOMLAndNewDirectoryContents",
+      "line": 145,
+      "destination": "tests/vault.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/watch_test.go",
+      "test": "TestWatchSingleWrite",
+      "line": 51,
+      "destination": "tests/vault.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/watch_test.go",
+      "test": "TestWatchDebouncesBurst",
+      "line": 81,
+      "destination": "tests/vault.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "vault/watch_test.go",
+      "test": "TestWatchedPlanRootMapsSectionAndRemovedDirectory",
+      "line": 97,
+      "destination": "tests/vault.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    },
+    {
+      "source": "version/version_test.go",
+      "test": "TestVersionNotEmpty",
+      "line": 5,
+      "destination": "tests/cli.rs",
+      "status": "pending",
+      "retirement_rationale": null
+    }
+  ]
+}

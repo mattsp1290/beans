@@ -1,0 +1,37 @@
+package main
+import("encoding/json";"os";"path/filepath";"strings";"testing";"github.com/mattsp1290/beans/issue";"github.com/mattsp1290/beans/vault")
+func TestMigrationContext(t *testing.T) {
+ ints:=func(s string)[]int{v:=make([]int,len(s));for i:=0;i<len(s);i++{v[i]=int(s[i])};return v}
+ root:=t.TempDir();bin:=filepath.Join(root,"bin");if e:=os.Mkdir(bin,0700);e!=nil{t.Fatal(e)}
+ script:=filepath.Join(bin,"git");data:=filepath.Join(root,"output");calls:=filepath.Join(root,"calls")
+ t.Setenv("PATH",bin+":"+os.Getenv("PATH"))
+ type actorRow struct {Flag,Env,Config,Git,User,First,Second []int; GitFail bool; Calls int}
+ var actors []actorRow
+ for _,flag:=range []string{""," \t","flag","raw\xff"}{for _,env:=range []string{""," env ","\u2003","x\xff"}{for _,cfg:=range []string{""," cfg ","\u2003"}{for _,git:=range []string{""," git "," \xff ","FAIL"}{for _,user:=range []string{""," raw USER ","user"}{
+  body:="#!/bin/sh\nprintf x >> '"+calls+"'\n/bin/cat '"+data+"'\n";if git=="FAIL"{body="#!/bin/sh\nprintf x >> '"+calls+"'\nexit 1\n"}
+  if e:=os.WriteFile(script,[]byte(body),0700);e!=nil{t.Fatal(e)};if e:=os.WriteFile(data,[]byte(git),0600);e!=nil{t.Fatal(e)};os.Remove(calls)
+  current:=env;rs:=appState{actor:flag,userCfg:issue.UserConfig{Actor:cfg},env:func(k string)string{if k=="BN_ACTOR"{return current};if k=="USER"{return user};return ""}}
+  first:=rs.resolveActor();current="next-env";second:=rs.resolveActor();count,_:=os.ReadFile(calls)
+  actors=append(actors,actorRow{ints(flag),ints(env),ints(cfg),ints(git),ints(user),ints(first),ints(second),git=="FAIL",len(count)})
+ }}}}}
+ workflow:=func(w issue.WorkflowConfig)any{return map[string]any{"statuses":w.Statuses,"default":w.Default,"active":w.Active,"terminal":w.Terminal,"transitions":w.Transitions}}
+ type opRow struct{ Files map[string]string; Explicit string; Workflow,After any; Types []string; IDLength int; Prefix []int; ReadError string }
+ var ops []opRow
+ hubs:=[]string{"","[workflow]\nstatuses=['queued','closed']\ndefault='queued'\nactive=['queued']","bad=[","[types]\nnames=['custom']\n[ids]\nlength=9","[workflow]\nstatuses=[]","[workflow]\nstatuses=['only']\ndefault='bad'"}
+ projects:=[]string{"","prefix='  raw prefix  '","prefix='\u2003'","prefix=7","bad=[","[workflow]\ndefault='closed'","[workflow]\nstatuses=['todo','done']\ndefault='todo'\nactive=['todo']\nterminal=['done']","[workflow]\nunknown=1"}
+ explicitFiles:=map[string]string{"valid.toml":"[workflow]\ndefault='closed'","invalid.toml":"[workflow]\nunknown=1","file.yaml":"workflow:\n  default: closed\n"}
+ for _,hub:=range hubs{for _,project:=range projects{for _,explicit:=range []string{"","missing.toml","valid.toml","invalid.toml","file.yaml"}{
+  dir:=t.TempDir();files:=map[string]string{};if hub!=""{files["beans.toml"]=hub};if project!=""{files["projects/exa/beans.toml"]=project};for name,data:=range explicitFiles{files[name]=data}
+  for name,contents:=range files{p:=filepath.Join(dir,name);if e:=os.MkdirAll(filepath.Dir(p),0700);e!=nil{t.Fatal(e)};if e:=os.WriteFile(p,[]byte(contents),0600);e!=nil{t.Fatal(e)}}
+  full:="";if explicit!=""{full=filepath.Join(dir,explicit)}
+  rs:=appState{actor:"fixture",paths:vault.Paths{Hub:dir},env:func(k string)string{if k=="BN_CONFIG"{return " "+full+" "};return ""}}
+  ctx:=rs.opsEnv();wf:=ctx.WorkflowFor("exa");prefix:=rs.prefixFor("exa")
+  _,e:=issue.LoadWorkflow(full,[]byte(project),[]byte(hub));readErr:="";if e!=nil{readErr=strings.ReplaceAll(e.Error(),dir,"/oracle/hub")}
+  // Hub snapshot remains fixed; per-project workflow reads remain live.
+  os.WriteFile(filepath.Join(dir,"beans.toml"),[]byte("[workflow]\ndefault='bogus'"),0600)
+  os.MkdirAll(filepath.Join(dir,"projects/exa"),0700);os.WriteFile(filepath.Join(dir,"projects/exa/beans.toml"),[]byte("[workflow]\ndefault='closed'"),0600)
+  if full!="" {data:="[workflow]\ndefault='in_progress'";if strings.HasSuffix(full,".yaml"){data="workflow:\n  default: in_progress\n"};if e:=os.WriteFile(full,[]byte(data),0600);e!=nil{t.Fatal(e)}}
+  ops=append(ops,opRow{files,explicit,workflow(wf),workflow(ctx.WorkflowFor("exa")),ctx.Types.Names,ctx.IDLength,ints(prefix),readErr})
+ }}}
+ out,e:=json.Marshal(map[string]any{"actors":actors,"operations":ops});if e!=nil{t.Fatal(e)};if e=os.WriteFile(os.Getenv("BN_CONTEXT_OUTPUT"),out,0600);e!=nil{t.Fatal(e)}
+}

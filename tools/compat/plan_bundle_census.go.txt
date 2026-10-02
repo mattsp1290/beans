@@ -1,0 +1,383 @@
+package plan
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"testing"
+	"time"
+)
+
+func bundleBytes(b []byte) []int {
+	out := make([]int, len(b))
+	for i, x := range b {
+		out[i] = int(x)
+	}
+	return out
+}
+func bundleDigest(b []byte) any {
+	return map[string]any{"size": len(b), "sha256": fmt.Sprintf("%x", sha256.Sum256(b))}
+}
+func bundleFiles(s BundleSnapshot) []any {
+	out := []any{}
+	for _, p := range s.Paths() {
+		out = append(out, map[string]any{"path": bundleBytes([]byte(p)), "data": bundleDigest(s.Files[p])})
+	}
+	return out
+}
+func bundleSections(xs []Section) []any {
+	out := []any{}
+	for _, s := range xs {
+		out = append(out, map[string]any{"path": bundleBytes([]byte(s.Path)), "data": bundleDigest([]byte(s.Markdown))})
+	}
+	return out
+}
+func bundleView(b *Bundle) any {
+	if b == nil {
+		return nil
+	}
+	p := b.Plan
+	return map[string]any{"root": b.Root, "id": p.ID, "title": p.Title, "slug": p.Slug, "status": p.Status, "path": p.Path, "body": bundleDigest([]byte(p.Body)), "sections": bundleSections(b.Sections), "section_bodies": bundleSections(p.SectionBodies), "snapshot": bundleFiles(b.Snapshot())}
+}
+func TestMigrationPlanBundleCensus(t *testing.T) {
+	now := time.Date(2026, 9, 11, 12, 0, 0, 0, time.UTC)
+	base := string(Scaffold("beans-plan-a3f2", "x", now))
+	rows := []any{}
+	fsBounds := []any{}
+	text := func(name, value string) map[string]any {
+		return map[string]any{"path": bundleBytes([]byte(name)), "text": value}
+	}
+	repeat := func(name string, size int) map[string]any {
+		return map[string]any{"path": bundleBytes([]byte(name)), "repeat": size}
+	}
+	padded := func(size int) map[string]any {
+		return map[string]any{"path": bundleBytes([]byte("plan.md")), "plan_size": size}
+	}
+	materialize := func(specs []map[string]any) BundleSnapshot {
+		files := map[string][]byte{}
+		for _, s := range specs {
+			nameBytes := []byte{}
+			for _, x := range s["path"].([]int) {
+				nameBytes = append(nameBytes, byte(x))
+			}
+			var data []byte
+			if v, ok := s["text"]; ok {
+				data = []byte(v.(string))
+			} else if v, ok := s["repeat"]; ok {
+				data = bytes.Repeat([]byte{'x'}, v.(int))
+				if len(data) > 0 {
+					data[len(data)-1] = '\n'
+				}
+			} else if v, ok := s["plan_size"]; ok {
+				prefix := base + "\n## Additional\n"
+				data = append([]byte(prefix), bytes.Repeat([]byte{'x'}, v.(int)-len(prefix)-1)...)
+				data = append(data, '\n')
+			} else {
+				for _, x := range s["bytes"].([]int) {
+					data = append(data, byte(x))
+				}
+			}
+			files[string(nameBytes)] = data
+		}
+		return BundleSnapshot{Files: files}
+	}
+	add := func(name, root string, specs ...map[string]any) {
+		snap := materialize(specs)
+		b, err := LoadSnapshot(root, snap)
+		message := ""
+		if err != nil {
+			message = err.Error()
+		}
+		var reread *Bundle
+		readError := ""
+		if b != nil {
+			reread, err = LoadSnapshot(root, b.Snapshot())
+			if err != nil {
+				readError = err.Error()
+			}
+		}
+		rows = append(rows, map[string]any{"name": name, "root": root, "files": specs, "bundle": bundleView(b), "error": message, "read_bundle": bundleView(reread), "read_error": readError})
+		if strings.Contains(name, "-size-") || strings.HasPrefix(name, "total-") {
+			work := t.TempDir()
+			dir := filepath.Join(work, "bundle")
+			if e := os.Mkdir(dir, 0755); e != nil {
+				t.Fatal(e)
+			}
+			for name, data := range snap.Files {
+				full := filepath.Join(dir, name)
+				if e := os.MkdirAll(filepath.Dir(full), 0755); e != nil {
+					t.Fatal(e)
+				}
+				if e := os.WriteFile(full, data, 0644); e != nil {
+					t.Fatal(e)
+				}
+			}
+			loaded, e := Load(dir)
+			message := ""
+			if e != nil {
+				message = strings.ReplaceAll(e.Error(), work+"/", "")
+			}
+			if loaded != nil {
+				loaded.Root = "bundle"
+				loaded.Plan.Path = "bundle/plan.md"
+			}
+			fsBounds = append(fsBounds, map[string]any{"name": name, "root": root, "files": specs, "bundle": bundleView(loaded), "error": message})
+		}
+	}
+	manifest := func(paths ...string) string {
+		p, e := Parse("plan.md", []byte(base))
+		if e != nil {
+			t.Fatal(e)
+		}
+		p.Sections = paths
+		data, e := Encode(p)
+		if e != nil {
+			t.Fatal(e)
+		}
+		return string(data)
+	}
+	add("missing", "bundle")
+	for i, root := range []string{"bundle", "", ".", "a/../b//", "/a/../b", "../a/../../b", "雪🌱"} {
+		add(fmt.Sprintf("root-%d", i), root, text("plan.md", base))
+	}
+	add("ordered", "bundle", text("plan.md", manifest("sections/02.md", "sections/01.md")), text("sections/01.md", "# First\n"), text("sections/02.md", "# Second\n"))
+	for i, p := range []string{"sections/x.md", "sections/雪🌱.md", "sections/.md", "sections/..md", "sections/a..b.md", "sections/a/b.md", "sections\\x.md", "sections/x.MD", "sections/x.md/", "sections//x.md", "sections/ .md", "sections/.hidden.md", "sections/a\t.md", "sections/a\n.md", "sections/a\x00.md", "./sections/x.md", "/sections/x.md", "sections/./x.md", "other.md", "plan.md", ""} {
+		add(fmt.Sprintf("listed-%d", i), "bundle", text("plan.md", manifest(p)))
+		if p != "plan.md" {
+			add(fmt.Sprintf("file-%d", i), "bundle", text("plan.md", base), text(p, "# x\n"))
+		}
+	}
+	add("duplicate", "bundle", text("plan.md", manifest("sections/x.md", "sections/x.md")), text("sections/x.md", "# x\n"))
+	for i, value := range []string{"", "x", "x\n", "\n", "x\r\n", "x\x00\n", string([]byte{255, 10}), "雪🌱\n", "x\u2028y\n"} {
+		s := map[string]any{"path": bundleBytes([]byte("sections/x.md")), "bytes": bundleBytes([]byte(value))}
+		add(fmt.Sprintf("text-%d", i), "bundle", text("plan.md", manifest("sections/x.md")), s)
+	}
+	p := string([]byte{'s', 'e', 'c', 't', 'i', 'o', 'n', 's', '/', 255, '.', 'm', 'd'})
+	// yaml.Node encoding rejects non-UTF8 strings, but typed list binary decoding
+	// can supply an accepted raw filename to LoadSnapshot.
+	rawManifest := strings.Replace(base, "updated:", "sections: [!!binary c2VjdGlvbnMv/y5tZA==]\nupdated:", 1)
+	add("binary-path", "bundle", text("plan.md", rawManifest), text(p, "# raw path\n"))
+	for i, raw := range [][]byte{[]byte("sections/..\xff.md"), []byte("sections/\xff\xfe.md"), []byte("other/\xff.md")} {
+		data := strings.Replace(base, "updated:", "sections: [!!binary "+base64.StdEncoding.EncodeToString(raw)+"]\nupdated:", 1)
+		add(fmt.Sprintf("binary-error-%d", i), "bundle", text("plan.md", data))
+	}
+	for i, id := range []string{"beans-a3f2", "beans-plan-", "beans-plan-A", "a-plan-b-plan-c", "-plan-a", "雪-plan-a", "beans-plan-a.1"} {
+		data := string(Scaffold(id, "x", now))
+		add(fmt.Sprintf("id-%d", i), "bundle", text("plan.md", data))
+	}
+	for _, status := range []string{"blocked", "ready", "complete"} {
+		add("status-"+status, "bundle", text("plan.md", strings.Replace(base, "status: draft", "status: "+status, 1)))
+	}
+	for _, size := range []int{int(MaxFileSize) - 1, int(MaxFileSize), int(MaxFileSize) + 1} {
+		add(fmt.Sprintf("manifest-size-%d", size), "bundle", padded(size))
+		add(fmt.Sprintf("section-size-%d", size), "bundle", text("plan.md", manifest("sections/x.md")), repeat("sections/x.md", size))
+	}
+	for _, delta := range []int{-1, 0, 1} {
+		names := []string{"sections/1.md", "sections/2.md", "sections/3.md", "sections/4.md"}
+		m := manifest(names...)
+		specs := []map[string]any{text("plan.md", m)}
+		for i, n := range names {
+			size := int(MaxFileSize)
+			if i == 3 {
+				size = int(MaxBundleSize) + delta - len(m) - 3*int(MaxFileSize)
+			}
+			specs = append(specs, repeat(n, size))
+		}
+		add(fmt.Sprintf("total-%d", delta), "bundle", specs...)
+	}
+	paths := []any{}
+	for i, p := range []string{"sections/x.md", "sections/.md", "sections/..md", "sections/a..b.md", "sections/a/b.md", "sections\\x.md", "sections/x.MD", "sections/ .md", "sections/a\x00.md", p} {
+		paths = append(paths, map[string]any{"name": fmt.Sprintf("path-%d", i), "bytes": bundleBytes([]byte(p)), "valid": validSectionPath(p)})
+	}
+	snapshots := []any{}
+	for _, status := range []string{"nil", "draft", "open"} {
+		for _, overwrite := range []bool{false, true} {
+			var p *Plan
+			if status != "nil" {
+				var e error
+				p, e = Parse("plan.md", []byte(base))
+				if e != nil {
+					t.Fatal(e)
+				}
+				p.Status = Status(status)
+			}
+			sections := []Section{{Path: "sections/z.md", Markdown: "first\n"}, {Path: "sections/a.md", Markdown: "a\n"}, {Path: "sections/z.md", Markdown: "last\n"}, {Path: string([]byte{255}), Markdown: "raw\n"}}
+			if overwrite {
+				sections = append(sections, Section{Path: "plan.md", Markdown: "override\n"})
+			}
+			inputSections := []any{}
+			for _, section := range sections {
+				inputSections = append(inputSections, map[string]any{"path": bundleBytes([]byte(section.Path)), "text": section.Markdown})
+			}
+			b := Bundle{Plan: p, Sections: sections}
+			snapshots = append(snapshots, map[string]any{"status": status, "overwrite": overwrite, "sections": inputSections, "files": bundleFiles(b.Snapshot())})
+		}
+	}
+	output, e := json.Marshal(map[string]any{"scaffold": base, "loads": rows, "paths": paths, "filesystem_bounds": fsBounds, "snapshots": snapshots})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_PLAN_BUNDLE_OUTPUT"), output, 0644); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func TestMigrationPlanBundleFilesystem(t *testing.T) {
+	now := time.Date(2026, 9, 11, 12, 0, 0, 0, time.UTC)
+	base := Scaffold("beans-plan-a3f2", "x", now)
+	rows := []any{}
+	for _, kind := range []string{"draft", "missing", "root-file", "root-link", "extra-dir", "nested-dir", "extra-file", "section-extension", "symlink", "dangling-link", "fifo", "oversize", "unlisted", "empty-sections", "lexical-first", "plan-missing", "plan-dir", "plan-link", "section-link"} {
+		work := t.TempDir()
+		root := filepath.Join(work, "bundle")
+		if kind != "missing" {
+			if e := os.Mkdir(root, 0755); e != nil {
+				t.Fatal(e)
+			}
+			if e := os.WriteFile(filepath.Join(root, "plan.md"), base, 0644); e != nil {
+				t.Fatal(e)
+			}
+		}
+		switch kind {
+		case "plan-missing":
+			os.Remove(filepath.Join(root, "plan.md"))
+		case "plan-dir":
+			os.Remove(filepath.Join(root, "plan.md"))
+			os.Mkdir(filepath.Join(root, "plan.md"), 0755)
+		case "plan-link":
+			os.Remove(filepath.Join(root, "plan.md"))
+			os.Symlink("absent", filepath.Join(root, "plan.md"))
+		case "section-link":
+			os.Mkdir(filepath.Join(root, "sections"), 0755)
+			os.Symlink("../plan.md", filepath.Join(root, "sections/x.md"))
+		case "root-file":
+			os.RemoveAll(root)
+			os.WriteFile(root, []byte("root"), 0644)
+		case "root-link":
+			os.Rename(root, root+"-target")
+			os.Symlink("bundle-target", root)
+		case "extra-dir":
+			os.Mkdir(filepath.Join(root, "other"), 0755)
+		case "nested-dir":
+			os.MkdirAll(filepath.Join(root, "sections/nested"), 0755)
+		case "extra-file":
+			os.WriteFile(filepath.Join(root, "extra.txt"), []byte("x"), 0644)
+		case "section-extension":
+			os.Mkdir(filepath.Join(root, "sections"), 0755)
+			os.WriteFile(filepath.Join(root, "sections/x.txt"), []byte("x"), 0644)
+		case "symlink":
+			os.Symlink("plan.md", filepath.Join(root, "link.md"))
+		case "dangling-link":
+			os.Symlink("absent", filepath.Join(root, "link.md"))
+		case "fifo":
+			makeBundleFIFO(t, filepath.Join(root, "pipe.md"))
+		case "oversize":
+			os.WriteFile(filepath.Join(root, "plan.md"), bytes.Repeat([]byte{'x'}, int(MaxFileSize)+1), 0644)
+		case "unlisted":
+			os.Mkdir(filepath.Join(root, "sections"), 0755)
+			os.WriteFile(filepath.Join(root, "sections/x.md"), []byte("x\n"), 0644)
+		case "empty-sections":
+			os.Mkdir(filepath.Join(root, "sections"), 0755)
+		case "lexical-first":
+			os.WriteFile(filepath.Join(root, "a.txt"), []byte("x"), 0644)
+			os.Mkdir(filepath.Join(root, "z"), 0755)
+		}
+		b, e := Load(root)
+		message := ""
+		if e != nil {
+			message = strings.ReplaceAll(e.Error(), work+"/", "")
+		}
+		if b != nil {
+			b.Root = strings.TrimPrefix(b.Root, work+"/")
+			b.Plan.Path = strings.TrimPrefix(b.Plan.Path, work+"/")
+		}
+		rows = append(rows, map[string]any{"kind": kind, "error": message, "bundle": bundleView(b)})
+	}
+	writes := []any{}
+	for _, kind := range []string{"new", "existing-dir", "existing-file", "existing-link", "parent-missing", "special-title"} {
+		work := t.TempDir()
+		root := filepath.Join(work, "bundle")
+		title := "x"
+		switch kind {
+		case "existing-dir":
+			os.Mkdir(root, 0755)
+			os.WriteFile(filepath.Join(root, "sentinel"), []byte("keep"), 0644)
+		case "existing-file":
+			os.WriteFile(root, []byte("keep"), 0644)
+		case "existing-link":
+			os.Symlink("absent", root)
+		case "parent-missing":
+			root = filepath.Join(root, "child")
+		case "special-title":
+			title = "Ship: phase #1 \"quoted\""
+		}
+		e := WriteScaffold(root, "beans-plan-a3f2", title, now)
+		message := ""
+		if e != nil {
+			message = strings.ReplaceAll(e.Error(), work+"/", "")
+		}
+		planData, _ := os.ReadFile(filepath.Join(root, "plan.md"))
+		sentinel, _ := os.ReadFile(filepath.Join(root, "sentinel"))
+		writes = append(writes, map[string]any{"kind": kind, "error": message, "plan": string(planData), "sentinel": string(sentinel)})
+	}
+	out, e := json.Marshal(map[string]any{"filesystem": rows, "writes": writes})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_PLAN_BUNDLE_OUTPUT"), out, 0644); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func makeBundleFIFO(t *testing.T, p string) {
+	if e := syscall.Mkfifo(p, 0600); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func TestMigrationPlanBundleCrossRead(t *testing.T) {
+	data, e := os.ReadFile(os.Getenv("BN_PLAN_BUNDLE_INPUT"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	var inputs []struct {
+		Name  string `json:"name"`
+		Root  string `json:"root"`
+		Files []struct {
+			Path  []int  `json:"path"`
+			Input string `json:"input"`
+		} `json:"files"`
+	}
+	if e := json.Unmarshal(data, &inputs); e != nil {
+		t.Fatal(e)
+	}
+	rows := []any{}
+	for _, input := range inputs {
+		snap := BundleSnapshot{Files: map[string][]byte{}}
+		for _, file := range input.Files {
+			name := []byte{}
+			for _, v := range file.Path {
+				name = append(name, byte(v))
+			}
+			snap.Files[string(name)] = []byte(file.Input)
+		}
+		b, e := LoadSnapshot(input.Root, snap)
+		message := ""
+		if e != nil {
+			message = e.Error()
+		}
+		rows = append(rows, map[string]any{"name": input.Name, "bundle": bundleView(b), "error": message})
+	}
+	out, e := json.Marshal(map[string]any{"reads": rows})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(os.Getenv("BN_PLAN_BUNDLE_OUTPUT"), out, 0644); e != nil {
+		t.Fatal(e)
+	}
+}

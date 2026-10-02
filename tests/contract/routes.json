@@ -1,0 +1,159 @@
+{
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "entries": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "handler": "health",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects",
+      "handler": "listProjects",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/:p/issues",
+      "handler": "listIssues",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/:p/requests",
+      "handler": "listRequests",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/:p/plans",
+      "handler": "listPlans",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/:p/ready",
+      "handler": "ready",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/:p/issues",
+      "handler": "createIssue",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/issues/:id",
+      "handler": "showIssue",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/requests/:id",
+      "handler": "showRequest",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/plans/:id",
+      "handler": "showPlan",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/issues/:id",
+      "handler": "updateIssue",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "POST",
+      "path": "/api/issues/:id/notes",
+      "handler": "addNote",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "POST",
+      "path": "/api/issues/:id/close",
+      "handler": "closeIssue",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "POST",
+      "path": "/api/issues/:id/reopen",
+      "handler": "reopenIssue",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "POST",
+      "path": "/api/issues/:id/deps",
+      "handler": "addDep",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/issues/:id/deps/:target",
+      "handler": "removeDep",
+      "implicit_head": false,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/graph",
+      "handler": "graph",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/docs/tree",
+      "handler": "docsTree",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/docs/*",
+      "handler": "docPage",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/assets/*",
+      "handler": "asset",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/search",
+      "handler": "search",
+      "implicit_head": true,
+      "status": "pending"
+    },
+    {
+      "method": "GET",
+      "path": "/api/events",
+      "handler": "events",
+      "implicit_head": true,
+      "status": "pending"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+package issue
+
+import (
+    "encoding/json"
+    "os"
+    "strings"
+    "testing"
+    "unicode"
+)
+
+func TestMigrationIDCensus(t *testing.T) {
+    type slugCase struct { Title string `json:"title"`; Slug string `json:"slug"` }
+    type validCase struct { ID string `json:"id"`; Valid bool `json:"valid"` }
+    type filenameCase struct { ID string `json:"id"`; Slug string `json:"slug"`; Filename string `json:"filename"` }
+    type lowercaseCase struct { Rune int `json:"rune"`; Lower int `json:"lower"` }
+    type generationCase struct {
+        Prefix string `json:"prefix"`
+        Length int `json:"length"`
+        Collisions int `json:"collisions"`
+        Attempts []int `json:"attempts"`
+        Valid bool `json:"valid"`
+    }
+    out := struct {
+        Slugs []slugCase `json:"slugs"`
+        IDs []validCase `json:"ids"`
+        Filenames []filenameCase `json:"filenames"`
+        Lowercase []lowercaseCase `json:"ascii_lowercase"`
+        Generation []generationCase `json:"generation"`
+    }{}
+    titles := []string{"Héllo Wörld", "Hello, World!!!", "simple-title", "---Trim Me---", "!!! --- ???", "Release 1.2.3", "", "İX", "KX", "İstanbul", "AİB", "AKB", "ΟΣ Σς", "emoji 🚀 title", "中文", "a\x00B", "a\r\nb", "a\u2028b", "a\u2029b", "a\u0085b", "this is a very long issue title that keeps going and going and going and going past the limit for sure"}
+    for length := 58; length <= 62; length++ {
+        titles = append(titles, strings.Repeat("a", length), strings.Repeat("a", length)+" b", "a "+strings.Repeat("b",length))
+    }
+    for code := rune(0); code <= unicode.MaxRune; code++ {
+        lower := unicode.ToLower(code)
+        if (lower >= 'a' && lower <= 'z') || (lower >= '0' && lower <= '9') {
+            out.Lowercase = append(out.Lowercase, lowercaseCase{int(code), int(lower)})
+            if code > 127 { titles = append(titles, "a"+string(code)+"b") }
+        }
+    }
+    for _, title := range titles { out.Slugs = append(out.Slugs, slugCase{title, Slug(title)}) }
+    for _, id := range []string{"beans-a3f2", "bean-counter-x1", "beans-ceh.15", "Beans-A3", "beans", "-x", "a-", "a-b.0.001", "a--b", "a---b", "1-2", "a--", "a-b.c", "a-b.", "a-b..1", "a-b.-1", "a-b.1-2", "a-b\n", "a-b\x00", "a-b.١", "é-b", "a-Ｂ", "a/b-c", "a_b-c", "a-b.1.2.3", "a.b-c", "a-b-.2"} {
+        out.IDs = append(out.IDs, validCase{id, ValidID(id)})
+    }
+    for _, id := range []string{"proj-a1b2", "beans-ceh.15", "foreign-project-id.1", "", "a/b"} {
+        for _, slug := range []string{"my-title", "", "already-frozen", "中文", "has space", "../outside"} {
+            out.Filenames = append(out.Filenames, filenameCase{id, slug, Filename(id, slug)})
+        }
+    }
+    for _, prefix := range []string{"beans", "foreign-project", ""} {
+        for _, length := range []int{-5, 0, 1, 4, 8} {
+            for _, collisions := range []int{0, 7, 8, 16, 24} {
+                c := generationCase{Prefix:prefix, Length:length, Collisions:collisions}
+                id := NewID(prefix, func(id string) bool {
+                    if !strings.HasPrefix(id, prefix+"-") { t.Fatal("unexpected prefix") }
+                    c.Attempts = append(c.Attempts, len(id)-len(prefix)-1)
+                    return len(c.Attempts) <= collisions
+                }, length)
+                c.Valid = ValidID(id)
+                out.Generation = append(out.Generation, c)
+            }
+        }
+    }
+    encoded, err := json.Marshal(out)
+    if err != nil { t.Fatal(err) }
+    if err := os.WriteFile(os.Getenv("BN_ID_OUTPUT"), encoded, 0644); err != nil { t.Fatal(err) }
+}

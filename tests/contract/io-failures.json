@@ -1,0 +1,165 @@
+{
+  "schema": "beans-linux-stdout-failure-v1",
+  "cases": [
+    {
+      "id": "stdout:closed-pipe:prime",
+      "fault": "closed-pipe",
+      "argv": [
+        "prime"
+      ],
+      "expected": {
+        "exit": -13,
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:closed-pipe:help",
+      "fault": "closed-pipe",
+      "argv": [
+        "--help"
+      ],
+      "expected": {
+        "exit": -13,
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:closed-pipe:version",
+      "fault": "closed-pipe",
+      "argv": [
+        "--version"
+      ],
+      "expected": {
+        "exit": -13,
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:closed-pipe:list-json",
+      "fault": "closed-pipe",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "expected": {
+        "exit": -13,
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:full-device:prime",
+      "fault": "full-device",
+      "argv": [
+        "prime"
+      ],
+      "expected": {
+        "exit": 1,
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBXcml0ZSAvZGV2L3N0ZG91dDogbm8gc3BhY2UgbGVmdCBvbiBkZXZpY2UuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:full-device:help",
+      "fault": "full-device",
+      "argv": [
+        "--help"
+      ],
+      "expected": {
+        "exit": 0,
+        "stderr_b64": "",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:full-device:version",
+      "fault": "full-device",
+      "argv": [
+        "--version"
+      ],
+      "expected": {
+        "exit": 1,
+        "stderr_b64": "d3JpdGUgL2Rldi9zdGRvdXQ6IG5vIHNwYWNlIGxlZnQgb24gZGV2aWNlCiAgICAgICAgICAKICAgRVJST1IgIAogICAgICAgICAgCiAgV3JpdGUgL2Rldi9zdGRvdXQ6IG5vIHNwYWNlIGxlZnQgb24gZGV2aWNlLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKCg==",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    },
+    {
+      "id": "stdout:full-device:list-json",
+      "fault": "full-device",
+      "argv": [
+        "list",
+        "--project",
+        "alpha",
+        "--json",
+        "--no-fetch"
+      ],
+      "expected": {
+        "exit": 1,
+        "stderr_b64": "ICAgICAgICAgIAogICBFUlJPUiAgCiAgICAgICAgICAKICBXcml0ZSAvZGV2L3N0ZG91dDogbm8gc3BhY2UgbGVmdCBvbiBkZXZpY2UuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK",
+        "changed_files": {},
+        "removed_files": [],
+        "git": {
+          "status": "",
+          "commits": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZQAAY29udHJhY3Qgc2VlZAoACg==",
+          "refs": "MzdlNjc2ZDA0Y2UwZTBlMzFiYTI3NGIwMjZkYWU0YTgxOTBkNGRlZSByZWZzL2hlYWRzL21haW4K",
+          "staged": ""
+        }
+      }
+    }
+  ]
+}

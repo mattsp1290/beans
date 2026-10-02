@@ -1,0 +1,60 @@
+package vault
+
+import (
+ "encoding/json"
+ "os"
+ "path/filepath"
+ "strings"
+ "testing"
+ "unicode"
+)
+
+func TestMigrationPaths(t *testing.T) {
+ type input struct { Home, Hub, Flag, UserHome string }
+ type result struct { Input input; Paths Paths; Error string }
+ var cases []result
+ old, err := os.Getwd(); if err != nil { t.Fatal(err) }
+ root := t.TempDir()
+ cwd := filepath.Join(root,"cwd")
+ if err := os.Mkdir(cwd,0700);err != nil {t.Fatal(err)}
+ if err := os.Chdir(cwd); err != nil { t.Fatal(err) }
+ defer os.Chdir(old)
+ homes := []string{"", "/beans", " relative/../home ", "\u2003rel\u00a0", " /keep/../raw/ ", "\xff"}
+ hubs := []string{"", "/hub/../raw/", "relative/../hub", "\u2003\u00a0"}
+ flags := []string{"", "/flag/../raw/", "../flag", "\u2003"}
+ for _, home := range homes { for _, hub := range hubs { for _, flag := range flags { for _, userHome := range []string{"", "/user", " relative-user "} {
+  in := input{home,hub,flag,userHome}
+  t.Setenv("BEANS_HOME", home); t.Setenv("BEANS_HUB",hub); t.Setenv("HOME",userHome)
+  p,e := DefaultPaths(flag)
+  p.Hub = strings.ReplaceAll(p.Hub,root,"/oracle")
+  r := result{Input:in,Paths:p}; if e != nil { r.Error=e.Error() }; cases=append(cases,r)
+ }}}}
+ // Strings containing invalid UTF-8 travel as byte arrays rather than JSON text.
+ type byteCase struct { Parts [][]int; Clean []int; Joined []int }
+ ints := func(s string) []int { out:=make([]int,len(s)); for i:=0;i<len(s);i++ {out[i]=int(s[i])}; return out }
+ var lexical []byteCase
+ values:=[]string{"", ".", "..", "/", "//", "/../../x", "a/../..", "a//b/./c/..", "a\\b", "a\x00b", "\xff/../\xfe", "/x/../"}
+ for _,a:=range values {for _,b:=range values {
+  lexical=append(lexical,byteCase{[][]int{ints(a),ints(b)},ints(filepath.Clean(a)),ints(filepath.Join(a,b))})
+ }}
+ // Raw environment bytes are checked separately from the human-readable cases.
+ type rawResult struct { Home,Hub,Flag,UserHome []int; Paths [][]int; Error string }
+ var raw []rawResult
+ for _,home:=range []string{"\xff", " \xff ", "\xe2\x82", ""} {
+  t.Setenv("BEANS_HOME",home); t.Setenv("BEANS_HUB"," rel/\xff ");t.Setenv("HOME","/user/\xfe")
+  p,e:=DefaultPaths("")
+  r:=rawResult{Home:ints(home),Hub:ints(" rel/\xff "),Flag:ints(""),UserHome:ints("/user/\xfe"),Paths:[][]int{ints(p.Home),ints(strings.ReplaceAll(p.Hub,root,"/oracle")),ints(p.Cache),ints(p.Config)}}
+  if e!=nil {r.Error=e.Error()};raw=append(raw,r)
+ }
+ // Remove invalid strings from the text cases; they are covered losslessly above.
+ filtered:=cases[:0];for _,c:=range cases {if c.Input.Home!="\xff" {filtered=append(filtered,c)}}
+ type nameCase struct { Input []int; Name string; Valid bool }
+ var names []nameCase
+ for _,s := range []string{"Beans","My Repo","a_b.c","--x--","ok-name","A  B","","123-","-bad","İX","Kelvin","é_x","x\xff\xfez","x\xe2\x82z"} {
+  names=append(names,nameCase{ints(s),ProjectName(s),ValidProjectName(s)})
+ }
+ var asciiLower [][]int
+ for r:=rune(0);r<=unicode.MaxRune;r++ { lower:=unicode.ToLower(r);if lower>='a'&&lower<='z' {asciiLower=append(asciiLower,[]int{int(r),int(lower)})} }
+ data,e:=json.Marshal(map[string]any{"cases":filtered,"lexical":lexical,"raw":raw,"names":names,"ascii_lower":asciiLower});if e!=nil {t.Fatal(e)}
+ if e=os.WriteFile(os.Getenv("BN_PATHS_OUTPUT"),data,0600);e!=nil {t.Fatal(e)}
+}

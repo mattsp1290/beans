@@ -1,0 +1,4117 @@
+{
+  "schema": "beans-plan-ref-v1",
+  "source_sha": "718726a580c19becd5fb57513be9e76fda40ea26",
+  "harness_sha256": "575d31e137ee05a9cf322147da3fe72734b00428f88b5dd06989a8e710d2d9b6",
+  "refs": [
+    {
+      "after": null,
+      "error": "nil plan",
+      "id": "model",
+      "name": "nil",
+      "plan": null,
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "graph node \"missing\" not found",
+      "id": "missing",
+      "name": "missing",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-0",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": ""
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: '[[beans-a1b2|work]]'\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "[[beans-a1b2|work]]"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: '[[beans-a1b2|work]]'\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-1",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "[[beans-a1b2|work]]"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-2",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"true\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "true"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"true\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-3",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "true"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"false\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "false"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"false\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-4",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "false"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"yes\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "yes"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"yes\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-5",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "yes"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"no\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "no"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"no\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-6",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "no"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"on\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "on"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"on\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-7",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "on"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"off\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "off"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"off\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-8",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "off"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"null\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "null"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"null\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-9",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "null"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"123\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "123"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"123\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-10",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "123"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"2026-09-11\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "2026-09-11"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"2026-09-11\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-11",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "2026-09-11"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 'a: b'\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a: b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 'a: b'\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-12",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a: b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: '# x'\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "# x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: '# x'\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-13",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "# x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |-\n        a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a\nb"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |-\n        a\n        b\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-14",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a\nb"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n         a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": " a\nb"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-15",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": " a\nb"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4+\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4+\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-16",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "\n"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4+\n\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "\n"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4+\n\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-17",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "\n\n"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 雪\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "雪"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 雪\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-18",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "雪"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"\\U0001F331\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "🌱"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"\\U0001F331\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-19",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "🌱"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"a\\t b\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a\t b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"a\\t b\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-20",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a\t b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"a\\r b\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a\r b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"a\\r b\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-21",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a\r b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 'a         b'\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 'a         b'\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-22",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"a\\0b\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a\u0000b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"a\\0b\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-23",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a\u0000b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: <<\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "<<"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML aliases and custom tags are not allowed",
+      "id": "model",
+      "name": "ref-24",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "<<"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"y\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "y"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"y\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-25",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "y"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"Y\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "Y"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"Y\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-26",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "Y"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"Yes\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "Yes"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"Yes\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-27",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "Yes"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"YES\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "YES"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"YES\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-28",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "YES"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"n\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "n"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"n\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-29",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "n"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"N\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "N"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"N\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-30",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "N"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"No\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "No"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"No\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-31",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "No"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"NO\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "NO"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"NO\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-32",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "NO"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"On\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "On"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"On\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-33",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "On"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"ON\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "ON"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"ON\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-34",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "ON"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"Off\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "Off"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"Off\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-35",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "Off"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"OFF\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "OFF"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"OFF\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-36",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "OFF"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"1:20\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "1:20"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"1:20\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-37",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "1:20"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"+1:20\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "+1:20"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"+1:20\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-38",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "+1:20"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"-1:20\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "-1:20"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"-1:20\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-39",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "-1:20"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"12:59:59\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "12:59:59"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"12:59:59\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-40",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "12:59:59"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 12:60\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "12:60"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: 12:60\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-41",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "12:60"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"1:2.\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "1:2."
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"1:2.\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-42",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "1:2."
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"1_:2.3_\"\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "1_:2.3_"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: \"1_:2.3_\"\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-43",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "1_:2.3_"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4\n         a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": " a\nb\n"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-44",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": " a\nb\n"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n          a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "  a\nb"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-45",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "  a\nb"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n           a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "   a\nb"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-46",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "   a\nb"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n            a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "    a\nb"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-47",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "    a\nb"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n         a\n         b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": " a\n b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-48",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": " a\n b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n         a\n          b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": " a\n  b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-49",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": " a\n  b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |4-\n         a\n        b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "\n a\nb"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "ref-50",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "\n a\nb"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |-\n        a\n         b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a\n b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |-\n        a\n         b\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-51",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a\n b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |-\n        a\n          b\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "a\n  b"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: |-\n        a\n          b\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "ref-52",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "a\n  b"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "status-draft",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "blocked",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "Summary Outcome must contain meaningful text",
+      "id": "model",
+      "name": "status-blocked",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "blocked",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "ready",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "Summary Outcome must contain meaningful text",
+      "id": "model",
+      "name": "status-ready",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "ready",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "complete",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "Summary Outcome must contain meaningful text",
+      "id": "model",
+      "name": "status-complete",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "complete",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "invalid plan status",
+      "id": "model",
+      "name": "status-",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "open",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "invalid plan status",
+      "id": "model",
+      "name": "status-open",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "open",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: missing bn-change-graph fence",
+      "id": "model",
+      "name": "body-0",
+      "plan": {
+        "body": "",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "```bn-change-graph\nversion: 1",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: unterminated bn-change-graph fence",
+      "id": "model",
+      "name": "body-1",
+      "plan": {
+        "body": "```bn-change-graph\nversion: 1",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n ```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "body-2",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n ```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\r\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: missing bn-change-graph fence",
+      "id": "model",
+      "name": "body-3",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\r\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Other\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: missing Summary",
+      "id": "model",
+      "name": "body-4",
+      "plan": {
+        "body": "\n## Other\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: duplicate Summary",
+      "id": "model",
+      "name": "body-5",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: \"yes\"\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "yes",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: \"yes\"\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "label-0",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "yes"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: \"null\"\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "null",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: \"null\"\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "label-1",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "null"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: |-\n        a\n        b\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "a\nb",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: invalid graph node \"model\"",
+      "id": "model",
+      "name": "label-2",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "a\nb"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: |4-\n         a\n        b\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": " a\nb",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph YAML: yaml: line 2: did not find expected key",
+      "id": "model",
+      "name": "label-3",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": " a\nb"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: |4+\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "\n",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: invalid graph node \"model\"",
+      "id": "model",
+      "name": "label-4",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "\n"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: |4+\n\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "\n\n",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: invalid graph node \"model\"",
+      "id": "model",
+      "name": "label-5",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "\n\n"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: 'a         b'\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "a b",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: 'a         b'\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "label-6",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "a b"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: \"a\\0b\"\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "a\u0000b",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: \"a\\0b\"\n      kind: component\n      ref: x\nedges: []\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "label-7",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "a\u0000b"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\n    - id: model\n      label: Model\n      kind: component\nedges: []\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            },
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: duplicate graph node \"model\"",
+      "id": "model",
+      "name": "duplicate",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            },
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 2\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges: []\n\n```\n",
+        "graph": {
+          "version": 2,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": []
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "plan.md: graph version must be 1",
+      "id": "model",
+      "name": "version",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 2
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    },
+    {
+      "after": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges:\n    - from: model\n      to: model\n      kind: affects\n      label: \"yes\"\n\n```\n",
+        "graph": {
+          "version": 1,
+          "nodes": [
+            {
+              "id": "model",
+              "label": "Model",
+              "kind": "component",
+              "ref": "x"
+            }
+          ],
+          "edges": [
+            {
+              "from": "model",
+              "to": "model",
+              "kind": "affects",
+              "label": "yes"
+            }
+          ]
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n    - id: model\n      label: Model\n      kind: component\n      ref: x\nedges:\n    - from: model\n      to: model\n      kind: affects\n      label: \"yes\"\n\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "error": "",
+      "id": "model",
+      "name": "edge",
+      "plan": {
+        "body": "\n## Summary\n\n### Outcome\n\n<!-- bn:todo -->\n\n### Affected areas\n\n<!-- bn:todo -->\n\n### Execution order\n\n<!-- bn:todo -->\n\n### Risks\n\n<!-- bn:todo -->\n\n### Change graph\n\n```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```\n",
+        "graph": {
+          "edges": [
+            {
+              "from": "model",
+              "kind": "affects",
+              "label": "yes",
+              "to": "model"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "model",
+              "kind": "component",
+              "label": "Model"
+            }
+          ],
+          "version": 1
+        },
+        "path": "plan.md",
+        "status": "draft",
+        "summary": {
+          "affected_areas": "<!-- bn:todo -->",
+          "change_graph": "```bn-change-graph\nversion: 1\nnodes:\n  # old comment\n  - {id: model, label: Model, kind: component}\nedges: []\n```",
+          "execution_order": "<!-- bn:todo -->",
+          "outcome": "<!-- bn:todo -->",
+          "risks": "<!-- bn:todo -->"
+        }
+      },
+      "ref": "x"
+    }
+  ]
+}

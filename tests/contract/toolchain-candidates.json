@@ -1,0 +1,99 @@
+{
+  "schema": "beans-migration-toolchain-candidates-v1",
+  "observed_at": "2026-09-30",
+  "application_rust": "1.98.1",
+  "verus": {
+    "release": "release/0.2026.09.27.3cf1832",
+    "matching_vstd": "0.0.0-2026-09-20-0158",
+    "rust": "1.98.1",
+    "source": "https://github.com/verus-lang/verus/releases/tag/release/0.2026.09.27.3cf1832",
+    "linux_x86_64_sha256": "43814031e10df043221d83c7fa842e3ebd662cb7b0090fc1eb4d7a8673226978",
+    "status": "requires WP2 build/proof qualification; released Linux asset is x86_64, current host is arm64"
+  },
+  "crates": {
+    "clap": {
+      "candidate": "4.6.7",
+      "rust_version": "1.85",
+      "source": "https://crates.io/api/v1/crates/clap",
+      "status": "requires WP2 build qualification"
+    },
+    "axum": {
+      "candidate": "0.8.9",
+      "rust_version": "1.80",
+      "source": "https://crates.io/api/v1/crates/axum",
+      "status": "requires WP2 build qualification"
+    },
+    "comrak": {
+      "candidate": "0.55.0",
+      "rust_version": "1.85",
+      "source": "https://crates.io/api/v1/crates/comrak",
+      "status": "requires WP2 build qualification"
+    },
+    "yaml-rust2": {
+      "candidate": "0.13.0",
+      "rust_version": "1.85.0",
+      "source": "https://crates.io/api/v1/crates/yaml-rust2",
+      "status": "requires WP2 build qualification"
+    },
+    "notify": {
+      "candidate": "8.2.0",
+      "rust_version": "1.77",
+      "source": "https://crates.io/api/v1/crates/notify",
+      "status": "requires WP2 build qualification"
+    },
+    "serde": {
+      "candidate": "1.0.229",
+      "rust_version": "1.56",
+      "source": "https://crates.io/api/v1/crates/serde",
+      "status": "requires WP2 build qualification"
+    },
+    "serde_json": {
+      "candidate": "1.0.151",
+      "rust_version": "1.71",
+      "source": "https://crates.io/api/v1/crates/serde_json",
+      "status": "requires WP2 build qualification"
+    },
+    "toml": {
+      "candidate": "1.1.6+spec-1.1.0",
+      "rust_version": "1.85",
+      "source": "https://crates.io/api/v1/crates/toml",
+      "status": "requires WP2 build qualification"
+    },
+    "proptest": {
+      "candidate": "1.11.0",
+      "rust_version": "1.85",
+      "source": "https://crates.io/api/v1/crates/proptest",
+      "status": "requires WP2 build qualification"
+    },
+    "stateright": {
+      "candidate": "0.31.0",
+      "rust_version": null,
+      "source": "https://crates.io/api/v1/crates/stateright",
+      "status": "requires WP2 build qualification"
+    },
+    "vstd": {
+      "candidate": "0.0.0-2026-09-20-0158",
+      "rust_version": null,
+      "source": "https://crates.io/api/v1/crates/vstd",
+      "status": "requires WP2 build qualification"
+    },
+    "tokio": {
+      "candidate": "1.53.1",
+      "rust_version": "1.71",
+      "source": "https://crates.io/api/v1/crates/tokio",
+      "status": "requires WP2 build qualification"
+    },
+    "getrandom": {
+      "candidate": "0.4.3",
+      "rust_version": "1.85",
+      "source": "https://crates.io/api/v1/crates/getrandom",
+      "status": "requires WP2 build qualification"
+    },
+    "time": {
+      "candidate": "0.3.55",
+      "rust_version": "1.88.0",
+      "source": "https://crates.io/api/v1/crates/time",
+      "status": "requires WP2 build qualification"
+    }
+  }
+}

@@ -1,0 +1,652 @@
+# Rust domain port
+
+WP3 is in progress. The current parser/editing primitives are implemented in
+`src/domain/frontmatter.rs`, with YAML event and source-position adaptation in
+`src/domain/yaml.rs`. Issue reading and body mutation semantics are in
+`src/domain/issue.rs`; stored log rules are in `src/domain/log.rs`. Existing-issue encoding is in `src/domain/issue_encode.rs`, with owned YAML
+presentation in `src/domain/yaml_render.rs` and source-provenance planning in
+`src/domain/splicing.rs`. New-file construction uses the same owned-field renderer. New unknown Extra
+construction, other note codecs, plans, configuration, resolution, indexing and
+queries are covered by the later sections below. Wider WP3 qualification remains
+in progress. Go is still the default implementation; all original Go tests
+remain in place.
+
+The parser retains original bytes and a separate Unicode view, deriving absolute
+frontmatter ranges from line offsets. Semantic YAML nodes are separate from retained text; duplicate
+unknown keys, comments, block styles and Markdown are not serialized again.
+Owned scalar/list decoding preserves yaml.v3's scalar spellings and null rules;
+aliases are separate nodes and fail scalar/list coercion. The typed issue reader
+checks owned duplicates and required keys, decodes
+metadata, derives Linux project/archive paths, and retains original bytes and
+body sections. It preserves Go's permissive issue values, signed 64-bit priority
+bounds, and timestamp semantics including one-digit hours, comma fractions and
+zone hour 24. The corpus adds 33 generated metadata/validation cases.
+
+The pinned yaml-rust2 low-level event API passed the prototype gate across all
+21 original issue/request roundtrip inputs plus 16 added syntax inputs. Node
+positions need adaptation: nonempty block scalars report content positions,
+anchored/tagged nodes can report positions after their prefixes, and implicit
+empty values can report the next key's line. The adapter reconstructs these
+positions from scanner tokens and original lines. It never treats a marker's
+index as an authoritative byte offset. The additional inputs include Unicode,
+anchors, tags, null coercion, nested/flow maps, block-header variants and
+structural errors and body-fence variants. `src/domain/text.rs` ports literal
+link parsing/creation and the distinct issue/request body splits. Closed fences
+hide headings; unterminated fences become inert; four-space fences stay inert.
+Raw log sections and trailing sections remain separate byte slices. Thirteen
+Go-derived link cases preserve bare IDs and original link spelling.
+
+`tests/contract/frontmatter-primitives.json` records nodes, original body and
+YAML text, byte ranges, body sections, links, issue metadata, log entries, body
+mutations and errors from the immutable Go revision
+`718726a580c19becd5fb57513be9e76fda40ea26`. Capture uses a development-only Go
+test injected into an archived tree. `make compat-frontmatter` independently
+recreates that record and compares it without changing the committed corpus.
+Rust is never a source for these expected results.
+
+The actual replacement path constructs spans from parsed fields, calls
+`valid_splices`, obtains unchanged intervals through `preserved_interval`, and
+computes destination ends through `translate_offset`. It copies original bytes
+directly and returns copy ranges for translation/checking. Invalid or duplicate
+replacement requests return errors while leaving the original untouched.
+`cargo test --test domain --locked` compares the entire primitive corpus and
+checks actual non-ASCII edits and source/destination copy geometry.
+
+Log parsing retains opaque list entries and indented continuations. The parser
+uses Go's ASCII regex whitespace rules, while formatting normalizes Unicode
+whitespace in actor/repo/branch tokens. Timestamp formatting uses UTC whole
+seconds. The corpus captures 28 standalone parses, 10 format/line cases and
+7 section parses/appends, alongside all valid issue files' parsed logs.
+The time dependency enables extended dates so valid Go inputs that cross into
+UTC year 10000 format correctly. Description replacements match Go's
+trailing-newline behavior. AppendLog
+compares instants including nanoseconds and sets a later Updated to UTC. Body
+rendering appends only entries beyond the original log length, preserving the
+original section even if an existing semantic log entry is edited. The 270 differential
+body mutations include earlier/equal/later appends and opaque original edits.
+`IssueDocument::encode` now renders full documents, including changed timestamps
+and appended logs, using the real verified byte-copy path. CLI and filesystem
+writes still await the later operation/CLI packages.
+
+The fixed-Go corpus compares 532 complete owned-field edits across 28 valid
+issue inputs: every owned field, optional removals and combined updates. It also
+compares all 270 body mutations as complete documents and 93 scalar inputs in
+plain/commented/flow/link presentations. Known fields are rendered independently;
+unknown YAML is never serialized. Untouched metadata, including missing aliases,
+stays untouched. Rendering aliases adds the current ID only when aliases are
+changed. Changed timestamp equality ignores offset spelling but includes
+nanoseconds; rendered timestamps use UTC whole seconds.
+
+Go's line edits have coincident spans for flow-root mappings. The planner replays
+the same descending line order, retaining each original line's byte provenance,
+then derives ordered nonoverlapping byte patches for the kernel. The flow-root
+fixture captures these historical quirks, including edits that leave duplicate
+owned keys and thus do not reparse. Do not use output-byte parity as evidence
+that every such generated document is valid. Closing-fence-at-EOF normalization
+also remains an explicit compatibility question. Both need resolution before
+complete codec acceptance.
+
+A second 512-case property exercises the typed encoder directly, proving no-op
+byte equality and preservation of every byte outside a changed status field,
+including Unicode, comments, duplicate unknown keys and arbitrary bodies.
+
+Remaining codec gates include other note schemas, complete yaml.v3 syntax-error
+presentation and obscure Unicode error quoting, further YAML/comment variants,
+new-file Extra handling and expanded cross-language parse/encode/edit validity. The real
+issue encoder now reaches the verified helpers using parsed byte ranges; every
+other typed codec must do so before WP3's whole-package proof-coupling gate is
+accepted. Primitive parity
+alone does not establish issue/request or whole-hub compatibility.
+
+
+`IssueDocument::new` constructs an issue without original text or parsed log
+history. Encoding writes owned fields in canonical order, applies aliases and
+optional-field rules, emits UTC whole-second timestamps, and adds authored
+body/log text. `frontmatter()` returns None for a new issue. Parsed documents
+retain the original byte-preserving encoder path.
+
+The new-file corpus has 128 Go-derived cases covering default/minimal/canonical
+metadata, all 93 string presentations in titles, list/alias variations,
+description/body/log separators and timestamp boundaries. Rust encoding equals
+Go byte-for-byte, and the Rust reader matches Go's metadata, body and log views.
+`make compat-domain-read` exports actual Rust-generated files from the tests and
+reads those bytes with the archived fixed Go reader. Linux CI requires this
+check; failure artifacts retain the files and reader results. The gate proves
+124 accepted reads and four Go-matching timestamp boundary rejections, not
+unconditional validity of every possible programmer-supplied timestamp.
+
+The cross-read tests exposed YAML-version differences for raw Unicode quoted
+line separators. The adapter locates the original quoted lexeme, trims adjacent
+indentation around raw NEL/LS/PS and decodes that adapted lexeme independently.
+Escaped \N/\L/\P keep their authored spaces. Diagnostic line accounting counts
+raw Unicode separators separately from physical LF byte offsets. More Unicode,
+quote/escape interactions and byte-span behavior still need differential cases
+before broad vault use; this gate does not establish complete YAML compatibility.
+
+## Markdown link extraction
+
+`src/markdown/links.rs` provides raw-byte body-link extraction for the vault
+loader. It preserves target, fragment and alias bytes, including invalid UTF-8,
+last-`#` fragment splitting, embed flags and first-occurrence deduplication by
+(target, fragment, embed). Frontmatter is excluded using Goldmark's delimiter
+rules, including TOML and one initial blank line. Alias markup and entities
+remain authored bytes. Ordinary Markdown link/image labels may contain
+wikilinks; their destinations, angle autolinks, code and HTML do not. Table
+cells split on unescaped pipes before parsing inline links.
+
+Comrak supplies block/inline context, with raw-byte grammar and temporary
+markers adapting its different wikilink rules. The context view masks lone CR
+without altering returned fields because Goldmark's reader splits on LF. The
+adapter never writes caller bytes. This is a trusted parser boundary, not a
+verified kernel. It parses context per candidate; full-index load measurements
+and pathological link-density measurements remain required before WP3
+acceptance.
+
+`make compat-markdown-links` independently recaptures 1,495 cases from the
+immutable Go revision under Go 1.25.7. The corpus covers every byte in target and
+alias positions, GFM tables, code/fences, HTML, ordinary links/images and
+references, Unicode prefixes, escapes, CR/CRLF and frontmatter delimiters. Two
+independent Rust assertions port `TestLinks` and `TestLinksAlias`. These tests
+qualify link extraction for the recorded inputs; they do not qualify rendered
+HTML, TOC, embeds, the disk index or end-to-end queries.
+
+## Forgiving document metadata
+
+`src/vault/document.rs` ports document frontmatter splitting, title fallback and
+tag filtering. Its exact leading `---\n` rule differs from Markdown link
+frontmatter and typed issue parsing; a missing closing fence keeps the original
+body. A title must be a decoded string. Otherwise the first trimmed `# ` line
+(including one inside a code fence) supplies the title, then the basename. Tags
+accept a nonempty string or only string items from a sequence. Empty sequences
+and absent/empty scalar tags retain their distinct non-nil/nil results.
+
+`src/domain/yaml_value.rs` and its scalar module decode the entire generic
+frontmatter map for indexing and later API use. Values retain raw strings,
+booleans, signed/unsigned integers, float bits, timestamps, sequences and both
+string-keyed and general maps. Aliases and merge precedence use YAML node
+identities; duplicate mappings are skipped as recoverable errors, while fatal
+value errors retain earlier top-level assignments. The decoder carries Go's
+alias expansion counters and ratio limits. It does not serialize or rewrite
+source YAML. Generic metadata is distinct from the typed codecs' permissive
+scalar-to-string fields.
+
+`make compat-doc-metadata` independently recaptures 995 immutable Go 1.25.7
+cases. It compares original split bytes, body/title/tags and all typed metadata
+values, including partially decoded results. Cases cover every byte in titles
+and bodies, syntax/type errors, tags, aliases and alias keys, merges, duplicate
+keys, BOM/Unicode, numeric boundaries, timestamps, and expanding alias trees.
+An independent Rust regression checks code-fence heading fallback, mixed tag
+types, fatal partial-map retention and CRLF opening-fence behavior. Whole-index
+loading/reload/search, API JSON errors for generic maps/non-finite floats, and
+wider YAML/reader/error-order qualification remain acceptance work. No existing
+whole-index Go test has been retired or marked ported by this metadata slice.
+
+## Disk index loading and reload
+
+`src/vault/index.rs` and its note/walk/reload modules provide the production
+filesystem index. Configuration and workflow load before traversal. Project
+config discovery uses Linux Go-style globbing, including hidden and symlink
+project directories; the sorted note walk skips hidden directories and
+templates, handles assets without reading them, and distinguishes non-directory
+plan roots from Markdown files. It invokes actual plan tree/temp recovery and
+loads bundles with the existing size/path/section boundaries. Notes use the
+production issue/request/memory/handoff/plan decoders, doc metadata and Markdown
+link extraction, then rebuild the existing ownership/alias/backlink graph.
+
+Incremental reload removes only requested note paths and appends successful
+reparses in Go order. Invalid section edits retain the last valid aggregate;
+deleted plan roots remove it. Config reload builds a fresh index and only
+replaces the previous index after success. Parse/link warnings retain their
+distinct ordering and path keys. Plan recovery can still affect disk before a
+later load failure, as in Go. Mutable Rust borrowing supplies exclusive reload
+access; shared server lock/watcher wiring remains WP7 work.
+
+Original file bytes and extracted body/description/link bytes remain separate
+from a read-only UTF-8 parser view with offset translation. Typed NoteData
+now uses canonical byte bodies and original-byte frontmatter storage through the
+shared codecs, as qualified in the raw-byte slice below. Wider raw-reader malformed-UTF-8/error-order and filesystem-fault
+qualification remain mandatory; this adapter is not a lossless-codec waiver.
+
+`make compat-index` recaptures 26 disposable filesystem scenarios (32 load/reload
+stages) and 216 byte/Unicode filepath matching cases from Go 1.25.7. Snapshots
+compare note order, metadata/body fields, raw/resolved links, ownership, aliases,
+backlinks, configuration/workflow, warnings and exact filesystem effects. Eight
+original index regressions have independent assertions, bringing the ledger to
+82 ported and 143 pending at that checkpoint. These index tests do not
+establish whole-vault parity.
+
+`tools/compat/index_benchmark.py` and `examples/index_load.rs` measure the actual
+Go and release Rust loaders on the same WP1 fixture (5,000 live issues plus one
+archived issue). On Linux aarch64, three warmups and twenty measured samples
+gave Go median 312.13 ms and Rust median 140.74 ms
+(ratio 0.451). Counts are checked in both implementations. The full
+samples, compiler pins, fixture and binary hashes are recorded in
+`tests/contract/index-performance-linux-arm64.json`. This is in-process load
+evidence, excluding CLI startup/output; end-to-end command measurements and
+pathological link-density qualification remain separate gates.
+
+## Vault queries and derived plan execution
+
+`src/vault/query.rs` and its dependency/search/cycle/execution modules query the
+actual disk index. Lists preserve project/archive filters and priority/time/ID
+ordering, using timestamp instants rather than authored UTC offsets. Requests
+retain their fixed workflow and field filters. Search reads original issue
+body bytes, all plan sections and summaries, applies Go Unicode simple lowercase,
+preserves stable equal-score/basename ties, and excludes archived handoffs by
+default. Unknown kind filters match nothing. Iterative Tarjan traversal reports
+sorted dependency SCCs and self-loops without using the native call stack.
+
+Readiness and execution blockers resolve exact issue IDs before generic note
+lookup. Blocked lists, parents, children and dependency graph edges retain Go's
+separate generic lookup behavior, including colliding document basenames.
+Blocker terminality uses the blocker's project workflow. Archived children can
+hold epics, while archived handoffs only affect search/backlink visibility.
+Issue/memory project derivation now uses original Linux filename bytes and the
+last `projects` component, preserving workflow lookup for invalid-UTF-8 paths.
+
+Plan execution derives each authored graph node's binding and work state from
+live indexed issues. Terminal status precedes blockers, blockers precede archive
+and epic holds, and literal `in_progress` precedes ordinary active/hold workflow
+classification. Aggregate counts, distinct issue counts, execution precedence
+and lifecycle mismatch flags are derived without changing the plan. Report JSON
+retains omitted absent issues and Go's `null`/`[]` blocker distinctions.
+
+`make compat-query` recaptures 39 real filesystem scenarios, including three
+incremental reloads, from immutable Go 1.25.7. Queries cover all six note kinds,
+custom workflows, unknown kinds, invalid body/path bytes, ID/basename/alias
+collisions, duplicate ownership, sorting and offsets, unresolved/duplicate
+blockers, cross-project cycles, archive opt-in and plan execution states. Fixture
+preconditions assert that requests and plans actually load. Query identity lists
+normalize nil-empty slices to arrays for this internal semantic comparison;
+CLI/API transport nilness still requires their route/command gates. Execution
+reports compare complete Go JSON directly. Fourteen independent original
+regressions bring the ledger to 96 ported and 129 pending. This slice does not
+qualify all vault filesystem faults, YAML reader/error ordering, watcher/server
+concurrency, CLI/API query transport or the wider WP3 lossless mutation gates.
+
+## Original-byte codec bodies
+
+All four issue/request/memory/handoff documents now expose `parse_bytes` and
+`original_bytes`. UTF-8 convenience readers delegate to the same path. The
+shared Frontmatter owns original bytes alongside a separate Unicode parser
+view; invalid body bytes map one-for-one to replacement runes with translated
+slice boundaries. Valid UTF-8 inputs use direct byte offsets. Bodies and issue
+descriptions use the existing byte-preserving YamlString value, so an authored
+replacement rune remains distinguishable from an original invalid byte.
+
+Encoders splice actual original bytes and canonical body bytes. Issue/request
+byte renderers preserve original raw log and tail fragments, append new entries
+without reserializing old logs, and retain surrounding blank lines. Byte-based
+description/request-body setters follow existing newline normalization. The
+older String render helpers are UTF-8 conveniences and return an error for a
+non-UTF-8 result; writers use byte renderers. Memory/handoff whole-body writers
+accept arbitrary byte values. Real index loading calls these same codecs and
+reads their canonical body fields, replacing the earlier index-only adaptation.
+
+`make compat-raw-codec` recaptures 1,056 immutable Go 1.25.7 inputs and 5,280
+parse/encode outcomes: every byte in descriptions, bodies, logs, continuations
+and tails, truncated/overlong encodings, closed and unterminated fences, absent
+final newlines and CRLF rejection. No-op, metadata edits, UTF-8 and raw-byte body
+replacements, and log append results compare complete output bytes and errors.
+Generated raw no-op/metadata properties assert exact preservation and copy
+geometry. `make compat-raw-codec-read` feeds 5,260 actual Rust outputs to the
+fixed Go reader and encoder, requiring acceptance and exact byte roundtrip. A
+real disk-index integration test encodes all four loaded payloads
+back to the original file bytes and checks that replacing an invalid byte with
+an authored replacement rune changes the file. All existing codec/index/query
+corpora remain required; this does not qualify wider malformed-frontmatter
+reader windows/error ordering, YAML syntax/aliases/coercion, new log argument
+byte handling, every generated edit sequence, filesystem faults or the full WP3
+production proof-coupling audit. No additional original Go regression is marked
+ported solely by this new corpus (ledger remains 96 ported /129 pending).
+
+The same 5,000-live-plus-one-archive fixture was remeasured after this change:
+three warmups and twenty release samples on Linux aarch64 gave Go median
+314.68 ms and Rust 137.39 ms (ratio 0.437). Full samples, toolchains and actual
+fixture/binary hashes are in
+`tests/contract/index-performance-raw-codec-linux-arm64.json`. This remains an
+in-process load measurement; CLI startup/output and dense-link measurements
+still require separate qualification.
+
+## Raw UTF-8 YAML reader windows
+
+The production YAML reader now validates original UTF-8 bytes as the parser
+requests its 512-byte windows, checking trailing octets, minimum sequence length,
+Unicode range and printability in Go order. Frontmatter no longer prechecks the
+entire file. The parser follows Go's two-token comment lookahead for node-content
+errors: a following key can satisfy lookahead before its value is read, while a
+comment-only suffix requires scanning to its end. Explicit document-end behavior
+continues to limit which bytes reach the reader. Ignored malformed UTF-8 after
+that boundary can remain valid input and must retain its original bytes.
+
+Frontmatter fields now expose actual raw offsets; encoding translates these
+back to Unicode-view offsets only when inspecting inline comments. Frontmatter
+and body replacement spans use actual byte ranges, so no-op and first/last
+metadata edits preserve or replace the same regions as Go even when ignored
+frontmatter suffixes expand in the Unicode view.
+
+`make compat-raw-reader` recaptures 6,304 fixed-Go cases and 18,912 parse/edit
+outcomes across all four codecs, including every byte, sequence/trailing/range
+errors, 512-byte boundaries, early syntax faults with comments or later keys,
+explicit document ends, first/last field changes and opaque raw bodies. There
+are 2,076 accepted inputs. Tests compare exact errors and encoded bytes plus
+copy geometry and Go re-reading of the edited file.
+`make compat-raw-reader-read` tests 6,228 actual Rust outputs in Go: 5,911 accepted
+byte roundtrips and 317 matching rejections. Go last-field spans can include a
+document-end marker; replacing that span can make previously ignored malformed
+suffix bytes active again. These outcomes remain part of the captured contract.
+An independent regression verifies token-dependent precedence
+and actual disk-index roundtrip of ignored invalid frontmatter. Existing codec,
+workflow, generic-document, plan, index and query corpora remain required.
+
+This qualifies the captured UTF-8 reader behavior, not the full WP3 format gate.
+The following UTF-16 reader slice qualifies BOM-selected LE/BE frontmatter
+against its own captured cases; broader YAML encoding cases remain a gate. Wider YAML syntax and aliases, other multifault combinations,
+new raw log arguments, generated edit sequences, production proof-coupling
+audit and filesystem/transport/performance gates remain. The original-test
+ledger remains 96 ported and 129 pending.
+
+
+### BOM-selected UTF-16 reader and physical edit spans
+
+Frontmatter framing and field preservation still use the original raw ASCII LF
+bytes. A separate BOM-selected UTF-16 LE/BE view supplies YAML semantics and
+inline comments. Key lines from decoded YAML select the same raw physical lines
+as Go; changed fields are emitted as UTF-8, retaining every untouched UTF-16 byte.
+This intentionally preserves the mixed-encoding outputs of Go's line editor.
+The BOM and original body bytes survive a no-op exactly. The reader validates
+UTF-16 units and surrogate pairs as its 512-byte windows are requested, using
+Go's low-surrogate, pair, incomplete-unit and control-character error order.
+A short nonempty read does not report EOF until the next refill, so a truncated
+unit beyond the scanner's demand can remain ignored after a document end.
+
+`make compat-utf16-reader` recaptures 7,200 inputs and 21,600 parse/edit outcomes
+from the immutable Go baseline. Both byte orders, all four note kinds, Unicode
+and supplementary-plane scalars, blank/comment prefixes, early syntax faults,
+explicit document ends, raw 510/512/514/1024/4096 boundaries, malformed and
+truncated surrogate/unit sequences, control/noncharacter values and first/last
+field edits are covered. Of these inputs, 2,048 are accepted. The corpus stores
+lossless repeated-unit chunks to keep padding compact; tests expand the captured
+bytes before calling production parsers and encoders.
+
+`make compat-utf16-reader-read` checks 6,144 actual Rust outputs in fixed Go:
+2,464 accepted byte roundtrips and 3,680 matching rejections. Successful Go
+encoding does not promise a valid reread for these mixed-encoding edits; both
+implementations retain those captured outcomes. Rust also checks reread errors,
+accepted reread no-ops and retained-copy geometry. An independent regression
+checks the Unicode title, raw physical title span, decoded inline comment,
+actual splice output and disk-index preservation in both byte orders.
+
+The full WP3 gate remains open: wider YAML schemas/aliases and multifault
+ordering, raw new log arguments, generated mutation sequences, an explicit
+production proof-coupling audit, operation-owned project file writes and broader
+filesystem/transport/startup/link-density qualification are pending. The
+original-test ledger remains 96 ported and 129 pending. Go remains the default
+binary, and WP5 mutations stay held until the lossless format gate is complete.
+
+
+### Multiline scalar comment attachment
+
+An edited scalar retains its inline comment even when the comment follows an
+indented plain continuation or the closing quote on a later line. Indented
+comment-only lines remain separate foot comments; document-end and following
+key lines terminate inline-comment scanning. The node-content and mapping-key
+error paths both follow the reader's two-token comment lookahead before choosing
+a syntax error, preserving the error precedence on mixed-encoding rereads.
+
+`compat-scalar-comment` captures 48 fixed-Go inputs/144 parse/edit outcomes:
+plain continuations, separate foot comments, multiline quotes and block-header
+comments, across all four note codecs in UTF-8 and UTF-16 LE/BE. The production
+comparison reproduces exact output bytes, reread errors/no-ops and copy geometry;
+`compat-scalar-comment-read` checks the actual Rust outputs with immutable Go.
+The new corpus exposed the plain-continuation regression and one mapping-error
+reader-demand mismatch before this correction. Wider YAML attachment/schema
+cases remain part of the unfinished WP3 gate.
+
+### Byte-valued log arguments and captures
+
+LogEntry actor/repo/SHA/branch/event/raw fields now hold canonical YamlString
+bytes. `parse_bytes` preserves raw regex capture slices, including malformed
+UTF-8; `parse_section_bytes` preserves opaque list items and their continuation
+bytes. Both issue and request parsers read the original log slice, and their
+existing/new-document encoders use `format_bytes`/`line_bytes`. UTF-8 string
+conveniences explicitly reject non-UTF-8 output. No write uses a replacement
+character view. Parsed original history remains opaque for encoding: only
+entries beyond its original length are appended, as in Go.
+
+Formatting keeps Go's distinct rules: Unicode strings.Fields whitespace becomes
+hyphens in actor/repo/branch tokens, invalid octets stay intact, SHA is emitted
+verbatim, event LF continuations gain two spaces, and Raw overrides the whole
+line. Parsing retains the existing ASCII-regex whitespace rules. An exhaustive
+production-token check compares every Unicode scalar with fixed-Go whitespace
+ranges and separately verifies invalid octets and empty/whitespace-only fields.
+
+`compat-raw-log` captures 1,584 inputs (all byte values and Unicode/malformed
+sequences in all six fields), direct formatting/line output and raw parse
+captures, plus 15,840 issue/request appends. Five document shapes cover original
+logs, missing logs, empty bodies, fence endings and newly constructed documents.
+`compat-raw-log-read` checks all 15,840 actual Rust outputs with fixed Go:
+15,810 accepted byte roundtrips and 30 matching CRLF rejections. Rust independently
+checks exact bytes, reread errors/no-ops and retained-copy geometry. A disk-index
+regression verifies canonical invalid-byte captures, opaque entries, unchanged
+original history, actual file loading and lossless encoding.
+
+All six original issue/log_test.go regressions are independently ported:
+roundtrip, absent/incomplete context, repo/SHA without branch, minute-precision
+time, nonmatching lines and multiline continuations. The ledger is now 102
+ported and 123 pending. Full local Rust/Go/UI gates and existing UTF-8, UTF-16,
+scalar-comment and raw-body cross-reads pass. This qualifies the captured raw log
+contracts, not the full WP3 gate; wider parser/time schemas, generated mutation
+sequences, production proof-coupling audit and filesystem/transport/startup/
+pathological-link qualification remain.
+
+The same WP1 5,000-live-plus-one-archived fixture was measured again after byte
+log integration on Linux aarch64: Go1.25.7 median 324.92 ms, Rust1.98.1 release
+median 138.48 ms, ratio 0.426 (three warmups and twenty measured loads each).
+`tests/contract/index-performance-raw-log-linux-arm64.json` records fixture and
+binary hashes plus exact samples. This is in-process loading; CLI/startup/output
+and pathological link-density measurements remain separate gates. Go remains
+the default binary; dependent WP5 mutations stay held until WP3 acceptance.
+
+### Observed verified-helper calls from production codecs
+
+The WP3 coupling gate is now executable as `make verify-codec-coupling` and
+required in the Linux Rust job. Compiler coverage observes the actual verified
+splice.rs helper bodies in thirteen isolated production encoder cases: four
+note kinds in UTF-8/UTF-16 LE/BE and the plan graph-reference splice. The cases
+independently assert parsed raw ranges, changed bytes, preserved copy geometry
+and rejection behavior. A parser-only control records zero helper calls and is
+rejected. The application caller inventory and source/binary/toolchain hashes
+are captured alongside actual entry counts, without a runtime instrumentation
+flag or alternate helper implementation. See docs/verification.md and
+`tests/contract/codec-kernel-coupling-linux-arm64.json` for scope and evidence.
+
+This completes that specific current-caller instrumentation gate. WP3 still
+requires broader YAML/scalar/time/alias and error-order qualification, generated
+mutation sequences, operation-owned project file writes, filesystem faults,
+CLI/API query transport and CLI/startup/pathological-link measurements. The
+lossless gate remains open, so WP5 mutations remain held. Go is still the
+default executable; WP4-WP9 and the final requested review/fix-review remain.
+
+
+### Serial codec edits and original mutation regressions
+
+The ten original `issue/mutation_test.go` and `issue/roundtrip_test.go`
+regressions now have independent Rust ports in
+`tests/domain/mutation_regressions.rs`. Exact whole-document expectations cover
+status, description, blocker addition/removal, parent clearing, absent-assignee
+insertion before user fields, inline comments, and log appends before a trailing
+section. Every result is reparsed and encoded again. All original issue
+roundtrip fixtures are read directly, including error fixtures, archive path
+metadata, opaque/multiline log semantics and three blocker list styles. The
+ledger now records 112 independently ported regressions and 113 pending; all
+original Go tests remain.
+
+`tests/domain/edit_sequences.rs` generates 512 cases of one to twenty-four
+serial edits through each of the four note codecs. An independent fixed-line
+byte model checks exact output after two nonadjacent owned-field changes,
+Unicode values, supplementary-scalar YAML escapes, nested/anchored/block-scalar
+unknown fields, comments, padding and arbitrary non-CR body bytes. Each step
+verifies semantic rereading, byte-exact no-op encoding, repeating the same
+semantic edit after reload, and every reported source/destination copy range.
+A shrunk seed is retained: it first exposed an incorrect plain-scalar expectation
+in the test model, which now explicitly spells out Go's quoted supplementary
+Unicode escape. These properties qualify serial scalar codec edits; they do
+not establish dependency-operation replay, Git pipeline replay, arbitrary YAML
+syntax parity, UTF-16 serial edit validity, or filesystem behavior. Those and
+the remaining WP3 acceptance work are still open. The installed/default
+executable remains Go, and WP5 mutations remain held.
+
+
+### Project creation effects and remaining original issue regressions
+
+Operation-owned `vault::create_project_files` now writes the project config and
+seven ordered `.gitkeep` files, returning only the hub-relative paths it
+actually wrote. It preserves existing files/directories/valid symlinks, replaces
+dangling destination symlinks as Go does, skips non-ENOENT stat failures, and
+returns no staging paths after an error even when earlier writes remain. A
+second call writes nothing. Read/write resolution only reports the missing
+project; neither resolution call creates files.
+
+The helper uses the production `gitops::write_file` primitive: mkdir parents,
+exclusive same-directory `.bn-write-` temporary with 0600 permissions, write,
+explicit close with error handling, rename, and cleanup on failure. Short writes
+and interrupted writes match Go's behavior. This provides atomic file replacement
+at the rename boundary, not fsync durability or a proved crash-safe transaction.
+Locking, journaling, cancellation and real Git pipeline coupling remain WP4.
+No Rust CLI or HTTP write is enabled by this primitive.
+
+`compat-project-files` recaptures 90 immutable Go filesystem cases, each executed
+twice (180 stages), comparing exact file bytes, permissions, paths returned,
+errors and complete trees. Cases cover existing config/keep files and directories,
+valid/dangling symlinks, blocked parents, raw-byte names/remotes, empty names,
+path cleaning and partial failures. Rust executes the same real filesystem
+operations. The required Linux contract job recaptures this corpus. The original
+`TestResolveAutoCreateOnWriteNotRead` is independently ported, including all eight
+ordered staging paths, config contents, repeat no-op and project discovery.
+
+Eight original issue coverage tests, five issue review regressions and all six
+workflow-load regressions now have independent Rust ports. The ledger is 132
+ported/93 pending, with every original Go test retained. This completes the
+operation-owned project-file primitive and original issue-regression slices;
+it does not establish the whole WP3 lossless/schema/fault/transport/performance
+gate. WP5 remains held, Go remains default, and WP4-WP9 plus final requested
+review/fix-review remain unfinished.
+
+
+### Canonical diagnostic bytes and remaining synchronous vault regressions
+
+The shared domain error now owns canonical `YamlString` bytes, with `as_bytes`
+for command transports and a byte-preserving context method. `Display` remains
+a read-only Unicode view for JSON/text inspection; formatting an error through
+it cannot qualify raw stderr parity. Constructor calls were migrated explicitly,
+without encoding raw bytes into a Unicode surrogate or escape convention.
+Filesystem path errors, config loading, explicit workflow names/contexts,
+index load contexts and outside-hub reload errors now preserve original bytes.
+
+`compat-raw-diagnostics` captures 4,257 fixed-Go cases and compares raw diagnostic
+byte arrays, not JSON error strings. Config/workflow cases include every byte
+value in a filename, Unicode names, missing files, directories, malformed data
+and invalid vocabulary. Additional cases check index config errors, project
+directory failures and outside-hub reload rejection. Direct writes compare
+complete trees, permissions and cleanup for replacement, symlinks, directory
+rejection, blocked parents, NUL/raw paths and preserved unrelated files. Read
+cases assert unchanged trees in both implementations. Temporary numeric names
+and disposable root prefixes are normalized without changing any other byte.
+
+This corpus exposed six native rename mismatches: Go `os.Rename` checks a
+directory destination and reports EEXIST, while Rust's direct Linux rename
+reported EISDIR. The real write primitive now uses Go's destination/source
+checks and EINTR retry behavior. Actual error bytes and filesystem effects
+match the captured cases; no fixture expectation was waived. This does not
+qualify crash recovery, cancellation, locking, syscall fault injection or
+whole-application raw diagnostic transport. Remaining warning/plan/recovery
+contexts still need their own byte qualification before full parity.
+
+Three original synchronous vault review regressions are independently ported:
+duplicate basename ownership retains every issue and promotes a loser after
+removal; config reload refreshes workflow without losing notes; outside-hub
+reload failures leave the index unchanged. The ledger is now 135 ported and
+90 pending, with originals retained. Concurrent locked reads and watcher event
+regressions remain for server/watcher integration. WP3's wider schema/lossless,
+fault, transport and performance gates remain open; Go remains default, and
+the requested complete migration and final review/fix-review remain active.
+
+
+### Byte-preserving graph, parse-warning and recovery diagnostics
+
+Index warnings now retain the canonical `Error` rather than calling `Display`
+when recording them. Duplicate-owner paths, unresolved targets, parse warnings,
+and recovery wrappers concatenate original bytes. The four typed note loaders
+restore their canonical filename diagnostic prefix after parsing a Unicode view;
+this does not qualify raw metadata filenames or plan bundle models.
+
+The immutable Go graph corpus now includes 2,048 byte-array warning cases,
+covering every octet, four typed ID namespaces, two registration orders, and
+owner removal/promotion. It checks complete ordered warnings before and after
+removal, including quoted duplicate names/IDs and unquoted owner paths/targets.
+Another 2,032 real disk cases exercise four typed note parsers, two malformed
+inputs and every filename octet except NUL and slash, which are not valid single
+Linux filename components. Both implementations assert the source stays unchanged.
+These cases exposed an unfinished flow-value diagnostic whose Rust line number
+used the enclosing collection instead of the attempted node token. Production
+YAML and workflow syntax adapters now use the attempted token's location; the
+existing raw UTF-8, UTF-16 and scalar reader corpora also pass.
+
+The recovery corpus now compares canonical diagnostic arrays and complete trees
+for 7,236 real filesystem cases. Raw-name setup is separate from JSON strings;
+NUL and slash cases use an empty setup and still exercise the actual syscall or
+path handling. Backup restoration uses the shared Go-compatible rename primitive,
+and recovery context wrappers preserve inner bytes. This qualifies the bounded
+recovery helper corpus, not locks, transaction journaling, injected syscall faults,
+crash durability or mixed-client recovery in WP4.
+
+Plan diagnostic/model byte boundaries, broader YAML grammar/schema and multifault
+parity, CLI/API transports, performance and generated operation replay remain open.
+The test ledger remains 135 ported/90 pending with original Go tests retained.
+Go remains the default implementation; the complete migration and final requested
+review/fix-review are unfinished.
+
+
+### Canonical plan paths, bundle diagnostics and local scaffold boundaries
+
+`Plan.path`, `Bundle.root` and all string fields in `ValidationIssue` now own
+canonical `YamlString` bytes. Graph and validation errors expose canonical
+`Error` diagnostics instead of formatting through a Unicode view. Byte-path
+manifest, summary, graph and snapshot APIs complement existing string conveniences;
+filesystem bundle/scaffold APIs accept native `Path`. Index plan records retain
+raw relative manifest paths. Path cleaning uses the shared Go-compatible lexical
+join, while a bundle retains its original root spelling. YAML parser views
+remain Unicode; only their known leading diagnostic context is restored to the
+original path. Graph YAML context conversion no longer replaces matching text
+inside a filename.
+
+The required Linux `compat-plan-bytes` gate recaptures 12,665 immutable Go cases:
+6,336 snapshot loads, 2,105 actual disk loads, 1,584 manifest parses, 1,056 graph
+parses, 792 failing graph-reference edits, 264 successful reference edits, 264
+validation error models and 264 local scaffold attempts. It covers all 256 byte
+values in snapshot/model paths plus Unicode, invalid UTF-8 sequences, context-like
+names and lexical path spellings. Disk setup excludes impossible NUL components;
+actual load/scaffold calls still exercise NUL failures. Relative entry kinds,
+bytes, permissions and complete before/after trees are compared, including
+symlinks, FIFO rejection and exclusive destination behavior. Model paths and
+errors use byte arrays, with the separate Go JSON Unicode path view checked too.
+Section names decoded from `!!binary` retain their original bytes. Long repeated
+fixture strings/byte arrays share storage entries that expand without conversion;
+this reduces corpus size without removing a case or changing a byte.
+
+The corpus exposed an outdented flow-continuation difference in yaml-rust2.
+A scanner-driven parser-view adapter supplies indentation where its scanner
+stops inside a flow collection; physical source bytes and node line positions
+remain unchanged. The actual malformed block-entry token now reports the Go
+node-content diagnostic. Native accepted flow continuations are also captured,
+including a graph node and manifest aliases. Three workflow cases independently
+qualify the shared syntax behavior (374 strict decodes, original131 loads).
+Existing raw UTF-8/UTF-16/scalar reader and edit corpora pass unchanged.
+
+This bounded qualification does not prove the complete YAML grammar, multiple
+simultaneous faults, arbitrary I/O injection, CLI/API error transport, generated
+operation replay or transaction crash recovery. Repeated adaptation of large
+malformed flow input still needs pathological-input measurement. Original test
+ledger remains135 ported/90 pending. WP3 acceptance and WP4-WP9, followed by the
+requested dotfiles review/fix-review, remain unfinished; Go stays default.

@@ -1,0 +1,23 @@
+{
+  "schema": "beans-verus-pins-v1",
+  "rust": "1.98.1",
+  "vstd": "0.0.0-2026-09-20-0158",
+  "release": "release/0.2026.09.27.3cf1832",
+  "version": "0.2026.09.27.3cf1832",
+  "commit": "3cf18325f0fd0c3040fbdec8c0f2255c0504c91a",
+  "asset": "verus-0.2026.09.27.3cf1832-x86-linux.zip",
+  "archive_sha256": "43814031e10df043221d83c7fa842e3ebd662cb7b0090fc1eb4d7a8673226978",
+  "directory": "verus-x86-linux",
+  "platform": {
+    "os": "Linux",
+    "arch": "x86_64"
+  },
+  "binaries": {
+    "z3": "e583c4186a45e72411fa2cb2048401eed03f0f8e5f24694676a8f6271a50b765",
+    "verus": "2fe2fca366846ec5aaaaaf80edf061f7d19564c097cb9840c7638719e8bc1854",
+    "cargo-verus": "952f6d93db61e0aef610c468f7f7a45248589a6c8a37f4139f9747f611063988",
+    "rust_verify": "0b701b0953e9ddc07cfac33e6b950efd90c812ce75dbe46c01831cf2529467a0"
+  },
+  "z3_version": "4.16.0",
+  "qualification": "Toolchain and mandatory WP2 pure kernel contracts plus 10 guard mutations passed on Linux x86_64 in CI run 36772355158; production caller coupling remains WP3/WP4."
+}
