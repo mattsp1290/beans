@@ -1,9 +1,57 @@
 use crate::vault::{Index, Note, NoteKind};
 use comrak::{
     Arena, Options,
-    nodes::{AlertType, NodeAlert, NodeValue},
+    nodes::{AlertType, AstNode, NodeAlert, NodeLink, NodeValue},
 };
 use serde::Serialize;
+use std::{collections::HashMap, fmt::Write};
+
+#[derive(Clone)]
+enum InlineRendering {
+    Hashtag,
+    Embed { html: String, block: bool },
+}
+#[derive(Default)]
+struct RenderState {
+    inline: HashMap<usize, InlineRendering>,
+    toc: Vec<TocEntry>,
+}
+comrak::create_formatter!(NativeFormatter<RenderState>, {
+    NodeValue::Heading(ref heading) => |context, node, entering| {
+        let rendering = comrak::html::format_node_default(context, node, entering)?;
+        if entering && let Some(id) = &context.current_anchorized_id {
+            context.user.toc.push(TocEntry { level: heading.level, id: id.clone(), text: node.collect_text() });
+        }
+        return Ok(rendering);
+    },
+    NodeValue::Link(ref link) => |context, node, entering| {
+        match context.user.inline.get(&(std::ptr::from_ref(node) as usize)).cloned() {
+            None => return comrak::html::format_node_default(context, node, entering),
+            Some(InlineRendering::Embed { html, .. }) => {
+                if entering { context.write_str(&html)?; }
+                return Ok(comrak::html::ChildRendering::Skip);
+            },
+            Some(InlineRendering::Hashtag) => {
+                if entering {
+                    context.write_str("<a class=\"hashtag\" href=\"")?;
+                    comrak::html::escape_href(context, &link.url, false)?;
+                    context.write_str("\">")?;
+                } else { context.write_str("</a>")?; }
+            },
+        }
+    },
+    NodeValue::Paragraph => |context, node, entering| {
+        let block = |n| matches!(context.user.inline.get(&(std::ptr::from_ref(n) as usize)), Some(InlineRendering::Embed { block: true, .. }));
+        if !node.descendants().any(block) {
+            return comrak::html::format_node_default(context, node, entering);
+        }
+        // Standalone block embeds need no paragraph. Mixed prose/blocks use a
+        // block container, never a div embedded inside an HTML paragraph.
+        if !node.first_child().zip(node.last_child()).is_some_and(|(a, b)| std::ptr::eq(a, b)) || !node.first_child().is_some_and(block) {
+            context.write_str(if entering { "<div>" } else { "</div>\n" })?;
+        }
+    },
+});
 #[derive(Serialize)]
 pub struct TocEntry {
     pub level: u8,
@@ -83,7 +131,6 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
     let arena = Arena::new();
     let root = comrak::parse_document(&arena, source, &options);
     callouts(root);
-    let mut replacements = Vec::new();
     for node in root.descendants() {
         let mut data = node.data.borrow_mut();
 
@@ -103,64 +150,6 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
                         .push_str(&encode(&comrak::Anchorizer::new().anchorize(fragment)));
                 }
             }
-            NodeValue::Text(value) if value.contains("![[") => {
-                let mut rest = value.as_ref();
-                let mut expanded = String::new();
-                while let Some(start) = rest.find("![[") {
-                    expanded.push_str(&rest[..start]);
-                    let tail = &rest[start + 3..];
-                    let Some(end) = tail.find("]]") else {
-                        expanded.push_str(&rest[start..]);
-                        rest = "";
-                        break;
-                    };
-                    let (target, label) = tail[..end]
-                        .split_once('|')
-                        .unwrap_or((&tail[..end], &tail[..end]));
-                    let (target, fragment) = target.split_once('#').unwrap_or((target, ""));
-                    let rendered = if let Some(asset) = asset(index, path, target) {
-                        format!(
-                            "<img class=\"embed\" src=\"/api/assets/{}\" alt=\"{}\" />",
-                            encode(&asset),
-                            escape(label)
-                        )
-                    } else if embeds && let Some(note) = index.lookup(target.as_bytes()) {
-                        let source =
-                            String::from_utf8_lossy(if note.graph.kind == NoteKind::Issue {
-                                &note.description
-                            } else {
-                                &note.body
-                            });
-                        let source = if fragment.is_empty() {
-                            source.as_ref()
-                        } else {
-                            section(&source, fragment)
-                        };
-                        format!(
-                            "<div class=\"embed\">{}</div>",
-                            render_inner(
-                                source,
-                                index,
-                                &String::from_utf8_lossy(&note.graph.path),
-                                false
-                            )
-                            .html
-                        )
-                    } else {
-                        let url = index
-                            .lookup(target.as_bytes())
-                            .map(href)
-                            .unwrap_or_else(|| format!("/wiki/new?title={}", encode(target)));
-                        format!("<a href=\"{}\">{}</a>", escape(&url), escape(label))
-                    };
-                    let marker = format!("BNEMBED{}END", replacements.len());
-                    replacements.push((marker.clone(), rendered));
-                    expanded.push_str(&marker);
-                    rest = &tail[end + 2..];
-                }
-                expanded.push_str(rest);
-                *value = expanded.into();
-            }
             NodeValue::Image(link) if !link.url.contains(':') && !link.url.starts_with('/') => {
                 if let Some(target) = local_destination(&link.url)
                     && let Some(asset) = asset(index, path, &target)
@@ -171,52 +160,20 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
             _ => (),
         }
     }
-    let headings: Vec<_> = root
-        .descendants()
-        .filter_map(|n| match n.data.borrow().value {
-            NodeValue::Heading(h) => Some((h.level, text(n))),
-            _ => None,
-        })
-        .collect();
-    // Expand hashtags only in parsed prose text, never inside links or code.
-    // Capture heading text first so generated markers cannot leak into the TOC.
-    for node in root.descendants() {
-        if node.ancestors().skip(1).any(|parent| {
-            matches!(
-                parent.data.borrow().value,
-                NodeValue::Link(_) | NodeValue::WikiLink(_) | NodeValue::Image(_)
-            )
-        }) {
-            continue;
-        }
-        if let NodeValue::Text(value) = &mut node.data.borrow_mut().value {
-            *value = hashtags(value, &mut replacements).into();
-        }
-    }
+    let mut inline_nodes = expand_embeds(&arena, root, index, path, embeds);
+    inline_nodes.extend(expand_hashtags(&arena, root));
     let mut html = String::new();
-    comrak::format_html(root, &options, &mut html).expect("render into memory");
-    let mut toc = Vec::new();
-    let mut pos = 0;
-    let mut anchorizer = comrak::Anchorizer::new();
-    for (level, text) in headings {
-        let original_id = anchorizer.anchorize(&text);
-        if let Some(start) = html[pos..].find(&format!("<h{level} id=\"")) {
-            let start = pos + start + format!("<h{level} id=\"").len();
-            if let Some(mut end) = html[start..].find('"') {
-                // Hashtag display markers must not alter stable heading anchors.
-                if html[start..start + end].contains("bnhashtag") {
-                    html.replace_range(start..start + end, &original_id);
-                    end = original_id.len();
-                }
-                toc.push(TocEntry {
-                    level,
-                    id: html[start..start + end].into(),
-                    text,
-                });
-                pos = start + end;
-            }
-        }
-    }
+    let state = NativeFormatter::format_document(
+        root,
+        &options,
+        &mut html,
+        RenderState {
+            inline: inline_nodes,
+            toc: Vec::new(),
+        },
+    )
+    .expect("render into memory");
+    let toc = state.toc;
     html = html.replace(
         "data-wikilink=\"true\"",
         "data-wikilink=\"true\" class=\"wikilink\"",
@@ -233,11 +190,6 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
         "class=\"markdown-alert-title\"",
         "class=\"callout-title markdown-alert-title\"",
     );
-    for (marker, rendered) in replacements {
-        html = html
-            .replace(&format!("<p>{marker}</p>"), &rendered)
-            .replace(&marker, &rendered);
-    }
     Rendered { html, toc }
 }
 fn section<'a>(source: &'a str, fragment: &str) -> &'a str {
@@ -356,43 +308,199 @@ fn local_destination(url: &str) -> Option<String> {
     Some(target)
 }
 
-fn hashtags(source: &str, replacements: &mut Vec<(String, String)>) -> String {
-    let mut output = String::new();
-    let mut copied = 0;
-    for (start, ch) in source.char_indices() {
-        if ch != '#'
-            || source[..start]
-                .chars()
-                .next_back()
-                .is_some_and(|c| c.is_alphanumeric() || matches!(c, '_' | '/' | '#'))
-        {
+/// Insert ordinary link/text nodes into prose. Keeping visible text in the tree
+/// lets the formatter escape attribute contexts and allocate every heading ID
+/// and self-link from the same unchanged text and collision allocator.
+fn expand_hashtags<'a>(
+    arena: &'a Arena<'a>,
+    root: &'a AstNode<'a>,
+) -> HashMap<usize, InlineRendering> {
+    let mut links = HashMap::new();
+    // Snapshot traversal before insertion so generated link children are never
+    // revisited; authored links and image-alt text are intentionally protected.
+    for node in root.descendants().collect::<Vec<_>>() {
+        if protected_text(node) {
             continue;
         }
-        let tail = &source[start + 1..];
-        let length = tail
-            .char_indices()
-            .take_while(|(_, c)| c.is_alphanumeric() || matches!(c, '_' | '-' | '/'))
-            .map(|(i, c)| i + c.len_utf8())
-            .last()
-            .unwrap_or(0);
-        if length == 0 {
-            continue;
+        let source = match &node.data.borrow().value {
+            NodeValue::Text(value) => value.to_string(),
+            _ => continue,
+        };
+        let mut copied = 0;
+        for (start, ch) in source.char_indices() {
+            if ch != '#'
+                || source[..start]
+                    .chars()
+                    .next_back()
+                    .is_some_and(|c| c.is_alphanumeric() || matches!(c, '_' | '/' | '#'))
+            {
+                continue;
+            }
+            let tail = &source[start + 1..];
+            let length = tail
+                .char_indices()
+                .take_while(|(_, c)| c.is_alphanumeric() || matches!(c, '_' | '-' | '/'))
+                .map(|(i, c)| i + c.len_utf8())
+                .last()
+                .unwrap_or(0);
+            if length == 0 {
+                continue;
+            }
+            let end = start + 1 + length;
+            if copied < start {
+                node.insert_before(
+                    arena.alloc(NodeValue::Text(source[copied..start].to_owned().into()).into()),
+                );
+            }
+            let url = format!(
+                "/search?q={}",
+                encode(&source[start + 1..end]).replace('/', "%2F")
+            );
+            let link = arena.alloc(
+                NodeValue::Link(Box::new(NodeLink {
+                    url,
+                    title: String::new(),
+                }))
+                .into(),
+            );
+            link.append(arena.alloc(NodeValue::Text(source[start..end].to_owned().into()).into()));
+            node.insert_before(link);
+            links.insert(std::ptr::from_ref(link) as usize, InlineRendering::Hashtag);
+            copied = end;
         }
-        let end = start + 1 + length;
-        let tag = &source[start + 1..end];
-        output.push_str(&source[copied..start]);
-        let marker = format!("BNHASHTAG{}END", replacements.len());
-        let url = encode(tag).replace('/', "%2F");
-        replacements.push((
-            marker.clone(),
-            format!(
-                "<a class=\"hashtag\" href=\"/search?q={url}\">#{}</a>",
-                escape(tag)
-            ),
-        ));
-        output.push_str(&marker);
-        copied = end;
+        if copied != 0 {
+            if copied < source.len() {
+                node.insert_before(
+                    arena.alloc(NodeValue::Text(source[copied..].to_owned().into()).into()),
+                );
+            }
+            node.detach();
+        }
     }
-    output.push_str(&source[copied..]);
-    output
+    links
+}
+
+fn protected_text<'a>(node: &'a AstNode<'a>) -> bool {
+    node.ancestors().skip(1).any(|parent| {
+        matches!(
+            parent.data.borrow().value,
+            NodeValue::Link(_) | NodeValue::WikiLink(_) | NodeValue::Image(_)
+        )
+    })
+}
+fn expand_embeds<'a>(
+    arena: &'a Arena<'a>,
+    root: &'a AstNode<'a>,
+    index: &Index,
+    path: &str,
+    embeds: bool,
+) -> HashMap<usize, InlineRendering> {
+    let mut nodes = HashMap::new();
+    for node in root.descendants().collect::<Vec<_>>() {
+        if protected_text(node) {
+            continue;
+        }
+        let source = match &node.data.borrow().value {
+            NodeValue::Text(value) => value.to_string(),
+            _ => continue,
+        };
+        let heading = node
+            .ancestors()
+            .any(|parent| matches!(parent.data.borrow().value, NodeValue::Heading(_)));
+        let mut copied = 0;
+        let mut cursor = 0;
+        while let Some(offset) = source[cursor..].find("![[") {
+            let start = cursor + offset;
+            let tail = &source[start + 3..];
+            let Some(end) = tail.find("]]") else {
+                break;
+            };
+            let (target, label) = tail[..end]
+                .split_once('|')
+                .unwrap_or((&tail[..end], &tail[..end]));
+            let (target, fragment) = target.split_once('#').unwrap_or((target, ""));
+            let note = index.lookup(target.as_bytes());
+            let url = note
+                .map(href)
+                .unwrap_or_else(|| format!("/wiki/new?title={}", encode(target)));
+            let (html, block) = if let Some(asset) = asset(index, path, target) {
+                (
+                    format!(
+                        "<img class=\"embed\" src=\"/api/assets/{}\" alt=\"{}\" />",
+                        encode(&asset),
+                        escape(label)
+                    ),
+                    false,
+                )
+            } else if embeds
+                && !heading
+                && let Some(note) = note
+            {
+                let source = String::from_utf8_lossy(if note.graph.kind == NoteKind::Issue {
+                    &note.description
+                } else {
+                    &note.body
+                });
+                let source = if fragment.is_empty() {
+                    source.as_ref()
+                } else {
+                    section(&source, fragment)
+                };
+                (
+                    format!(
+                        "<div class=\"embed\">{}</div>",
+                        render_inner(
+                            source,
+                            index,
+                            &String::from_utf8_lossy(&note.graph.path),
+                            false
+                        )
+                        .html
+                    ),
+                    true,
+                )
+            } else {
+                // Heading children must remain phrasing content; render a link
+                // rather than a block whose body would corrupt heading identity.
+                (
+                    format!(
+                        "<a{} href=\"{}\">{}</a>",
+                        if heading { " class=\"embed\"" } else { "" },
+                        escape(&url),
+                        escape(label)
+                    ),
+                    false,
+                )
+            };
+            if copied < start {
+                node.insert_before(
+                    arena.alloc(NodeValue::Text(source[copied..start].to_owned().into()).into()),
+                );
+            }
+            let link = arena.alloc(
+                NodeValue::Link(Box::new(NodeLink {
+                    url,
+                    title: String::new(),
+                }))
+                .into(),
+            );
+            link.append(arena.alloc(NodeValue::Text(label.to_owned().into()).into()));
+            node.insert_before(link);
+            nodes.insert(
+                std::ptr::from_ref(link) as usize,
+                InlineRendering::Embed { html, block },
+            );
+            cursor = start + 3 + end + 2;
+            copied = cursor;
+        }
+        if copied != 0 {
+            if copied < source.len() {
+                node.insert_before(
+                    arena.alloc(NodeValue::Text(source[copied..].to_owned().into()).into()),
+                );
+            }
+            node.detach();
+        }
+    }
+    nodes
 }

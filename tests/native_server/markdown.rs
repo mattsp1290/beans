@@ -316,3 +316,80 @@ fn every_authored_markdown_fixture_has_native_semantic_assertions() {
             .any(|hit| hit["title"] == "Tagged native doc")
     );
 }
+
+#[test]
+fn real_http_inline_ast_keeps_heading_anchors_attributes_and_authored_marker_literals() {
+    let f = Fixture::new();
+    let source = "# Tagged #project\n\n# Tagged project\n\n# Tagged #project\n\n# Quote \" & #project\n\n# Header ![[guide]]\n\n`BNHASHTAG0END` #project\n\n![BNHASHTAG0END](https://example.test/x) #project\n\n`BNEMBED0END` ![[guide]]\n\n![BNEMBED0END](https://example.test/x) ![[guide]]\n\nLiteral BNHASHTAG0END and BNEMBED0END.\n\n`#code ![[guide]]` [#link ![[guide]]](https://example.test/link)\n\n<script>bad()</script>\n";
+    f.write("projects/p/docs/inline.md", source);
+    let server = Server::new(&f);
+    let response = server.ok("/api/docs/projects/p/docs/inline");
+    let html = response["html"].as_str().unwrap();
+    let headings = [
+        ("tagged-project", "Tagged #project"),
+        ("tagged-project-1", "Tagged project"),
+        ("tagged-project-2", "Tagged #project"),
+        ("quote---project", "Quote &quot; &amp; #project"),
+        ("header-guide", "Header guide"),
+    ];
+    for (id, text) in headings {
+        assert_eq!(
+            html.matches(&format!("<h1 id=\"{id}\"")).count(),
+            1,
+            "{html}"
+        );
+        assert_eq!(
+            html.matches(&format!("href=\"#{id}\"")).count(),
+            1,
+            "{html}"
+        );
+        assert!(html.contains(&format!("aria-label=\"Link to heading '{text}'\" data-heading-content=\"{text}\" class=\"anchor\"")), "{html}");
+    }
+    assert!(!html.contains("bnhashtag"));
+    assert!(!html.contains("bnembed"));
+    assert!(!html.contains("aria-label=\"Link to heading 'Tagged <a"));
+    assert!(!html.contains("data-heading-content=\"Header <div"));
+    assert!(html.contains("<code>BNHASHTAG0END</code>"));
+    assert!(html.contains("<code>BNEMBED0END</code>"));
+    assert!(html.contains("src=\"https://example.test/x\" alt=\"BNHASHTAG0END\""));
+    assert!(html.contains("src=\"https://example.test/x\" alt=\"BNEMBED0END\""));
+    assert!(html.contains("Literal BNHASHTAG0END and BNEMBED0END."));
+    assert!(html.contains("<code>#code ![[guide]]</code>"));
+    assert!(!html.contains("/search?q=code"));
+    assert!(!html.contains("/search?q=link"));
+    assert!(!html.contains("<script>"));
+    assert!(html.contains("class=\"embed\""));
+    assert!(html.contains("class=\"hashtag\" href=\"/search?q=project\""));
+    let app = f.app();
+    let index = app.index.read().unwrap();
+    let embedded_first = beans::markdown::render(
+        "![[guide]]\n\n# Outer Heading\n",
+        &index,
+        "projects/p/docs/inline.md",
+    );
+    assert!(embedded_first.html.contains("<h1 id=\"guide\""));
+    assert!(embedded_first.html.contains("<h1 id=\"outer-heading\""));
+    assert_eq!(embedded_first.toc.len(), 1);
+    assert_eq!(embedded_first.toc[0].id, "outer-heading");
+    assert_eq!(embedded_first.toc[0].text, "Outer Heading");
+    assert!(embedded_first.html.contains("href=\"#outer-heading\""));
+    // A heading embed remains phrasing content and keeps one formatter's IDs.
+    let heading = html
+        .split("<h1 id=\"header-guide\">")
+        .nth(1)
+        .unwrap()
+        .split("</h1>")
+        .next()
+        .unwrap();
+    assert!(heading.contains("href=\"/wiki/projects/p/docs/guide\""));
+    assert!(!heading.contains("<div"));
+    let toc = response["toc"].as_array().unwrap();
+    let ids = toc
+        .iter()
+        .map(|h| h["id"].as_str().unwrap())
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(ids.len(), toc.len());
+    assert_eq!(toc[0]["text"], "Tagged #project");
+    assert_eq!(toc[1]["id"], "tagged-project-1");
+    assert_eq!(toc[2]["id"], "tagged-project-2");
+}

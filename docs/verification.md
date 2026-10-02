@@ -26,7 +26,13 @@ The one retirement is literal CLI text formatting. Native command journeys
 instead assert IDs, semantic JSON fields, stored bytes, exit behavior and pushed
 Git history. Markdown deliberately uses Comrak: tests assert headings/TOC,
 links/aliases, bounded embeds, callouts, GFM and escaping rather than literal
-Goldmark HTML. Hashtag links use the supported `q` search parameter; a real
+Goldmark HTML. Hashtags and embeds are represented by link/text AST nodes,
+with generated embed markup emitted only at its intended node. Comrak handles
+heading IDs, self-links and escaped metadata through one collision allocator;
+the same formatter callback records the outer TOC without scanning embedded
+headings. Regression tests preserve authored marker literals in code, plain
+text and image attributes, and check mixed tagged/plain heading collisions.
+Heading embeds render links so block bodies cannot corrupt heading attributes. Hashtag links use the supported `q` search parameter; a real
 HTTP search follows that rendered query and finds a document through its tags. Plan export refuses an existing authored destination instead of
 replacing its whole tree. Native tests check destination bytes remain intact,
 escaping bundle paths are rejected before hub writes, valid exports contain the
