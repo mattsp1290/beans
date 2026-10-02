@@ -87,6 +87,13 @@ impl SnapshotReader {
             let mut file = unsafe { File::from_raw_fd(fd) };
             if directory {
                 self.directories.insert(child.clone(), file);
+                // Keep descriptor use independent of hub size and nesting. The
+                // openat above has already consumed its parent descriptor; after
+                // eviction, the new child and root remain pinned and available.
+                if self.directories.len() > 16 {
+                    self.directories
+                        .retain(|path, _| path.as_os_str().is_empty() || path == &child);
+                }
                 parent = child;
                 continue;
             }

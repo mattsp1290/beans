@@ -23,9 +23,9 @@ jobs:
       - name: Install the pinned compiler and checks
         run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools
       - name: Build, test, format and lint the locked workspace
-        run: make rust-build rust-check verify-native
+        run: make rust-build rust-check qualify-native-dispositions
       - name: Observe real codec calls to the verified splice bodies
-        run: make verify-codec-coupling
+        run: make verify-codec-coupling verify-retry-coupling
       - name: Preserve compiler coverage and coupling evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -34,6 +34,7 @@ jobs:
           path: |
             .verification/codec-coupling
             .verification/native/report.json
+            .verification/retry-coupling
           if-no-files-found: error
 
   toolchain:

@@ -132,6 +132,13 @@ fn resolver_exact_head_during_real_merge_and_rebase_conflicts() {
 }
 #[test]
 fn resolver_best_effort_missing_unborn_outside_and_permission_denied() {
+    if std::env::var_os("BN_TEST_MISSING_GIT").is_some() {
+        let result = SystemGit.head_commit(Path::new("/"));
+        assert!(!result.found);
+        assert!(result.value.is_empty());
+        assert!(result.error.is_none());
+        return;
+    }
     let s = Sandbox::new();
     let unborn = s.path("unborn");
     fs::create_dir(&unborn).unwrap();
@@ -139,7 +146,7 @@ fn resolver_best_effort_missing_unborn_outside_and_permission_denied() {
     let denied = s.path("denied");
     fs::create_dir(&denied).unwrap();
     use std::os::unix::fs::PermissionsExt;
-    fs::set_permissions(&denied, fs::Permissions::from_mode(0)).unwrap();
+    fs::set_permissions(&denied, fs::Permissions::from_mode(0o000)).unwrap();
     for path in [&s.0, &unborn, &s.path("missing"), &denied] {
         let result = SystemGit.head_commit(path);
         assert!(!result.found);
@@ -147,4 +154,20 @@ fn resolver_best_effort_missing_unborn_outside_and_permission_denied() {
         assert!(result.error.is_none());
     }
     fs::set_permissions(&denied, fs::Permissions::from_mode(0o700)).unwrap();
+    // A child test process isolates PATH changes from parallel Rust tests.
+    let output = Command::new(std::env::current_exe().unwrap())
+        .args([
+            "git_resolver::resolver_best_effort_missing_unborn_outside_and_permission_denied",
+            "--exact",
+        ])
+        .env("BN_TEST_MISSING_GIT", "1")
+        .env("PATH", s.path("missing-tools"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stdout).contains("1 passed; 0 failed"));
 }

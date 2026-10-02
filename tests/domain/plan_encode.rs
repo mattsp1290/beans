@@ -20,7 +20,6 @@ fn plan_encoding_matches_committed_contract_bytes_and_errors() {
             Ok(x) => (String::from_utf8(x).unwrap(), String::new()),
             Err(e) => (String::new(), e.to_string()),
         };
-        if error.is_empty() {}
         if output != row["output"] || error != row["error"] {
             mismatches.push(format!(
                 "{}: {output:?} {error:?}; expected {} {}",

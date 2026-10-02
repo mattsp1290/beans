@@ -88,3 +88,75 @@ fn legacy_interrupted_tree_backup_recovers_bytes_before_subsequent_native_write(
     beans::gitops::recover_trees(&parent).unwrap();
     assert_eq!(contents(&parent), snapshot);
 }
+
+#[test]
+fn bounded_snapshot_descriptors_index_every_project_under_low_process_limit() {
+    use std::os::unix::process::CommandExt;
+    let s = Sandbox::new();
+    let remote = s.remote(true);
+    s.ok(&["init", remote.to_str().unwrap()]);
+    let hub = s.path("home/hub");
+    for i in 0..100 {
+        let project = format!("p{i:03}");
+        let dir = hub.join("projects").join(&project);
+        fs::create_dir_all(dir.join("issues")).unwrap();
+        fs::write(
+            dir.join("beans.toml"),
+            format!("name = '{project}'\nprefix = '{project}'\n"),
+        )
+        .unwrap();
+        fs::write(dir.join("issues").join(format!("{project}-abcd-note.md")), format!("---\nid: {project}-abcd\ntitle: Note {i}\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nOriginal body {i}\n")).unwrap();
+    }
+    let mut command = Command::new(env!("CARGO_BIN_EXE_bn"));
+    command
+        .args([
+            "--json",
+            "--no-fetch",
+            "list",
+            "--all-projects",
+            "--limit",
+            "0",
+        ])
+        .env("BEANS_HOME", s.path("home"))
+        .env_remove("BEANS_HUB")
+        .env_remove("BN_CONFIG")
+        .env_remove("BEANS_PROJECT")
+        .current_dir(&s.0);
+    // SAFETY: the child hook calls only setrlimit, which is async-signal-safe;
+    // no locks or allocations occur between fork and exec.
+    unsafe {
+        command.pre_exec(|| {
+            let limit = libc::rlimit {
+                rlim_cur: 64,
+                rlim_max: 64,
+            };
+            if libc::setrlimit(libc::RLIMIT_NOFILE, &limit) == 0 {
+                Ok(())
+            } else {
+                Err(std::io::Error::last_os_error())
+            }
+        });
+    }
+    let output = command.output().unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        output.stderr.is_empty(),
+        "unexpected dropped-note warning: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let notes: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(notes.as_array().unwrap().len(), 100);
+    for i in 0..100 {
+        assert!(
+            notes
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|n| n["id"] == format!("p{i:03}-abcd"))
+        );
+    }
+}

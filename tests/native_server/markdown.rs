@@ -79,3 +79,240 @@ fn native_markdown_semantic_features_escaping_aliases_and_toc() {
             .contains("href=\"/wiki/projects/p/docs/guide\"")
     );
 }
+
+#[test]
+fn every_authored_markdown_fixture_has_native_semantic_assertions() {
+    let f = Fixture::new();
+    f.write(
+        "docs/note.md",
+        "# Note\n\nbefore section\n\n## Heading\n\nsection only\n\n## Later\n\nnot selected\n",
+    );
+    f.write("docs/my image.PNG", "PNG");
+    f.write(
+        "docs/tagged.md",
+        "---\ntitle: Tagged native doc\ntags: [project]\n---\nIndependent body\n",
+    );
+    let app = f.app();
+    let index = app.index.read().unwrap();
+    let directory = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/native-baseline/markdown/testdata");
+    let cases: &[(&str, &[&str], &[&str])] = &[
+        (
+            "blockquote-not-callout",
+            &["<blockquote>", "plain quote", "second line"],
+            &["class=\"callout"],
+        ),
+        (
+            "callout-case",
+            &["data-callout=\"warning\"", "Loud", "body"],
+            &[],
+        ),
+        (
+            "callout-nested-list",
+            &[
+                "Steps",
+                "<ol>",
+                "first",
+                "<code>code</code>",
+                "nested callout",
+                "[[not a link]]",
+            ],
+            &["/wiki/new?title=not"],
+        ),
+        (
+            "callout-no-title",
+            &["data-callout=\"tip\"", "tip", "Just a tip"],
+            &[],
+        ),
+        (
+            "callout-not-first-line",
+            &["<blockquote>", "intro line", "[!note] not first"],
+            &["class=\"callout"],
+        ),
+        (
+            "callout-title-fold",
+            &[
+                "data-callout=\"warning\"",
+                "Be Careful",
+                "It spans two lines",
+            ],
+            &["[!warning]"],
+        ),
+        (
+            "code-no-links",
+            &["<code>[[not a link]]</code>", "[[not a link]]\n</code>"],
+            &["class=\"wikilink\""],
+        ),
+        (
+            "dangerous-urls",
+            &["x", "y"],
+            &["href=\"javascript:", "src=\"data:"],
+        ),
+        (
+            "embed-image-space",
+            &[
+                "/api/assets/docs/my%20image.PNG",
+                "alt=\"my image.PNG\"",
+                "/search?q=tag%2Fwith",
+                " space",
+            ],
+            &[],
+        ),
+        (
+            "embed-image",
+            &["/api/assets/projects/p/docs/img.png", "alt=\"img.png\""],
+            &[],
+        ),
+        (
+            "embed-note-fragment",
+            &["class=\"embed\"", "section only"],
+            &["before section", "not selected"],
+        ),
+        (
+            "embed-note",
+            &[
+                "class=\"embed\"",
+                "before section",
+                "section only",
+                "not selected",
+            ],
+            &[],
+        ),
+        (
+            "footnote",
+            &["The footnote text", "footnote", "href=\"#"],
+            &[],
+        ),
+        (
+            "frontmatter",
+            &["Body text after frontmatter"],
+            &["title: Hello", "tags:"],
+        ),
+        (
+            "hashtag",
+            &[
+                "/search?q=project",
+                ">#project</a>",
+                "/search?q=another-tag",
+            ],
+            &[],
+        ),
+        (
+            "headings",
+            &[
+                "id=\"title-one\"",
+                "id=\"sub-heading\"",
+                "id=\"sub-sub-heading\"",
+                "id=\"not-in-toc\"",
+            ],
+            &[],
+        ),
+        ("highlight-runs", &["=d=", "<mark>ok</mark>"], &[]),
+        (
+            "highlight",
+            &["<mark>highlighted text</mark>", "lone = sign"],
+            &[],
+        ),
+        ("raw-html", &["raw html"], &["<strong>", "<div>A raw block"]),
+        ("table", &["<table>", "<th>A</th>", "<td>2</td>"], &[]),
+        (
+            "tasklist",
+            &[
+                "type=\"checkbox\"",
+                "checked=\"\"",
+                "Todo item",
+                "Done item",
+            ],
+            &[],
+        ),
+        (
+            "wikilinks",
+            &[
+                "/wiki/docs/note",
+                "My Note",
+                "#section-two",
+                "/wiki/new?title=missing%20page",
+            ],
+            &[],
+        ),
+    ];
+    let names = fs::read_dir(&directory)
+        .unwrap()
+        .map(Result::unwrap)
+        .filter(|e| e.path().extension().is_some_and(|e| e == "md"))
+        .map(|e| e.path().file_stem().unwrap().to_str().unwrap().to_owned())
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        names,
+        cases.iter().map(|c| c.0.to_owned()).collect(),
+        "each fixture requires an explicit semantic disposition"
+    );
+    for (name, required, forbidden) in cases {
+        let source = fs::read_to_string(directory.join(format!("{name}.md"))).unwrap();
+        let rendered = beans::markdown::render(&source, &index, "docs/features.md");
+        for snippet in *required {
+            assert!(
+                rendered.html.contains(snippet),
+                "{name}: missing {snippet}: {}",
+                rendered.html
+            );
+        }
+        for snippet in *forbidden {
+            assert!(
+                !rendered.html.contains(snippet),
+                "{name}: unexpected {snippet}: {}",
+                rendered.html
+            );
+        }
+        if *name == "headings" {
+            assert_eq!(
+                rendered
+                    .toc
+                    .iter()
+                    .map(|h| h.text.as_str())
+                    .collect::<Vec<_>>(),
+                ["Title One", "Sub Heading", "Sub Sub Heading", "Not In Toc"]
+            );
+        }
+    }
+    let protected = beans::markdown::render(
+        "`#code` [#label](https://example.test) <script>#script</script> plain#suffix #雪\n",
+        &index,
+        "docs/features.md",
+    );
+    assert!(!protected.html.contains("/search?q=code"));
+    assert!(!protected.html.contains("/search?q=label"));
+    assert!(!protected.html.contains("/search?q=suffix"));
+    assert!(protected.html.contains("/search?q=%E9%9B%AA"));
+    let heading = beans::markdown::render(
+        "# Tagged #project\n\n# Tagged #project\n",
+        &index,
+        "docs/features.md",
+    );
+    assert_eq!(heading.toc[0].text, "Tagged #project");
+    assert_eq!(heading.toc[0].id, "tagged-project");
+    assert_eq!(heading.toc[1].id, "tagged-project-1");
+    assert!(heading.html.contains("id=\"tagged-project\""));
+    assert!(heading.html.contains("href=\"/search?q=project\""));
+    // Follow the rendered query through the same API used by the Search screen.
+    // This catches links that render correctly but initialize an empty UI query.
+    let rendered = beans::markdown::render("#project", &index, "docs/features.md");
+    let href = rendered
+        .html
+        .split("href=\"")
+        .nth(1)
+        .unwrap()
+        .split('"')
+        .next()
+        .unwrap();
+    let query = href.strip_prefix("/search?").unwrap();
+    assert!(query.split('&').any(|pair| pair == "q=project"));
+    let server = Server::new(&f);
+    let hits = server.ok(&format!("/api/search?{query}"));
+    assert!(
+        hits.as_array()
+            .unwrap()
+            .iter()
+            .any(|hit| hit["title"] == "Tagged native doc")
+    );
+}

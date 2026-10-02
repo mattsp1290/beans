@@ -295,4 +295,17 @@ compat-plan-bytes:
 verify-native:
 	python3 -S tools/verification/native.py
 
-verify: verify-native verify-toolchain verify-kernel verify-codec-coupling
+verify:
+	$(MAKE) verify-native
+	$(MAKE) verify-toolchain
+	$(MAKE) verify-kernel
+	$(MAKE) verify-codec-coupling
+	$(MAKE) verify-retry-coupling
+
+.PHONY: verify-retry-coupling
+verify-retry-coupling:
+	python3 -S tools/verification/retry_coupling.py
+
+.PHONY: qualify-native-dispositions
+qualify-native-dispositions:
+	python3 -S tools/verification/native.py --regression-ledger

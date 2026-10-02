@@ -71,6 +71,7 @@ pub fn render(source: &str, index: &Index, path: &str) -> Rendered {
 }
 fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Rendered {
     let mut options = Options::default();
+    options.extension.front_matter_delimiter = Some("---".into());
     options.extension.table = true;
     options.extension.tasklist = true;
     options.extension.strikethrough = true;
@@ -170,8 +171,6 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
             _ => (),
         }
     }
-    let mut html = String::new();
-    comrak::format_html(root, &options, &mut html).expect("render into memory");
     let headings: Vec<_> = root
         .descendants()
         .filter_map(|n| match n.data.borrow().value {
@@ -179,12 +178,36 @@ fn render_inner(source: &str, index: &Index, path: &str, embeds: bool) -> Render
             _ => None,
         })
         .collect();
+    // Expand hashtags only in parsed prose text, never inside links or code.
+    // Capture heading text first so generated markers cannot leak into the TOC.
+    for node in root.descendants() {
+        if node.ancestors().skip(1).any(|parent| {
+            matches!(
+                parent.data.borrow().value,
+                NodeValue::Link(_) | NodeValue::WikiLink(_) | NodeValue::Image(_)
+            )
+        }) {
+            continue;
+        }
+        if let NodeValue::Text(value) = &mut node.data.borrow_mut().value {
+            *value = hashtags(value, &mut replacements).into();
+        }
+    }
+    let mut html = String::new();
+    comrak::format_html(root, &options, &mut html).expect("render into memory");
     let mut toc = Vec::new();
     let mut pos = 0;
+    let mut anchorizer = comrak::Anchorizer::new();
     for (level, text) in headings {
+        let original_id = anchorizer.anchorize(&text);
         if let Some(start) = html[pos..].find(&format!("<h{level} id=\"")) {
             let start = pos + start + format!("<h{level} id=\"").len();
-            if let Some(end) = html[start..].find('"') {
+            if let Some(mut end) = html[start..].find('"') {
+                // Hashtag display markers must not alter stable heading anchors.
+                if html[start..start + end].contains("bnhashtag") {
+                    html.replace_range(start..start + end, &original_id);
+                    end = original_id.len();
+                }
                 toc.push(TocEntry {
                     level,
                     id: html[start..start + end].into(),
@@ -331,4 +354,45 @@ fn local_destination(url: &str) -> Option<String> {
         return None;
     }
     Some(target)
+}
+
+fn hashtags(source: &str, replacements: &mut Vec<(String, String)>) -> String {
+    let mut output = String::new();
+    let mut copied = 0;
+    for (start, ch) in source.char_indices() {
+        if ch != '#'
+            || source[..start]
+                .chars()
+                .next_back()
+                .is_some_and(|c| c.is_alphanumeric() || matches!(c, '_' | '/' | '#'))
+        {
+            continue;
+        }
+        let tail = &source[start + 1..];
+        let length = tail
+            .char_indices()
+            .take_while(|(_, c)| c.is_alphanumeric() || matches!(c, '_' | '-' | '/'))
+            .map(|(i, c)| i + c.len_utf8())
+            .last()
+            .unwrap_or(0);
+        if length == 0 {
+            continue;
+        }
+        let end = start + 1 + length;
+        let tag = &source[start + 1..end];
+        output.push_str(&source[copied..start]);
+        let marker = format!("BNHASHTAG{}END", replacements.len());
+        let url = encode(tag).replace('/', "%2F");
+        replacements.push((
+            marker.clone(),
+            format!(
+                "<a class=\"hashtag\" href=\"/search?q={url}\">#{}</a>",
+                escape(tag)
+            ),
+        ));
+        output.push_str(&marker);
+        copied = end;
+    }
+    output.push_str(&source[copied..]);
+    output
 }
