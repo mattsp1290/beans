@@ -81,6 +81,14 @@ Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch
 | `bn search <query>...` | `--all-projects[=<all-projects>]`, `--include-archived-handoffs[=<include-archived-handoffs>]`, `--kind <kind>` |
 | `bn status` | — |
 | `bn help [COMMAND]...` | — |
+| `bn dep help [COMMAND]...` | — |
+| `bn request help [COMMAND]...` | — |
+| `bn handoff help [COMMAND]...` | — |
+| `bn plan help [COMMAND]...` | — |
+| `bn cache help [COMMAND]...` | — |
+| `bn doc help [COMMAND]...` | — |
+| `bn import help [COMMAND]...` | — |
+| `bn project help [COMMAND]...` | — |
 
 ## Output and mutation semantics
 
