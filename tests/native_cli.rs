@@ -206,7 +206,8 @@ fn hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered() {
         "2"
     );
     assert!(hub.dir.join("user.tmp").exists());
-    assert!(!hub.dir.join(".bn-write-orphan").exists());
+    assert!(hub.dir.join(".bn-write-orphan").exists());
+    assert!(hub.dir.join("plan.md.tmp").exists());
     hub.no_sync = false;
     hub.sync().unwrap();
     assert_eq!(
@@ -609,7 +610,7 @@ fn failed_create_retains_partial_scaffolding_and_locked_cli_reads_local_snapshot
     let out = s.cli(&["create", "Write must fail"]);
     assert!(!out.status.success());
     assert!(s.path("home/cache/op-journal.json").exists());
-    assert!(hub.join("projects/demo/beans.toml").exists());
+    assert!(!hub.join("projects/demo/beans.toml").exists());
     assert_eq!(
         fs::read_to_string(hub.join("projects/demo/issues")).unwrap(),
         "hand-written obstruction"
@@ -784,5 +785,377 @@ fn cross_kind_id_collision_never_overwrites_request_or_creates_issue() {
             .unwrap()
             .issue_by_id(b"demo-r-c3d4")
             .is_none()
+    );
+}
+struct IdenticalNoteRace {
+    primary: beans::ops::IssueMutation,
+    other: beans::ops::IssueMutation,
+    competitor: Hub,
+    survived: Vec<bool>,
+    fired: bool,
+}
+impl Operation for IdenticalNoteRace {
+    fn subject(&self) -> String {
+        self.primary.subject()
+    }
+    fn after_rebase(&mut self, present: bool) {
+        self.survived.push(present);
+        self.primary.after_rebase(present);
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        let paths = self.primary.apply(hub)?;
+        if !self.fired {
+            self.fired = true;
+            assert!(self.competitor.mutate(&mut self.other)?.pushed);
+        }
+        Ok(paths)
+    }
+}
+#[test]
+fn identical_same_second_native_notes_both_survive_dropped_patch_with_hand_edits() {
+    for hand_edit in [false, true] {
+        let s = Sandbox::new();
+        let remote = s.remote(true);
+        s.ok(&["init", remote.to_str().unwrap()]);
+        let created: serde_json::Value =
+            serde_json::from_str(&s.ok(&["--json", "create", "Exact identical race"])).unwrap();
+        let id = created["id"].as_str().unwrap();
+        let hub = Hub {
+            dir: s.path("home/hub"),
+            cache: s.path("home/cache"),
+            branch: "main".into(),
+            actor: "Same Writer".into(),
+            no_sync: false,
+            throttle: Duration::ZERO,
+        };
+        let competitor = s.clone_hub(&remote, "competitor");
+        let resolved = |dir: &Path| {
+            beans::vault::resolve(
+                dir,
+                beans::vault::ResolveOptions {
+                    flag_project: b"demo",
+                    cwd: Some(&s.0),
+                    write: true,
+                    ..Default::default()
+                },
+            )
+            .unwrap()
+        };
+        let at = time::OffsetDateTime::now_utc();
+        let note = |dir: &Path| {
+            beans::ops::IssueMutation::new_at(
+                resolved(dir),
+                id.into(),
+                beans::ops::IssueChange::Note("identical same-second note".into()),
+                "Same Writer".into(),
+                None,
+                at,
+            )
+        };
+        let primary = note(&hub.dir);
+        let other = note(&competitor.dir);
+        if hand_edit {
+            fs::write(hub.dir.join("authored.txt"), "retain this unowned edit").unwrap();
+        }
+        let mut race = IdenticalNoteRace {
+            primary,
+            other,
+            competitor,
+            fired: false,
+            survived: Vec::new(),
+        };
+        assert!(hub.mutate(&mut race).unwrap().pushed);
+        assert_eq!(
+            race.survived,
+            [false],
+            "identical competing patch must drop this run and trigger fresh append"
+        );
+        let index = beans::vault::Index::load_snapshot(&hub.dir, Default::default()).unwrap();
+        let issue = index.issue_by_id(id.as_bytes()).unwrap();
+        let notes: Vec<_> = issue
+            .log
+            .iter()
+            .filter(|e| e.event.as_bytes() == b"identical same-second note")
+            .collect();
+        assert_eq!(notes.len(), 2);
+        assert_eq!(
+            notes[0].format_bytes().unwrap(),
+            notes[1].format_bytes().unwrap()
+        );
+        if hand_edit {
+            assert_eq!(
+                fs::read_to_string(hub.dir.join("authored.txt")).unwrap(),
+                "retain this unowned edit"
+            );
+        }
+        assert_eq!(
+            hub.git(&["rev-list", "--count", "origin/main..HEAD"])
+                .unwrap(),
+            "0"
+        );
+    }
+}
+fn contents(dir: &Path) -> Vec<(PathBuf, Vec<u8>)> {
+    fn walk(root: &Path, dir: &Path, out: &mut Vec<(PathBuf, Vec<u8>)>) {
+        for entry in fs::read_dir(dir).unwrap() {
+            let e = entry.unwrap();
+            if e.file_type().unwrap().is_dir() {
+                walk(root, &e.path(), out);
+            } else {
+                out.push((
+                    e.path().strip_prefix(root).unwrap().to_owned(),
+                    fs::read(e.path()).unwrap(),
+                ));
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(dir, dir, &mut out);
+    out.sort();
+    out
+}
+#[test]
+fn symlinked_projects_project_and_issues_fail_before_any_external_write() {
+    for ancestor in ["projects", "projects/demo", "projects/demo/issues"] {
+        let s = Sandbox::new();
+        let remote = s.remote(true);
+        s.ok(&["init", remote.to_str().unwrap()]);
+        let hub = s.path("home/hub");
+        if ancestor.ends_with("issues") {
+            s.ok(&["create", "Existing project"]);
+            fs::remove_dir_all(hub.join(ancestor)).unwrap();
+        }
+        let external = s.path("external");
+        fs::create_dir_all(external.join("nested")).unwrap();
+        fs::write(
+            external.join("sentinel.txt"),
+            "external bytes must not change",
+        )
+        .unwrap();
+        fs::write(external.join("nested/authored.md"), "nested authored bytes").unwrap();
+        for base in [external.join("plans"), external.join("demo/plans")] {
+            fs::create_dir_all(base.join(".draft.backup")).unwrap();
+            fs::write(
+                base.join(".draft.backup/authored.md"),
+                "external recovery backup must survive",
+            )
+            .unwrap();
+            fs::create_dir_all(base.join("live")).unwrap();
+            fs::write(
+                base.join("live/plan.md.tmp"),
+                "external legacy temp must survive",
+            )
+            .unwrap();
+        }
+        let before = contents(&external);
+        fs::create_dir_all(hub.join(ancestor).parent().unwrap()).unwrap();
+        std::os::unix::fs::symlink(&external, hub.join(ancestor)).unwrap();
+        let out = s.cli(&["--no-sync", "create", "Must stay contained"]);
+        assert!(!out.status.success(), "{ancestor}");
+        assert_eq!(contents(&external), before, "{ancestor}");
+        assert!(
+            fs::symlink_metadata(hub.join(ancestor))
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
+        assert!(s.path("home/cache/op-journal.json").exists());
+    }
+}
+#[test]
+fn hub_writer_rejects_symlink_file_and_validated_ancestor_replacement() {
+    let s = Sandbox::new();
+    let remote = s.remote(true);
+    let hub = s.clone_hub(&remote, "hub");
+    let external = s.path("external");
+    fs::create_dir_all(&external).unwrap();
+    fs::write(external.join("sentinel"), "safe").unwrap();
+    std::os::unix::fs::symlink(external.join("sentinel"), hub.dir.join("target.md")).unwrap();
+    assert!(beans::gitops::write_hub_file(&hub.dir, Path::new("target.md"), b"overwrite").is_err());
+    assert_eq!(fs::read(external.join("sentinel")).unwrap(), b"safe");
+    beans::gitops::check_hub_write_path(&hub.dir, Path::new("new-parent/target.md")).unwrap();
+    std::os::unix::fs::symlink(&external, hub.dir.join("new-parent")).unwrap();
+    assert!(
+        beans::gitops::write_hub_file(&hub.dir, Path::new("new-parent/target.md"), b"escape")
+            .is_err()
+    );
+    assert!(!external.join("target.md").exists());
+}
+#[test]
+fn cleanup_requires_generated_evidence_and_untracked_state_preserving_authored_drafts() {
+    let s = Sandbox::new();
+    let remote = s.remote(true);
+    let hub = s.clone_hub(&remote, "hub");
+    fs::create_dir_all(hub.dir.join("docs")).unwrap();
+    for file in [
+        "docs/plan.md.tmp",
+        "docs/.bn-write-authored",
+        "docs/.bn-plan-authored",
+    ] {
+        fs::write(hub.dir.join(file), "tracked authored draft").unwrap();
+    }
+    git(&hub.dir, &["add", "-A"]);
+    git(&hub.dir, &["commit", "-m", "authored drafts"]);
+    fs::create_dir_all(hub.dir.join("other-docs")).unwrap();
+    for file in [
+        "other-docs/plan.md.tmp",
+        "other-docs/.bn-write-authored",
+        "other-docs/.bn-plan-authored",
+    ] {
+        fs::write(hub.dir.join(file), "untracked authored draft").unwrap();
+    }
+    fs::create_dir_all(hub.dir.join("projects/demo/issues")).unwrap();
+    let prepared = beans::gitops::PreparedHubWrite::prepare(
+        &hub.dir,
+        Path::new("projects/demo/issues/never-installed.md"),
+        b"genuine generated orphan",
+    )
+    .unwrap();
+    std::mem::forget(prepared);
+    let orphan = fs::read_dir(hub.dir.join("projects/demo/issues"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    assert!(
+        orphan
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .starts_with(".bn-write-")
+    );
+    let tracked = beans::gitops::PreparedHubWrite::prepare(
+        &hub.dir,
+        Path::new("projects/demo/issues/also-never-installed.md"),
+        b"registered but user explicitly tracked",
+    )
+    .unwrap();
+    std::mem::forget(tracked);
+    git(&hub.dir, &["add", "-A"]);
+    git(
+        &hub.dir,
+        &["commit", "-m", "user tracks generated candidates"],
+    );
+    // The first generated orphan became tracked too; make only that one untracked.
+    git(
+        &hub.dir,
+        &[
+            "rm",
+            "--cached",
+            orphan.strip_prefix(&hub.dir).unwrap().to_str().unwrap(),
+        ],
+    );
+    git(
+        &hub.dir,
+        &["commit", "-m", "release first candidate from index"],
+    );
+    let before_mutation = hub.git(&["rev-parse", "HEAD"]).unwrap();
+    hub.mutate(&mut Append::new("safe mutation")).unwrap();
+    assert!(!orphan.exists());
+    hub.sync().unwrap();
+    for dir in ["docs", "other-docs"] {
+        for file in ["plan.md.tmp", ".bn-write-authored", ".bn-plan-authored"] {
+            assert!(hub.dir.join(dir).join(file).exists());
+        }
+    }
+    let entries: Vec<_> = fs::read_dir(hub.dir.join("projects/demo/issues"))
+        .unwrap()
+        .collect();
+    assert_eq!(entries.len(), 1);
+    assert!(
+        fs::read(entries[0].as_ref().unwrap().path())
+            .unwrap()
+            .starts_with(b"registered but user")
+    );
+    let changes = hub
+        .git(&[
+            "log",
+            &format!("{before_mutation}..HEAD"),
+            "--format=",
+            "--name-status",
+        ])
+        .unwrap();
+    assert!(!changes.lines().any(|l| l.starts_with("D\t")));
+}
+struct UnrelatedNativeRace {
+    primary: beans::ops::IssueMutation,
+    competitor: Hub,
+    fired: bool,
+    survived: Vec<bool>,
+}
+impl Operation for UnrelatedNativeRace {
+    fn subject(&self) -> String {
+        self.primary.subject()
+    }
+    fn after_rebase(&mut self, present: bool) {
+        self.survived.push(present);
+        self.primary.after_rebase(present);
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        let paths = self.primary.apply(hub)?;
+        if !self.fired {
+            self.fired = true;
+            assert!(
+                self.competitor
+                    .mutate(&mut Append::new("unrelated remote file edit"))?
+                    .pushed
+            );
+        }
+        Ok(paths)
+    }
+}
+#[test]
+fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
+    let s = Sandbox::new();
+    let remote = s.remote(true);
+    s.ok(&["init", remote.to_str().unwrap()]);
+    let created: serde_json::Value =
+        serde_json::from_str(&s.ok(&["--json", "create", "Surviving native rebase"])).unwrap();
+    let id = created["id"].as_str().unwrap();
+    let hub = Hub {
+        dir: s.path("home/hub"),
+        cache: s.path("home/cache"),
+        branch: "main".into(),
+        actor: "Native Tester".into(),
+        no_sync: false,
+        throttle: Duration::ZERO,
+    };
+    let competitor = s.clone_hub(&remote, "competitor");
+    let resolved = beans::vault::resolve(
+        &hub.dir,
+        beans::vault::ResolveOptions {
+            flag_project: b"demo",
+            cwd: Some(&s.0),
+            write: true,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let primary = beans::ops::IssueMutation::new(
+        resolved,
+        id.into(),
+        beans::ops::IssueChange::Note("surviving native event".into()),
+        "Native Tester".into(),
+        None,
+    );
+    let mut race = UnrelatedNativeRace {
+        primary,
+        competitor,
+        fired: false,
+        survived: Vec::new(),
+    };
+    assert!(hub.mutate(&mut race).unwrap().pushed);
+    assert_eq!(race.survived, [true]);
+    let index = beans::vault::Index::load_snapshot(&hub.dir, Default::default()).unwrap();
+    assert_eq!(
+        index
+            .issue_by_id(id.as_bytes())
+            .unwrap()
+            .log
+            .iter()
+            .filter(|e| e.event.as_bytes() == b"surviving native event")
+            .count(),
+        1
     );
 }

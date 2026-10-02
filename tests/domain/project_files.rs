@@ -105,6 +105,7 @@ fn project_file_effects_and_repeated_creation_match_fixed_go() {
             }
         }
         for stage in case["Stages"].as_array().unwrap() {
+            let before = snapshot(&root);
             let result =
                 create_project_files(&root, &bytes(&input["Name"]), &bytes(&input["Remote"]));
             let (paths, error) = match result {
@@ -114,6 +115,20 @@ fn project_file_effects_and_repeated_creation_match_fixed_go() {
                     e.to_string().replace(&format!("{}/", root.display()), ""),
                 ),
             };
+            // Native safety intentionally rejects the entire batch before any
+            // effects when legacy Go followed/skipped unsafe ancestors or links.
+            if error.starts_with("unsafe hub write ancestor")
+                || error.starts_with("symlink in hub write destination")
+                || error.starts_with("NUL in hub write path")
+            {
+                assert!(paths.is_none());
+                assert_eq!(
+                    snapshot(&root),
+                    before,
+                    "case{i} containment rejection must preserve all authored bytes"
+                );
+                continue;
+            }
             assert_eq!(json!(paths), stage["Paths"], "case{i} paths");
             assert_eq!(error, stage["Error"].as_str().unwrap(), "case{i} error");
             assert_eq!(snapshot(&root), stage["Tree"], "case{i} filesystem effects");

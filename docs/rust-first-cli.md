@@ -28,16 +28,34 @@ guidance. Failed apply, staging, commit, and replay effects retain the shared
 the former unconditional reset/clean after failed Apply. Sync commits retained
 partial work as recovery history. No failed rollback can erase its recovery
 signals because this pipeline never rolls back partially applied filesystem
-writes. Beans-owned orphan temp filenames are cleaned under the lock; other
-user temp files survive.
+writes. Only exact generated temporary files with separate ownership records
+under `.git/bn-temp-owners` and verified untracked state are cleaned under the
+lock. Tracked candidates and unregistered authored drafts survive regardless
+of `plan.md.tmp`, `.bn-write-`, or `.bn-plan-` names. Issue indexing uses a
+read-only snapshot and does not perform unrelated plan recovery.
 
 Push attempts consume the verified kernel budget. After a conflicting rebase,
 only a clean, verified sole local HEAD with the current run's random nonce
 trailer can be discarded and replayed. Unknown facts, failed abort, prior-run
 nonces, and unrelated commits preserve history and fail. Issue operations freeze
-log context and time, reread documents on every apply, and recognize replay by
-the first application baseline. Separate same-text notes remain separate
-invocations; unchanged updates and repeated closes remain no-ops.
+log context and time and reread documents on every apply. After a rebase or
+owned reset, `Operation::after_rebase` receives the fallibly verified presence
+of this invocation's nonce-bearing commit anywhere in current ancestry. A
+surviving commit suppresses replay duplication; a dropped identical patch
+reapplies this invocation's note separately from the competing writer's note.
+No new log marker or hub schema is introduced. Separate same-text notes remain
+separate invocations; unchanged updates and repeated closes remain no-ops.
+
+Scaffolding prevalidates its entire batch, and issue destinations are checked
+before any write. `write_hub_file` anchors writes to directory descriptors,
+opens ancestors with no-follow semantics, and renames within the opened parent.
+Project, projects-root, issues-directory, and destination-file symlinks fail
+without changing external bytes. The generic config writer remains separate
+for intentional configuration paths outside the hub. `PreparedHubWrite`
+provides the same write boundary with exact temporary recovery evidence;
+its normal drop clears both temporary and evidence. Whole-batch containment
+rejection deliberately strengthens the old scaffolding helper's skip/follow
+behavior for symlinks and non-directory ancestors.
 
 `tests/native_cli.rs` exercises disposable real Git remotes, including empty
 and seeded initialization, the complete first issue journey and second-clone

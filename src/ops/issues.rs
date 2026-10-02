@@ -8,7 +8,7 @@ use crate::{
         template,
         yaml_string::YamlString,
     },
-    gitops::{Operation, write_file},
+    gitops::{Operation, check_hub_write_path, write_hub_file},
     vault::{Index, LoadOptions, Resolved, create_project_files},
 };
 use std::{
@@ -43,7 +43,8 @@ pub struct IssueMutation {
     pub explicit_workflow: Option<PathBuf>,
     pub id: String,
     log: LogEntry,
-    baseline_matches: Option<usize>,
+    log_applied: bool,
+    created_once: bool,
 }
 impl IssueMutation {
     pub fn new(
@@ -53,7 +54,24 @@ impl IssueMutation {
         actor: String,
         explicit_workflow: Option<PathBuf>,
     ) -> Self {
-        let at = time::OffsetDateTime::now_utc();
+        Self::new_at(
+            resolved,
+            reference,
+            change,
+            actor,
+            explicit_workflow,
+            time::OffsetDateTime::now_utc(),
+        )
+    }
+    /// Freeze an adapter-provided invocation time, independent of retry timing.
+    pub fn new_at(
+        resolved: Resolved,
+        reference: String,
+        change: IssueChange,
+        actor: String,
+        explicit_workflow: Option<PathBuf>,
+        at: time::OffsetDateTime,
+    ) -> Self {
         let event = match &change {
             IssueChange::Create { .. } => "created".to_owned(),
             IssueChange::Update { claim: true, .. } => "claimed".to_owned(),
@@ -61,8 +79,8 @@ impl IssueMutation {
             IssueChange::Note(s) => s.clone(),
             IssueChange::Close(s) => format!("closed: {s}"),
         };
-        // Freeze timestamp/context before any Git effects; compare formatted bytes
-        // because stored log timestamps intentionally use whole seconds.
+        // Freeze timestamp/context before Git effects. The transaction boundary
+        // distinguishes identical invocations through current-run nonce survival.
         let log = LogEntry {
             at: Timestamp {
                 seconds: at.unix_timestamp(),
@@ -84,11 +102,15 @@ impl IssueMutation {
             explicit_workflow,
             id: String::new(),
             log,
-            baseline_matches: None,
+            log_applied: false,
+            created_once: false,
         }
     }
 }
 impl Operation for IssueMutation {
+    fn after_rebase(&mut self, operation_present: bool) {
+        self.log_applied = operation_present;
+    }
     fn subject(&self) -> String {
         format!(
             "bn: {} {}",
@@ -107,7 +129,13 @@ impl Operation for IssueMutation {
     }
     fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
         // Strict config loading rejects malformed overrides before writing.
-        let index = Index::load_with_options(
+        check_hub_write_path(
+            hub,
+            &PathBuf::from("projects")
+                .join(String::from_utf8_lossy(&self.resolved.project).as_ref())
+                .join("beans.toml"),
+        )?;
+        let index = Index::load_snapshot(
             hub,
             LoadOptions {
                 explicit_workflow: self.explicit_workflow.clone(),
@@ -148,7 +176,7 @@ impl Operation for IssueMutation {
                     return Err(Error::new("invalid issue prefix or generated ID".into()));
                 }
                 if let Some(existing) = index.issue_by_id(self.id.as_bytes()) {
-                    if self.baseline_matches.is_some()
+                    if self.created_once
                         && existing
                             .log
                             .iter()
@@ -279,12 +307,12 @@ impl Operation for IssueMutation {
         let matching = document
             .log
             .iter()
-            .filter(|entry| entry.format_bytes().ok().as_ref() == Some(&frozen))
-            .count();
-        let baseline = *self.baseline_matches.get_or_insert(matching);
-        if matching <= baseline {
+            .any(|entry| entry.format_bytes().ok().as_ref() == Some(&frozen));
+        if !self.log_applied || !matching {
             document.append_log(self.log.clone());
         }
+        self.log_applied = true;
+        check_hub_write_path(hub, &relative)?;
         let bytes = document.encode()?.bytes;
         let mut paths =
             create_project_files(hub, &self.resolved.project, &self.resolved.repo_remote)?
@@ -292,7 +320,8 @@ impl Operation for IssueMutation {
                 .into_iter()
                 .map(|p| PathBuf::from(OsString::from_vec(p)))
                 .collect::<Vec<_>>();
-        write_file(&hub.join(&relative), &bytes)?;
+        write_hub_file(hub, &relative, &bytes)?;
+        self.created_once = true;
         paths.push(relative);
         Ok(paths)
     }

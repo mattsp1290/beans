@@ -253,9 +253,9 @@
       "source": "gitops/hub_test.go",
       "test": "TestOwnedTempsAreDeletedAndUserTempsSurvive",
       "line": 401,
-      "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
+      "destination": "tests/native_cli.rs::cleanup_requires_generated_evidence_and_untracked_state_preserving_authored_drafts",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": "Strengthened ownership: exact generated-temp evidence plus verified untracked state authorizes cleanup; basename-prefix or plan.md.tmp matches alone never authorize deletion of authored/tracked files."
     },
     {
       "source": "gitops/hub_test.go",

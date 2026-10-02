@@ -12,6 +12,10 @@ use std::{
 
 pub trait Operation {
     fn subject(&self) -> String;
+    /// After a retry changes ancestry, the Git boundary verifies whether this
+    /// invocation's nonce-bearing commit survived. Missing is distinct from a
+    /// different writer's identical patch; adapters must reapply their own event.
+    fn after_rebase(&mut self, _operation_present: bool) {}
     /// Re-read affected documents on every call; return only relative staged paths.
     fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error>;
 }
@@ -131,7 +135,7 @@ impl Hub {
         }
     }
     fn commit_strays(&self) -> Result<(), Error> {
-        remove_owned_temps(&self.dir)?;
+        self.remove_owned_temps()?;
         if self.git(&["status", "--porcelain"])?.is_empty() {
             return self.clear_journal();
         }
@@ -181,6 +185,30 @@ impl Hub {
             return Ok(None);
         }
         self.git(&["rev-parse", "HEAD"]).map(Some)
+    }
+    fn nonce_present(&self, nonce: &str) -> Result<bool, Error> {
+        let messages = self.git(&["log", "--format=%(trailers:key=Bn-Run,valueonly)"])?;
+        Ok(messages.lines().any(|line| line.trim() == nonce))
+    }
+    fn remove_owned_temps(&self) -> Result<(), Error> {
+        for (relative, evidence) in super::hub_file::owned_orphans(&self.dir)? {
+            let output = Command::new("git")
+                .arg("-C")
+                .arg(&self.dir)
+                .args(["ls-files", "-z", "--"])
+                .arg(&relative)
+                .output()
+                .map_err(io_error)?;
+            if !output.status.success() {
+                return Err(Error::new(
+                    "cannot verify temporary tracked state; preserving recovery files".into(),
+                ));
+            }
+            if output.stdout.is_empty() {
+                super::hub_file::remove_registered_orphan(&self.dir, &relative, &evidence)?;
+            }
+        }
+        Ok(())
     }
     fn apply_commit(&self, op: &mut dyn Operation, nonce: &str) -> Result<Option<String>, Error> {
         let journal = serde_json::json!({"subject": op.subject(), "nonce": nonce});
@@ -303,6 +331,7 @@ impl Hub {
                     }
                     self.git(&["fetch", "--quiet", "origin"])?;
                     if self.git(&["rebase", "--quiet", &self.remote_ref()]).is_ok() {
+                        op.after_rebase(self.nonce_present(&nonce)?);
                         continue;
                     }
                     self.git(&["rebase", "--abort"])?;
@@ -326,6 +355,7 @@ impl Hub {
                     match decide_retry(facts) {
                         RetryAction::DiscardOwnedAndReplay => {
                             self.git(&["reset", "--hard", "--quiet", &self.remote_ref()])?;
+                            op.after_rebase(self.nonce_present(&nonce)?);
                         }
                         _ => {
                             return Err(Error::new(
@@ -453,25 +483,6 @@ impl Hub {
         }
         Ok(())
     }
-}
-fn remove_owned_temps(dir: &Path) -> Result<(), Error> {
-    for entry in fs::read_dir(dir).map_err(io_error)? {
-        let entry = entry.map_err(io_error)?;
-        let name = entry.file_name();
-        let name = name.to_string_lossy();
-        let kind = entry.file_type().map_err(io_error)?;
-        if kind.is_dir() {
-            if name != ".git" {
-                remove_owned_temps(&entry.path())?;
-            }
-        } else if name.starts_with(".bn-write-")
-            || name.starts_with(".bn-plan-")
-            || name == "plan.md.tmp"
-        {
-            fs::remove_file(entry.path()).map_err(io_error)?;
-        }
-    }
-    Ok(())
 }
 fn io_error(e: std::io::Error) -> Error {
     Error::new(e.to_string())
