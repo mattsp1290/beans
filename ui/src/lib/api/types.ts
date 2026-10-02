@@ -1,6 +1,6 @@
 // Wire types for the bn serve JSON API (see
-// .agents/plans/hub-vault-redesign/06-server-and-ui.md and cmd/bn/json.go
-// `issueJSON` for the authoritative shapes this file mirrors).
+// src/server/api.rs and src/server/models.rs
+// native API projections for the authoritative shapes this file mirrors).
 
 export interface ApiErrorBody {
   code: string
@@ -109,7 +109,7 @@ export interface IssueChildSummary {
   title: string
 }
 
-/** issueJSON, the stable --json shape of an issue (cmd/bn/json.go). */
+/** the stable native HTTP JSON shape of an issue (src/server/api.rs). */
 export interface Issue {
   id: string
   title: string

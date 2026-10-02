@@ -1,12 +1,12 @@
 # bn UI
 
-Svelte 5 + Vite app embedded into the `bn` binary by `ui/embed.go`. The
-issues board and wiki are rewritten in WP6 of the hub vault redesign.
+Svelte 5 + Vite app embedded into the `bn` binary by Rust `build.rs`. The app provides the
+issues board and wiki over the native HTTP API.
 
 ## Development
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
@@ -18,5 +18,5 @@ by default. Set `VITE_API_PROXY_TARGET` to point at a different address.
 ```sh
 npm run test
 npm run check
-npm run build     # writes dist/, which go:embed picks up on the next go build
+npm run build     # writes dist/, embedded by the next Cargo build
 ```

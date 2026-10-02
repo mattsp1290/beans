@@ -44,7 +44,7 @@ ownership and identical same-second notes. Assertions retain authored bytes,
 unowned history, both writers' effects and exactly one effect per invocation.
 The HTTP suite uses real loopback requests, native mutations, watcher reloads,
 SSE reconnect/heartbeat/shutdown and independent Git observers. CLI and HTTP
-assertions share production operations without an executable Go oracle.
+assertions share the native production operations.
 
 Snapshot index reads open directory components and file leaves relative to
 nofollow descriptors. One walk reuses already opened directory descriptors;
