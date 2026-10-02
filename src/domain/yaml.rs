@@ -29,6 +29,14 @@ pub(crate) fn parse_raw(path: &str, text: &str, raw: &[u8]) -> Result<Node, Erro
         .ok_or_else(|| Error::new(format!("{path}: line 2: frontmatter is empty")))
 }
 
+pub(crate) fn parse_optional_raw(
+    path: &str,
+    text: &str,
+    raw: &[u8],
+) -> Result<Option<Node>, Error> {
+    parse_optional_inner(path, text, raw, None)
+}
+
 pub(crate) fn parse_optional(path: &str, text: &str) -> Result<Option<Node>, Error> {
     parse_optional_inner(path, text, text.as_bytes(), None)
 }
@@ -38,7 +46,15 @@ pub(crate) fn parse_optional_with_syntax(
     text: &str,
     syntax: SyntaxFormatter,
 ) -> Result<Option<Node>, Error> {
-    parse_optional_inner(path, text, text.as_bytes(), Some(syntax))
+    parse_optional_raw_with_syntax(path, text, text.as_bytes(), syntax)
+}
+pub(crate) fn parse_optional_raw_with_syntax(
+    path: &str,
+    text: &str,
+    raw: &[u8],
+    syntax: SyntaxFormatter,
+) -> Result<Option<Node>, Error> {
+    parse_optional_inner(path, text, raw, Some(syntax))
 }
 fn parse_optional_inner(
     path: &str,
@@ -137,14 +153,40 @@ fn parse_optional_inner(
                     }
                 }
             }
-            if error.info() == "simple key expected" {
+            if matches!(
+                error.info(),
+                "simple key expected" | "simple key expect ':'"
+            ) {
                 return Error::new(format!(
                     "{path}: frontmatter: yaml: line {}: could not find expected ':'",
-                    error.marker().line().saturating_sub(1)
+                    missing_colon_line(&adapted, error.marker().line())
                 ));
             }
-            // Exact yaml.v3 syntax-error presentation is completed alongside
-            // the typed codec differential corpus; scanner text is retained.
+            let info = error.info();
+            let diagnostic = if info.starts_with("unexpected character:") {
+                Some((
+                    error.marker().line(),
+                    "found character that cannot start any token",
+                ))
+            } else if matches!(
+                info,
+                "mapping values are not allowed in this context"
+                    | "block sequence entries are not allowed in this context"
+            ) {
+                Some((error.marker().line(), info))
+            } else if info == "did not find expected <document start>" {
+                Some((error.marker().line().saturating_sub(1), info))
+            } else {
+                None
+            };
+            if let Some((line, message)) = diagnostic {
+                let location = if line > 0 {
+                    format!("line {line}: ")
+                } else {
+                    String::new()
+                };
+                return Error::new(format!("{path}: frontmatter: yaml: {location}{message}"));
+            }
             if let Some(syntax) = syntax {
                 return syntax(&error, &stack);
             }
@@ -611,4 +653,22 @@ fn adapt_flow_indentation(text: &str) -> String {
         adapted.insert_str(start, &" ".repeat(required - marker.col()));
     }
     adapted
+}
+
+// The Rust scanner reports where a required simple key expired. yaml.v3
+// reports the opening key mark, before trailing comments or flow contents.
+// The scanner withholds that candidate token until its colon is known. Thus
+// the first non-comment line after the last emitted token opens the key.
+fn missing_colon_line(text: &str, fallback: usize) -> usize {
+    let last_line = Scanner::new(text.chars())
+        .last()
+        .map_or(0, |token| token.0.line());
+    text.lines()
+        .enumerate()
+        .skip(last_line)
+        .find(|(_, line)| {
+            let content = line.trim();
+            !content.is_empty() && !content.starts_with('#')
+        })
+        .map_or(fallback.saturating_sub(1), |(line, _)| line + 1)
 }

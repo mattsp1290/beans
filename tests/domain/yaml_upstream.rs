@@ -57,15 +57,9 @@ fn graph_model(g: &plan::ChangeGraph) -> Value {
     model
 }
 fn graph_observe(path: &str, raw: &[u8]) -> Value {
-    let (model, error) = match std::str::from_utf8(raw) {
-        Ok(text) => match plan::parse_graph_bytes(path.as_bytes(), text) {
-            Ok(g) => (graph_model(&g), Vec::new()),
-            Err(e) => (graph_model(&e.graph), e.as_bytes().to_vec()),
-        },
-        Err(_) => (
-            graph_model(&plan::ChangeGraph::default()),
-            b"Rust graph reader requires UTF-8 input".to_vec(),
-        ),
+    let (model, error) = match plan::parse_graph_raw(path.as_bytes(), raw) {
+        Ok(g) => (graph_model(&g), Vec::new()),
+        Err(e) => (graph_model(&e.graph), e.as_bytes().to_vec()),
     };
     json!({"model":model,"noop":null,"error":error,"parse_error":error,"encode_error":[]})
 }
@@ -196,6 +190,10 @@ fn yaml_upstream_observations() {
 }
 
 fn observe(c: &Value) -> Value {
+    if c["EditField"].is_string() {
+        return observe_edit(c);
+    }
+
     let mut r = observe_once(c);
     if c["Edit"] == true {
         let mut initial = c.clone();
@@ -229,4 +227,95 @@ fn anchored_unknown_issue_status_edit_preserves_semantics_and_all_other_bytes() 
     assert_eq!(actual["noop"], actual["reread"]["noop"]);
     assert_eq!(actual["model"]["status"], json!(b"in_progress".to_vec()));
     assert_eq!(actual["model"]["unknown"].as_array().unwrap().len(), 2);
+}
+
+fn observe_edit(c: &Value) -> Value {
+    let initial = observe_once(c);
+    let mut result = json!({"initial_read":initial,"edit_bytes":null,"edit_error":[],"reread":null,"owned_range":null,"unchanged_ranges":null,"unknown_ranges":null});
+    let raw: Vec<u8> = serde_json::from_value(c["Input"].clone()).unwrap();
+    let path = c["Path"].as_str().unwrap();
+    let Ok(mut d) = IssueDocument::parse_bytes(path, &raw) else {
+        return result;
+    };
+    let fm = beans::domain::frontmatter::Frontmatter::parse_bytes(path, &raw).unwrap();
+    let (start, end) = if c["EditField"] == "status" {
+        let field = fm
+            .fields()
+            .iter()
+            .find(|field| field.key == "status")
+            .unwrap();
+        (field.start, field.end)
+    } else {
+        let start = raw.len() - fm.body_bytes().len();
+        (start, start + d.description.as_bytes().len())
+    };
+    let unknown_ranges: Vec<_> = d
+        .unknown_fields()
+        .map(|field| [field.start, field.end])
+        .collect();
+    result["owned_range"] = json!([start, end]);
+    result["unknown_ranges"] = json!(unknown_ranges);
+    if c["EditField"] == "status" {
+        d.metadata.status = "in_progress".into();
+    } else {
+        d.set_description("Upstream qualification replacement.\nSecond line.");
+    }
+    match d.encode() {
+        Err(e) => result["edit_error"] = json!(e.as_bytes()),
+        Ok(output) => {
+            for copy in &output.copies {
+                assert_eq!(
+                    &output.bytes[copy.destination.clone()],
+                    &raw[copy.source.clone()]
+                );
+            }
+            let replacement_end = output.bytes.len() - (raw.len() - end);
+            let ranges = [
+                [0, start, 0, start],
+                [end, raw.len(), replacement_end, output.bytes.len()],
+            ];
+            result["unchanged_ranges"] = json!(ranges);
+            if IssueDocument::parse_bytes(path, &output.bytes).is_ok() {
+                for [from, to, dest, dest_end] in ranges {
+                    assert_eq!(&raw[from..to], &output.bytes[dest..dest_end]);
+                }
+                for [from, to] in unknown_ranges {
+                    assert!(to <= start || from >= end);
+                }
+            }
+            let mut reread = c.clone();
+            reread["Input"] = json!(output.bytes);
+            result["edit_bytes"] = reread["Input"].clone();
+            result["reread"] = observe_once(&reread);
+        }
+    }
+    result
+}
+
+#[test]
+fn yaml_upstream_shrunk_scanner_reader_and_edit_regressions_match_immutable_go() {
+    let corpus: Value =
+        serde_json::from_str(include_str!("../contract/yaml-upstream.json")).unwrap();
+    let mut count = 0;
+    for c in corpus["cases"].as_array().unwrap() {
+        if c["ID"].as_str().unwrap().starts_with("regression/") {
+            assert_eq!(observe(c), c["expected"], "{}", c["ID"]);
+            count += 1;
+        }
+    }
+    assert_eq!(count, 25);
+    let invalid = corpus["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["ID"] == "regression/owned-status-anchor/issue/retained-alias/edit-status")
+        .unwrap();
+    assert_eq!(invalid["expected"]["edit_error"], json!([]));
+    assert!(
+        !invalid["expected"]["reread"]["parse_error"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert!(invalid["expected"]["edit_bytes"].is_array());
 }

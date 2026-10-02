@@ -86,6 +86,7 @@ func ycValue(v reflect.Value) any {
 
 type ycCase struct {
 	ID, Kind, Path string
+	EditField      string
 	Input          []int
 	Edit           bool
 }

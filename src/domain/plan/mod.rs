@@ -18,7 +18,7 @@ pub use encode::encode;
 mod graph;
 pub mod id;
 mod summary;
-pub use graph::{GraphError, parse_graph, parse_graph_bytes};
+pub use graph::{GraphError, parse_graph, parse_graph_bytes, parse_graph_raw};
 pub use summary::{parse_summary, parse_summary_bytes};
 mod lifecycle;
 use super::issue::Timestamp;

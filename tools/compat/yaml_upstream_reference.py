@@ -140,6 +140,34 @@ def cases(census):
                 + payload
                 + b"\n```\n",
             )
+    for name, payload in [
+        ("mapping-value-diagnostic", b"a: b"),
+        ("missing-colon-key-mark", b"# head\ntrue # inline\n# trailing\n"),
+        ("block-sequence-diagnostic", b"- item"),
+        ("forbidden-token-diagnostic", b"%bad"),
+    ]:
+        add("regression/" + name, "issue", "owned-title", envelope("issue",
+            HEADS["issue"].replace(b"title: Title\n", b"") + STAMP + b"title: " + payload + b"\n"))
+    add("regression/document-start-diagnostic", "issue", "raw-frontmatter",
+        envelope("issue", b"%YAML 1.1\nplain\n"))
+    add("regression/empty-graph-fence", "graph", "raw-fence", b"```bn-change-graph\n```\n")
+    add("regression/raw-graph-invalid-utf8", "graph", "raw-fence",
+        b"```bn-change-graph\nversion: \xff\n```\n")
+    for kind in ["workflow", "graph"]:
+        payload = b"\xff\xfe" + "ñoño: true".encode("utf-16le")
+        raw = payload if kind == "workflow" else b"```bn-change-graph\n" + payload + b"\n```\n"
+        add("regression/utf16-reader", kind, "raw-document", raw)
+    add("regression/owned-status-anchor", "issue", "retained-alias", envelope(
+        "issue", HEADS["issue"].replace(b"status: open # retained", b"status: &state open # retained")
+        + STAMP + b"unknown_status: *state\n"))
+    add("regression/description-log-tail", "issue", "retained-sections",
+        envelope("issue", HEADS["issue"] + STAMP + b"custom: &settings {nested: [a, b]}\ncustom_alias: *settings\n")
+        + b"\n## Details\nBody stays.\n\n## Log\n- 2026-01-01T00:00:00Z user: preserved event\n  retained continuation\n\n## Tail\nTail stays.\n")
+    originals = list(result)
+    for c in originals:
+        if c["Kind"] == "issue" and not c["Edit"]:
+            for field in ["status", "description"]:
+                result.append(dict(c, ID=c["ID"] + "/edit-" + field, EditField=field))
     return result
 
 

@@ -177,20 +177,19 @@ impl<'a> Decoder<'a> {
     }
 }
 pub(super) fn decode(data: &[u8]) -> Result<WorkflowFile, Error> {
-    let text = std::str::from_utf8(data)
-        .map_err(|_| Error::new("yaml: invalid leading UTF-8 octet".into()))?;
-    let Some(node) =
-        crate::domain::yaml::parse_optional_with_syntax("workflow", text, syntax_error).map_err(
-            |e| {
-                let message = e
-                    .as_bytes()
-                    .strip_prefix(b"workflow: frontmatter: ")
-                    .or_else(|| e.as_bytes().strip_prefix(b"workflow: "))
-                    .unwrap_or(e.as_bytes());
-                Error::from_bytes(message.into())
-            },
-        )?
-    else {
+    let source = crate::domain::source::Source::yaml(data);
+    let text = source.text.as_str();
+    let node =
+        crate::domain::yaml::parse_optional_raw_with_syntax("workflow", text, data, syntax_error)
+            .map_err(|e| {
+            let message = e
+                .as_bytes()
+                .strip_prefix(b"workflow: frontmatter: ")
+                .or_else(|| e.as_bytes().strip_prefix(b"workflow: "))
+                .unwrap_or(e.as_bytes());
+            Error::from_bytes(message.into())
+        })?;
+    let Some(node) = node else {
         return Err(Error::new("EOF".into()));
     };
     let mut anchor_map = HashMap::new();
