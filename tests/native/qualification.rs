@@ -160,3 +160,51 @@ fn bounded_snapshot_descriptors_index_every_project_under_low_process_limit() {
         );
     }
 }
+
+#[test]
+fn real_push_races_recover_with_new_git_compare_and_swap_rejection_diagnostics() {
+    let s = Sandbox::new();
+    let tools = s.path("git-tools");
+    fs::create_dir(&tools).unwrap();
+    let observed = s.path("observed-ref-races");
+    // Preserve real Git effects and exit codes. Git 2.43 calls this receiver
+    // race "failed to update ref"; Git 2.55 calls it "incorrect old value
+    // provided". Normalize only that status for deterministic native coverage.
+    let wrapper = format!(
+        "#!/bin/sh\nerr=$(mktemp) || exit 99\n/usr/bin/git \"$@\" 2>\"$err\"\nresult=$?\nsed 's/(failed to update ref)/(incorrect old value provided)/g' \"$err\" >\"$err.new\"\nif grep -q '\\[remote rejected\\].*(incorrect old value provided)' \"$err.new\"; then printf 'ref race\\n' >> '{}'; fi\ncat \"$err.new\" >&2\nrm -f \"$err\" \"$err.new\"\nexit \"$result\"\n",
+        observed.display()
+    );
+    let shim = tools.join("git");
+    fs::write(&shim, wrapper).unwrap();
+    fs::set_permissions(&shim, fs::Permissions::from_mode(0o755)).unwrap();
+    for selector in [
+        "native_issue_note_replay_keeps_both_writers_and_frozen_primary_log",
+        "push_conflict_replays_owned_head_without_duplicating_notes",
+        "repeated_races_exhaust_three_pushes_and_preserve_last_commit",
+        "review_regressions::age_archive_rechecks_eligibility_after_push_race_and_rename_merge",
+        "successful_rebase_and_dropped_operation_are_rederived_without_duplication",
+    ] {
+        let before = fs::read_to_string(&observed)
+            .unwrap_or_default()
+            .lines()
+            .count();
+        let output = Command::new(std::env::current_exe().unwrap())
+            .args([selector, "--exact"])
+            .env("PATH", format!("{}:/usr/bin:/bin", tools.display()))
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{selector}: {}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(String::from_utf8_lossy(&output.stdout).contains("1 passed; 0 failed"));
+        let races = fs::read_to_string(&observed).unwrap().lines().count() - before;
+        assert!(
+            races > 0,
+            "{selector} must exercise a real receiver ref race"
+        );
+        println!("{selector}: passed after {races} real receiver ref race(s)");
+    }
+}

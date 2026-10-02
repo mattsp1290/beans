@@ -326,10 +326,7 @@ impl Hub {
                     return Ok(result);
                 }
                 Err(e) => {
-                    let rejected = e.to_string().contains("[rejected]")
-                        || e.to_string().contains("failed to update ref")
-                        || e.to_string().contains("non-fast-forward")
-                        || e.to_string().contains("fetch first");
+                    let rejected = is_retryable_push_rejection(&e.to_string());
                     if !rejected {
                         return Err(Error::new(format!(
                             "change committed locally as {}; push failed: {e}; run bn sync",
@@ -506,4 +503,44 @@ impl Hub {
 }
 fn io_error(e: std::io::Error) -> Error {
     Error::new(e.to_string())
+}
+
+/// Recognize Git's receiver compare-and-swap rejection without treating hooks,
+/// permissions, or transport failures as permission to replay a transaction.
+fn is_retryable_push_rejection(message: &str) -> bool {
+    message.contains("[rejected]")
+        || message.contains("failed to update ref")
+        || message.contains("non-fast-forward")
+        || message.contains("fetch first")
+        || message.lines().any(|line| {
+            let line = line.trim();
+            line.starts_with("! [remote rejected] ")
+                && line.ends_with("(incorrect old value provided)")
+        })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_retryable_push_rejection;
+
+    #[test]
+    fn push_race_status_is_distinct_from_remote_hook_and_transport_failures() {
+        for status in [
+            " ! [rejected] HEAD -> main (fetch first)",
+            " ! [remote rejected] HEAD -> main (failed to update ref)",
+            "remote: error: cannot lock ref 'refs/heads/main': is at new but expected old\n ! [remote rejected] HEAD -> main (incorrect old value provided)\nerror: failed to push some refs",
+        ] {
+            assert!(is_retryable_push_rejection(status), "{status}");
+        }
+        for status in [
+            " ! [remote rejected] HEAD -> main (pre-receive hook declined)",
+            "remote: hook says incorrect old value provided\n ! [remote rejected] HEAD -> main (hook declined)",
+            "remote: ! [remote rejected] HEAD -> main (incorrect old value provided)",
+            "fatal: Authentication failed",
+            "fatal: unable to access remote: connection reset",
+            "error: cannot lock ref: Permission denied",
+        ] {
+            assert!(!is_retryable_push_rejection(status), "{status}");
+        }
+    }
 }

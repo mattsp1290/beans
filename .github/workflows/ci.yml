@@ -35,6 +35,7 @@ jobs:
             .verification/codec-coupling
             .verification/native/report.json
             .verification/retry-coupling
+          include-hidden-files: true
           if-no-files-found: error
 
   toolchain:
@@ -60,7 +61,8 @@ jobs:
           path: |
             .verification/*.json
             .verification/*.log
-          if-no-files-found: warn
+          include-hidden-files: true
+          if-no-files-found: error
 
   native-baseline:
     name: native-baseline (Linux)
