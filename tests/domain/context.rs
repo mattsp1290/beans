@@ -10,7 +10,7 @@ use std::{
     path::{Path, PathBuf},
 };
 #[test]
-fn actor_precedence_caching_and_raw_bytes_match_fixed_go() {
+fn actor_precedence_caching_and_raw_bytes_match_committed_contract() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/context.json")).unwrap();
     for case in fixture["actors"].as_array().unwrap() {
         let bytes = |key| serde_json::from_value::<Vec<u8>>(case[key].clone()).unwrap();
@@ -81,7 +81,7 @@ fn snapshot(root: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
     out
 }
 #[test]
-fn operation_fallback_prefix_and_source_liveness_match_fixed_go() {
+fn operation_fallback_prefix_and_source_liveness_match_committed_contract() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/context.json")).unwrap();
     let base = std::env::temp_dir().join(format!("beans-context-{}", std::process::id()));
     std::fs::create_dir(&base).unwrap();

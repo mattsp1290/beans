@@ -10,9 +10,8 @@ fn bytes(v: &Value) -> Vec<u8> {
     serde_json::from_value(v.clone()).unwrap()
 }
 #[test]
-fn original_body_bytes_and_mutations_match_fixed_go() {
+fn original_body_bytes_and_mutations_match_committed_contract() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/raw-codec.json")).unwrap();
-    let mut candidates = Vec::new();
     for c in corpus["cases"].as_array().unwrap() {
         let raw = bytes(&c["input"]);
         let path = c["path"].as_str().unwrap();
@@ -91,16 +90,12 @@ fn original_body_bytes_and_mutations_match_fixed_go() {
                 c["name"]
             );
             if let Ok(output) = result {
-                candidates.push(serde_json::json!({"name":format!("{}-{mutation}",c["name"].as_str().unwrap()),"kind":c["kind"],"path":path,"bytes":output.bytes}));
                 assert_eq!(output.bytes, bytes(&e["bytes"]), "{} {mutation}", c["name"]);
                 for copy in output.copies {
                     assert_eq!(output.bytes[copy.destination], raw[copy.source]);
                 }
             }
         }
-    }
-    if let Some(path) = std::env::var_os("BN_RUST_RAW_CODEC_OUTPUT") {
-        std::fs::write(path, serde_json::to_vec(&candidates).unwrap()).unwrap();
     }
 }
 

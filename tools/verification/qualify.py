@@ -11,9 +11,9 @@ from install import PINS, ROOT, digest, install
 
 def main():
     pins = json.loads(PINS.read_text())
-    output = ROOT / ".compat/verification"
+    output = ROOT / ".verification"
     output.mkdir(parents=True, exist_ok=True)
-    tools = install(ROOT / ".compat/verus")
+    tools = install(ROOT / ".verification/verus")
     env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ["PATH"],
                RUSTUP_TOOLCHAIN=pins["rust"], VERUS_Z3_PATH=str(tools / "z3"),
                CARGO_TARGET_DIR=str(output / "target"))

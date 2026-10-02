@@ -199,9 +199,8 @@ fn round_trip_fixtures() {
 }
 
 #[test]
-fn reader_and_all_mutations_match_fixed_go() {
+fn reader_and_all_mutations_match_committed_contract() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/requests.json")).unwrap();
-    let mut exports = Vec::new();
     for case in corpus["cases"].as_array().unwrap() {
         let path = case["path"].as_str().unwrap();
         let source = case["input"].as_str().unwrap();
@@ -268,11 +267,8 @@ fn reader_and_all_mutations_match_fixed_go() {
                 );
             }
             let input = String::from_utf8(encoded.bytes).unwrap();
-            let read = RequestDocument::parse(path, &input).unwrap();
-            exports.push(serde_json::json!({"name":format!("{}:{}",case["name"].as_str().unwrap(),edit["kind"].as_str().unwrap()), "path":path,"input":input,"expected_metadata":read.metadata,"expected_body":read.body,"expected_log":read.log}));
+            let mut read = RequestDocument::parse(path, &input).unwrap();
+            assert_eq!(read.encode().unwrap().bytes, input.as_bytes());
         }
-    }
-    if let Ok(file) = std::env::var("BN_RUST_REQUEST_OUTPUT") {
-        std::fs::write(file, serde_json::to_vec(&exports).unwrap()).unwrap();
     }
 }

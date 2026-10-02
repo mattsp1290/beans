@@ -54,6 +54,6 @@ def install(output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / ".compat/verus")
+    parser.add_argument("--output", type=Path, default=ROOT / ".verification/verus")
     args = parser.parse_args()
     print(install(args.output.resolve()))

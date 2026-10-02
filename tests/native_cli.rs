@@ -1159,6 +1159,10 @@ fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
         1
     );
 }
+#[path = "native/git_resolver.rs"]
+mod git_resolver;
+#[path = "native/qualification.rs"]
+mod qualification;
 #[path = "native/commands.rs"]
 mod retained_commands;
 #[path = "native/review_regressions.rs"]

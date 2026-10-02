@@ -40,7 +40,7 @@ fn snapshot(root: &Path) -> Value {
     Value::Array(out)
 }
 #[test]
-fn recovery_matches_fixed_go_filesystem_results_and_errors() {
+fn recovery_matches_committed_contract_filesystem_results_and_errors() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/recovery.json")).unwrap();
     let base = std::env::temp_dir().join(format!("beans-recovery-{}", std::process::id()));
     std::fs::create_dir(&base).unwrap();

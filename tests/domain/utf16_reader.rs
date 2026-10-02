@@ -23,12 +23,10 @@ fn source(c: &Value) -> Vec<u8> {
     bytes(&c["bytes"])
 }
 #[test]
-fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
+fn utf16_yaml_reader_errors_and_raw_lf_edits_match_committed_contract() {
     let corpus: Value =
         serde_json::from_str(include_str!("../contract/utf16-reader.json")).unwrap();
     let mut failures = vec![];
-    let capture = std::env::var_os("BN_RUST_UTF16_READER_OUTPUT");
-    let mut candidates = vec![];
     for (i, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let raw = source(c);
         let path = c["path"].as_str().unwrap();
@@ -89,9 +87,6 @@ fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
                 continue;
             }
             if let Ok(output) = result {
-                if capture.is_some() {
-                    candidates.push(json!({"Kind":c["kind"],"Path":path,"ExpectedError":expected["reread_error"],"Bytes":output.bytes}));
-                }
                 let wanted = if mode == "noop" {
                     raw.clone()
                 } else {
@@ -133,20 +128,17 @@ fn utf16_yaml_reader_errors_and_raw_lf_edits_match_fixed_go() {
             }
         }
     }
-    if let Some(path) = capture {
-        std::fs::write(path, serde_json::to_vec(&candidates).unwrap()).unwrap();
-    }
     if !failures.is_empty() {
-        std::fs::create_dir_all(".compat").unwrap();
+        std::fs::create_dir_all(".verification").unwrap();
         std::fs::write(
-            ".compat/utf16-reader-failures.json",
+            ".verification/utf16-reader-failures.json",
             serde_json::to_vec_pretty(&failures).unwrap(),
         )
         .unwrap();
     }
     assert!(
         failures.is_empty(),
-        "{} utf16-reader mismatches; see .compat/utf16-reader-failures.json",
+        "{} utf16-reader mismatches; see .verification/utf16-reader-failures.json",
         failures.len()
     );
 }

@@ -36,7 +36,7 @@ def toolchain():
 def build(work):
     profiles = work / "build-profiles"
     profiles.mkdir()
-    env = dict(os.environ, CARGO_TARGET_DIR=str(ROOT / ".compat/codec-coupling-build"),
+    env = dict(os.environ, CARGO_TARGET_DIR=str(ROOT / ".verification/codec-coupling-build"),
                RUSTFLAGS="-Cinstrument-coverage", CARGO_INCREMENTAL="0",
                LLVM_PROFILE_FILE=str(profiles / "%p-%m.profraw"))
     with (work / "build.log").open("w") as log:
@@ -100,7 +100,7 @@ def callers():
 
 
 def main():
-    base = ROOT / ".compat/verification/codec-coupling"
+    base = ROOT / ".verification/codec-coupling"
     base.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="run-", dir=base))
     info, llvm = toolchain()

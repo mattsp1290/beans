@@ -117,7 +117,8 @@ fn clear_parent() {
 }
 #[test]
 fn append_log_when_log_not_last() {
-    let raw = include_str!("../../issue/testdata/roundtrip/g_log_not_last.md");
+    let raw =
+        include_str!("../fixtures/native-baseline/issue/testdata/roundtrip/g_log_not_last.md");
     let mut d = IssueDocument::parse("g.md", raw).unwrap();
     d.append_log(entry("note — after"));
     let expected = raw
@@ -135,15 +136,15 @@ fn append_log_when_log_not_last() {
 }
 #[test]
 fn keeps_inline_comment_on_rewritten_scalar() {
-    let raw = include_str!("../../issue/testdata/roundtrip/c_comments.md");
+    let raw = include_str!("../fixtures/native-baseline/issue/testdata/roundtrip/c_comments.md");
     let mut d = IssueDocument::parse("c.md", raw).unwrap();
     d.metadata.status = "closed".into();
     assert_output(&d, &raw.replace("status: open  #", "status: closed #"));
 }
 #[test]
 fn round_trip_fixtures() {
-    let directory =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("issue/testdata/roundtrip");
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/native-baseline/issue/testdata/roundtrip");
     let mut files: Vec<_> = std::fs::read_dir(directory)
         .unwrap()
         .map(|f| f.unwrap().path())

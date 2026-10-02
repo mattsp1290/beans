@@ -60,7 +60,7 @@ fn snapshot(graph: &NoteGraph, targets: &Value) -> Value {
     json!({"Owners":owners,"IDs":ids,"Aliases":aliases,"Lookups":lookups,"Outlinks":out,"Backlinks":backlinks,"Warnings":warnings})
 }
 #[test]
-fn ordered_graph_rebuild_lookup_links_and_removal_match_fixed_go() {
+fn ordered_graph_rebuild_lookup_links_and_removal_match_committed_contract() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
     for (i, case) in fixture["graphs"].as_array().unwrap().iter().enumerate() {
         let mut graph = NoteGraph::default();
@@ -108,7 +108,7 @@ fn ordered_graph_rebuild_lookup_links_and_removal_match_fixed_go() {
     }
 }
 #[test]
-fn index_path_rules_match_fixed_go_raw_byte_paths() {
+fn index_path_rules_match_committed_contract_raw_byte_paths() {
     use beans::vault::*;
     let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
     for case in fixture["paths"].as_array().unwrap() {
@@ -139,7 +139,7 @@ fn index_path_rules_match_fixed_go_raw_byte_paths() {
 }
 
 #[test]
-fn graph_warning_bytes_match_fixed_go_before_and_after_owner_removal() {
+fn graph_warning_bytes_match_committed_contract_before_and_after_owner_removal() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/graph.json")).unwrap();
     for (i, case) in fixture["raw_warnings"]
         .as_array()

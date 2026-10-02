@@ -1,7 +1,7 @@
 use beans::domain::plan::parse;
 use serde_json::Value;
 #[test]
-fn manifest_parsing_matches_fixed_go_models_and_errors() {
+fn manifest_parsing_matches_committed_contract_models_and_errors() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/plan-parse.json")).unwrap();
     let mut mismatches = Vec::new();
     for row in fixture["parses"].as_array().unwrap() {
@@ -46,7 +46,7 @@ fn manifest_parsing_matches_fixed_go_models_and_errors() {
 }
 
 #[test]
-fn scaffold_bytes_match_fixed_go_template_and_encoder() {
+fn scaffold_bytes_match_committed_contract_template_and_encoder() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/plan-parse.json")).unwrap();
     for row in fixture["scaffolds"].as_array().unwrap() {
         let now = serde_json::from_value(row["now"].clone()).unwrap();

@@ -258,6 +258,8 @@ impl Index {
         let full = self.hub_dir.join(path(rel));
         let bytes = if self.recover {
             read(&full)
+        } else if let Some(reader) = self.snapshot_reader.as_mut() {
+            reader.read(&path(rel))
         } else {
             crate::vault::public_read::read_snapshot_file(&self.hub_dir, &path(rel))
         };

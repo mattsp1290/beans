@@ -96,7 +96,7 @@ struct Corpus {
 }
 
 #[test]
-fn template_bytes_and_precedence_match_fixed_go() {
+fn template_bytes_and_precedence_match_committed_contract() {
     let corpus: Corpus = serde_json::from_str(include_str!("../contract/templates.json")).unwrap();
     assert_eq!(corpus.cases.len(), 42);
     for case in corpus.cases {

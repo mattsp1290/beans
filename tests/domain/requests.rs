@@ -27,7 +27,7 @@ fn ids_and_transitions() {
 }
 
 #[test]
-fn lifecycle_and_namespace_match_fixed_go() {
+fn lifecycle_and_namespace_match_committed_contract() {
     let corpus: serde_json::Value =
         serde_json::from_str(include_str!("../contract/request-lifecycle.json")).unwrap();
     for case in corpus["ids"].as_array().unwrap() {

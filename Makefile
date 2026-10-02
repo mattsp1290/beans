@@ -290,3 +290,9 @@ verify-codec-coupling:
 .PHONY: compat-plan-bytes
 compat-plan-bytes:
 	python3 -S tools/compat/plan_bytes_reference.py --check tests/contract/plan-bytes.json
+
+.PHONY: verify-native verify
+verify-native:
+	python3 -S tools/verification/native.py
+
+verify: verify-native verify-toolchain verify-kernel verify-codec-coupling

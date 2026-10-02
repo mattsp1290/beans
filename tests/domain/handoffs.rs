@@ -123,9 +123,8 @@ proptest! {
     }
 }
 #[test]
-fn reader_and_all_mutations_match_fixed_go() {
+fn reader_and_all_mutations_match_committed_contract() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/handoffs.json")).unwrap();
-    let mut exports = Vec::new();
     for c in corpus["cases"].as_array().unwrap() {
         let path = c["path"].as_str().unwrap();
         let source = c["input"].as_str().unwrap();
@@ -190,10 +189,6 @@ fn reader_and_all_mutations_match_fixed_go() {
                 }
                 Err(error) => export["expected_error"] = serde_json::json!(error.to_string()),
             }
-            exports.push(export);
         }
-    }
-    if let Ok(path) = std::env::var("BN_RUST_HANDOFF_OUTPUT") {
-        std::fs::write(path, serde_json::to_vec(&exports).unwrap()).unwrap();
     }
 }

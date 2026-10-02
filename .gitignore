@@ -4,6 +4,7 @@
 # Binaries for programs and plugins
 bin/
 .compat/
+.verification/
 /target/
 __pycache__/
 # Anchored to the repository root so it cannot shadow a `bn` file or directory

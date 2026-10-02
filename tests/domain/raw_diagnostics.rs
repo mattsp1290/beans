@@ -45,7 +45,7 @@ impl Drop for Cleanup {
     }
 }
 #[test]
-fn canonical_diagnostic_bytes_and_write_effects_match_go() {
+fn canonical_diagnostic_bytes_and_write_effects_match_committed_contract() {
     let corpus: Value =
         serde_json::from_str(include_str!("../contract/raw-diagnostics.json")).unwrap();
     let cases = corpus["cases"].as_array().unwrap();

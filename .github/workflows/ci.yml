@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - main
+      - mvp/rust-only-cutover
+      - mvp/rust-only-cutover-qualification
   pull_request:
 
 permissions:
@@ -21,7 +23,7 @@ jobs:
       - name: Install the pinned compiler and checks
         run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools
       - name: Build, test, format and lint the locked workspace
-        run: make rust-build rust-test rust-check
+        run: make rust-build rust-check verify-native
       - name: Observe real codec calls to the verified splice bodies
         run: make verify-codec-coupling
       - name: Preserve compiler coverage and coupling evidence
@@ -29,7 +31,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: codec-kernel-coupling-linux
-          path: .compat/verification/codec-coupling
+          path: |
+            .verification/codec-coupling
+            .verification/native/report.json
           if-no-files-found: error
 
   toolchain:
@@ -53,8 +57,8 @@ jobs:
         with:
           name: verus-toolchain-linux
           path: |
-            .compat/verification/*.json
-            .compat/verification/*.log
+            .verification/*.json
+            .verification/*.log
           if-no-files-found: warn
 
   native-baseline:

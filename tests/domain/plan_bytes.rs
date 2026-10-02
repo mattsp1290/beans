@@ -166,7 +166,7 @@ fn expand(value: &Value, blobs: &[Value]) -> Value {
     }
 }
 #[test]
-fn canonical_plan_models_diagnostics_and_filesystems_match_native_go() {
+fn canonical_plan_models_diagnostics_and_filesystems_match_committed_contract() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/plan-bytes.json")).unwrap();
     let blobs = fixture["blobs"].as_array().unwrap();
     for (i, c) in fixture["cases"].as_array().unwrap().iter().enumerate() {

@@ -13,7 +13,7 @@ fn assert_result(actual: Result<Vec<u8>, Error>, case: &Value, value: &str, erro
     }
 }
 #[test]
-fn remote_validation_normalization_host_and_second_pass_match_fixed_go() {
+fn remote_validation_normalization_host_and_second_pass_match_committed_contract() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/remote.json")).unwrap();
     for case in corpus["cases"].as_array().unwrap() {
         let input: Vec<u8> = serde_json::from_value(case["Input"].clone()).unwrap();

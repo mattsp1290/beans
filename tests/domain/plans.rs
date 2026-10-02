@@ -58,7 +58,7 @@ fn large_whitespace_execution_order_is_rejected() {
 }
 
 #[test]
-fn lifecycle_matches_fixed_go_errors_and_precedence() {
+fn lifecycle_matches_committed_contract_errors_and_precedence() {
     for case in corpus()["lifecycle"].as_array().unwrap() {
         let mut p = Plan::default();
         if case.get("nil").is_none() {
@@ -93,7 +93,7 @@ fn lifecycle_matches_fixed_go_errors_and_precedence() {
 }
 
 #[test]
-fn identifiers_slugs_and_collision_traces_match_fixed_go() {
+fn identifiers_slugs_and_collision_traces_match_committed_contract() {
     let corpus = corpus();
     for case in corpus["ids"].as_array().unwrap() {
         assert_eq!(
@@ -146,7 +146,7 @@ fn identifiers_slugs_and_collision_traces_match_fixed_go() {
 }
 
 #[test]
-fn graph_and_validation_models_match_go_serialization() {
+fn graph_and_validation_models_match_committed_contract_serialization() {
     let corpus = corpus();
     for case in corpus["graph_models"].as_array().unwrap() {
         let graph: ChangeGraph = serde_json::from_value(case.clone()).unwrap();

@@ -3,7 +3,7 @@ use beans::domain::{
     log::{LogEntry, YamlString},
     request::RequestDocument,
 };
-use serde_json::{Value, json};
+use serde_json::Value;
 fn bytes(value: &Value) -> Vec<u8> {
     serde_json::from_value(value.clone()).unwrap()
 }
@@ -55,10 +55,8 @@ fn input(kind: &str) -> (&'static str, Vec<u8>) {
     (path, text)
 }
 #[test]
-fn raw_log_format_parse_and_append_match_fixed_go() {
+fn raw_log_format_parse_and_append_match_committed_contract() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/raw-log.json")).unwrap();
-    let capture = std::env::var_os("BN_RUST_RAW_LOG_OUTPUT");
-    let mut candidates = Vec::new();
     for (index, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let e = entry(c);
         assert_eq!(
@@ -143,12 +141,7 @@ fn raw_log_format_parse_and_append_match_fixed_go() {
             if let Ok(reread) = reread {
                 assert_eq!(reread.bytes, output.bytes);
             }
-            candidates
-                .push(json!({"Kind":kind,"Path":path,"ExpectedError":error,"Bytes":output.bytes}));
         }
-    }
-    if let Some(path) = capture {
-        std::fs::write(path, serde_json::to_vec(&candidates).unwrap()).unwrap();
     }
 }
 

@@ -4,10 +4,9 @@ fn view(p: Option<&Plan>) -> Value {
     p.map_or(Value::Null,|p|serde_json::json!({"path":p.path,"status":p.status,"body":p.body,"summary":p.summary,"graph":p.graph}))
 }
 #[test]
-fn reference_edits_match_go_bytes_errors_and_failure_state() {
+fn reference_edits_match_committed_contract_bytes_errors_and_failure_state() {
     let fixture: Value = serde_json::from_str(include_str!("../contract/plan-ref.json")).unwrap();
     let mut mismatches = Vec::new();
-    let mut exports = Vec::new();
     for row in fixture["refs"].as_array().unwrap() {
         let mut p: Option<Plan> = serde_json::from_value(row["plan"].clone()).unwrap();
         let before = p.as_ref().map(|p| p.body.clone());
@@ -44,9 +43,6 @@ fn reference_edits_match_go_bytes_errors_and_failure_state() {
             let encoded = beans::domain::plan::encode(Some(&complete)).unwrap();
             let parsed = beans::domain::plan::parse("plan.md", &encoded).unwrap();
             assert_eq!(view(Some(&parsed)), view(Some(p)));
-            exports.push(
-                serde_json::json!({"name":row["name"],"input":String::from_utf8(encoded).unwrap()}),
-            );
             let source = before.unwrap();
             for copy in edit.copies {
                 assert_eq!(
@@ -55,9 +51,6 @@ fn reference_edits_match_go_bytes_errors_and_failure_state() {
                 );
             }
         }
-    }
-    if let Ok(path) = std::env::var("BN_PLAN_REF_RUST_OUTPUT") {
-        std::fs::write(path, serde_json::to_vec_pretty(&exports).unwrap()).unwrap();
     }
     assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
 }

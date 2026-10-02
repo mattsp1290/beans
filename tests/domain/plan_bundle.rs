@@ -103,9 +103,8 @@ fn materialize(row: &Value, base: &str) -> BundleSnapshot {
     snapshot
 }
 #[test]
-fn snapshot_loading_matches_go_boundaries_paths_and_order() {
+fn snapshot_loading_matches_committed_contract_boundaries_paths_and_order() {
     let corpus = fixture();
-    let mut exports = Vec::new();
     for row in corpus["loads"].as_array().unwrap() {
         let snapshot = materialize(row, corpus["scaffold"].as_str().unwrap());
         let before = snapshot.clone();
@@ -115,8 +114,6 @@ fn snapshot_loading_matches_go_boundaries_paths_and_order() {
                 assert_eq!(row["error"], "");
                 assert_eq!(view(&bundle, ""), row["bundle"], "{}", row["name"]);
                 let snapshot = bundle.snapshot();
-                let exported_files = snapshot.files.iter().map(|(name,bytes)|json!({"path":name.as_bytes(),"input":std::str::from_utf8(bytes).unwrap()})).collect::<Vec<_>>();
-                exports.push(json!({"name":row["name"],"root":row["root"],"files":exported_files}));
                 match plan::load_snapshot(row["root"].as_str().unwrap(), &snapshot) {
                     Ok(reread) => {
                         assert_eq!(row["read_error"], "");
@@ -131,9 +128,6 @@ fn snapshot_loading_matches_go_boundaries_paths_and_order() {
             }
         }
         assert_eq!(snapshot, before, "loader mutated input: {}", row["name"]);
-    }
-    if let Ok(path) = std::env::var("BN_PLAN_BUNDLE_RUST_OUTPUT") {
-        fs::write(path, serde_json::to_vec(&exports).unwrap()).unwrap();
     }
     for row in corpus["paths"].as_array().unwrap() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
@@ -232,7 +226,7 @@ fn make_fs(kind: &str, root: &Path, base: &[u8]) {
     }
 }
 #[test]
-fn linux_filesystem_loading_matches_go_and_never_mutates_files() {
+fn linux_filesystem_loading_matches_committed_contract_and_never_mutates_files() {
     let corpus = fixture();
     for row in corpus["filesystem"].as_array().unwrap() {
         let scratch = Scratch::new();
@@ -260,7 +254,7 @@ fn linux_filesystem_loading_matches_go_and_never_mutates_files() {
     }
 }
 #[test]
-fn exclusive_scaffold_writes_match_go_and_preserve_existing_destinations() {
+fn exclusive_scaffold_writes_match_committed_contract_and_preserve_existing_destinations() {
     let corpus = fixture();
     for row in corpus["writes"].as_array().unwrap() {
         let scratch = Scratch::new();
@@ -398,7 +392,7 @@ fn accepted_snapshot_raw_names_can_be_loaded_from_linux() {
 }
 
 #[test]
-fn filesystem_size_boundaries_match_go_and_leave_all_bytes_unchanged() {
+fn filesystem_size_boundaries_match_committed_contract_and_leave_all_bytes_unchanged() {
     let corpus = fixture();
     for row in corpus["filesystem_bounds"].as_array().unwrap() {
         let scratch = Scratch::new();

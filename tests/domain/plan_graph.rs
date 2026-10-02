@@ -1,7 +1,7 @@
 use beans::domain::plan::{parse_graph, parse_summary};
 
 #[test]
-fn graph_and_summary_match_fixed_go_results_errors_and_partial_values() {
+fn graph_and_summary_match_committed_contract_results_errors_and_partial_values() {
     let corpus: serde_json::Value =
         serde_json::from_str(include_str!("../contract/plan-graph.json")).unwrap();
     let mut failures = Vec::new();

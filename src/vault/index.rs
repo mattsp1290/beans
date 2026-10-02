@@ -43,6 +43,7 @@ pub struct Index {
     pub explicit_workflow: Option<PathBuf>,
     hub_toml: Vec<u8>,
     recover: bool,
+    snapshot_reader: Option<super::public_read::SnapshotReader>,
     order: Vec<Note>,
     by_path: BTreeMap<Vec<u8>, usize>,
 }
@@ -147,6 +148,7 @@ impl Index {
             explicit_workflow: options.explicit_workflow,
             hub_toml,
             recover,
+            snapshot_reader: None,
             order: Vec::new(),
             by_path: BTreeMap::new(),
         };

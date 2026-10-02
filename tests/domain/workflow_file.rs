@@ -11,7 +11,7 @@ fn bytes(value: &Value) -> Vec<u8> {
     serde_json::from_value(value.clone()).unwrap()
 }
 #[test]
-fn strict_workflow_files_match_go() {
+fn strict_workflow_files_match_committed_contract() {
     let corpus = corpus();
     let mut mismatches = Vec::new();
     assert_eq!(corpus["decodes"].as_array().unwrap().len(), 374);
@@ -50,7 +50,7 @@ impl Drop for TempDir {
     }
 }
 #[test]
-fn workflow_source_precedence_and_explicit_files_match_go() {
+fn workflow_source_precedence_and_explicit_files_match_committed_contract() {
     let corpus = corpus();
     let mut mismatches = Vec::new();
     assert_eq!(corpus["loads"].as_array().unwrap().len(), 131);

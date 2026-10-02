@@ -673,7 +673,7 @@ fn native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors() {
     assert_eq!(empty.cli(&["create"]).status.code(), Some(2));
     let s = fixture();
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("cmd/bn/testdata/beans_export_2026-09-10.jsonl");
+        .join("tests/fixtures/native-baseline/cmd/bn/testdata/beans_export_2026-09-10.jsonl");
     let report = json(
         &s,
         &[
@@ -766,7 +766,7 @@ fn native_basename_parent_cycle_alias_registry_and_second_import_fixture() {
     assert!(fs::read_to_string(&path).unwrap().contains("demo-alias"));
     s.ok(&["sync"]);
     let export = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("cmd/bn/testdata/gastownhall_beads_export.jsonl");
+        .join("tests/fixtures/native-baseline/cmd/bn/testdata/gastownhall_beads_export.jsonl");
     let report = json(
         &s,
         &[

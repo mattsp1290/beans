@@ -43,7 +43,7 @@ fn corpus() -> Value {
     serde_json::from_str(include_str!("../contract/config-foundation.json")).unwrap()
 }
 #[test]
-fn workflow_validation_classification_and_merges_match_immutable_go() {
+fn workflow_validation_classification_and_merges_match_committed_contract() {
     let corpus = corpus();
     for row in corpus["workflows"].as_array().unwrap() {
         let w = input(&row["input"]);
@@ -116,7 +116,7 @@ fn workflow_validation_classification_and_merges_match_immutable_go() {
     }
 }
 #[test]
-fn types_duration_and_throttle_match_go_including_raw_bytes() {
+fn types_duration_and_throttle_match_committed_contract_including_raw_bytes() {
     let corpus = corpus();
     for row in corpus["types"].as_array().unwrap() {
         let names: Option<Vec<Vec<u8>>> = serde_json::from_value(row["names"].clone()).unwrap();

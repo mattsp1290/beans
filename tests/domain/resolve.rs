@@ -64,7 +64,7 @@ fn snapshot(root: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
     out
 }
 #[test]
-fn project_resolution_and_directory_listing_match_fixed_go_without_writes() {
+fn project_resolution_and_directory_listing_match_committed_contract_without_writes() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/resolve.json")).unwrap();
     let base = std::env::temp_dir().join(format!("beans-resolve-{}", std::process::id()));
     std::fs::create_dir(&base).unwrap();

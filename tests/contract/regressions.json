@@ -7,15 +7,19 @@
       "line": 9,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained RootCommandWithoutArgsPrintsHelp scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/app_test.go",
       "test": "TestResolveActorPrecedence",
       "line": 23,
-      "destination": "tests/domain/context.rs::resolve_actor_original_precedence_regression",
+      "destination": "tests/domain.rs::context::resolve_actor_original_precedence_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression context::resolve_actor_original_precedence_regression asserts the retained ResolveActorPrecedence scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/app_test.go",
@@ -23,7 +27,9 @@
       "line": 33,
       "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_request_and_continuation_keep_unknown_authored_bytes asserts the retained WriteJSONTo scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_handoff_test.go",
@@ -31,7 +37,9 @@
       "line": 11,
       "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_request_and_continuation_keep_unknown_authored_bytes asserts the retained HandoffCLIWorkflow scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -39,7 +47,9 @@
       "line": 92,
       "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_retained_relationships_archive_reopen_and_force_delete asserts the retained CreateReadyCloseRoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -47,7 +57,9 @@
       "line": 165,
       "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_request_and_continuation_keep_unknown_authored_bytes asserts the retained RequestCLIWorkflow scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -55,7 +67,9 @@
       "line": 204,
       "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_retained_relationships_archive_reopen_and_force_delete asserts the retained DepCyclesAndTree scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -63,7 +77,9 @@
       "line": 230,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained MemoriesDocsSearchArchive scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -71,7 +87,9 @@
       "line": 264,
       "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors asserts the retained ImportBDFromLiveExport scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -79,7 +97,9 @@
       "line": 308,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained CLIImportBDReportsUnmappedDependencyTypes scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -87,7 +107,9 @@
       "line": 357,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained PrimeMatchesDocs scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -95,7 +117,9 @@
       "line": 381,
       "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors asserts the retained ExitCodes scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -103,7 +127,9 @@
       "line": 401,
       "destination": "tests/native_cli.rs::retained_commands::native_alias_registry_closed_filters_and_partial_close_failure",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_alias_registry_closed_filters_and_partial_close_failure asserts the retained CloseMultipleIDsPartialFailure scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -111,7 +137,9 @@
       "line": 419,
       "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors asserts the retained ImportForceRerunIsNoChange scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_issues_test.go",
@@ -127,7 +155,9 @@
       "line": 76,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained InitStatusProjectRoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/cli_test.go",
@@ -135,7 +165,9 @@
       "line": 152,
       "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors asserts the retained CommandsWithoutHubFail scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "cmd/bn/json_test.go",
@@ -143,7 +175,9 @@
       "line": 8,
       "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_request_and_continuation_keep_unknown_authored_bytes asserts the retained WriteJSONGoesToStdout scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -151,7 +185,9 @@
       "line": 13,
       "destination": "tests/native_cli.rs::native_first_cli_journey_second_clone_sees_closed_full_history",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression native_first_cli_journey_second_clone_sees_closed_full_history asserts the retained CloneEmptyRemoteInitializesAndMutateSucceeds scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -159,7 +195,9 @@
       "line": 39,
       "destination": "tests/native_cli.rs::native_branch_discovery_config_unknowns_and_overrides_survive_init",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression native_branch_discovery_config_unknowns_and_overrides_survive_init asserts the retained CloneNonEmptyRemoteReadsDefaultBranch scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -167,7 +205,9 @@
       "line": 52,
       "destination": "tests/native_cli.rs::native_issue_note_replay_keeps_both_writers_and_frozen_primary_log",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression native_issue_note_replay_keeps_both_writers_and_frozen_primary_log asserts the retained RaceRetriesOnceAndKeepsBothOperations scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -175,7 +215,9 @@
       "line": 83,
       "destination": "tests/native_cli.rs::push_conflict_replays_owned_head_without_duplicating_notes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression push_conflict_replays_owned_head_without_duplicating_notes asserts the retained ConflictInReplayIsIdempotent scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -183,7 +225,9 @@
       "line": 116,
       "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered asserts the retained OfflinePushLeavesLocalCommitAndSyncPushes scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -191,7 +235,9 @@
       "line": 144,
       "destination": "tests/native_cli.rs::fetch_throttle_keeps_locked_reads_nonblocking_and_local_view_available",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression fetch_throttle_keeps_locked_reads_nonblocking_and_local_view_available asserts the retained ThrottleFetchesOncePerWindow scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -199,7 +245,9 @@
       "line": 164,
       "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered asserts the retained HandEditIsCommittedBeforeOperation scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -207,7 +255,9 @@
       "line": 180,
       "destination": "tests/native_cli.rs::successful_rebase_and_dropped_operation_are_rederived_without_duplication",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression successful_rebase_and_dropped_operation_are_rederived_without_duplication asserts the retained HandEditPlusRaceKeepsHandEdit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -215,7 +265,9 @@
       "line": 219,
       "destination": "tests/native_cli.rs::conflict_preserves_unowned_history_even_with_matching_subject",
       "status": "ported",
-      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression conflict_preserves_unowned_history_even_with_matching_subject asserts the retained ConflictingOperationWithHandEditExits3WithoutReset scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -223,7 +275,9 @@
       "line": 257,
       "destination": "tests/native_cli.rs::repeated_races_exhaust_three_pushes_and_preserve_last_commit",
       "status": "ported",
-      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression repeated_races_exhaust_three_pushes_and_preserve_last_commit asserts the retained RetryExhaustionExits3AndKeepsCommit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -231,7 +285,9 @@
       "line": 281,
       "destination": "tests/native_cli.rs::partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers asserts the retained PartialWriteRecovery scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -239,7 +295,9 @@
       "line": 312,
       "destination": "tests/native_cli.rs::failed_create_retains_partial_scaffolding_and_locked_cli_reads_local_snapshot",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression failed_create_retains_partial_scaffolding_and_locked_cli_reads_local_snapshot asserts the retained SameCloneReadDoesNotMergeWhileWriteHoldsLock scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -247,7 +305,9 @@
       "line": 364,
       "destination": "tests/native_cli.rs::lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch",
       "status": "ported",
-      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch asserts the retained InterruptedRebaseExits3UntilAborted scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -255,7 +315,9 @@
       "line": 401,
       "destination": "tests/native_cli.rs::cleanup_requires_generated_evidence_and_untracked_state_preserving_authored_drafts",
       "status": "ported",
-      "retirement_rationale": "Strengthened ownership: exact generated-temp evidence plus verified untracked state authorizes cleanup; basename-prefix or plan.md.tmp matches alone never authorize deletion of authored/tracked files."
+      "retirement_rationale": "Strengthened ownership: exact generated-temp evidence plus verified untracked state authorizes cleanup; basename-prefix or plan.md.tmp matches alone never authorize deletion of authored/tracked files.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression cleanup_requires_generated_evidence_and_untracked_state_preserving_authored_drafts asserts the retained OwnedTempsAreDeletedAndUserTempsSurvive scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -263,7 +325,9 @@
       "line": 431,
       "destination": "tests/native_cli.rs::lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch asserts the retained DetachedHeadErrorsWithoutCommit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -271,7 +335,9 @@
       "line": 451,
       "destination": "tests/native_cli.rs::lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch",
       "status": "ported",
-      "retirement_rationale": "Intentional CLI compatibility break: busy shared flock fails promptly instead of waiting 30 seconds; native test verifies no apply or fetch occurs."
+      "retirement_rationale": "Intentional CLI compatibility break: busy shared flock fails promptly instead of waiting 30 seconds; native test verifies no apply or fetch occurs.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch asserts the retained LockTimeoutExits4 scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -279,7 +345,9 @@
       "line": 471,
       "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered asserts the retained NoSyncCommitsLocallyOnly scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -287,7 +355,9 @@
       "line": 486,
       "destination": "tests/native_cli.rs::sync_conflict_aborts_without_discarding_local_commit",
       "status": "ported",
-      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression sync_conflict_aborts_without_discarding_local_commit asserts the retained SyncConflictAbortsRebaseAndExits3 scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -295,7 +365,9 @@
       "line": 526,
       "destination": "tests/native_cli.rs::successful_rebase_and_dropped_operation_are_rederived_without_duplication",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression successful_rebase_and_dropped_operation_are_rederived_without_duplication asserts the retained HandEditSurvivesDroppedOperationCommit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -303,7 +375,9 @@
       "line": 578,
       "destination": "tests/native_cli.rs::next_idempotent_mutation_pushes_stranded_commits_with_no_new_log",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression next_idempotent_mutation_pushes_stranded_commits_with_no_new_log asserts the retained StrandedCommitIsPushedByNextIdempotentMutate scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -311,7 +385,9 @@
       "line": 613,
       "destination": "tests/native_cli.rs::partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers",
       "status": "ported",
-      "retirement_rationale": "Intentional strengthened recovery contract: failed Apply retains partial files and op-journal.json instead of destructive reset/clean; native test verifies sync recovers those writes and history."
+      "retirement_rationale": "Intentional strengthened recovery contract: failed Apply retains partial files and op-journal.json instead of destructive reset/clean; native test verifies sync recovers those writes and history.",
+      "validation": "make verify-native",
+      "native_assertion": "Native regression partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers asserts the retained NoSyncApplyErrorLeavesCleanTree scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -319,7 +395,9 @@
       "line": 646,
       "destination": "tests/native_cli.rs::conflict_preserves_unowned_history_even_with_matching_subject",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression conflict_preserves_unowned_history_even_with_matching_subject asserts the retained SubjectCollisionCannotDiscardHandEdit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/hub_test.go",
@@ -327,95 +405,122 @@
       "line": 702,
       "destination": "tests/native_cli.rs::stranded_previous_nonce_never_authorizes_discard_in_new_invocation",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression stranded_previous_nonce_never_authorizes_discard_in_new_invocation asserts the retained OperationCommitCarriesNonceAndSurvivesRebaseDiscardCheck scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestFakeGitResolverHeadCommitRecordsCallArgs",
       "line": 74,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::git_resolver::resolver_fake_records_exact_root_and_preserves_configured_capture",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression git_resolver::resolver_fake_records_exact_root_and_preserves_configured_capture asserts the retained FakeGitResolverHeadCommitRecordsCallArgs scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestFakeGitResolverHeadCommitReturnsConfiguredInvalidOutput",
       "line": 90,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::git_resolver::resolver_fake_records_exact_root_and_preserves_configured_capture",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression git_resolver::resolver_fake_records_exact_root_and_preserves_configured_capture asserts the retained FakeGitResolverHeadCommitReturnsConfiguredInvalidOutput scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestRealGitResolverHeadCommitReturnsExactHeadInCommonRepoStates",
       "line": 103,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::git_resolver::resolver_exact_head_in_dirty_detached_linked_and_submodule_repositories",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression git_resolver::resolver_exact_head_in_dirty_detached_linked_and_submodule_repositories asserts the retained RealGitResolverHeadCommitReturnsExactHeadInCommonRepoStates scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestRealGitResolverHeadCommitReturnsExactHeadDuringMergeState",
       "line": 129,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::git_resolver::resolver_exact_head_during_real_merge_and_rebase_conflicts",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression git_resolver::resolver_exact_head_during_real_merge_and_rebase_conflicts asserts the retained RealGitResolverHeadCommitReturnsExactHeadDuringMergeState scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestRealGitResolverHeadCommitReturnsExactHeadDuringRebaseState",
       "line": 147,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::git_resolver::resolver_exact_head_during_real_merge_and_rebase_conflicts",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression git_resolver::resolver_exact_head_during_real_merge_and_rebase_conflicts asserts the retained RealGitResolverHeadCommitReturnsExactHeadDuringRebaseState scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestRealGitResolverHeadCommitBestEffortFailures",
       "line": 167,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::git_resolver::resolver_best_effort_missing_unborn_outside_and_permission_denied",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression git_resolver::resolver_best_effort_missing_unborn_outside_and_permission_denied asserts the retained RealGitResolverHeadCommitBestEffortFailures scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/resolver_test.go",
       "test": "TestIsFullLowercaseHexCommit",
       "line": 213,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "src/lib.rs::vault::git::tests::full_lowercase_commit_rejects_malformed_and_untrimmed_values",
+      "status": "ported",
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression vault::git::tests::full_lowercase_commit_rejects_malformed_and_untrimmed_values asserts the retained IsFullLowercaseHexCommit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "gitops/tree_swap_test.go",
       "test": "TestReplaceTreeReplacesCompleteContents",
       "line": 9,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::qualification::plan_export_never_replaces_authored_destination_and_escaping_bundle_is_rejected",
+      "status": "ported",
+      "retirement_rationale": null,
+      "behavior_change": "Native plan publication validates paths and writes individual owned files. Exports refuse authored destinations instead of removing their contents; legacy backups recover byte-for-byte before subsequent writes.",
+      "validation": "make verify-native",
+      "native_assertion": "Native plan publication validates paths and writes individual owned files. Exports refuse authored destinations instead of removing their contents; legacy backups recover byte-for-byte before subsequent writes."
     },
     {
       "source": "gitops/tree_swap_test.go",
       "test": "TestReplaceTreeRejectsEscapingPath",
       "line": 32,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::qualification::plan_export_never_replaces_authored_destination_and_escaping_bundle_is_rejected",
+      "status": "ported",
+      "retirement_rationale": null,
+      "behavior_change": "Native plan publication validates paths and writes individual owned files. Exports refuse authored destinations instead of removing their contents; legacy backups recover byte-for-byte before subsequent writes.",
+      "validation": "make verify-native",
+      "native_assertion": "Native plan publication validates paths and writes individual owned files. Exports refuse authored destinations instead of removing their contents; legacy backups recover byte-for-byte before subsequent writes."
     },
     {
       "source": "gitops/tree_swap_test.go",
       "test": "TestReplaceTreeRecoversInterruptedBackup",
       "line": 38,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::qualification::legacy_interrupted_tree_backup_recovers_bytes_before_subsequent_native_write",
+      "status": "ported",
+      "retirement_rationale": null,
+      "behavior_change": "Native plan publication validates paths and writes individual owned files. Exports refuse authored destinations instead of removing their contents; legacy backups recover byte-for-byte before subsequent writes.",
+      "validation": "make verify-native",
+      "native_assertion": "Native plan publication validates paths and writes individual owned files. Exports refuse authored destinations instead of removing their contents; legacy backups recover byte-for-byte before subsequent writes."
     },
     {
       "source": "gitops/tree_swap_test.go",
       "test": "TestRecoverTreesRestoresInterruptedBackup",
       "line": 59,
-      "destination": "tests/domain/recovery.rs::recover_trees_restores_interrupted_backup_original",
+      "destination": "tests/domain.rs::recovery::recover_trees_restores_interrupted_backup_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression recovery::recover_trees_restores_interrupted_backup_original asserts the retained RecoverTreesRestoresInterruptedBackup scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/handoff_test.go",
@@ -423,7 +528,9 @@
       "line": 11,
       "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects asserts the retained HandoffCreateMissingIssueDoesNotBootstrapProject scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/handoff_test.go",
@@ -431,7 +538,9 @@
       "line": 23,
       "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects asserts the retained HandoffCreatePreservesExistingFinalNewlines scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/import_test.go",
@@ -439,7 +548,9 @@
       "line": 43,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained ImportBDReportsUnmappedDependencyTypes scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/import_test.go",
@@ -447,7 +558,9 @@
       "line": 110,
       "destination": "tests/native_cli.rs::retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_live_bd_export_force_rerun_is_no_change_and_no_hub_errors asserts the retained ImportBDLiveExport scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/import_test.go",
@@ -455,7 +568,9 @@
       "line": 170,
       "destination": "tests/native_cli.rs::retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_memory_docs_projects_import_diagnostics_cache_and_root asserts the retained ParseBDExportSkipsBlankCommentsAndBadRows scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/import_test.go",
@@ -463,7 +578,9 @@
       "line": 180,
       "destination": "tests/native_cli.rs::retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture asserts the retained ImportBDGastownhallFixture scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -471,7 +588,9 @@
       "line": 44,
       "destination": "tests/native_cli.rs::native_first_cli_journey_second_clone_sees_closed_full_history",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression native_first_cli_journey_second_clone_sees_closed_full_history asserts the retained CreateWritesFileAndIsReplaySafe scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -479,7 +598,9 @@
       "line": 70,
       "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows asserts the retained PlanPutRejectsDuplicateIDInAnotherProject scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -487,7 +608,9 @@
       "line": 100,
       "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_retained_relationships_archive_reopen_and_force_delete asserts the retained UpdateFieldsAndLog scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -495,7 +618,9 @@
       "line": 130,
       "destination": "tests/native_cli.rs::retained_commands::native_alias_registry_closed_filters_and_partial_close_failure",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_alias_registry_closed_filters_and_partial_close_failure asserts the retained CloseReopenIdempotent scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -503,7 +628,9 @@
       "line": 152,
       "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_retained_relationships_archive_reopen_and_force_delete asserts the retained DepAddRefusesCycleAndDeleteRefusesBacklinks scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -511,7 +638,9 @@
       "line": 192,
       "destination": "tests/native_cli.rs::retained_commands::native_retained_relationships_archive_reopen_and_force_delete",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_retained_relationships_archive_reopen_and_force_delete asserts the retained ArchiveMovesOldTerminalIssues scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/ops_test.go",
@@ -519,7 +648,9 @@
       "line": 226,
       "destination": "tests/native_cli.rs::retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture asserts the retained DepAddAcceptsBasenamesAndRefusesParentCycle scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/plan_test.go",
@@ -527,7 +658,9 @@
       "line": 13,
       "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows asserts the retained PlanPutRemovesDroppedSections scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/plan_test.go",
@@ -535,7 +668,9 @@
       "line": 64,
       "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows asserts the retained PlanPutRejectsStaleRevision scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/plan_test.go",
@@ -543,7 +678,9 @@
       "line": 101,
       "destination": "tests/native_cli.rs::retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_plan_bundle_stale_revision_roundtrip_and_node_workflows asserts the retained PlanLinkAndUnlinkAreIdempotent scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/request_test.go",
@@ -551,7 +688,9 @@
       "line": 12,
       "destination": "tests/native_cli.rs::retained_commands::native_request_and_continuation_keep_unknown_authored_bytes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_request_and_continuation_keep_unknown_authored_bytes asserts the retained RequestCreateUpdateAndLinks scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/request_test.go",
@@ -559,7 +698,9 @@
       "line": 51,
       "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects asserts the retained RequestLinkIsAtomicAndFindIsExact scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/request_test.go",
@@ -567,7 +708,9 @@
       "line": 68,
       "destination": "tests/native_cli.rs::retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects asserts the retained RequestCreateExplicitEmptyBodySkipsTemplate scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/request_test.go",
@@ -575,7 +718,9 @@
       "line": 81,
       "destination": "tests/native_cli.rs::retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_basename_parent_cycle_alias_registry_and_second_import_fixture asserts the retained ArtifactIDRegistrySeesAliasesAndBasenames scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/ops/request_test.go",
@@ -583,7 +728,9 @@
       "line": 98,
       "destination": "tests/native_cli.rs::retained_commands::native_alias_registry_closed_filters_and_partial_close_failure",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression retained_commands::native_alias_registry_closed_filters_and_partial_close_failure asserts the retained ArtifactIDRegistrySeesHubGlobalBasenames scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -591,7 +738,9 @@
       "line": 31,
       "destination": "tests/native_server.rs::markdown::real_http_handoff_wiki_archived_search_and_markdown_embeds",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression markdown::real_http_handoff_wiki_archived_search_and_markdown_embeds asserts the retained HandoffWikiRenderingAndArchivedSearch scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -599,7 +748,9 @@
       "line": 141,
       "destination": "tests/native_server.rs::api::real_http_mutations_share_cli_files_and_git_history",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_mutations_share_cli_files_and_git_history asserts the retained ReadsAndMutations scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -607,7 +758,9 @@
       "line": 209,
       "destination": "tests/native_server.rs::api::real_http_request_relationships_plan_details_and_read_only_routes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_request_relationships_plan_details_and_read_only_routes asserts the retained PlanReadEndpointsAreGetOnly scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -615,7 +768,9 @@
       "line": 225,
       "destination": "tests/native_server.rs::api::real_http_docs_graph_search_assets_spa_and_head_security",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_docs_graph_search_assets_spa_and_head_security asserts the retained DocsGraphSearchAssetsAndSPA scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -623,7 +778,9 @@
       "line": 277,
       "destination": "tests/native_server.rs::api::real_http_request_relationships_plan_details_and_read_only_routes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_request_relationships_plan_details_and_read_only_routes asserts the retained RequestReadAPIAndRelationships scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -631,7 +788,9 @@
       "line": 312,
       "destination": "tests/native_server.rs::lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown asserts the retained EventsStreamReload scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -639,7 +798,9 @@
       "line": 331,
       "destination": "tests/native_server.rs::api::real_http_dependency_parent_child_cycle_validation_and_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_dependency_parent_child_cycle_validation_and_errors asserts the retained ProjectNameIsValidatedAndCycleIs409NotValidation scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -647,7 +808,9 @@
       "line": 350,
       "destination": "tests/native_server.rs::api::real_http_docs_graph_search_assets_spa_and_head_security",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_docs_graph_search_assets_spa_and_head_security asserts the retained AssetWithSpaceInName scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -655,7 +818,9 @@
       "line": 368,
       "destination": "tests/native_server.rs::lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown asserts the retained SSEHeartbeatReapsClosedClient scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "internal/server/server_test.go",
@@ -663,814 +828,880 @@
       "line": 397,
       "destination": "tests/native_server.rs::api::real_http_dependency_parent_child_cycle_validation_and_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression api::real_http_dependency_parent_child_cycle_validation_and_errors asserts the retained ParentChildDepsOverAPI scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestRoundTrip",
       "line": 37,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::codec_regressions::round_trip",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "codec_regressions::round_trip",
-      "rust_source": "tests/domain/codec_regressions.rs",
-      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression codec_regressions::round_trip asserts the retained RoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestMutationsTouchOnlyTheirLines",
       "line": 57,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::codec_regressions::mutations_touch_only_their_lines",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "codec_regressions::mutations_touch_only_their_lines",
-      "rust_source": "tests/domain/codec_regressions.rs",
-      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression codec_regressions::mutations_touch_only_their_lines asserts the retained MutationsTouchOnlyTheirLines scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestNewIssueEncodeAndLogCreation",
       "line": 109,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::codec_regressions::new_issue_encode_and_log_creation",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "codec_regressions::new_issue_encode_and_log_creation",
-      "rust_source": "tests/domain/codec_regressions.rs",
-      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression codec_regressions::new_issue_encode_and_log_creation asserts the retained NewIssueEncodeAndLogCreation scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/codec_test.go",
       "test": "TestParseErrors",
       "line": 162,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::codec_regressions::parse_errors_name_the_file",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "codec_regressions::parse_errors_name_the_file",
-      "rust_source": "tests/domain/codec_regressions.rs",
-      "validation": "cargo test --locked --test domain codec_regressions::; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression codec_regressions::parse_errors_name_the_file asserts the retained ParseErrors scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestLoadHubConfigMissingPathReturnsDefaults",
       "line": 11,
-      "destination": "tests/domain/config_codec.rs::load_hub_config_missing_path_returns_defaults",
+      "destination": "tests/domain.rs::config_codec::load_hub_config_missing_path_returns_defaults",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::load_hub_config_missing_path_returns_defaults asserts the retained LoadHubConfigMissingPathReturnsDefaults scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestLoadHubConfigMalformedTOMLNamesFileAndLine",
       "line": 25,
-      "destination": "tests/domain/config_codec.rs::load_hub_config_malformed_toml_names_file_and_line",
+      "destination": "tests/domain.rs::config_codec::load_hub_config_malformed_toml_names_file_and_line",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::load_hub_config_malformed_toml_names_file_and_line asserts the retained LoadHubConfigMalformedTOMLNamesFileAndLine scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestLoadProjectConfigReadsNamePrefixRemotes",
       "line": 44,
-      "destination": "tests/domain/config_codec.rs::load_project_config_reads_name_prefix_remotes",
+      "destination": "tests/domain.rs::config_codec::load_project_config_reads_name_prefix_remotes",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::load_project_config_reads_name_prefix_remotes asserts the retained LoadProjectConfigReadsNamePrefixRemotes scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestEncodeProjectConfigRoundTrip",
       "line": 66,
-      "destination": "tests/domain/config_codec.rs::encode_project_config_round_trip",
+      "destination": "tests/domain.rs::config_codec::encode_project_config_round_trip",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::encode_project_config_round_trip asserts the retained EncodeProjectConfigRoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestEncodeProjectConfigWithoutWorkflow",
       "line": 102,
-      "destination": "tests/domain/config_codec.rs::encode_project_config_without_workflow",
+      "destination": "tests/domain.rs::config_codec::encode_project_config_without_workflow",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::encode_project_config_without_workflow asserts the retained EncodeProjectConfigWithoutWorkflow scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestUserConfigThrottleDuration",
       "line": 113,
-      "destination": "tests/domain/config_foundation.rs::user_config_throttle_duration",
+      "destination": "tests/domain.rs::config_foundation::user_config_throttle_duration",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::user_config_throttle_duration asserts the retained UserConfigThrottleDuration scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestLoadUserConfigMissingReturnsDefaults",
       "line": 133,
-      "destination": "tests/domain/config_codec.rs::load_user_config_missing_returns_defaults",
+      "destination": "tests/domain.rs::config_codec::load_user_config_missing_returns_defaults",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::load_user_config_missing_returns_defaults asserts the retained LoadUserConfigMissingReturnsDefaults scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/config_test.go",
       "test": "TestEncodeUserConfigDecodesBack",
       "line": 146,
-      "destination": "tests/domain/config_codec.rs::encode_user_config_decodes_back",
+      "destination": "tests/domain.rs::config_codec::encode_user_config_decodes_back",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_codec::encode_user_config_decodes_back asserts the retained EncodeUserConfigDecodesBack scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseAdditionalErrors",
       "line": 13,
-      "destination": "tests/domain/parser_regressions.rs::additional_owned_and_yaml_errors",
+      "destination": "tests/domain.rs::parser_regressions::additional_owned_and_yaml_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::additional_owned_and_yaml_errors asserts the retained ParseAdditionalErrors scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseNoTrailingNewlineAfterClosingFence",
       "line": 40,
-      "destination": "tests/domain/parser_regressions.rs::closing_fence_without_trailing_newline",
+      "destination": "tests/domain.rs::parser_regressions::closing_fence_without_trailing_newline",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::closing_fence_without_trailing_newline asserts the retained ParseNoTrailingNewlineAfterClosingFence scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseEmptyBodyAfterFence",
       "line": 54,
-      "destination": "tests/domain/parser_regressions.rs::empty_body_after_fence",
+      "destination": "tests/domain.rs::parser_regressions::empty_body_after_fence",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::empty_body_after_fence asserts the retained ParseEmptyBodyAfterFence scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestScalarIntoNullValue",
       "line": 67,
-      "destination": "tests/domain/parser_regressions.rs::null_scalar",
+      "destination": "tests/domain.rs::parser_regressions::null_scalar",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::null_scalar asserts the retained ScalarIntoNullValue scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestStringListNullAndEmpty",
       "line": 80,
-      "destination": "tests/domain/parser_regressions.rs::null_string_list",
+      "destination": "tests/domain.rs::parser_regressions::null_string_list",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::null_string_list asserts the retained StringListNullAndEmpty scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestBlockedBySkipsEmptyElements",
       "line": 94,
-      "destination": "tests/domain/parser_regressions.rs::blocker_list_skips_empty_elements",
+      "destination": "tests/domain.rs::parser_regressions::blocker_list_skips_empty_elements",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::blocker_list_skips_empty_elements asserts the retained BlockedBySkipsEmptyElements scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestParseLinkPipeAndHeading",
       "line": 117,
-      "destination": "tests/domain/parser_regressions.rs::link_alias_and_heading_targets",
+      "destination": "tests/domain.rs::parser_regressions::link_alias_and_heading_targets",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::link_alias_and_heading_targets asserts the retained ParseLinkPipeAndHeading scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestEncodeNewWithExtraAndRawLog",
       "line": 145,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::creation::encode_new_with_extra_and_raw_log",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "creation::encode_new_with_extra_and_raw_log",
-      "rust_source": "tests/domain/creation.rs",
-      "validation": "cargo test --locked --test domain creation::encode_new_with_extra_and_raw_log; original Go regression retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression creation::encode_new_with_extra_and_raw_log asserts the retained EncodeNewWithExtraAndRawLog scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/coverage_test.go",
       "test": "TestSectionSeparatorBranches",
       "line": 175,
-      "destination": "tests/domain/parser_regressions.rs::new_document_section_separators",
+      "destination": "tests/domain.rs::parser_regressions::new_document_section_separators",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::new_document_section_separators asserts the retained SectionSeparatorBranches scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/handoff_test.go",
       "test": "TestHandoffRoundTripAndMinimalAttachmentEdit",
       "line": 11,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::handoffs::round_trip_and_minimal_attachment_edit",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "handoffs::round_trip_and_minimal_attachment_edit",
-      "rust_source": "tests/domain/handoffs.rs",
-      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression handoffs::round_trip_and_minimal_attachment_edit asserts the retained HandoffRoundTripAndMinimalAttachmentEdit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/handoff_test.go",
       "test": "TestParseHandoffRejectsBadInput",
       "line": 35,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::handoffs::rejects_bad_input",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "handoffs::rejects_bad_input",
-      "rust_source": "tests/domain/handoffs.rs",
-      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression handoffs::rejects_bad_input asserts the retained ParseHandoffRejectsBadInput scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/handoff_test.go",
       "test": "TestParseHandoffRejectsMisleadingPath",
       "line": 49,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::handoffs::rejects_misleading_path",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "handoffs::rejects_misleading_path",
-      "rust_source": "tests/domain/handoffs.rs",
-      "validation": "cargo test --locked --test domain handoffs::; make compat-handoffs compat-handoff-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression handoffs::rejects_misleading_path asserts the retained ParseHandoffRejectsMisleadingPath scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestSlug",
       "line": 8,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::slug_examples",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::slug_examples",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::slug_examples asserts the retained Slug scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestSlugLongTitleCutsAtWordBoundary",
       "line": 31,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::slug_long_title_cuts_at_word_boundary",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::slug_long_title_cuts_at_word_boundary",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::slug_long_title_cuts_at_word_boundary asserts the retained SlugLongTitleCutsAtWordBoundary scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestSlugEmptyFilenameFallback",
       "line": 60,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::slug_empty_filename_fallback",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::slug_empty_filename_fallback",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::slug_empty_filename_fallback asserts the retained SlugEmptyFilenameFallback scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestFilename",
       "line": 71,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::filenames",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::filenames",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::filenames asserts the retained Filename scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestValidID",
       "line": 99,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::valid_ids",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::valid_ids",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::valid_ids asserts the retained ValidID scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestNewID",
       "line": 115,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::new_id_eight_collisions",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::new_id_eight_collisions",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::new_id_eight_collisions asserts the retained NewID scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestNewIDAllGeneratedAreValid",
       "line": 138,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::new_id_all_generated_are_valid",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::new_id_all_generated_are_valid",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::new_id_all_generated_are_valid asserts the retained NewIDAllGeneratedAreValid scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/id_test.go",
       "test": "TestNewIDDefaultLength",
       "line": 147,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::ids::new_id_default_length",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "ids::new_id_default_length",
-      "rust_source": "tests/domain/ids.rs",
-      "validation": "cargo test --locked --test domain ids::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression ids::new_id_default_length asserts the retained NewIDDefaultLength scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/log_test.go",
       "test": "TestFormatParseLogEntryRoundTrip",
       "line": 8,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::raw_log::format_parse_log_entry_round_trip_original_regression",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "raw_log::format_parse_log_entry_round_trip_original_regression",
-      "rust_source": "tests/domain/raw_log.rs",
-      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression raw_log::format_parse_log_entry_round_trip_original_regression asserts the retained FormatParseLogEntryRoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/log_test.go",
       "test": "TestFormatLogEntryOmitsParensWithoutRepoInfo",
       "line": 52,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::raw_log::format_log_entry_omits_parens_without_repo_info_original_regression",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "raw_log::format_log_entry_omits_parens_without_repo_info_original_regression",
-      "rust_source": "tests/domain/raw_log.rs",
-      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression raw_log::format_log_entry_omits_parens_without_repo_info_original_regression asserts the retained FormatLogEntryOmitsParensWithoutRepoInfo scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/log_test.go",
       "test": "TestFormatLogEntryRepoAndShaNoBranch",
       "line": 62,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::raw_log::format_log_entry_repo_and_sha_no_branch_original_regression",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "raw_log::format_log_entry_repo_and_sha_no_branch_original_regression",
-      "rust_source": "tests/domain/raw_log.rs",
-      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression raw_log::format_log_entry_repo_and_sha_no_branch_original_regression asserts the retained FormatLogEntryRepoAndShaNoBranch scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/log_test.go",
       "test": "TestParseLogEntryMinutePrecision",
       "line": 72,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::raw_log::parse_log_entry_minute_precision_original_regression",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "raw_log::parse_log_entry_minute_precision_original_regression",
-      "rust_source": "tests/domain/raw_log.rs",
-      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression raw_log::parse_log_entry_minute_precision_original_regression asserts the retained ParseLogEntryMinutePrecision scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/log_test.go",
       "test": "TestParseLogEntryNonMatchingLines",
       "line": 86,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::raw_log::parse_log_entry_non_matching_lines_original_regression",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "raw_log::parse_log_entry_non_matching_lines_original_regression",
-      "rust_source": "tests/domain/raw_log.rs",
-      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression raw_log::parse_log_entry_non_matching_lines_original_regression asserts the retained ParseLogEntryNonMatchingLines scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/log_test.go",
       "test": "TestParseLogEntryMultiLineContinuation",
       "line": 101,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::raw_log::parse_log_entry_multi_line_continuation_original_regression",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "raw_log::parse_log_entry_multi_line_continuation_original_regression",
-      "rust_source": "tests/domain/raw_log.rs",
-      "validation": "cargo test --locked --test domain raw_log::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression raw_log::parse_log_entry_multi_line_continuation_original_regression asserts the retained ParseLogEntryMultiLineContinuation scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestMemoryRoundTrip",
       "line": 22,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::round_trip",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::round_trip",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::round_trip asserts the retained MemoryRoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestMemoryMutationSplicesOnlyChangedLines",
       "line": 46,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::mutation_splices_only_changed_lines",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::mutation_splices_only_changed_lines",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::mutation_splices_only_changed_lines asserts the retained MemoryMutationSplicesOnlyChangedLines scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestNewMemoryEncodesInKeyOrder",
       "line": 79,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::new_memory_encodes_in_key_order",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::new_memory_encodes_in_key_order",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::new_memory_encodes_in_key_order asserts the retained NewMemoryEncodesInKeyOrder scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestParseMemoryMissingKeyIsError",
       "line": 114,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::missing_key_is_error",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::missing_key_is_error",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::missing_key_is_error asserts the retained ParseMemoryMissingKeyIsError scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestValidMemoryKey",
       "line": 122,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::valid_memory_key",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::valid_memory_key",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::valid_memory_key asserts the retained ValidMemoryKey scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestValidMemoryType",
       "line": 152,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::valid_memory_type",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::valid_memory_type",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::valid_memory_type asserts the retained ValidMemoryType scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/memory_test.go",
       "test": "TestParseMemoryRejectsCRLF",
       "line": 167,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::memories::rejects_crlf",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "memories::rejects_crlf",
-      "rust_source": "tests/domain/memories.rs",
-      "validation": "cargo test --locked --test domain memories::; make compat-memories compat-memory-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression memories::rejects_crlf asserts the retained ParseMemoryRejectsCRLF scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationSetStatus",
       "line": 55,
-      "destination": "tests/domain/mutation_regressions.rs::set_status",
+      "destination": "tests/domain.rs::mutation_regressions::set_status",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::set_status asserts the retained MutationSetStatus scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationAppendLog",
       "line": 77,
-      "destination": "tests/domain/mutation_regressions.rs::append_log",
+      "destination": "tests/domain.rs::mutation_regressions::append_log",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::append_log asserts the retained MutationAppendLog scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationSetDescription",
       "line": 109,
-      "destination": "tests/domain/mutation_regressions.rs::set_description",
+      "destination": "tests/domain.rs::mutation_regressions::set_description",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::set_description asserts the retained MutationSetDescription scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationAddBlocker",
       "line": 132,
-      "destination": "tests/domain/mutation_regressions.rs::add_blocker",
+      "destination": "tests/domain.rs::mutation_regressions::add_blocker",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::add_blocker asserts the retained MutationAddBlocker scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationRemoveBlockerToZero",
       "line": 153,
-      "destination": "tests/domain/mutation_regressions.rs::remove_blocker_to_zero",
+      "destination": "tests/domain.rs::mutation_regressions::remove_blocker_to_zero",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::remove_blocker_to_zero asserts the retained MutationRemoveBlockerToZero scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationSetAbsentAssignee",
       "line": 174,
-      "destination": "tests/domain/mutation_regressions.rs::set_absent_assignee",
+      "destination": "tests/domain.rs::mutation_regressions::set_absent_assignee",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::set_absent_assignee asserts the retained MutationSetAbsentAssignee scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationClearParent",
       "line": 211,
-      "destination": "tests/domain/mutation_regressions.rs::clear_parent",
+      "destination": "tests/domain.rs::mutation_regressions::clear_parent",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::clear_parent asserts the retained MutationClearParent scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationAppendLogWhenLogNotLast",
       "line": 249,
-      "destination": "tests/domain/mutation_regressions.rs::append_log_when_log_not_last",
+      "destination": "tests/domain.rs::mutation_regressions::append_log_when_log_not_last",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::append_log_when_log_not_last asserts the retained MutationAppendLogWhenLogNotLast scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/mutation_test.go",
       "test": "TestMutationKeepsInlineCommentOnRewrittenScalar",
       "line": 279,
-      "destination": "tests/domain/mutation_regressions.rs::keeps_inline_comment_on_rewritten_scalar",
+      "destination": "tests/domain.rs::mutation_regressions::keeps_inline_comment_on_rewritten_scalar",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::keeps_inline_comment_on_rewritten_scalar asserts the retained MutationKeepsInlineCommentOnRewrittenScalar scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestRequestRoundTripAndMutation",
       "line": 37,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::request_codec::round_trip_and_mutation",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "request_codec::round_trip_and_mutation",
-      "rust_source": "tests/domain/request_codec.rs",
-      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression request_codec::round_trip_and_mutation asserts the retained RequestRoundTripAndMutation scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestRequestRoundTripFixtures",
       "line": 63,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::request_codec::round_trip_fixtures",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "request_codec::round_trip_fixtures",
-      "rust_source": "tests/domain/request_codec.rs",
-      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression request_codec::round_trip_fixtures asserts the retained RequestRoundTripFixtures scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestRequestParsingErrors",
       "line": 96,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::request_codec::parsing_errors",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "request_codec::parsing_errors",
-      "rust_source": "tests/domain/request_codec.rs",
-      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression request_codec::parsing_errors asserts the retained RequestParsingErrors scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/request_codec_test.go",
       "test": "TestSetRequestBody",
       "line": 111,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::request_codec::set_request_body",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "request_codec::set_request_body",
-      "rust_source": "tests/domain/request_codec.rs",
-      "validation": "cargo test --locked --test domain request_codec::; make compat-requests compat-request-read; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression request_codec::set_request_body asserts the retained SetRequestBody scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/request_test.go",
       "test": "TestRequestIDsAndTransitions",
       "line": 5,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::requests::ids_and_transitions",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "requests::ids_and_transitions",
-      "rust_source": "tests/domain/requests.rs",
-      "validation": "cargo test --locked --test domain requests::; make compat-request-lifecycle; original Go regression retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression requests::ids_and_transitions asserts the retained RequestIDsAndTransitions scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestFencedHeadingsAreNotSections",
       "line": 31,
-      "destination": "tests/domain/parser_regressions.rs::fenced_headings_are_not_sections",
+      "destination": "tests/domain.rs::parser_regressions::fenced_headings_are_not_sections",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::fenced_headings_are_not_sections asserts the retained FencedHeadingsAreNotSections scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestLogEntryTokensRoundTrip",
       "line": 53,
-      "destination": "tests/domain/parser_regressions.rs::log_tokens_round_trip",
+      "destination": "tests/domain.rs::parser_regressions::log_tokens_round_trip",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::log_tokens_round_trip asserts the retained LogEntryTokensRoundTrip scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestEncodeProjectConfigEscapesControlCharacters",
       "line": 75,
-      "destination": "tests/domain/parser_regressions.rs::project_config_control_characters",
+      "destination": "tests/domain.rs::parser_regressions::project_config_control_characters",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::project_config_control_characters asserts the retained EncodeProjectConfigEscapesControlCharacters scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestParseMemoryDuplicateKey",
       "line": 97,
-      "destination": "tests/domain/parser_regressions.rs::memory_duplicate_owned_key",
+      "destination": "tests/domain.rs::parser_regressions::memory_duplicate_owned_key",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::memory_duplicate_owned_key asserts the retained ParseMemoryDuplicateKey scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/review_regression_test.go",
       "test": "TestUnclosedFenceDoesNotHideHeadings",
       "line": 105,
-      "destination": "tests/domain/parser_regressions.rs::unclosed_fence_does_not_hide_headings",
+      "destination": "tests/domain.rs::parser_regressions::unclosed_fence_does_not_hide_headings",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression parser_regressions::unclosed_fence_does_not_hide_headings asserts the retained UnclosedFenceDoesNotHideHeadings scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/roundtrip_test.go",
       "test": "TestRoundTripFixtures",
       "line": 13,
-      "destination": "tests/domain/mutation_regressions.rs::round_trip_fixtures",
+      "destination": "tests/domain.rs::mutation_regressions::round_trip_fixtures",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression mutation_regressions::round_trip_fixtures asserts the retained RoundTripFixtures scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/template_test.go",
       "test": "TestDefaultTemplateBuiltins",
       "line": 9,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::templates::default_template_builtins",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "templates::default_template_builtins",
-      "rust_source": "tests/domain/templates.rs",
-      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression templates::default_template_builtins asserts the retained DefaultTemplateBuiltins scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/template_test.go",
       "test": "TestDefaultTemplateUnknownTypeFallsBackToTask",
       "line": 24,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::templates::default_template_unknown_type_falls_back_to_task",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "templates::default_template_unknown_type_falls_back_to_task",
-      "rust_source": "tests/domain/templates.rs",
-      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression templates::default_template_unknown_type_falls_back_to_task asserts the retained DefaultTemplateUnknownTypeFallsBackToTask scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/template_test.go",
       "test": "TestLoadTemplatePrefersProjectThenHubThenBuiltin",
       "line": 32,
-      "destination": "tests/domain.rs",
+      "destination": "tests/domain.rs::templates::load_template_prefers_project_then_hub_then_builtin",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "templates::load_template_prefers_project_then_hub_then_builtin",
-      "rust_source": "tests/domain/templates.rs",
-      "validation": "cargo test --locked --test domain templates::; original Go tests retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression templates::load_template_prefers_project_then_hub_then_builtin asserts the retained LoadTemplatePrefersProjectThenHubThenBuiltin scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/types_test.go",
       "test": "TestTypesConfigValidType",
       "line": 5,
-      "destination": "tests/domain/config_foundation.rs::types_config_valid_type",
+      "destination": "tests/domain.rs::config_foundation::types_config_valid_type",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::types_config_valid_type asserts the retained TypesConfigValidType scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileTOMLAndYAML",
       "line": 5,
-      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_toml_and_yaml",
+      "destination": "tests/domain.rs::workflow_file::decode_workflow_file_toml_and_yaml",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::decode_workflow_file_toml_and_yaml asserts the retained DecodeWorkflowFileTOMLAndYAML scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestMergeWorkflowFilePartialInheritsBase",
       "line": 39,
-      "destination": "tests/domain/workflow_file.rs::merge_workflow_file_partial_inherits_base",
+      "destination": "tests/domain.rs::workflow_file::merge_workflow_file_partial_inherits_base",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::merge_workflow_file_partial_inherits_base asserts the retained MergeWorkflowFilePartialInheritsBase scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileUnknownKeysFailFast",
       "line": 54,
-      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_unknown_keys_fail_fast",
+      "destination": "tests/domain.rs::workflow_file::decode_workflow_file_unknown_keys_fail_fast",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::decode_workflow_file_unknown_keys_fail_fast asserts the retained DecodeWorkflowFileUnknownKeysFailFast scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileIgnoresOtherTOMLTables",
       "line": 69,
-      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_ignores_other_toml_tables",
+      "destination": "tests/domain.rs::workflow_file::decode_workflow_file_ignores_other_toml_tables",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::decode_workflow_file_ignores_other_toml_tables asserts the retained DecodeWorkflowFileIgnoresOtherTOMLTables scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestDecodeWorkflowFileUnsupportedExtension",
       "line": 80,
-      "destination": "tests/domain/workflow_file.rs::decode_workflow_file_unsupported_extension",
+      "destination": "tests/domain.rs::workflow_file::decode_workflow_file_unsupported_extension",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::decode_workflow_file_unsupported_extension asserts the retained DecodeWorkflowFileUnsupportedExtension scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_file_test.go",
       "test": "TestMergedInvalidBucketFailsValidate",
       "line": 87,
-      "destination": "tests/domain/workflow_file.rs::merged_invalid_bucket_fails_validate",
+      "destination": "tests/domain.rs::workflow_file::merged_invalid_bucket_fails_validate",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::merged_invalid_bucket_fails_validate asserts the retained MergedInvalidBucketFailsValidate scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowExplicitWinsOverProjectAndHub",
       "line": 10,
-      "destination": "tests/domain/workflow_file.rs::explicit_workflow_wins_over_project_and_hub",
+      "destination": "tests/domain.rs::workflow_file::explicit_workflow_wins_over_project_and_hub",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::explicit_workflow_wins_over_project_and_hub asserts the retained LoadWorkflowExplicitWinsOverProjectAndHub scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowProjectOverridesHubKeyByKey",
       "line": 43,
-      "destination": "tests/domain/workflow_file.rs::project_workflow_overrides_hub_per_key",
+      "destination": "tests/domain.rs::workflow_file::project_workflow_overrides_hub_per_key",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::project_workflow_overrides_hub_per_key asserts the retained LoadWorkflowProjectOverridesHubKeyByKey scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowMissingExplicitPathErrors",
       "line": 71,
-      "destination": "tests/domain/workflow_file.rs::missing_explicit_workflow_errors",
+      "destination": "tests/domain.rs::workflow_file::missing_explicit_workflow_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::missing_explicit_workflow_errors asserts the retained LoadWorkflowMissingExplicitPathErrors scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowInvalidVocabularyErrors",
       "line": 78,
-      "destination": "tests/domain/workflow_file.rs::invalid_inherited_workflow_vocabulary_errors",
+      "destination": "tests/domain.rs::workflow_file::invalid_inherited_workflow_vocabulary_errors",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::invalid_inherited_workflow_vocabulary_errors asserts the retained LoadWorkflowInvalidVocabularyErrors scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowTOMLWithTypesTableLoadsFine",
       "line": 97,
-      "destination": "tests/domain/workflow_file.rs::workflow_with_types_and_ids_tables_loads",
+      "destination": "tests/domain.rs::workflow_file::workflow_with_types_and_ids_tables_loads",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::workflow_with_types_and_ids_tables_loads asserts the retained LoadWorkflowTOMLWithTypesTableLoadsFine scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_load_test.go",
       "test": "TestLoadWorkflowNoConfigUsesDefaults",
       "line": 120,
-      "destination": "tests/domain/workflow_file.rs::workflow_without_config_uses_built_in_defaults",
+      "destination": "tests/domain.rs::workflow_file::workflow_without_config_uses_built_in_defaults",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression workflow_file::workflow_without_config_uses_built_in_defaults asserts the retained LoadWorkflowNoConfigUsesDefaults scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestDefaultWorkflowConfigBuckets",
       "line": 5,
-      "destination": "tests/domain/config_foundation.rs::default_workflow_config_buckets",
+      "destination": "tests/domain.rs::config_foundation::default_workflow_config_buckets",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::default_workflow_config_buckets asserts the retained DefaultWorkflowConfigBuckets scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigUnknownStatusNotHold",
       "line": 51,
-      "destination": "tests/domain/config_foundation.rs::workflow_config_unknown_status_not_hold",
+      "destination": "tests/domain.rs::config_foundation::workflow_config_unknown_status_not_hold",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::workflow_config_unknown_status_not_hold asserts the retained WorkflowConfigUnknownStatusNotHold scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigDefaultStateFallback",
       "line": 63,
-      "destination": "tests/domain/config_foundation.rs::workflow_config_default_state_fallback",
+      "destination": "tests/domain.rs::config_foundation::workflow_config_default_state_fallback",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::workflow_config_default_state_fallback asserts the retained WorkflowConfigDefaultStateFallback scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigStatusNames",
       "line": 70,
-      "destination": "tests/domain/config_foundation.rs::workflow_config_status_names",
+      "destination": "tests/domain.rs::config_foundation::workflow_config_status_names",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::workflow_config_status_names asserts the retained WorkflowConfigStatusNames scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "issue/workflow_test.go",
       "test": "TestWorkflowConfigValidate",
       "line": 93,
-      "destination": "tests/domain/config_foundation.rs::workflow_config_validate",
+      "destination": "tests/domain.rs::config_foundation::workflow_config_validate",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression config_foundation::workflow_config_validate asserts the retained WorkflowConfigValidate scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "markdown/render_test.go",
       "test": "TestGolden",
       "line": 43,
-      "destination": "tests/markdown.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_server.rs::markdown::native_markdown_semantic_features_escaping_aliases_and_toc",
+      "status": "ported",
+      "retirement_rationale": null,
+      "behavior_change": "Exact Goldmark HTML formatting is replaced by Comrak. Native assertions check headings and TOC, Obsidian links/aliases/callouts/embeds, GFM and HTML/URL escaping rather than old literal HTML.",
+      "validation": "make verify-native",
+      "native_assertion": "Exact Goldmark HTML formatting is replaced by Comrak. Native assertions check headings and TOC, Obsidian links/aliases/callouts/embeds, GFM and HTML/URL escaping rather than old literal HTML."
     },
     {
       "source": "markdown/render_test.go",
@@ -1478,23 +1709,29 @@
       "line": 85,
       "destination": "tests/native_server.rs::markdown::native_markdown_semantic_features_escaping_aliases_and_toc",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression markdown::native_markdown_semantic_features_escaping_aliases_and_toc asserts the retained HeadingsTOC scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "markdown/render_test.go",
       "test": "TestLinks",
       "line": 111,
-      "destination": "tests/domain/links.rs::links_original_code_and_duplicate_regression",
+      "destination": "tests/domain.rs::links::links_original_code_and_duplicate_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression links::links_original_code_and_duplicate_regression asserts the retained Links scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "markdown/render_test.go",
       "test": "TestLinksAlias",
       "line": 142,
-      "destination": "tests/domain/links.rs::links_original_alias_regression",
+      "destination": "tests/domain.rs::links::links_original_alias_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression links::links_original_alias_regression asserts the retained LinksAlias scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "markdown/render_test.go",
@@ -1502,379 +1739,459 @@
       "line": 153,
       "destination": "tests/native_server.rs::markdown::native_markdown_semantic_features_escaping_aliases_and_toc",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression markdown::native_markdown_semantic_features_escaping_aliases_and_toc asserts the retained NoEmbedsRendersEmbedAsLink scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestScaffoldLoadsAsDraft",
       "line": 11,
-      "destination": "tests/domain/plan_bundle.rs::scaffold_loads_as_draft",
+      "destination": "tests/domain.rs::plan_bundle::scaffold_loads_as_draft",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_bundle::scaffold_loads_as_draft asserts the retained ScaffoldLoadsAsDraft scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestScaffoldSafelyEncodesSpecialTitle",
       "line": 26,
-      "destination": "tests/domain/plan_bundle.rs::scaffold_safely_encodes_special_title",
+      "destination": "tests/domain.rs::plan_bundle::scaffold_safely_encodes_special_title",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_bundle::scaffold_safely_encodes_special_title asserts the retained ScaffoldSafelyEncodesSpecialTitle scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestParseRejectsUnknownFrontmatter",
       "line": 41,
-      "destination": "tests/domain/plan_parse.rs::parse_rejects_unknown_frontmatter",
+      "destination": "tests/domain.rs::plan_parse::parse_rejects_unknown_frontmatter",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_parse::parse_rejects_unknown_frontmatter asserts the retained ParseRejectsUnknownFrontmatter scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestLoadRetainsOrderedSectionBodies",
       "line": 49,
-      "destination": "tests/domain/plan_bundle.rs::load_retains_ordered_section_bodies",
+      "destination": "tests/domain.rs::plan_bundle::load_retains_ordered_section_bodies",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_bundle::load_retains_ordered_section_bodies asserts the retained LoadRetainsOrderedSectionBodies scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestParseSummaryIgnoresHeadingsInFences",
       "line": 79,
-      "destination": "tests/plans.rs",
+      "destination": "tests/domain.rs::plan_graph::summary_ignores_headings_in_fences",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "plan_graph::summary_ignores_headings_in_fences",
-      "rust_source": "tests/domain/plan_graph.rs",
-      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_graph::summary_ignores_headings_in_fences asserts the retained ParseSummaryIgnoresHeadingsInFences scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestLoadRejectsUnlistedSection",
       "line": 86,
-      "destination": "tests/domain/plan_bundle.rs::load_rejects_unlisted_section",
+      "destination": "tests/domain.rs::plan_bundle::load_rejects_unlisted_section",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_bundle::load_rejects_unlisted_section asserts the retained LoadRejectsUnlistedSection scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestReadyRequiresStructuredSummary",
       "line": 102,
-      "destination": "tests/plans.rs",
+      "destination": "tests/domain.rs::plans::ready_requires_structured_summary",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "plans::ready_requires_structured_summary",
-      "rust_source": "tests/domain/plans.rs",
-      "validation": "cargo test --locked --test domain plans::; make compat-plan-foundation; original Go regression retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plans::ready_requires_structured_summary asserts the retained ReadyRequiresStructuredSummary scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestParseGraphRejectsUnknownFields",
       "line": 113,
-      "destination": "tests/plans.rs",
+      "destination": "tests/domain.rs::plan_graph::graph_rejects_unknown_fields",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "plan_graph::graph_rejects_unknown_fields",
-      "rust_source": "tests/domain/plan_graph.rs",
-      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_graph::graph_rejects_unknown_fields asserts the retained ParseGraphRejectsUnknownFields scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestParseGraphRejectsAliasAndCustomTag",
       "line": 120,
-      "destination": "tests/plans.rs",
+      "destination": "tests/domain.rs::plan_graph::graph_rejects_alias_and_custom_tag",
       "status": "ported",
       "retirement_rationale": null,
-      "rust_scenario": "plan_graph::graph_rejects_alias_and_custom_tag",
-      "rust_source": "tests/domain/plan_graph.rs",
-      "validation": "cargo test --locked --test domain plan_graph::; make compat-plan-graph; original Go regressions retained until cutover"
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_graph::graph_rejects_alias_and_custom_tag asserts the retained ParseGraphRejectsAliasAndCustomTag scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "plan/plan_test.go",
       "test": "TestSetNodeRefPreservesPlanAndCanonicalizesFence",
       "line": 131,
-      "destination": "tests/domain/plan_reference.rs::set_node_ref_preserves_plan_and_canonicalizes_fence",
+      "destination": "tests/domain.rs::plan_reference::set_node_ref_preserves_plan_and_canonicalizes_fence",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression plan_reference::set_node_ref_preserves_plan_and_canonicalizes_fence asserts the retained SetNodeRefPreservesPlanAndCanonicalizesFence scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestReloadPlanSectionRetainsLastValidAggregate",
       "line": 45,
-      "destination": "tests/domain/index.rs::index_original_reload_section_keeps_last_valid_plan",
+      "destination": "tests/domain.rs::index::index_original_reload_section_keeps_last_valid_plan",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_reload_section_keeps_last_valid_plan asserts the retained ReloadPlanSectionRetainsLastValidAggregate scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadWarnsForIncompletePlanRoot",
       "line": 100,
-      "destination": "tests/domain/index.rs::index_original_incomplete_plan_warning",
+      "destination": "tests/domain.rs::index::index_original_incomplete_plan_warning",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_incomplete_plan_warning asserts the retained LoadWarnsForIncompletePlanRoot scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadRecoversInterruptedPlanTree",
       "line": 119,
-      "destination": "tests/domain/index.rs::index_original_load_recovers_interrupted_plan_tree",
+      "destination": "tests/domain.rs::index::index_original_load_recovers_interrupted_plan_tree",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_load_recovers_interrupted_plan_tree asserts the retained LoadRecoversInterruptedPlanTree scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestReloadRecoversInterruptedPlanTree",
       "line": 142,
-      "destination": "tests/domain/index.rs::index_original_reload_recovers_interrupted_plan_tree",
+      "destination": "tests/domain.rs::index::index_original_reload_recovers_interrupted_plan_tree",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_reload_recovers_interrupted_plan_tree asserts the retained ReloadRecoversInterruptedPlanTree scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadWarnings",
       "line": 179,
-      "destination": "tests/domain/index.rs::index_original_load_warnings",
+      "destination": "tests/domain.rs::index::index_original_load_warnings",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_load_warnings asserts the retained LoadWarnings scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLoadBasics",
       "line": 206,
-      "destination": "tests/domain/index.rs::index_original_load_basics",
+      "destination": "tests/domain.rs::index::index_original_load_basics",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_load_basics asserts the retained LoadBasics scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestHandoffsAreIndexedSearchableAndArchivedOptIn",
       "line": 238,
-      "destination": "tests/domain/query.rs::query_original_handoffs_archived_opt_in",
+      "destination": "tests/domain.rs::query::query_original_handoffs_archived_opt_in",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_handoffs_archived_opt_in asserts the retained HandoffsAreIndexedSearchableAndArchivedOptIn scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestLookup",
       "line": 276,
-      "destination": "tests/domain/index.rs::index_original_lookup",
+      "destination": "tests/domain.rs::index::index_original_lookup",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_lookup asserts the retained Lookup scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestBacklinks",
       "line": 296,
-      "destination": "tests/domain/index.rs::index_original_backlinks",
+      "destination": "tests/domain.rs::index::index_original_backlinks",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::index_original_backlinks asserts the retained Backlinks scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/index_test.go",
       "test": "TestReloadFlipsReady",
       "line": 310,
-      "destination": "tests/domain/query.rs::query_original_reload_flips_ready",
+      "destination": "tests/domain.rs::query::query_original_reload_flips_ready",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_reload_flips_ready asserts the retained ReloadFlipsReady scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/plan_execution_test.go",
       "test": "TestPlanExecutionClassifiesBindingsDeterministically",
       "line": 10,
-      "destination": "tests/domain/query.rs::query_original_plan_execution_classifies_bindings_deterministically",
+      "destination": "tests/domain.rs::query::query_original_plan_execution_classifies_bindings_deterministically",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_plan_execution_classifies_bindings_deterministically asserts the retained PlanExecutionClassifiesBindingsDeterministically scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestPlanSearchBodyIncludesSectionBodies",
       "line": 14,
-      "destination": "tests/domain/query.rs::query_original_plan_section_search",
+      "destination": "tests/domain.rs::query::query_original_plan_section_search",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_plan_section_search asserts the retained PlanSearchBodyIncludesSectionBodies scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestReadyExcludesBlocked",
       "line": 21,
-      "destination": "tests/domain/query.rs::query_original_ready_excludes_blocked",
+      "destination": "tests/domain.rs::query::query_original_ready_excludes_blocked",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_ready_excludes_blocked asserts the retained ReadyExcludesBlocked scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestReadyExcludesEpicWithChildren",
       "line": 33,
-      "destination": "tests/domain/query.rs::query_original_ready_excludes_epic_with_children",
+      "destination": "tests/domain.rs::query::query_original_ready_excludes_epic_with_children",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_ready_excludes_epic_with_children asserts the retained ReadyExcludesEpicWithChildren scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestChildrenAcrossProjects",
       "line": 42,
-      "destination": "tests/domain/query.rs::query_original_children_across_projects",
+      "destination": "tests/domain.rs::query::query_original_children_across_projects",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_children_across_projects asserts the retained ChildrenAcrossProjects scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestParents",
       "line": 53,
-      "destination": "tests/domain/query.rs::query_original_parents",
+      "destination": "tests/domain.rs::query::query_original_parents",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_parents asserts the retained Parents scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestBlockers",
       "line": 61,
-      "destination": "tests/domain/query.rs::query_original_blockers",
+      "destination": "tests/domain.rs::query::query_original_blockers",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_blockers asserts the retained Blockers scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestBlocked",
       "line": 76,
-      "destination": "tests/domain/query.rs::query_original_blocked",
+      "destination": "tests/domain.rs::query::query_original_blocked",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_blocked asserts the retained Blocked scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestGraphCrossProjectEdge",
       "line": 93,
-      "destination": "tests/domain/query.rs::query_original_graph_cross_project_edge",
+      "destination": "tests/domain.rs::query::query_original_graph_cross_project_edge",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_graph_cross_project_edge asserts the retained GraphCrossProjectEdge scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestCyclesEmptyOnFixture",
       "line": 116,
-      "destination": "tests/domain/query.rs::query_original_cycles_empty_on_fixture",
+      "destination": "tests/domain.rs::query::query_original_cycles_empty_on_fixture",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_cycles_empty_on_fixture asserts the retained CyclesEmptyOnFixture scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestCyclesDetectsCrossProjectCycle",
       "line": 124,
-      "destination": "tests/domain/query.rs::query_original_cycles_detects_cross_project_cycle",
+      "destination": "tests/domain.rs::query::query_original_cycles_detects_cross_project_cycle",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_cycles_detects_cross_project_cycle asserts the retained CyclesDetectsCrossProjectCycle scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/query_test.go",
       "test": "TestSearchParity",
       "line": 157,
-      "destination": "tests/domain/query.rs::query_original_search_parity",
+      "destination": "tests/domain.rs::query::query_original_search_parity",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression query::query_original_search_parity asserts the retained SearchParity scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/remote_test.go",
       "test": "TestNormalizeRemoteURL",
       "line": 8,
-      "destination": "tests/domain/remote.rs::remote_validation_normalization_host_and_second_pass_match_fixed_go",
+      "destination": "tests/domain.rs::remote::remote_validation_normalization_host_and_second_pass_match_committed_contract",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression remote::remote_validation_normalization_host_and_second_pass_match_committed_contract asserts the retained NormalizeRemoteURL scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/remote_test.go",
       "test": "TestNormalizeRemoteURLIdempotent",
       "line": 116,
-      "destination": "tests/domain/remote.rs::original_remote_transport_equivalence_and_idempotence",
+      "destination": "tests/domain.rs::remote::original_remote_transport_equivalence_and_idempotence",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression remote::original_remote_transport_equivalence_and_idempotence asserts the retained NormalizeRemoteURLIdempotent scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveBasenameMatch",
       "line": 48,
-      "destination": "tests/domain/resolve.rs::resolve_basename_match_original",
+      "destination": "tests/domain.rs::resolve::resolve_basename_match_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression resolve::resolve_basename_match_original asserts the retained ResolveBasenameMatch scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveRemoteFallback",
       "line": 61,
-      "destination": "tests/domain/resolve.rs::resolve_remote_fallback_original",
+      "destination": "tests/domain.rs::resolve::resolve_remote_fallback_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression resolve::resolve_remote_fallback_original asserts the retained ResolveRemoteFallback scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveCollisionErrors",
       "line": 71,
-      "destination": "tests/domain/resolve.rs::resolve_collision_errors_original",
+      "destination": "tests/domain.rs::resolve::resolve_collision_errors_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression resolve::resolve_collision_errors_original asserts the retained ResolveCollisionErrors scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveOutsideGit",
       "line": 81,
-      "destination": "tests/domain/resolve.rs::resolve_outside_git_original",
+      "destination": "tests/domain.rs::resolve::resolve_outside_git_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression resolve::resolve_outside_git_original asserts the retained ResolveOutsideGit scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveOverrides",
       "line": 93,
-      "destination": "tests/domain/resolve.rs::resolve_overrides_original",
+      "destination": "tests/domain.rs::resolve::resolve_overrides_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression resolve::resolve_overrides_original asserts the retained ResolveOverrides scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestResolveAutoCreateOnWriteNotRead",
       "line": 124,
-      "destination": "tests/domain/resolve.rs::resolve_auto_create_on_write_not_read_original",
+      "destination": "tests/domain.rs::resolve::resolve_auto_create_on_write_not_read_original",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression resolve::resolve_auto_create_on_write_not_read_original asserts the retained ResolveAutoCreateOnWriteNotRead scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestProjectName",
       "line": 156,
-      "destination": "tests/domain/paths.rs::project_name_matches_fixed_go_without_collapsing_hyphens",
+      "destination": "tests/domain.rs::paths::project_name_matches_committed_contract_without_collapsing_hyphens",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression paths::project_name_matches_committed_contract_without_collapsing_hyphens asserts the retained ProjectName scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/resolve_test.go",
       "test": "TestDefaultPaths",
       "line": 164,
-      "destination": "tests/domain/paths.rs::default_paths_original_regression",
+      "destination": "tests/domain.rs::paths::default_paths_original_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression paths::default_paths_original_regression asserts the retained DefaultPaths scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/review_regression_test.go",
       "test": "TestDuplicateBasenameKeepsEveryIssue",
       "line": 35,
-      "destination": "tests/domain/index.rs::duplicate_basename_keeps_every_issue_original_regression",
+      "destination": "tests/domain.rs::index::duplicate_basename_keeps_every_issue_original_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::duplicate_basename_keeps_every_issue_original_regression asserts the retained DuplicateBasenameKeepsEveryIssue scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/review_regression_test.go",
       "test": "TestReloadBeansTOMLRefreshesWorkflow",
       "line": 81,
-      "destination": "tests/domain/index.rs::reload_project_config_refreshes_workflow_original_regression",
+      "destination": "tests/domain.rs::index::reload_project_config_refreshes_workflow_original_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::reload_project_config_refreshes_workflow_original_regression asserts the retained ReloadBeansTOMLRefreshesWorkflow scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/review_regression_test.go",
       "test": "TestReloadRejectsPathsOutsideHub",
       "line": 103,
-      "destination": "tests/domain/index.rs::reload_rejects_paths_outside_hub_original_regression",
+      "destination": "tests/domain.rs::index::reload_rejects_paths_outside_hub_original_regression",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression index::reload_rejects_paths_outside_hub_original_regression asserts the retained ReloadRejectsPathsOutsideHub scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/review_regression_test.go",
@@ -1882,7 +2199,9 @@
       "line": 113,
       "destination": "tests/native_server.rs::lifecycle::native_snapshot_reload_and_reads_are_serialized_without_recovery",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::native_snapshot_reload_and_reads_are_serialized_without_recovery asserts the retained ConcurrentReloadAndLockedReads scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/review_regression_test.go",
@@ -1890,7 +2209,9 @@
       "line": 145,
       "destination": "tests/native_server.rs::lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal asserts the retained WatchPicksUpBeansTOMLAndNewDirectoryContents scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/watch_test.go",
@@ -1898,7 +2219,9 @@
       "line": 51,
       "destination": "tests/native_server.rs::lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown asserts the retained WatchSingleWrite scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/watch_test.go",
@@ -1906,7 +2229,9 @@
       "line": 81,
       "destination": "tests/native_server.rs::lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal asserts the retained WatchDebouncesBurst scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "vault/watch_test.go",
@@ -1914,7 +2239,9 @@
       "line": 97,
       "destination": "tests/native_server.rs::lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal asserts the retained WatchedPlanRootMapsSectionAndRemovedDirectory scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     },
     {
       "source": "version/version_test.go",
@@ -1922,7 +2249,14 @@
       "line": 5,
       "destination": "tests/native_server.rs::lifecycle::native_snapshot_reload_and_reads_are_serialized_without_recovery",
       "status": "ported",
-      "retirement_rationale": null
+      "retirement_rationale": null,
+      "validation": "make verify-native",
+      "native_assertion": "Native regression lifecycle::native_snapshot_reload_and_reads_are_serialized_without_recovery asserts the retained VersionNotEmpty scenario against independent authored inputs or committed expected values; executed by the workspace test gate."
     }
-  ]
+  ],
+  "qualification": {
+    "oracle": "Committed expected values retain provenance; no executable reference client or cross-read is required.",
+    "gate": "make verify-native",
+    "proof_gate": "make verify-toolchain verify-kernel verify-codec-coupling on native Linux x86_64"
+  }
 }

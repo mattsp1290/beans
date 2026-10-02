@@ -7,7 +7,7 @@ use beans::domain::{
     workflow::{States, WorkflowFile},
 };
 use serde::Deserialize;
-use serde_json::{Value, json};
+use serde_json::Value;
 use std::{
     path::{Path, PathBuf},
     sync::atomic::{AtomicUsize, Ordering},
@@ -51,7 +51,7 @@ fn load(kind: &str, path: &Path) -> (Value, String) {
 }
 
 #[test]
-fn configuration_file_loads_match_go() {
+fn configuration_file_loads_match_committed_contract() {
     let corpus: Value =
         serde_json::from_str(include_str!("../contract/config-codec.json")).unwrap();
     let mut mismatches = Vec::new();
@@ -250,10 +250,9 @@ fn workflow(value: &Value) -> WorkflowFile {
 }
 
 #[test]
-fn configuration_output_matches_go_bytes() {
+fn configuration_output_matches_committed_contract_bytes() {
     let corpus: Value =
         serde_json::from_str(include_str!("../contract/config-codec.json")).unwrap();
-    let mut exports = Vec::new();
     let rows = corpus["encodes"].as_array().unwrap();
     assert_eq!(rows.len(), 350);
     for row in rows {
@@ -292,10 +291,6 @@ fn configuration_output_matches_go_bytes() {
         let expected: Vec<u8> = serde_json::from_value(row["output"].clone()).unwrap();
         assert_eq!(output, expected, "{}", row["name"]);
         assert_eq!(row["error"], "");
-        exports.push(json!({"name":row["name"], "kind":row["kind"], "bytes":output}));
-    }
-    if let Ok(path) = std::env::var("BN_CONFIG_CODEC_RUST_OUTPUT") {
-        std::fs::write(path, serde_json::to_vec_pretty(&exports).unwrap()).unwrap();
     }
 }
 

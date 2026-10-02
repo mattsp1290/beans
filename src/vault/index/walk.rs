@@ -5,7 +5,12 @@ impl Index {
         let root = self.hub_dir.clone();
         let info = fs::symlink_metadata(&root).map_err(|e| path_error("lstat", &root, e))?;
         if info.is_dir() {
-            self.walk_directory(b"")?;
+            if !self.recover {
+                self.snapshot_reader = Some(crate::vault::public_read::SnapshotReader::new(&root)?);
+            }
+            let result = self.walk_directory(b"");
+            self.snapshot_reader = None;
+            result?;
         }
         Ok(())
     }

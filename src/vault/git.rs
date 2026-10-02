@@ -47,12 +47,7 @@ impl GitResolver for SystemGit {
     }
     fn head_commit(&self, root: &Path) -> GitCapture {
         let value = query(root, &["rev-parse", "HEAD"]);
-        if value.value.len() == 40
-            && value
-                .value
-                .iter()
-                .all(|b| b.is_ascii_digit() || matches!(b, b'a'..=b'f'))
-        {
+        if is_full_lowercase_hex_commit(&value.value) {
             value
         } else {
             GitCapture::default()
@@ -64,6 +59,33 @@ impl GitResolver for SystemGit {
             GitCapture::default()
         } else {
             value
+        }
+    }
+}
+
+fn is_full_lowercase_hex_commit(value: &[u8]) -> bool {
+    value.len() == 40
+        && value
+            .iter()
+            .all(|b| b.is_ascii_digit() || matches!(b, b'a'..=b'f'))
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn full_lowercase_commit_rejects_malformed_and_untrimmed_values() {
+        assert!(is_full_lowercase_hex_commit(
+            b"0123456789abcdef0123456789abcdef01234567"
+        ));
+        for invalid in [
+            b"0123456789abcdef0123456789abcdef0123456".as_slice(),
+            b"0123456789abcdef0123456789abcdef012345678",
+            b"0123456789ABCDEF0123456789abcdef01234567",
+            b"0123456789abcdef0123456789abcdef0123456g",
+            b"0123456789abcdef0123456789abcdef01234567\n",
+            b"HEAD",
+        ] {
+            assert!(!is_full_lowercase_hex_commit(invalid));
         }
     }
 }

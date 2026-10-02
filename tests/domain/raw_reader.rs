@@ -18,11 +18,9 @@ fn source(c: &Value) -> Vec<u8> {
     raw
 }
 #[test]
-fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
+fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_committed_contract() {
     let corpus: Value = serde_json::from_str(include_str!("../contract/raw-reader.json")).unwrap();
     let mut failures = vec![];
-    let capture = std::env::var_os("BN_RUST_RAW_READER_OUTPUT");
-    let mut candidates = vec![];
     for (i, c) in corpus["cases"].as_array().unwrap().iter().enumerate() {
         let raw = source(c);
         let path = c["path"].as_str().unwrap();
@@ -83,9 +81,6 @@ fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
                 continue;
             }
             if let Ok(output) = result {
-                if capture.is_some() {
-                    candidates.push(json!({"Kind":c["kind"],"Path":path,"ExpectedError":expected["reread_error"],"Bytes":output.bytes}));
-                }
                 let wanted = if mode == "noop" {
                     raw.clone()
                 } else {
@@ -127,20 +122,17 @@ fn raw_yaml_reader_windows_errors_and_ignored_suffix_edits_match_fixed_go() {
             }
         }
     }
-    if let Some(path) = capture {
-        std::fs::write(path, serde_json::to_vec(&candidates).unwrap()).unwrap();
-    }
     if !failures.is_empty() {
-        std::fs::create_dir_all(".compat").unwrap();
+        std::fs::create_dir_all(".verification").unwrap();
         std::fs::write(
-            ".compat/raw-reader-failures.json",
+            ".verification/raw-reader-failures.json",
             serde_json::to_vec_pretty(&failures).unwrap(),
         )
         .unwrap();
     }
     assert!(
         failures.is_empty(),
-        "{} raw-reader mismatches; see .compat/raw-reader-failures.json",
+        "{} raw-reader mismatches; see .verification/raw-reader-failures.json",
         failures.len()
     );
 }
