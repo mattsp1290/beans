@@ -518,3 +518,6 @@ mod raw_diagnostics;
 
 #[path = "domain/plan_bytes.rs"]
 mod plan_bytes;
+
+#[path = "domain/yaml_upstream.rs"]
+mod yaml_upstream;

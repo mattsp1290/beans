@@ -1,0 +1,116 @@
+package issue
+
+import (
+	"encoding/json"
+	"gopkg.in/yaml.v3"
+	"os"
+	"reflect"
+	"sort"
+	"strings"
+	"testing"
+	"time"
+)
+
+func ycObserve(c ycCase) map[string]any {
+	input := ycInput(c)
+	var model any
+	var out []byte
+	var e error
+	var pe error
+	switch c.Kind {
+	case "issue":
+		var d *Issue
+		d, e = Parse(c.Path, input)
+		pe = e
+		if e == nil {
+			model = ycModel(d)
+			out, e = Encode(d)
+			if c.Edit {
+				d.Status = "in_progress"
+				out, e = Encode(d)
+				if e == nil {
+					d, e = Parse(c.Path, out)
+					pe = e
+					if e == nil {
+						model = ycModel(d)
+					}
+				}
+			}
+		}
+	case "request":
+		var d *Request
+		d, e = ParseRequest(c.Path, input)
+		pe = e
+		if e == nil {
+			model = ycModel(d)
+			out, e = EncodeRequest(d)
+		}
+	case "memory":
+		var d *Memory
+		d, e = ParseMemory(c.Path, input)
+		pe = e
+		if e == nil {
+			model = ycModel(d)
+			out, e = EncodeMemory(d)
+		}
+	case "handoff":
+		var d *Handoff
+		d, e = ParseHandoff(c.Path, input)
+		pe = e
+		if e == nil {
+			model = ycModel(d)
+			out, e = EncodeHandoff(d)
+		}
+	case "workflow":
+		var d workflowFile
+		d, e = decodeWorkflowFile(c.Path, input)
+		pe = e
+		if e == nil {
+			model = ycWorkflow(d.Workflow)
+		}
+	default:
+		panic(c.Kind)
+	}
+	return ycResult(model, out, pe, e)
+}
+
+func TestMigrationYAMLCensus(t *testing.T) {
+	rows := map[string]any{}
+	for _, c := range ycReadCases(t) {
+		if c.Kind == "manifest" || c.Kind == "graph" {
+			continue
+		}
+		r := ycObserve(c)
+		if c.Edit {
+			initial := c
+			initial.Edit = false
+			r["initial_read"] = ycObserve(initial)
+		}
+		if out, ok := r["noop"].([]int); ok {
+			c.Input = out
+			c.Edit = false
+			r["reread"] = ycObserve(c)
+		} else {
+			r["reread"] = nil
+		}
+		rows[c.ID] = r
+	}
+	ycSave(t, rows)
+}
+
+func ycWorkflow(w WorkflowFile) any {
+	m := ycValue(reflect.ValueOf(w)).(map[string]any)
+	if w.Transitions != nil {
+		keys := []string{}
+		for k := range w.Transitions {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		a := []any{}
+		for _, k := range keys {
+			a = append(a, map[string]any{"key": ycBytes(k), "value": ycValue(reflect.ValueOf(w.Transitions[k]))})
+		}
+		m["transitions"] = a
+	}
+	return m
+}
