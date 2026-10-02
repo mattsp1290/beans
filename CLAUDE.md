@@ -69,3 +69,7 @@ product and runs actual `make verify` on native Linux x86_64. Permanent Verus,
 property/model and production coupling controls have separate stated limits in
 `docs/verification.md`. Dependency checks use locked Cargo metadata; format and
 Clippy cover all workspace targets.
+
+CLI flags, JSON/exit behavior and browser/shell integration are documented in
+[docs/cli.md](docs/cli.md); HTTP, rendering and filesystem boundaries are in
+[docs/server.md](docs/server.md). Check those references before writing wrappers.

@@ -38,16 +38,17 @@ No package registry release is currently published.
 ## Quick start
 
 ```bash
-bn init git@github.com:you/beans-hub.git    # clone (or initialize) the hub
+bn init git@github.com:you/beans-hub.git       # clone the hub repository
 cd ~/git/myapp                               # the project is the repository you are in
-bn create "Fix the login redirect" -p 1 -l bug
+issue=$(bn create "Fix the login redirect" -p 1 -l bug)
 bn ready                                     # issues with no open blockers
-bn update myapp-a3f2 --claim
-bn close myapp-a3f2 -r "shipped in 4c1d2e"
+bn update "$issue" --claim
+bn close "$issue" -r "shipped in 4c1d2e"
 bn plan init "Add authentication" --output ./auth-plan
 bn plan validate ./auth-plan
 bn plan put ./auth-plan
-bn serve --open                              # the board and wiki in a browser
+bn serve --host 127.0.0.1 --port 3000          # leave this running in its terminal
+# Open http://127.0.0.1:3000 in your browser; use a second terminal for bn prime.
 bn prime                                     # the rules, for agents
 ```
 
@@ -73,6 +74,8 @@ bn prime                                     # the rules, for agents
         ├── plans/<id>-<slug>/plan.md
         └── templates/<type>.md
 ```
+
+The complete [CLI command/flag reference](docs/cli.md) covers output, exit codes and shell/browser integration; the [server reference](docs/server.md) covers HTTP, rendering and filesystem security.
 
 The file format is specified in [`docs/format.md`](docs/format.md); `bn`
 preserves every key, comment, and line it does not own, so hand edits in

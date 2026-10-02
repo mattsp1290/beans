@@ -91,3 +91,7 @@ blockers. See `docs/beans.toml.example`.
 --dirty`, falling back to `dev` outside Git. `VERSION=...` overrides make builds;
 direct Cargo builds accept `BN_VERSION=...`. `build.rs` embeds the version and
 UI bytes. `bn --version` prints it. See `docs/release.md`.
+
+CLI flags, JSON/exit behavior and browser/shell integration are documented in
+[docs/cli.md](docs/cli.md); HTTP, rendering and filesystem boundaries are in
+[docs/server.md](docs/server.md). Check those references before writing wrappers.
