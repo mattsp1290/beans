@@ -314,3 +314,19 @@ fn remove_evidence(hub: &Path, evidence: &Path) -> Result<(), Error> {
         .ok_or_else(|| Error::new("temporary recovery metadata disappeared".into()))?;
     unlink(&owners, &cstr(parts[0])?)
 }
+
+/// Remove one explicitly selected record through the same no-follow boundary.
+/// This never traverses or recursively deletes a directory.
+pub fn remove_hub_file(hub: &Path, relative: &Path) -> Result<(), Error> {
+    let parts = components(relative)?;
+    let mut parent = root(hub)?;
+    for part in &parts[..parts.len() - 1] {
+        match child(&parent, part, false)? {
+            Some(next) => parent = next,
+            None => return Ok(()),
+        }
+    }
+    let name = parts.last().unwrap();
+    reject_symlink(&parent, name)?;
+    unlink(&parent, &cstr(name)?)
+}

@@ -204,6 +204,11 @@ pub fn load(root: &str) -> Result<Bundle, Error> {
     load_path(Path::new(root))
 }
 pub fn load_path(path: &Path) -> Result<Bundle, Error> {
+    let snapshot = capture_snapshot(path)?;
+    load_snapshot_bytes(path.as_os_str().as_bytes(), &snapshot)
+}
+/// Capture validated bundle bytes without normalizing authored manifest text.
+pub fn capture_snapshot(path: &Path) -> Result<BundleSnapshot, Error> {
     let root = path.as_os_str().as_bytes();
     let metadata = fs::symlink_metadata(path).map_err(|e| path_error("lstat", path, e))?;
     if !metadata.is_dir() || metadata.file_type().is_symlink() {
@@ -211,7 +216,8 @@ pub fn load_path(path: &Path) -> Result<Bundle, Error> {
     }
     let mut snapshot = BundleSnapshot::default();
     capture(path, path, &mut snapshot, &mut 0)?;
-    load_snapshot_bytes(root, &snapshot)
+    load_snapshot_bytes(root, &snapshot)?;
+    Ok(snapshot)
 }
 
 pub fn write_scaffold(

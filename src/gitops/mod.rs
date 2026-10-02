@@ -6,4 +6,4 @@ pub use file::write_file;
 mod hub;
 pub use hub::{Hub, MutationResult, Operation};
 mod hub_file;
-pub use hub_file::{PreparedHubWrite, check_hub_write_path, write_hub_file};
+pub use hub_file::{PreparedHubWrite, check_hub_write_path, remove_hub_file, write_hub_file};

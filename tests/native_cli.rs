@@ -538,9 +538,9 @@ fn unchanged_close_update_and_identical_notes_have_distinct_invocation_semantics
         assert!(!s.cli(&args).status.success());
     }
     assert_eq!(git(&hub, &["rev-parse", "HEAD"]), head);
-    s.ok(&["close", id]);
+    s.ok(&["close", id, "-r", "completed"]);
     let head = git(&hub, &["rev-parse", "HEAD"]);
-    s.ok(&["close", id]);
+    s.ok(&["close", id, "-r", "completed"]);
     assert_eq!(git(&hub, &["rev-parse", "HEAD"]), head);
 }
 #[test]
@@ -1159,3 +1159,5 @@ fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
         1
     );
 }
+#[path = "native/commands.rs"]
+mod retained_commands;

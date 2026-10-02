@@ -3,8 +3,8 @@
 mod bundle;
 mod parse;
 pub use bundle::{
-    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, load, load_path, load_snapshot, load_snapshot_bytes,
-    valid_section_path, write_scaffold, write_scaffold_path,
+    MAX_BUNDLE_SIZE, MAX_FILE_SIZE, capture_snapshot, load, load_path, load_snapshot,
+    load_snapshot_bytes, valid_section_path, write_scaffold, write_scaffold_path,
 };
 mod reference;
 pub use reference::set_node_ref;
@@ -14,7 +14,7 @@ pub use scaffold::scaffold;
 mod timestamp;
 pub use parse::{parse, parse_bytes};
 mod encode;
-pub use encode::encode;
+pub use encode::{encode, revise_manifest};
 mod graph;
 pub mod id;
 mod summary;

@@ -59,6 +59,26 @@ impl Hub {
         }
         Ok(Lock(file))
     }
+    /// Clear derived cache entries under the lock, retaining its inode and recovery evidence.
+    pub fn clear_cache(&self) -> Result<(), Error> {
+        let _lock = self.lock()?;
+        for entry in fs::read_dir(&self.cache).map_err(io_error)? {
+            let entry = entry.map_err(io_error)?;
+            if matches!(
+                entry.file_name().to_str(),
+                Some("hub.lock" | "op-journal.json")
+            ) {
+                continue;
+            }
+            let kind = entry.file_type().map_err(io_error)?;
+            if kind.is_dir() {
+                fs::remove_dir_all(entry.path()).map_err(io_error)?;
+            } else {
+                fs::remove_file(entry.path()).map_err(io_error)?;
+            }
+        }
+        Ok(())
+    }
     pub fn git(&self, args: &[&str]) -> Result<String, Error> {
         let out = Command::new("git")
             .arg("-C")

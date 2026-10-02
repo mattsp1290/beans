@@ -104,3 +104,22 @@ pub fn encode(plan: Option<&Plan>) -> Result<Vec<u8>, Error> {
     }
     Ok(output.into_bytes())
 }
+
+/// Edit revision/body while retaining unrelated manifest spelling and comments.
+pub fn revise_manifest(source: &[u8], plan: &Plan) -> Result<Vec<u8>, Error> {
+    let document = crate::domain::frontmatter::Frontmatter::parse_bytes("plan.md", source)?;
+    let comment = document
+        .fields()
+        .iter()
+        .find(|f| f.key == "updated")
+        .map(|f| document.scalar_comment(f))
+        .unwrap_or_default();
+    let field = format!("updated: {}{}\n", timestamp(&plan.updated), comment);
+    Ok(document
+        .splice_owned(
+            &["updated"],
+            &[("updated", Some(field.as_bytes()))],
+            plan.body.as_bytes(),
+        )?
+        .bytes)
+}

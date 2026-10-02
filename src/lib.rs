@@ -9,6 +9,10 @@ pub mod vault;
 
 /// Native command dispatch for the first CLI slice.
 pub fn run() -> std::process::ExitCode {
+    if std::env::args_os().len() == 1 {
+        println!("{}", cli::command().render_long_help());
+        return std::process::ExitCode::SUCCESS;
+    }
     match cli::execute(cli::command().get_matches()) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(error) => {

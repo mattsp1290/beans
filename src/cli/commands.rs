@@ -2,11 +2,10 @@ use super::Actor;
 use crate::{
     domain::{config::load_user_config, frontmatter::Error},
     gitops::Hub,
-    ops::{IssueChange, IssueMutation},
-    vault::{Index, LoadOptions, NoteData, ResolveOptions, paths, resolve},
+    vault::paths,
 };
 use clap::{Arg, ArgAction, Command};
-use std::{ffi::OsStr, io::Write, path::PathBuf};
+use std::ffi::OsStr;
 fn value(m: &clap::ArgMatches, name: &str) -> String {
     m.get_one::<String>(name).cloned().unwrap_or_default()
 }
@@ -14,63 +13,62 @@ fn arg(name: &'static str) -> Arg {
     Arg::new(name).long(name).num_args(1)
 }
 pub fn command() -> Command {
-    Command::new("bn")
+    let root = Command::new("bn")
         .version(env!("CARGO_PKG_VERSION"))
-        .arg(arg("hub").global(true))
-        .arg(arg("project").global(true))
-        .arg(arg("actor").global(true))
+        .about("Git-backed issue tracker and wiki")
+        .arg_required_else_help(true);
+    let root = root
         .arg(arg("branch").global(true))
+        .disable_version_flag(true)
         .arg(
-            Arg::new("no-sync")
-                .long("no-sync")
-                .global(true)
-                .action(ArgAction::SetTrue),
-        )
-        .arg(
-            Arg::new("json")
-                .long("json")
-                .global(true)
-                .action(ArgAction::SetTrue),
-        )
-        .subcommand_required(true)
-        .arg_required_else_help(true)
-        .subcommand(Command::new("init").arg(Arg::new("remote").required(true)))
-        .subcommand(
-            Command::new("create")
-                .arg(Arg::new("title").required(true))
-                .arg(arg("type").short('t').default_value("task"))
-                .arg(
-                    arg("priority")
-                        .short('p')
-                        .value_parser(clap::value_parser!(i64))
-                        .default_value("2"),
-                )
-                .arg(arg("description").short('d')),
-        )
-        .subcommand(Command::new("ready"))
-        .subcommand(Command::new("list").arg(arg("status")))
-        .subcommand(Command::new("show").arg(Arg::new("id").required(true)))
-        .subcommand(
-            Command::new("update")
-                .arg(Arg::new("id").required(true))
-                .arg(Arg::new("claim").long("claim").action(ArgAction::SetTrue))
-                .arg(arg("title"))
-                .arg(arg("status"))
-                .arg(arg("assignee"))
-                .arg(arg("priority").value_parser(clap::value_parser!(i64))),
-        )
-        .subcommand(
-            Command::new("note")
-                .arg(Arg::new("id").required(true))
-                .arg(Arg::new("text").required(true)),
-        )
-        .subcommand(
-            Command::new("close")
-                .arg(Arg::new("id").required(true))
-                .arg(arg("reason").short('r').default_value("completed")),
-        )
-        .subcommand(Command::new("status"))
-        .subcommand(Command::new("sync"))
+            Arg::new("version")
+                .long("version")
+                .short('v')
+                .action(ArgAction::Version),
+        );
+    let root = root.arg(
+        Arg::new("actor")
+            .long("actor")
+            .global(true)
+            .help("audit actor (overrides $BN_ACTOR)")
+            .num_args(1),
+    );
+    let root = root.arg(
+        Arg::new("hub")
+            .long("hub")
+            .global(true)
+            .help("hub clone directory (overrides $BEANS_HUB)")
+            .num_args(1),
+    );
+    let root = root.arg(
+        Arg::new("json")
+            .long("json")
+            .global(true)
+            .help("machine-readable JSON output")
+            .action(ArgAction::SetTrue),
+    );
+    let root = root.arg(
+        Arg::new("no-fetch")
+            .long("no-fetch")
+            .global(true)
+            .help("reads: skip the throttled fetch")
+            .action(ArgAction::SetTrue),
+    );
+    let root = root.arg(
+        Arg::new("no-sync")
+            .long("no-sync")
+            .global(true)
+            .help("mutations: commit locally without fetching or pushing")
+            .action(ArgAction::SetTrue),
+    );
+    let root = root.arg(
+        Arg::new("project")
+            .long("project")
+            .global(true)
+            .help("project name (overrides $BEANS_PROJECT and git auto-detection)")
+            .num_args(1),
+    );
+    root.subcommands(super::schema::commands())
 }
 pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
     let paths = paths::default_paths(OsStr::new(&value(&m, "hub")))?;
@@ -142,136 +140,40 @@ pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
         let user = toml::to_string(&user).map_err(|e| Error::new(e.to_string()))?;
         hub.initialize(&value(sub, "remote"))?;
         crate::gitops::write_file(&paths.config, user.as_bytes())?;
-        println!("Initialized {}", hub.dir.display());
+        if m.get_flag("json") {
+            println!(
+                "{}",
+                serde_json::json!({"hub":hub.dir,"remote":value(sub,"remote"),"branch":hub.branch,"config":paths.config})
+            );
+        } else {
+            println!("Initialized {}", hub.dir.display());
+        }
+        return Ok(());
+    }
+    if name == "prime" {
+        print!("{}", include_str!("../../docs/prime.md"));
+        return Ok(());
+    }
+    if name == "man" {
+        print!("{}", super::manual::render());
         return Ok(());
     }
     paths::check_hub(&paths)?;
     if name == "sync" {
         hub.sync()?;
-        println!("Synced");
+        if m.get_flag("json") {
+            println!(
+                "{}",
+                serde_json::json!({"synced":true,"status":hub.status()?})
+            );
+        } else {
+            println!("Synced");
+        }
         return Ok(());
     }
     if name == "status" {
         println!("{}", hub.status()?);
         return Ok(());
     }
-    let write = matches!(name, "create" | "update" | "note" | "close");
-    if !write
-        && !hub.no_sync
-        && let Err(e) = hub.refresh()
-    {
-        eprintln!("bn: using local hub: {e}");
-    }
-    let resolved = resolve(
-        &paths.hub,
-        ResolveOptions {
-            flag_project: value(&m, "project").as_bytes(),
-            write,
-            ..ResolveOptions::default()
-        },
-    )?;
-    let explicit = std::env::var_os("BN_CONFIG")
-        .filter(|v| !v.is_empty())
-        .map(PathBuf::from);
-    if write {
-        let change = match name {
-            "create" => IssueChange::Create {
-                title: value(sub, "title"),
-                kind: value(sub, "type"),
-                priority: *sub.get_one::<i64>("priority").unwrap(),
-                description: sub.get_one::<String>("description").cloned(),
-            },
-            "update" => IssueChange::Update {
-                claim: sub.get_flag("claim"),
-                title: sub.get_one::<String>("title").cloned(),
-                status: sub.get_one::<String>("status").cloned(),
-                assignee: sub.get_one::<String>("assignee").cloned(),
-                priority: sub.get_one::<i64>("priority").copied(),
-            },
-            "note" => IssueChange::Note(value(sub, "text")),
-            "close" => IssueChange::Close(value(sub, "reason")),
-            _ => unreachable!(),
-        };
-        let mut op = IssueMutation::new(
-            resolved,
-            if name == "create" {
-                String::new()
-            } else {
-                value(sub, "id")
-            },
-            change,
-            actor,
-            explicit,
-        );
-        let result = hub.mutate(&mut op)?;
-        if m.get_flag("json") {
-            println!(
-                "{}",
-                serde_json::json!({"id": op.id, "sha": result.sha, "pushed": result.pushed, "message": result.message})
-            );
-        } else {
-            println!("{}", op.id);
-            if !result.message.is_empty() {
-                eprintln!("bn: {}", result.message);
-            }
-        }
-        return Ok(());
-    }
-    let index = Index::load_snapshot(
-        &paths.hub,
-        LoadOptions {
-            explicit_workflow: explicit,
-        },
-    )?;
-    if name == "show" {
-        let (_, note) = index.resolve_issue_ref(value(sub, "id").as_bytes());
-        let note = note
-            .ok_or_else(|| Error::new("issue not found (check malformed hub documents)".into()))?;
-        if let NoteData::Issue(issue) = &note.data {
-            if m.get_flag("json") {
-                println!(
-                    "{}",
-                    serde_json::to_string(&issue.metadata)
-                        .map_err(|e| Error::new(e.to_string()))?
-                );
-            } else {
-                std::io::stdout()
-                    .write_all(&note.source)
-                    .map_err(|e| Error::new(e.to_string()))?;
-            }
-        }
-    } else {
-        let notes = if name == "ready" {
-            index.ready(&resolved.project, false)
-        } else {
-            index.project_issues(&resolved.project, false)
-        };
-        let status = if name == "list" {
-            value(sub, "status")
-        } else {
-            String::new()
-        };
-        let issues: Vec<_> = notes
-            .iter()
-            .filter_map(|note| {
-                if let NoteData::Issue(issue) = &note.data {
-                    Some(&issue.metadata)
-                } else {
-                    None
-                }
-            })
-            .filter(|issue| status.is_empty() || issue.status == status)
-            .collect();
-        if m.get_flag("json") {
-            println!(
-                "{}",
-                serde_json::to_string(&issues).map_err(|e| Error::new(e.to_string()))?
-            );
-        } else {
-            for issue in issues {
-                println!("{}\t{}\t{}", issue.id, issue.status, issue.title);
-            }
-        }
-    }
-    Ok(())
+    super::dispatch::execute(&m, &hub, &actor)
 }

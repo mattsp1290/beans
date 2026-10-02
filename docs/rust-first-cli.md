@@ -3,7 +3,7 @@
 The Rust `bn` binary now dispatches `init`, `create`, `ready`, `list`, `show`,
 `update --claim`, `note`, `close`, `status`, and `sync` directly. It invokes
 system Git for repository effects; it does not invoke the Go binary or Python.
-Other command families and server/distribution wiring remain later slices.
+The retained command families are now implemented; see [rust-native-cli.md](rust-native-cli.md) for the complete command/flag inventory. Server/distribution wiring remains a later slice.
 
 Hub, project, actor, and workflow overrides use the existing Beans environment
 and configuration vocabulary. `--branch` overrides the hub branch; otherwise
