@@ -263,8 +263,12 @@ impl Index {
     }
     pub(super) fn load_plan(&mut self, project: &[u8], rel: &[u8]) {
         let full = self.hub_dir.join(path(rel));
-        let result = crate::gitops::recover_plan_temp(&full.join("plan.md"))
-            .and_then(|_| plan::load_path(&full));
+        let result = if self.recover {
+            crate::gitops::recover_plan_temp(&full.join("plan.md"))
+        } else {
+            Ok(())
+        }
+        .and_then(|_| plan::load_path(&full));
         let mut bundle = match result {
             Ok(b) => b,
             Err(e) => {

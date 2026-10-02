@@ -149,184 +149,184 @@
       "source": "gitops/hub_test.go",
       "test": "TestCloneEmptyRemoteInitializesAndMutateSucceeds",
       "line": 13,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::native_first_cli_journey_second_clone_sees_closed_full_history",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestCloneNonEmptyRemoteReadsDefaultBranch",
       "line": 39,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::native_branch_discovery_config_unknowns_and_overrides_survive_init",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestRaceRetriesOnceAndKeepsBothOperations",
       "line": 52,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::native_issue_note_replay_keeps_both_writers_and_frozen_primary_log",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestConflictInReplayIsIdempotent",
       "line": 83,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::push_conflict_replays_owned_head_without_duplicating_notes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestOfflinePushLeavesLocalCommitAndSyncPushes",
       "line": 116,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestThrottleFetchesOncePerWindow",
       "line": 144,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::fetch_throttle_keeps_locked_reads_nonblocking_and_local_view_available",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestHandEditIsCommittedBeforeOperation",
       "line": 164,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestHandEditPlusRaceKeepsHandEdit",
       "line": 180,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::successful_rebase_and_dropped_operation_are_rederived_without_duplication",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestConflictingOperationWithHandEditExits3WithoutReset",
       "line": 219,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::conflict_preserves_unowned_history_even_with_matching_subject",
+      "status": "ported",
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestRetryExhaustionExits3AndKeepsCommit",
       "line": 257,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::repeated_races_exhaust_three_pushes_and_preserve_last_commit",
+      "status": "ported",
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestPartialWriteRecovery",
       "line": 281,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestSameCloneReadDoesNotMergeWhileWriteHoldsLock",
       "line": 312,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::failed_create_retains_partial_scaffolding_and_locked_cli_reads_local_snapshot",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestInterruptedRebaseExits3UntilAborted",
       "line": 364,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch",
+      "status": "ported",
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestOwnedTempsAreDeletedAndUserTempsSurvive",
       "line": 401,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestDetachedHeadErrorsWithoutCommit",
       "line": 431,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestLockTimeoutExits4",
       "line": 451,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch",
+      "status": "ported",
+      "retirement_rationale": "Intentional CLI compatibility break: busy shared flock fails promptly instead of waiting 30 seconds; native test verifies no apply or fetch occurs."
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestNoSyncCommitsLocallyOnly",
       "line": 471,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestSyncConflictAbortsRebaseAndExits3",
       "line": 486,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::sync_conflict_aborts_without_discarding_local_commit",
+      "status": "ported",
+      "retirement_rationale": "Intentional presentation compatibility break: native failures use unsuccessful process exit without preserving Go numeric exit code 3; preserved files/history and conflict abort are covered."
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestHandEditSurvivesDroppedOperationCommit",
       "line": 526,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::successful_rebase_and_dropped_operation_are_rederived_without_duplication",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestStrandedCommitIsPushedByNextIdempotentMutate",
       "line": 578,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::next_idempotent_mutation_pushes_stranded_commits_with_no_new_log",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestNoSyncApplyErrorLeavesCleanTree",
       "line": 613,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
-      "retirement_rationale": null
+      "destination": "tests/native_cli.rs::partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers",
+      "status": "ported",
+      "retirement_rationale": "Intentional strengthened recovery contract: failed Apply retains partial files and op-journal.json instead of destructive reset/clean; native test verifies sync recovers those writes and history."
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestSubjectCollisionCannotDiscardHandEdit",
       "line": 646,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::conflict_preserves_unowned_history_even_with_matching_subject",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "gitops/hub_test.go",
       "test": "TestOperationCommitCarriesNonceAndSurvivesRebaseDiscardCheck",
       "line": 702,
-      "destination": "tests/git_pipeline.rs",
-      "status": "pending",
+      "destination": "tests/native_cli.rs::stranded_previous_nonce_never_authorizes_discard_in_new_invocation",
+      "status": "ported",
       "retirement_rationale": null
     },
     {

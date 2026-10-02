@@ -12,7 +12,7 @@ impl Index {
     fn walk_directory(&mut self, rel: &[u8]) -> Result<(), Error> {
         let full = self.hub_dir.join(path(rel));
         if !rel.is_empty() {
-            if is_plans_directory(rel) {
+            if self.recover && is_plans_directory(rel) {
                 crate::gitops::recover_trees(&full).map_err(|e| {
                     e.context(&[b"vault: recover plan trees in ".as_slice(), rel].concat())
                 })?;

@@ -42,6 +42,7 @@ pub struct Index {
     pub graph: NoteGraph,
     pub explicit_workflow: Option<PathBuf>,
     hub_toml: Vec<u8>,
+    recover: bool,
     order: Vec<Note>,
     by_path: BTreeMap<Vec<u8>, usize>,
 }
@@ -62,7 +63,15 @@ impl Index {
     pub fn load(hub: &Path) -> Result<Self, Error> {
         Self::load_with_options(hub, LoadOptions::default())
     }
+    /// Load a read-only view: never clean temporary files or recover plan trees.
+    /// Suitable when a concurrent writer holds the shared hub lock.
+    pub fn load_snapshot(hub: &Path, options: LoadOptions) -> Result<Self, Error> {
+        Self::load_internal(hub, options, false)
+    }
     pub fn load_with_options(hub: &Path, options: LoadOptions) -> Result<Self, Error> {
+        Self::load_internal(hub, options, true)
+    }
+    fn load_internal(hub: &Path, options: LoadOptions, recover: bool) -> Result<Self, Error> {
         let raw = hub.as_os_str().as_bytes();
         let absolute = if raw.starts_with(b"/") {
             clean(raw)
@@ -137,6 +146,7 @@ impl Index {
             graph: NoteGraph::default(),
             explicit_workflow: options.explicit_workflow,
             hub_toml,
+            recover,
             order: Vec::new(),
             by_path: BTreeMap::new(),
         };
