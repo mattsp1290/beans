@@ -288,3 +288,58 @@ fn status_replay_records_latest_transition_and_adjacent_note_without_forging_old
         32
     );
 }
+
+#[test]
+fn status_reports_read_only_resolved_identity_and_explicit_project_precedence() {
+    let s = Sandbox::new();
+    let remote = s.remote(true);
+    s.ok(&["init", remote.to_str().unwrap()]);
+    let initial: serde_json::Value = serde_json::from_str(&s.ok(&["--json", "status"])).unwrap();
+    assert!(initial.get("project").is_none());
+    assert!(
+        initial["resolution"]
+            .as_str()
+            .unwrap()
+            .contains("does not exist")
+    );
+    assert!(!s.path("home/hub/projects/demo").exists());
+    s.ok(&["project", "create", "demo"]);
+    s.ok(&["project", "create", "other"]);
+    let head = git(&s.path("home/hub"), &["rev-parse", "HEAD"]);
+    let synchronized: serde_json::Value = serde_json::from_str(&s.ok(&["--json", "sync"])).unwrap();
+    assert_eq!(synchronized["synced"], true);
+    assert_eq!(synchronized["status"]["ahead"], 0);
+    assert_eq!(synchronized["status"]["behind"], 0);
+    for (args, expected) in [
+        (vec!["--json", "status"], "demo"),
+        (vec!["--json", "--project", "other", "status"], "other"),
+    ] {
+        let status: serde_json::Value = serde_json::from_str(&s.ok(&args)).unwrap();
+        assert_eq!(status["project"], expected);
+        assert_eq!(status["resolution"], "resolved");
+        assert_eq!(
+            Path::new(status["project_dir"].as_str().unwrap()),
+            s.path(&format!("home/hub/projects/{expected}"))
+        );
+    }
+    let unscoped = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .args(["--json", "status"])
+        .env("BEANS_HOME", s.path("home"))
+        .env_remove("BEANS_PROJECT")
+        .env_remove("BEANS_HUB")
+        .env_remove("BN_CONFIG")
+        .current_dir(&s.0)
+        .output()
+        .unwrap();
+    assert!(unscoped.status.success());
+    let unscoped: serde_json::Value = serde_json::from_slice(&unscoped.stdout).unwrap();
+    assert!(unscoped.get("project").is_none());
+    assert!(
+        unscoped["resolution"]
+            .as_str()
+            .unwrap()
+            .contains("not inside a git repository")
+    );
+    assert_eq!(git(&s.path("home/hub"), &["rev-parse", "HEAD"]), head);
+    assert!(git(&s.path("home/hub"), &["status", "--porcelain"]).is_empty());
+}

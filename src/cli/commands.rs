@@ -189,7 +189,29 @@ pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
         return Ok(());
     }
     if name == "status" {
-        println!("{}", hub.status()?);
+        let mut status = hub.status()?;
+        match crate::vault::resolve(
+            &hub.dir,
+            crate::vault::ResolveOptions {
+                flag_project: value(&m, "project").as_bytes(),
+                ..Default::default()
+            },
+        ) {
+            Ok(resolved) => {
+                status["project"] = String::from_utf8_lossy(&resolved.project)
+                    .into_owned()
+                    .into();
+                status["project_dir"] = resolved.project_dir.to_string_lossy().into_owned().into();
+                status["resolution"] = if resolved.project.is_empty() {
+                    "none"
+                } else {
+                    "resolved"
+                }
+                .into();
+            }
+            Err(error) => status["resolution"] = error.to_string().into(),
+        }
+        println!("{status}");
         return Ok(());
     }
     super::dispatch::execute(&m, &hub, &actor)

@@ -107,7 +107,7 @@ impl Drop for Scratch {
 }
 fn setup(root: &Path, files: &Value) {
     for f in files.as_array().into_iter().flatten() {
-        // Go's setup uses filepath.Join; the production load keeps the raw root.
+        // The fixture setup joins paths; the production load keeps the raw root.
         let relative = bytes(&f["Path"]);
         let mut full = root.to_path_buf();
         for part in relative.split(|&b| b == b'/') {

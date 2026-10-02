@@ -67,6 +67,14 @@ class Tests(unittest.TestCase):
             handoff.write_text("# Handoff\n\nmissing map\n")
             with self.assertRaises(helper.ContractError): helper.contract(bundle, graph)
 
+    def test_native_yaml_rejects_malformed_tags_before_contract_actions(self):
+        for raw in ("active_users: !!bool surely\n", "key: !!unknown value\n",
+                    "key: !<tag:yaml.org,2002:unknown> value\n", "key: !!str [one]\n"):
+            with self.assertRaises(helper.ContractError):
+                helper.restricted_yaml(raw)
+        self.assertEqual(helper.restricted_yaml("active_users: !!bool False\n"),
+                         {"active_users": False})
+
     def test_application_context_boolean_enum_matrix(self):
         flags = ("appropriate", "not-appropriate", "decide-per-pr", "not-applicable")
         for active in (False, True):

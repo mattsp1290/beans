@@ -152,7 +152,7 @@ fn canonical_diagnostic_bytes_and_write_effects_match_committed_contract() {
         let expected: Vec<u8> = serde_json::from_value(case["Error"].clone()).unwrap();
         if bytes != expected {
             mismatches.push(format!(
-                "case{i} {action}/{kind} {:?}: actual {:?}, Go {:?}",
+                "case{i} {action}/{kind} {:?}: actual {:?}, fixture {:?}",
                 name,
                 String::from_utf8_lossy(&bytes),
                 String::from_utf8_lossy(&expected)

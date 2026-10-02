@@ -1,5 +1,5 @@
 //! Bounded decision exploration, not a Git/OS model. Both clients perform the
-//! same idempotent operation. Git outcomes are injected; WP4 tests real effects.
+//! same idempotent operation. Git outcomes are injected; native CLI tests exercise real effects.
 use beans::kernel::retry::{
     AttemptBudget, RetryAction, RetryFacts, decide_retry, take_push_attempt,
 };

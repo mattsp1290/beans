@@ -237,7 +237,7 @@ fn typed_disk_parse_warning_paths_preserve_all_native_filename_octets() {
         std::fs::create_dir_all(full.parent().unwrap()).unwrap();
         std::fs::write(&full, &data).unwrap();
         let ix = beans::vault::Index::load(&root).unwrap();
-        assert_eq!(case["Error"], json!([]), "case{i} Go load error");
+        assert_eq!(case["Error"], json!([]), "case{i} fixture load error");
         let warnings: Vec<_> = ix
             .graph
             .warnings()

@@ -60,6 +60,7 @@ clean:
 
 skill-test:
 	python3 -S .agents/skills/bn-plan-loop/evals/run_tests.py
+	python3 -S .agents/skills/bn-build/evals/run_tests.py
 
 verify-native:
 	python3 -S tools/verification/native.py
