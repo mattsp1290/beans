@@ -327,7 +327,7 @@ impl Operation for IssueMutation {
                 let link = canonical_link(&index, target)?;
                 if kind == "parent" || kind == "parent-child" {
                     if *remove {
-                        if document.metadata.parent.target == link.target {
+                        if same_issue(&index, &document.metadata.parent.target, &link.target) {
                             document.metadata.parent = Default::default();
                         }
                     } else {
@@ -338,12 +338,12 @@ impl Operation for IssueMutation {
                         document
                             .metadata
                             .blocked_by
-                            .retain(|l| l.target != link.target);
+                            .retain(|l| !same_issue(&index, &l.target, &link.target));
                     } else if !document
                         .metadata
                         .blocked_by
                         .iter()
-                        .any(|l| l.target == link.target)
+                        .any(|l| same_issue(&index, &l.target, &link.target))
                     {
                         document.metadata.blocked_by.push(link);
                     }
@@ -463,7 +463,7 @@ impl IssueFields {
                 .metadata
                 .blocked_by
                 .iter()
-                .any(|l| l.target == link.target)
+                .any(|l| same_issue(index, &l.target, &link.target))
             {
                 doc.metadata.blocked_by.push(link);
             }
@@ -536,4 +536,15 @@ fn validate_relationships(doc: &IssueDocument, index: &Index) -> Result<(), Erro
             .unwrap_or_default();
     }
     Ok(())
+}
+
+fn same_issue(index: &Index, a: &str, b: &str) -> bool {
+    a == b
+        || match (
+            index.resolve_issue_ref(a.as_bytes()).1,
+            index.resolve_issue_ref(b.as_bytes()).1,
+        ) {
+            (Some(a), Some(b)) => a.graph.id == b.graph.id,
+            _ => false,
+        }
 }

@@ -589,80 +589,80 @@
       "source": "internal/server/server_test.go",
       "test": "TestHandoffWikiRenderingAndArchivedSearch",
       "line": 31,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::markdown::real_http_handoff_wiki_archived_search_and_markdown_embeds",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestReadsAndMutations",
       "line": 141,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_mutations_share_cli_files_and_git_history",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestPlanReadEndpointsAreGetOnly",
       "line": 209,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_request_relationships_plan_details_and_read_only_routes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestDocsGraphSearchAssetsAndSPA",
       "line": 225,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_docs_graph_search_assets_spa_and_head_security",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestRequestReadAPIAndRelationships",
       "line": 277,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_request_relationships_plan_details_and_read_only_routes",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestEventsStreamReload",
       "line": 312,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestProjectNameIsValidatedAndCycleIs409NotValidation",
       "line": 331,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_dependency_parent_child_cycle_validation_and_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestAssetWithSpaceInName",
       "line": 350,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_docs_graph_search_assets_spa_and_head_security",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestSSEHeartbeatReapsClosedClient",
       "line": 368,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "internal/server/server_test.go",
       "test": "TestParentChildDepsOverAPI",
       "line": 397,
-      "destination": "tests/server.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::api::real_http_dependency_parent_child_cycle_validation_and_errors",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1476,8 +1476,8 @@
       "source": "markdown/render_test.go",
       "test": "TestHeadingsTOC",
       "line": 85,
-      "destination": "tests/markdown.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::markdown::native_markdown_semantic_features_escaping_aliases_and_toc",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1500,8 +1500,8 @@
       "source": "markdown/render_test.go",
       "test": "TestNoEmbedsRendersEmbedAsLink",
       "line": 153,
-      "destination": "tests/markdown.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::markdown::native_markdown_semantic_features_escaping_aliases_and_toc",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
@@ -1880,48 +1880,48 @@
       "source": "vault/review_regression_test.go",
       "test": "TestConcurrentReloadAndLockedReads",
       "line": 113,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::native_snapshot_reload_and_reads_are_serialized_without_recovery",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/review_regression_test.go",
       "test": "TestWatchPicksUpBeansTOMLAndNewDirectoryContents",
       "line": 145,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/watch_test.go",
       "test": "TestWatchSingleWrite",
       "line": 51,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::real_http_external_watcher_sse_reconnect_heartbeat_and_shutdown",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/watch_test.go",
       "test": "TestWatchDebouncesBurst",
       "line": 81,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "vault/watch_test.go",
       "test": "TestWatchedPlanRootMapsSectionAndRemovedDirectory",
       "line": 97,
-      "destination": "tests/vault.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::native_watcher_config_new_directory_burst_plan_updates_and_removal",
+      "status": "ported",
       "retirement_rationale": null
     },
     {
       "source": "version/version_test.go",
       "test": "TestVersionNotEmpty",
       "line": 5,
-      "destination": "tests/cli.rs",
-      "status": "pending",
+      "destination": "tests/native_server.rs::lifecycle::native_snapshot_reload_and_reads_are_serialized_without_recovery",
+      "status": "ported",
       "retirement_rationale": null
     }
   ]

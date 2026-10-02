@@ -256,7 +256,12 @@ impl Index {
             return;
         };
         let full = self.hub_dir.join(path(rel));
-        match read(&full).and_then(|bytes| Note::parse(kind, project, rel, &bytes)) {
+        let bytes = if self.recover {
+            read(&full)
+        } else {
+            crate::vault::public_read::read_snapshot_file(&self.hub_dir, &path(rel))
+        };
+        match bytes.and_then(|bytes| Note::parse(kind, project, rel, &bytes)) {
             Ok(note) => self.order.push(note),
             Err(e) => self.warning(rel, e),
         }

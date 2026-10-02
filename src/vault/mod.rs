@@ -32,3 +32,6 @@ pub use remote::{NO_REMOTE, normalize_remote_url, remote_host, validate_remote_u
 pub use resolve::{OUTSIDE_REPO, ResolveOptions, Resolved, project_dirs, resolve};
 mod project_files;
 pub use project_files::create_project_files;
+
+mod public_read;
+pub use public_read::{read_public_file, valid_public_path};

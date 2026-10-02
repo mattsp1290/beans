@@ -5,6 +5,7 @@ pub mod domain;
 pub mod gitops;
 pub mod markdown;
 pub mod ops;
+pub mod server;
 pub mod vault;
 
 /// Native command dispatch.

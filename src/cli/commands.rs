@@ -14,7 +14,7 @@ fn arg(name: &'static str) -> Arg {
 }
 pub fn command() -> Command {
     let root = Command::new("bn")
-        .version(env!("CARGO_PKG_VERSION"))
+        .version(env!("BN_VERSION"))
         .about("Git-backed issue tracker and wiki")
         .arg_required_else_help(true);
     let root = root
@@ -168,6 +168,14 @@ pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
         return Ok(());
     }
     paths::check_hub(&paths)?;
+    if name == "serve" {
+        return crate::server::run(
+            hub,
+            value(&m, "project"),
+            &value(sub, "host"),
+            &value(sub, "port"),
+        );
+    }
     if name == "sync" {
         hub.sync()?;
         if m.get_flag("json") {
