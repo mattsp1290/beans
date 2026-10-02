@@ -37,7 +37,7 @@ actual bn-change-graph fences. The deterministic envelope contains real required
 fields, fixed timestamps, and a complete manifest summary. There are 9,205
 original observations including the first anchored issue edit/readback demo.
 These cases and their expectations remain byte-for-byte unchanged. Supplemental
-regressions and deterministic status/description edits bring the report to 12,534
+regressions and deterministic status/description edits bring the report to 12,546
 observations. Every issue projection gets both edits, including honest initial
 parse failures. The edit artifacts separate initial model/no-op, encoded edit
 bytes, encode errors and full production reread. Each successfully parsed edit
@@ -57,7 +57,8 @@ null semantics, tag and anchor/alias spelling. Alias targets remain references
 rather than expanded trees; no cycle is traversed. Styles/comments not exposed
 by Rust node models are covered by exact retained/no-op input bytes, rather than
 an invented upstream node-observation conformance requirement. The report also
-retains 88 immutable-Go manifest normalization outcomes (encoded no-op bytes
+follows the user-approved scope revision 2 policy and retains 88 immutable-Go
+manifest normalization outcomes (encoded no-op bytes
 differ from the input); these remain exact Go/Rust parity cases, not claims of
 byte-identical manifest encoding. All successful untouched note outputs and
 initial issue edit controls retain byte-identical input.

@@ -180,11 +180,14 @@ fn parse_optional_inner(
                 None
             };
             if let Some((line, message)) = diagnostic {
-                let location = if line > 0 {
-                    format!("line {line}: ")
-                } else {
-                    String::new()
-                };
+                // Scanner diagnostics omit the first physical line. The
+                // document-start parser mark is already zero-based.
+                let location =
+                    if line > 1 || (info == "did not find expected <document start>" && line > 0) {
+                        format!("line {line}: ")
+                    } else {
+                        String::new()
+                    };
                 return Error::new(format!("{path}: frontmatter: yaml: {location}{message}"));
             }
             if let Some(syntax) = syntax {
@@ -657,15 +660,20 @@ fn adapt_flow_indentation(text: &str) -> String {
 
 // The Rust scanner reports where a required simple key expired. yaml.v3
 // reports the opening key mark, before trailing comments or flow contents.
-// The scanner withholds that candidate token until its colon is known. Thus
-// the first non-comment line after the last emitted token opens the key.
+// The candidate token is withheld until its colon is known. On a dedent,
+// however, BlockEnd can already be emitted at that candidate's opening mark;
+// search that same line rather than skipping to the following mapping key.
 fn missing_colon_line(text: &str, fallback: usize) -> usize {
-    let last_line = Scanner::new(text.chars())
-        .last()
-        .map_or(0, |token| token.0.line());
+    let last = Scanner::new(text.chars()).last();
+    let search_line = last.map_or(0, |token| {
+        token
+            .0
+            .line()
+            .saturating_sub(usize::from(token.1 == TokenType::BlockEnd))
+    });
     text.lines()
         .enumerate()
-        .skip(last_line)
+        .skip(search_line)
         .find(|(_, line)| {
             let content = line.trim();
             !content.is_empty() && !content.starts_with('#')

@@ -176,6 +176,8 @@ def run(corpus_path, report_path):
                         original_stages=dict(original_stages), supplemental_read_stages=dict(supplemental_stages),
                         supplemental_edits=len(edits)),
         historical_normalized_noops=dict(count=len(normalized_noops), ids=normalized_noops),
+        scope_revision=2,
+        noop_policy="User-approved scope revision 2: byte-identical notes; immutable-Go canonical plan manifests with all 88 original normalizations reported",
         mismatches=len(failures),
         by_domain=dict(collections.Counter(by_id[f["id"]]["Kind"] for f in failures)),
         failures=failures,

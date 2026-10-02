@@ -303,7 +303,7 @@ fn yaml_upstream_shrunk_scanner_reader_and_edit_regressions_match_immutable_go()
             count += 1;
         }
     }
-    assert_eq!(count, 25);
+    assert_eq!(count, 37);
     let invalid = corpus["cases"]
         .as_array()
         .unwrap()

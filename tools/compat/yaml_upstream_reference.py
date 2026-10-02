@@ -150,6 +150,14 @@ def cases(census):
             HEADS["issue"].replace(b"title: Title\n", b"") + STAMP + b"title: " + payload + b"\n"))
     add("regression/document-start-diagnostic", "issue", "raw-frontmatter",
         envelope("issue", b"%YAML 1.1\nplain\n"))
+    for name, payload in [
+        ("required-flow-sequence-key-mark", b"a:\n  b: c\n[broken, x]\nnext: value\n"),
+        ("required-flow-mapping-key-mark", b"a:\n  b: c\n{broken, x}\nnext: value\n"),
+        ("first-line-mapping-diagnostic", b"a: b: c\n"),
+    ]:
+        for kind in ["issue", "workflow"]:
+            raw = envelope(kind, payload) if kind == "issue" else payload
+            add("regression/" + name, kind, "raw-document", raw)
     add("regression/empty-graph-fence", "graph", "raw-fence", b"```bn-change-graph\n```\n")
     add("regression/raw-graph-invalid-utf8", "graph", "raw-fence",
         b"```bn-change-graph\nversion: \xff\n```\n")
