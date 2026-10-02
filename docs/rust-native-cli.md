@@ -134,7 +134,14 @@ unless forced. Issue links validate the entire requested batch before writing.
 Handoff `--file -` reads stdin and preserves every final newline. Handoff IDs and
 `--older-than` are alternative archive selectors, and `--all-projects` requires
 an age selector. Active continuation discovery excludes archived notes by default.
-Docs use project/hub `templates/doc.md` when present and refuse overwrite.
+Archive batches validate every explicit ID before writes, and age selection is
+recomputed from the locked snapshot on every transaction retry. Handoff archive
+uses one commit for the selected batch; JSON dry runs return `dry_run`, `count`,
+and `ids`, including an empty array when nothing qualifies.
+Docs use project/hub `templates/doc.md` when present and refuse overwrite. Doc
+listing includes global docs with the selected project's docs; without a project,
+it lists all docs. `--global` selects only global docs. Project linking appends
+only the remote value and preserves authored TOML comments, keys, and tables.
 
 Plan init/get require a new `--output` directory. Put captures a validated complete
 bundle before Git effects, checks optimistic `updated` revisions and immutable

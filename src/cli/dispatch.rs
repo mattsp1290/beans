@@ -182,6 +182,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
     };
     let allow_unscoped = global
         || matches!(name, "project" | "doctor" | "cache" | "memories")
+        || name == "doc" && matches!(action, "list" | "backlinks")
         || flag(leaf, "all-projects");
     let lookup = |key: &str| {
         if global && key == "BEANS_PROJECT" {

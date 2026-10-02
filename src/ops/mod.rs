@@ -18,7 +18,10 @@ pub(crate) fn scaffold_paths(
             .collect(),
     )
 }
+mod archive;
 mod content;
+mod project_config;
+pub use archive::{ArchiveMutation, ArchiveSelection};
 pub use content::{ContentChange, ContentMutation};
 mod plans;
 pub use plans::{PlanChange, PlanMutation};

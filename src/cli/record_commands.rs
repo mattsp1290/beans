@@ -2,7 +2,7 @@ use super::dispatch::*;
 use crate::{
     domain::frontmatter::Error,
     gitops::Hub,
-    ops::{RecordChange, RecordMutation, RequestEdit},
+    ops::{ArchiveMutation, ArchiveSelection, RecordChange, RecordMutation, RequestEdit},
     vault::{Index, LoadOptions, NoteData, NoteKind, RequestFilter, Resolved},
 };
 use clap::ArgMatches;
@@ -55,7 +55,7 @@ pub fn execute(
         }
         let age = value(s, "older-than");
         if !age.is_empty() {
-            let cutoff = crate::ops::records::now().seconds - super::read_commands::duration(&age)?;
+            let cutoff = super::read_commands::cutoff(&age)?;
             notes.retain(
                 |n| matches!(&n.data,NoteData::Handoff(d) if d.metadata.updated.seconds<cutoff),
             );
@@ -91,6 +91,64 @@ pub fn execute(
             return output(&note_json(n));
         }
         print!("{}", String::from_utf8_lossy(&n.source));
+        return Ok(());
+    }
+    if family == "handoff" && action == "archive" {
+        let references = values(s, "id");
+        let age = value(s, "older-than");
+        if !references.is_empty() && !age.is_empty() {
+            return Err(Error::new(
+                "pass handoff IDs or --older-than, not both".into(),
+            ));
+        }
+        if flag(s, "all-projects") && age.is_empty() {
+            return Err(Error::new("--all-projects requires --older-than".into()));
+        }
+        let cutoff = if age.is_empty() {
+            None
+        } else {
+            Some(super::read_commands::cutoff(&age)?)
+        };
+        let project = if flag(s, "all-projects") {
+            Vec::new()
+        } else {
+            resolved.project.clone()
+        };
+        let mut op = ArchiveMutation::new(
+            ArchiveSelection::Handoffs {
+                project,
+                references,
+                cutoff,
+            },
+            explicit,
+        );
+        if flag(s, "dry-run") {
+            let ids: Vec<_> = op
+                .select(&ix)?
+                .iter()
+                .filter_map(|n| n.graph.id.as_ref())
+                .map(|id| String::from_utf8_lossy(id).into_owned())
+                .collect();
+            if json {
+                return output(&serde_json::json!({"dry_run":true,"count":ids.len(),"ids":ids}));
+            }
+            for id in ids {
+                println!("{id}");
+            }
+            return Ok(());
+        }
+        let result = hub.mutate(&mut op)?;
+        if json {
+            return output(
+                &serde_json::json!({"id":op.ids.first().map(String::as_str).unwrap_or("archive"),"ids":op.ids,"commit":result.sha,"sha":result.sha,"pushed":result.pushed,"message":result.message}),
+            );
+        }
+        for id in op.ids {
+            println!("{id}");
+        }
+        if !result.message.is_empty() {
+            eprintln!("bn: {}", result.message);
+        }
         return Ok(());
     }
     let change = if family == "request" {
@@ -138,57 +196,18 @@ pub fn execute(
             }
             "attach" => RecordChange::HandoffAttach(Some(value(s, "issue-id"))),
             "detach" => RecordChange::HandoffAttach(None),
-            "archive" => RecordChange::HandoffArchive(true),
             "restore" => RecordChange::HandoffArchive(false),
             _ => return Err(Error::new("unknown handoff action".into())),
         }
     };
-    if action == "archive" {
-        if !values(s, "id").is_empty() && !value(s, "older-than").is_empty() {
-            return Err(Error::new(
-                "pass handoff IDs or --older-than, not both".into(),
-            ));
-        }
-        if flag(s, "all-projects") && value(s, "older-than").is_empty() {
-            return Err(Error::new("--all-projects requires --older-than".into()));
-        }
-    }
-    let mut ids = if matches!(action, "archive" | "restore") {
+    let ids = if action == "restore" {
         values(s, "id")
     } else {
         vec![reference]
     };
-    if action == "archive" && ids.is_empty() {
-        let age = value(s, "older-than");
-        if age.is_empty() {
-            return Err(Error::new("archive requires IDs or --older-than".into()));
-        }
-        let cutoff = crate::ops::records::now().seconds - super::read_commands::duration(&age)?;
-        ids = ix
-            .project_handoffs(
-                if flag(s, "all-projects") {
-                    b""
-                } else {
-                    &resolved.project
-                },
-                false,
-            )
-            .into_iter()
-            .filter_map(|n| match &n.data {
-                NoteData::Handoff(h) if h.metadata.updated.seconds <= cutoff => {
-                    Some(h.metadata.id.clone())
-                }
-                _ => None,
-            })
-            .collect();
-    }
     for id in ids {
-        if flag(s, "dry-run") {
-            println!("{id}");
-            continue;
-        }
         let mut scope = resolved.clone();
-        if matches!(action, "archive" | "restore")
+        if action == "restore"
             && let Some(n) = ix.note_by_id(kind, id.as_bytes())
         {
             scope.project = n.project.clone();

@@ -2,7 +2,7 @@ use super::dispatch::*;
 use crate::{
     domain::frontmatter::Error,
     gitops::Hub,
-    ops::{ContentChange, ContentMutation},
+    ops::{ArchiveMutation, ArchiveSelection},
     vault::{Index, NoteData, Resolved, SearchOptions},
 };
 use clap::ArgMatches;
@@ -19,6 +19,12 @@ pub fn duration(s: &str) -> Result<i64, Error> {
         _ => return Err(Error::new("invalid age; use 30d or 12h".into())),
     };
     n.checked_mul(multiplier)
+        .ok_or_else(|| Error::new("age overflow".into()))
+}
+pub fn cutoff(s: &str) -> Result<i64, Error> {
+    crate::ops::records::now()
+        .seconds
+        .checked_sub(duration(s)?)
         .ok_or_else(|| Error::new("age overflow".into()))
 }
 pub fn execute(
@@ -263,7 +269,9 @@ pub fn execute(
                         && (if flag(s, "global") {
                             n.project.is_empty()
                         } else {
-                            n.project == resolved.project
+                            resolved.project.is_empty()
+                                || n.project.is_empty()
+                                || n.project == resolved.project
                         })
                         && (dir.is_empty() || String::from_utf8_lossy(&n.graph.path).contains(&dir))
                 })
@@ -271,17 +279,18 @@ pub fn execute(
             print_notes(notes, json)
         }
         "archive" => {
-            let cutoff = crate::ops::records::now().seconds - duration(&value(m, "older-than"))?;
-            let notes:Vec<_>=ix.project_issues(project,false).into_iter().filter(|n|matches!(&n.data,NoteData::Issue(d) if ix.workflow_for(&n.project).is_terminal(d.metadata.status.as_bytes())&&d.log.last().map(|l|l.at.seconds).unwrap_or(d.metadata.updated.seconds)<cutoff)).collect();
+            let mut op = ArchiveMutation::new(
+                ArchiveSelection::Issues {
+                    project: project.to_vec(),
+                    cutoff: cutoff(&value(m, "older-than"))?,
+                },
+                std::env::var_os("BN_CONFIG")
+                    .filter(|v| !v.is_empty())
+                    .map(Into::into),
+            );
             if flag(m, "dry-run") {
-                return print_notes(notes, json);
+                return print_notes(op.select(ix)?, json);
             }
-            let references = notes
-                .iter()
-                .map(|n| String::from_utf8_lossy(n.graph.id.as_ref().unwrap()).into_owned())
-                .collect();
-            let mut op =
-                ContentMutation::new(resolved.clone(), ContentChange::Archive { references });
             let result = hub.mutate(&mut op)?;
             mutation_output("archive", result, json)
         }

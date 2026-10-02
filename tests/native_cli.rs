@@ -1161,3 +1161,5 @@ fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
 }
 #[path = "native/commands.rs"]
 mod retained_commands;
+#[path = "native/review_regressions.rs"]
+mod review_regressions;

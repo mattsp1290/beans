@@ -32,9 +32,6 @@ pub enum ContentChange {
         reference: String,
         force: bool,
     },
-    Archive {
-        references: Vec<String>,
-    },
 }
 pub struct ContentMutation {
     pub resolved: Resolved,
@@ -199,18 +196,13 @@ impl Operation for ContentMutation {
                         return Err(Error::new("current repository has no origin remote".into()));
                     }
                     let p = base.join("beans.toml");
-                    let mut cfg = crate::domain::config::load_project_config(&hub.join(&p))?;
+                    let source =
+                        std::fs::read(hub.join(&p)).map_err(|e| Error::new(e.to_string()))?;
                     let remote = crate::domain::yaml_string::YamlString::from_bytes(
                         self.resolved.repo_remote.clone(),
                     );
-                    let remotes = cfg.remotes.get_or_insert_with(Vec::new);
-                    if !remotes.contains(&remote) {
-                        remotes.push(remote);
-                        write_hub_file(
-                            hub,
-                            &p,
-                            &crate::domain::config::encode_project_config(&cfg),
-                        )?;
+                    if let Some(bytes) = super::project_config::add_remote(&source, &remote)? {
+                        write_hub_file(hub, &p, &bytes)?;
                         paths.push(p);
                     }
                 }
@@ -289,49 +281,6 @@ impl Operation for ContentMutation {
                 self.id = doc.metadata.id.clone();
                 self.present = true;
                 paths.push(p);
-                return Ok(paths);
-            }
-            ContentChange::Archive { references } => {
-                let mut moves = Vec::new();
-                for reference in references {
-                    let (_, n) = ix.resolve_issue_ref(reference.as_bytes());
-                    let n = n.ok_or_else(|| Error::new("issue not found".into()))?;
-                    let NoteData::Issue(doc) = &n.data else {
-                        unreachable!()
-                    };
-                    if doc.metadata.archived {
-                        continue;
-                    }
-                    if !ix
-                        .workflow_for(&n.project)
-                        .is_terminal(doc.metadata.status.as_bytes())
-                    {
-                        return Err(Error::new("cannot archive an open issue".into()));
-                    }
-                    let from = PathBuf::from(String::from_utf8_lossy(&n.graph.path).as_ref());
-                    let year =
-                        time::OffsetDateTime::from_unix_timestamp(doc.metadata.updated.seconds)
-                            .map_err(|e| Error::new(e.to_string()))?
-                            .year();
-                    let to = PathBuf::from("projects")
-                        .join(String::from_utf8_lossy(&n.project).as_ref())
-                        .join("archive")
-                        .join(year.to_string())
-                        .join(from.file_name().unwrap());
-                    check_hub_write_path(hub, &from)?;
-                    check_hub_write_path(hub, &to)?;
-                    if hub.join(&to).exists() {
-                        return Err(Error::new("archive destination already exists".into()));
-                    }
-                    moves.push((from, to, n.source.clone()));
-                }
-                let mut paths = Vec::new();
-                for (from, to, bytes) in moves {
-                    write_hub_file(hub, &to, &bytes)?;
-                    remove_hub_file(hub, &from)?;
-                    paths.extend([from, to]);
-                }
-                self.present = true;
                 return Ok(paths);
             }
         };

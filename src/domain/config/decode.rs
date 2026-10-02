@@ -14,7 +14,7 @@ mod syntax;
 mod tree;
 use tree::{Node, line};
 
-pub(super) fn equal_field(actual: &str, expected: &str) -> bool {
+pub(crate) fn equal_field(actual: &str, expected: &str) -> bool {
     actual
         .chars()
         .map(|c| match c {
