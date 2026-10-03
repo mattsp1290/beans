@@ -1,7 +1,7 @@
 //! Finite Unix process-group boundary for every system-Git invocation.
 #[path = "ssh.rs"]
 mod ssh;
-use crate::domain::{error::ErrorCategory, frontmatter::Error};
+use crate::domain::{config::ExecutionPolicy, error::ErrorCategory, frontmatter::Error};
 use std::{
     ffi::{OsStr, OsString},
     io::Read,
@@ -14,25 +14,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-#[derive(Clone, Debug)]
-pub struct ExecutionPolicy {
-    pub lock_timeout: Duration,
-    pub command_timeout: Duration,
-    pub network_timeout: Duration,
-    pub cleanup_timeout: Duration,
-    pub diagnostics: bool,
-}
-impl Default for ExecutionPolicy {
-    fn default() -> Self {
-        Self {
-            lock_timeout: Duration::from_secs(30),
-            command_timeout: Duration::from_secs(30),
-            network_timeout: Duration::from_secs(60),
-            cleanup_timeout: Duration::from_secs(10),
-            diagnostics: false,
-        }
-    }
-}
 #[derive(Debug)]
 pub struct GitOutput {
     pub stdout: Vec<u8>,

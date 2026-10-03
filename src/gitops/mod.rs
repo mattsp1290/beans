@@ -10,6 +10,7 @@ pub use hub_file::{PreparedHubWrite, check_hub_write_path, remove_hub_file, writ
 
 mod runner;
 mod state;
-pub use runner::{ExecutionPolicy, GitExecutor, GitOutput};
+pub use crate::domain::config::ExecutionPolicy;
+pub use runner::{GitExecutor, GitOutput};
 pub mod diagnostics;
 mod push;

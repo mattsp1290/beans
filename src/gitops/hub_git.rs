@@ -1,5 +1,6 @@
 use super::{Hub, io_error};
 use crate::domain::{error::ErrorCategory, frontmatter::Error};
+use crate::gitops::push::{PushFailure, PushOutcome};
 use beans_kernel::retry::{AttemptBudget, take_push_attempt};
 use std::fs;
 impl Hub {
@@ -28,23 +29,22 @@ impl Hub {
                     .categorized(ErrorCategory::GitFailure)
             })
     }
-    pub(super) fn push(&self) -> Result<(), (bool, Error)> {
+    pub(super) fn push(&self) -> Result<(), PushFailure> {
         let args = [
             "push",
             "--porcelain",
             "origin",
             &format!("HEAD:refs/heads/{}", self.branch),
         ];
-        let out = self.raw_git(args, "push").map_err(|e| (false, e))?;
+        let out = self.raw_git(args, "push").map_err(PushFailure::Failed)?;
         let outcome = crate::gitops::push::classify_push(&out, &self.branch);
-        if outcome == crate::gitops::push::PushOutcome::Published {
-            return Ok(());
+        match outcome {
+            PushOutcome::Published => Ok(()),
+            PushOutcome::Contention => {
+                Err(PushFailure::Contention(out.checked("push").unwrap_err()))
+            }
+            PushOutcome::Failed => Err(PushFailure::Failed(out.checked("push").unwrap_err())),
         }
-        let error = out.checked("push").unwrap_err();
-        Err((
-            outcome == crate::gitops::push::PushOutcome::Contention,
-            error,
-        ))
     }
     pub(super) fn worktree_clean(&self) -> Result<bool, Error> {
         Ok(self

@@ -1,4 +1,5 @@
 //! Shared native Git transaction boundary. Failed effects are retained for sync.
+use super::push::PushFailure;
 use crate::domain::{error::ErrorCategory, frontmatter::Error};
 use beans_kernel::retry::{
     AttemptBudget, RetryAction, RetryFacts, decide_retry, take_push_attempt,
@@ -143,10 +144,10 @@ impl Hub {
                     result.pushed = true;
                     return Ok(result);
                 }
-                Err((rejected, e)) => {
-                    if !rejected {
-                        return Err(e.context(format!("change committed locally as {}; publication failed; remote outcome may be unknown; run bn sync", result.sha).as_bytes()));
-                    }
+                Err(PushFailure::Failed(e)) => {
+                    return Err(e.context(format!("change committed locally as {}; publication failed; remote outcome may be unknown; run bn sync", result.sha).as_bytes()));
+                }
+                Err(PushFailure::Contention(_cause)) => {
                     if decide_retry(RetryFacts {
                         operation_present: false,
                         head_is_operation: false,
@@ -241,10 +242,10 @@ impl Hub {
                     self.clear_journal()?;
                     return Ok(());
                 }
-                Err((false, e)) => {
+                Err(PushFailure::Failed(e)) => {
                     return Err(e.context(b"sync publication failed; local history preserved"));
                 }
-                Err((true, _)) => (),
+                Err(PushFailure::Contention(_cause)) => (),
             }
         }
         Err(

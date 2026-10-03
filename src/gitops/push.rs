@@ -1,5 +1,13 @@
 //! Only requested-ref porcelain records can authorize contention replay.
 use super::GitOutput;
+use crate::domain::frontmatter::Error;
+
+#[derive(Debug)]
+pub(super) enum PushFailure {
+    Contention(Error),
+    Failed(Error),
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PushOutcome {
     Published,
