@@ -14,6 +14,7 @@ hub cloned at `~/.beans/hub`; `bn serve` provides its board and wiki.
 | `src/vault/` | Hub resolution, nofollow index reads, queries and watcher |
 | `src/gitops/` | Locks, journal, Git replay and tree recovery |
 | `src/ops/` | Replay-safe mutations shared by CLI and HTTP |
+| `src/upgrade/` | Release manifest validation, curl transport and verified self-replacement behind `bn upgrade` |
 | `src/markdown/`, `src/server/` | Comrak rendering and Axum HTTP/SSE |
 | `crates/beans-kernel/` | Same-source verified retry and splice bodies |
 | `tests/`, `tools/verification/` | Native regressions, properties, models and proof controls |

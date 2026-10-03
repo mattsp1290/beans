@@ -142,7 +142,7 @@ class InstallerTests(TempCase):
         bins = os.path.join(self.releases, "download", tag)
         for t in TARGETS:
             write_file(os.path.join(bins, "bn-" + t), fake_binary(reported), 0o755)
-        place = os.path.join(self.releases, "latest" if latest else "download/" + tag, "download" if latest else "")
+        place = os.path.join(self.releases, "latest/download" if latest else "download/" + tag)
         manifest = os.path.join(place, "bn-manifest.json")
         os.makedirs(place, exist_ok=True)
         r = run_manifest("--tag", tag, "--base-url", base or self.base, "--dir", bins, "--output", manifest)

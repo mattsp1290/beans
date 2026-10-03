@@ -34,13 +34,12 @@ valid_tag() {
 # -q comes first so ~/.curlrc cannot change the output, --globoff keeps {} and
 # [] in a URL literal, and the time bound covers every retry.
 fetch() {
+  max=$1 url=$2 out=$3
+  set -- -q -fsSL --globoff --connect-timeout 10 --retry 3 --retry-max-time "$max" --max-time "$max"
   if [ "$secure" = 1 ]; then
-    curl -q -fsSL --globoff --connect-timeout 10 --retry 3 --retry-max-time "$1" \
-      --max-time "$1" --proto '=https' --proto-redir '=https' --url "$2" -o "$3"
-  else
-    curl -q -fsSL --globoff --connect-timeout 10 --retry 3 --retry-max-time "$1" \
-      --max-time "$1" --url "$2" -o "$3"
+    set -- "$@" --proto '=https' --proto-redir '=https'
   fi
+  curl "$@" --url "$url" -o "$out"
 }
 
 # field <block> <key>: print a value from the manifest in $manifest. An empty

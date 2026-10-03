@@ -137,7 +137,7 @@ The four targets are spelled out in each of these places; change them together:
 - `distribution/manifest.py` (`TARGETS`) and `distribution/tests/run_tests.py`
   (`TARGETS`, `host_target`).
 - `distribution/install.sh` (the `uname` mapping in `main`).
-- `src/cli/upgrade.rs` (`target`).
+- `src/upgrade/manifest.rs` (`target`).
 - `.github/workflows/release.yml` (the `build` and `smoke` matrices and the
   `ASSETS` list in `publish`).
 - The asset table above and the platform list in `README.md`.

@@ -81,16 +81,18 @@ pub fn command() -> Command {
 }
 pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
     let (name, sub) = m.subcommand().unwrap();
-    if name == "prime" {
-        print!("{}", include_str!("../../docs/prime.md"));
-        return Ok(());
-    }
-    if name == "man" {
-        print!("{}", super::manual::render());
-        return Ok(());
-    }
-    if name == "upgrade" {
-        return super::upgrade::execute(sub, m.get_flag("json"));
+    // These commands need no hub.
+    match name {
+        "prime" => {
+            print!("{}", include_str!("../../docs/prime.md"));
+            return Ok(());
+        }
+        "man" => {
+            print!("{}", super::manual::render());
+            return Ok(());
+        }
+        "upgrade" => return super::upgrade::execute(sub, m.get_flag("json")),
+        _ => {}
     }
     let paths = paths::default_paths(OsStr::new(&value(&m, "hub")))?;
     let config = load_user_config(&paths.config)?;

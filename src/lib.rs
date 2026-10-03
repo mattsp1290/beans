@@ -6,6 +6,7 @@ pub mod gitops;
 pub mod markdown;
 pub mod ops;
 pub mod server;
+mod upgrade;
 pub mod vault;
 
 /// Native command dispatch.
