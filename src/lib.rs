@@ -17,7 +17,7 @@ pub fn run() -> std::process::ExitCode {
     match cli::execute(cli::command().get_matches()) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(error) => {
-            eprintln!("bn: {error}");
+            gitops::diagnostics::warning(b"bn: ", &error);
             std::process::ExitCode::FAILURE
         }
     }

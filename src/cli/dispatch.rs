@@ -164,11 +164,12 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
             | ("import", "bd")
     );
     if !write
+        && name != "doctor"
         && !hub.no_sync
         && !flag(root, "no-fetch")
         && let Err(e) = hub.refresh()
     {
-        eprintln!("bn: using local hub: {e}");
+        crate::gitops::diagnostics::warning(b"bn: using local hub: ", &e);
     }
     let explicit = std::env::var_os("BN_CONFIG")
         .filter(|v| !v.is_empty())
@@ -193,6 +194,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
                 .unwrap_or_default()
         }
     };
+    let git = crate::vault::PolicyGit(hub.executor.clone());
     let mut resolved = resolve(
         &hub.dir,
         ResolveOptions {
@@ -204,6 +206,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
             write: write && !(name == "import" && flag(leaf, "dry-run")),
             all_projects: allow_unscoped,
             env: Some(&lookup),
+            git: Some(&git),
             ..Default::default()
         },
     )?;

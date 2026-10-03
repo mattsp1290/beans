@@ -80,27 +80,70 @@ pub fn command() -> Command {
     root.subcommands(super::schema::commands())
 }
 pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
+    let (name, _) = m.subcommand().unwrap();
+    if name == "prime" {
+        print!("{}", include_str!("../../docs/prime.md"));
+        return Ok(());
+    }
+    if name == "man" {
+        print!("{}", super::manual::render());
+        return Ok(());
+    }
     let paths = paths::default_paths(OsStr::new(&value(&m, "hub")))?;
     let config = load_user_config(&paths.config)?;
-    let mut actor = Actor::new(value(&m, "actor").as_bytes());
-    let actor = String::from_utf8_lossy(actor.resolve(config.actor.as_bytes())).into_owned();
+    let executor = crate::gitops::GitExecutor {
+        policy: config.git.policy()?,
+    };
+    let _diagnostics = crate::gitops::diagnostics::scope(executor.policy.diagnostics, "cli");
+    crate::gitops::diagnostics::operation(executor.policy.diagnostics, "cli", || {
+        execute_configured(m, paths, config, executor)
+    })
+}
+fn execute_configured(
+    m: clap::ArgMatches,
+    paths: paths::Paths,
+    config: crate::domain::config::UserConfig,
+    executor: crate::gitops::GitExecutor,
+) -> Result<(), Error> {
     let (name, sub) = m.subcommand().unwrap();
+    let mut actor = Actor::new(value(&m, "actor").as_bytes());
+    let actor = String::from_utf8_lossy(actor.resolve_policy(config.actor.as_bytes(), &executor))
+        .into_owned();
     let branch_flag = value(&m, "branch");
     let branch = if !branch_flag.is_empty() {
         branch_flag
     } else if !config.hub.branch.is_empty() {
         config.hub.branch.to_string()
     } else {
-        let mut cmd = std::process::Command::new("git");
-        if name == "init" {
-            cmd.args(["ls-remote", "--symref", "--", &value(sub, "remote"), "HEAD"]);
+        let result = if name == "init" {
+            executor.run(
+                None,
+                ["ls-remote", "--symref", "--", &value(sub, "remote"), "HEAD"],
+                "ls-remote",
+            )
         } else {
-            cmd.arg("-C")
-                .arg(&paths.hub)
-                .args(["symbolic-ref", "refs/remotes/origin/HEAD"]);
+            executor.run(
+                Some(&paths.hub),
+                ["symbolic-ref", "refs/remotes/origin/HEAD"],
+                "symbolic-ref",
+            )
+        };
+        if name == "init"
+            && let Err(e) = &result
+        {
+            return Err(e.clone());
         }
-        cmd.env("GIT_TERMINAL_PROMPT", "0")
-            .output()
+        let result = if name == "init" {
+            result.and_then(|o| o.checked("ls-remote"))
+        } else {
+            result
+        };
+        if name == "init"
+            && let Err(e) = &result
+        {
+            return Err(e.clone());
+        }
+        result
             .ok()
             .filter(|o| o.status.success())
             .and_then(|o| {
@@ -119,14 +162,16 @@ pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
             })
             .unwrap_or_else(|| "main".into())
     };
-    let hub = Hub {
-        dir: paths.hub.clone(),
-        cache: paths.cache.clone(),
+    let mut hub = Hub::new(
+        paths.hub.clone(),
+        paths.cache.clone(),
         branch,
-        actor: actor.clone(),
-        no_sync: m.get_flag("no-sync"),
-        throttle: std::time::Duration::from_nanos(config.throttle_duration() as u64),
-    };
+        actor.clone(),
+        m.get_flag("no-sync"),
+        std::time::Duration::from_nanos(config.throttle_duration() as u64),
+    )?;
+    hub.executor = executor;
+    let resolver = crate::vault::PolicyGit(hub.executor.clone());
     if name == "init" {
         let mut user: toml::Value = match std::fs::read_to_string(&paths.config) {
             Ok(raw) => toml::from_str(&raw).map_err(|e| Error::new(e.to_string()))?,
@@ -159,12 +204,9 @@ pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
         }
         return Ok(());
     }
-    if name == "prime" {
-        print!("{}", include_str!("../../docs/prime.md"));
-        return Ok(());
-    }
-    if name == "man" {
-        print!("{}", super::manual::render());
+    if name == "cache" {
+        hub.clear_cache()?;
+        println!("{}", serde_json::json!({"cleared":true}));
         return Ok(());
     }
     paths::check_hub(&paths)?;
@@ -194,6 +236,7 @@ pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
             &hub.dir,
             crate::vault::ResolveOptions {
                 flag_project: value(&m, "project").as_bytes(),
+                git: Some(&resolver),
                 ..Default::default()
             },
         ) {

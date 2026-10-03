@@ -1,3 +1,5 @@
 fn main() -> std::process::ExitCode {
-    beans::run()
+    let code = beans::run();
+    beans::gitops::diagnostics::flush();
+    code
 }

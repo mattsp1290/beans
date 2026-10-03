@@ -220,6 +220,32 @@ pub fn decode_user_config(data: &[u8]) -> Result<UserConfig, Error> {
                     cfg.hub.branch = context.string(value)?;
                 }
             }
+        } else if equal_field(key, "git") {
+            for (key, value) in context.table(value, "UserGitConfig")? {
+                let context = context.child(key, value);
+                if equal_field(key, "diagnostics") {
+                    if let Node::Bool(b) = value.get_ref() {
+                        cfg.git.diagnostics = *b;
+                    } else {
+                        return Err(context.bad_type(value, "boolean"));
+                    }
+                } else {
+                    let field = if equal_field(key, "lock_timeout") {
+                        Some(&mut cfg.git.lock_timeout)
+                    } else if equal_field(key, "command_timeout") {
+                        Some(&mut cfg.git.command_timeout)
+                    } else if equal_field(key, "network_timeout") {
+                        Some(&mut cfg.git.network_timeout)
+                    } else if equal_field(key, "cleanup_timeout") {
+                        Some(&mut cfg.git.cleanup_timeout)
+                    } else {
+                        None
+                    };
+                    if let Some(field) = field {
+                        *field = context.string(value)?;
+                    }
+                }
+            }
         } else if equal_field(key, "fetch") {
             for (key, value) in context.table(value, "UserFetchConfig")? {
                 if equal_field(key, "throttle") {
@@ -228,6 +254,7 @@ pub fn decode_user_config(data: &[u8]) -> Result<UserConfig, Error> {
             }
         }
     }
+    cfg.git.policy()?;
     Ok(cfg)
 }
 pub fn decode_project_config(data: &[u8]) -> Result<ProjectConfig, Error> {

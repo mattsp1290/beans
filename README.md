@@ -56,8 +56,9 @@ bn prime                                     # the rules, for agents
 
 ```text
 ~/.beans/
-├── config.toml                  actor, hub.remote, hub.branch, fetch.throttle
-├── cache/                       lock, fetch timestamps, operation journal
+├── config.toml                  actor, hub.remote, hub.branch, fetch.throttle, git policy
+├── cache/                       legacy evidence only
+├── .beans-state/hub/            clone-scoped lock, stamps, operation journal
 └── hub/                         git clone; one Obsidian vault
     ├── beans.toml               [workflow] [types] [ids]
     ├── docs/                    hub-wide wiki
@@ -105,3 +106,6 @@ Decisions and their reasons are in [`docs/decisions.md`](docs/decisions.md).
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+Clone identity, process budgets, failure recovery and diagnostic timings are
+documented in [Git write coordination](docs/git-coordination.md).

@@ -407,11 +407,13 @@ fn native_memory_docs_projects_import_diagnostics_cache_and_root() {
     assert!(!doctor.status.success());
     let diagnostics: serde_json::Value = serde_json::from_slice(&doctor.stdout).unwrap();
     assert!(!diagnostics["warnings"].as_array().unwrap().is_empty());
-    let cache = s.path("home/cache");
-    fs::write(cache.join("derived"), "cache").unwrap();
+    let cache = s.path("home/.beans-state/hub");
+    fs::write(cache.join("last-fetch"), "cache").unwrap();
+    fs::write(cache.join("derived"), "preserved unknown").unwrap();
     fs::write(cache.join("op-journal.json"), "retained recovery evidence").unwrap();
     s.ok(&["cache", "clear"]);
-    assert!(!cache.join("derived").exists());
+    assert!(!cache.join("last-fetch").exists());
+    assert!(cache.join("derived").exists());
     assert_eq!(
         fs::read_to_string(cache.join("op-journal.json")).unwrap(),
         "retained recovery evidence"
@@ -619,14 +621,15 @@ fn native_alias_registry_closed_filters_and_partial_close_failure() {
     s.ok(&["reopen", &a]);
     assert_eq!(git(&s.path("home/hub"), &["rev-parse", "HEAD"]), head);
     s.ok(&["doc", "new", "demo-collision", "--global"]);
-    let hub = Hub {
-        dir: s.path("home/hub"),
-        cache: s.path("home/cache"),
-        branch: "main".into(),
-        actor: "Native Tester".into(),
-        no_sync: false,
-        throttle: Duration::ZERO,
-    };
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
     let resolved = beans::vault::Resolved {
         project: b"demo".to_vec(),
         ..Default::default()
@@ -738,14 +741,15 @@ fn native_basename_parent_cycle_alias_registry_and_second_import_fixture() {
     .unwrap();
     authored.metadata.aliases.push("demo-alias".into());
     fs::write(&path, authored.encode().unwrap().bytes).unwrap();
-    let hub = Hub {
-        dir: s.path("home/hub"),
-        cache: s.path("home/cache"),
-        branch: "main".into(),
-        actor: "Native Tester".into(),
-        no_sync: false,
-        throttle: Duration::ZERO,
-    };
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
     let mut op = beans::ops::IssueMutation::new(
         beans::vault::Resolved {
             project: b"demo".to_vec(),

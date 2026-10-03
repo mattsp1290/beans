@@ -1,6 +1,6 @@
 //! Best-effort read-only system Git queries; mutations have a separate locked boundary.
 use crate::domain::{frontmatter::Error, yaml_string::YamlString};
-use std::{path::Path, process::Command};
+use std::path::Path;
 #[derive(Default)]
 pub struct GitCapture {
     pub value: Vec<u8>,
@@ -16,18 +16,28 @@ pub trait GitResolver {
     }
 }
 pub struct SystemGit;
-fn query(root: &Path, args: &[&str]) -> GitCapture {
-    let mut cmd = Command::new("git");
-    cmd.args(args);
-    if !root.as_os_str().is_empty() {
-        cmd.current_dir(root);
-    }
-    let Ok(output) = cmd.output() else {
-        return GitCapture::default();
+pub struct PolicyGit(pub crate::gitops::GitExecutor);
+fn query(executor: &crate::gitops::GitExecutor, root: &Path, args: &[&str]) -> GitCapture {
+    let output = match executor
+        .run(
+            if root.as_os_str().is_empty() {
+                None
+            } else {
+                Some(root)
+            },
+            args,
+            args[0],
+        )
+        .and_then(|o| o.checked(args[0]))
+    {
+        Ok(output) => output,
+        Err(e) => {
+            return GitCapture {
+                error: Some(e),
+                ..Default::default()
+            };
+        }
     };
-    if !output.status.success() {
-        return GitCapture::default();
-    }
     let value = YamlString::from_bytes(output.stdout)
         .trimmed()
         .as_bytes()
@@ -40,13 +50,27 @@ fn query(root: &Path, args: &[&str]) -> GitCapture {
 }
 impl GitResolver for SystemGit {
     fn toplevel(&self, cwd: &Path) -> GitCapture {
-        query(cwd, &["rev-parse", "--show-toplevel"])
+        PolicyGit(Default::default()).toplevel(cwd)
+    }
+    fn remote_url(&self, cwd: &Path) -> GitCapture {
+        PolicyGit(Default::default()).remote_url(cwd)
+    }
+    fn head_commit(&self, cwd: &Path) -> GitCapture {
+        PolicyGit(Default::default()).head_commit(cwd)
+    }
+    fn branch(&self, cwd: &Path) -> GitCapture {
+        PolicyGit(Default::default()).branch(cwd)
+    }
+}
+impl GitResolver for PolicyGit {
+    fn toplevel(&self, cwd: &Path) -> GitCapture {
+        query(&self.0, cwd, &["rev-parse", "--show-toplevel"])
     }
     fn remote_url(&self, root: &Path) -> GitCapture {
-        query(root, &["config", "--get", "remote.origin.url"])
+        query(&self.0, root, &["config", "--get", "remote.origin.url"])
     }
     fn head_commit(&self, root: &Path) -> GitCapture {
-        let value = query(root, &["rev-parse", "HEAD"]);
+        let value = query(&self.0, root, &["rev-parse", "HEAD"]);
         if is_full_lowercase_hex_commit(&value.value) {
             value
         } else {
@@ -54,9 +78,12 @@ impl GitResolver for SystemGit {
         }
     }
     fn branch(&self, root: &Path) -> GitCapture {
-        let value = query(root, &["rev-parse", "--abbrev-ref", "HEAD"]);
+        let value = query(&self.0, root, &["rev-parse", "--abbrev-ref", "HEAD"]);
         if value.value == b"HEAD" {
-            GitCapture::default()
+            GitCapture {
+                error: value.error,
+                ..Default::default()
+            }
         } else {
             value
         }

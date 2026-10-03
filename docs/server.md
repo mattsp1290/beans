@@ -48,7 +48,7 @@ Defaults exclude terminal issues from the board; an explicit status or `archived
 | `/api/issues/:id/deps` | POST with `target` and relationship `type` |
 | `/api/issues/:id/deps/:target` | DELETE; `type` defaults to `blocks` |
 
-Issue mutations enter `IssueMutation` through `Hub::mutate`; requests and plans are read-only HTTP resources. Errors use `{"error":{"code":"...","message":"..."}}`. Validation and malformed JSON return 400, missing resources 404, read-only resource mutations 405, dependency cycles and interrupted/detached Git state 409, hub lock contention 423, and Git command/transport failures 502. Unknown mutation routes can return 404. Transport body-limit failures retain their HTTP status. Unknown API paths and absent file/asset paths never receive SPA HTML. Embedded assets use explicit MIME types and `nosniff`; HEAD preserves headers and length while omitting the response body. Extensionless application routes fall back to the embedded index page.
+Issue mutations enter `IssueMutation` through `Hub::mutate`; requests and plans are read-only HTTP resources. Errors use `{"error":{"code":"...","message":"..."}}`. Validation and malformed JSON return 400, missing resources 404, read-only resource mutations 405, dependency cycles and interrupted/detached Git state 409, hub lock wait expiration 423 (`hub_locked`), Git command/transport failures 502 (`git_error`), and Git deadlines 504 (`git_timeout`). Unknown mutation routes can return 404. Transport body-limit failures retain their HTTP status. Unknown API paths and absent file/asset paths never receive SPA HTML. Embedded assets use explicit MIME types and `nosniff`; HEAD preserves headers and length while omitting the response body. Extensionless application routes fall back to the embedded index page.
 
 ## Markdown and search
 
@@ -73,3 +73,7 @@ Server reads, watcher rebuilds and shared operation snapshots use recovery-free 
 The recursive watcher debounces filesystem bursts, rebuilds a serialized snapshot and emits named `reload` events. Git-internal and access events are ignored. SSE has event IDs, reconnectable subscriptions and 15-second heartbeats. Long-lived connections do not hold the index or hub mutation lock.
 
 Permanent native HTTP tests use actual localhost requests and real Git effects to check CLI/HTTP shared history, validation/error categories, cycles, rendering, path security, MIME/HEAD, external edits, configuration/new-directory/plan reloads, debounce, SSE heartbeat/reconnect, shutdown and startup failure. Rendering tests check attributes, heading/TOC collisions, protected literals, hashtag search and bounded embeds. These are regression assertions; the scoped kernel proofs do not prove the entire server. See [verification.md](verification.md) for proof and coupling limits.
+
+[Git write coordination](git-coordination.md) describes the lock shared with CLI
+writers and request-correlated diagnostic timings. Error categories survive
+context wrappers; runtime Git failures are not validation errors.

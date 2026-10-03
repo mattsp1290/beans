@@ -2,6 +2,8 @@
 use super::{duration::parse_duration, workflow::WorkflowFile, yaml_string::YamlString};
 use serde::{Deserialize, Serialize};
 mod decode;
+mod git_policy;
+pub use git_policy::{ExecutionPolicy, UserGitConfig};
 mod encode;
 mod toml_metadata;
 pub(crate) use decode::decode_workflow_toml;
@@ -77,6 +79,8 @@ pub struct UserConfig {
     pub actor: YamlString,
     pub hub: UserHubConfig,
     pub fetch: UserFetchConfig,
+    #[serde(skip_serializing_if = "UserGitConfig::is_default")]
+    pub git: UserGitConfig,
 }
 impl UserConfig {
     pub fn throttle_duration(&self) -> i64 {

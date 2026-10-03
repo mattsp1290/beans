@@ -83,7 +83,26 @@ async fn handle(
         Err(e) => return api::error(e.status().as_u16(), "invalid_body", &e.to_string()),
     };
     let head = method == Method::HEAD;
-    match tokio::task::spawn_blocking(move || api::handle(&app, &method, &uri, &body)).await {
+    match tokio::task::spawn_blocking(move || {
+        let _scope = crate::gitops::diagnostics::scope(app.hub.executor.policy.diagnostics, "http");
+        let at = std::time::Instant::now();
+        let response = api::handle(&app, &method, &uri, &body);
+        crate::gitops::diagnostics::emit(
+            app.hub.executor.policy.diagnostics,
+            "operation",
+            "http",
+            at.elapsed(),
+            if response.status().is_success() {
+                "success"
+            } else {
+                "failure"
+            },
+            None,
+        );
+        response
+    })
+    .await
+    {
         Ok(mut response) => {
             if head {
                 if !response.headers().contains_key("content-length")

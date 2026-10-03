@@ -249,12 +249,12 @@ fn real_http_lock_contention_and_git_conflict_are_not_validation_errors() {
     use std::os::fd::AsRawFd;
     let f = Fixture::new();
     let s = Server::new(&f);
-    fs::create_dir_all(&s.app.hub.cache).unwrap();
+    fs::create_dir_all(s.app.hub.state_path()).unwrap();
     let lock = fs::OpenOptions::new()
         .create(true)
         .truncate(false)
         .write(true)
-        .open(s.app.hub.cache.join("hub.lock"))
+        .open(s.app.hub.state_path().join("hub.lock"))
         .unwrap();
     assert_eq!(
         unsafe { libc::flock(lock.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
@@ -331,4 +331,157 @@ fn real_http_embedded_manifest_mime_head_and_missing_file_boundaries() {
     for name in ["/assets/missing.css", "/api/missing", "/api"] {
         assert_eq!(s.request("GET", name, "").0, 404);
     }
+}
+
+#[test]
+fn native_http_git_deadline_hook_failure_and_cli_lock_share_state() {
+    use std::os::{fd::AsRawFd, unix::fs::PermissionsExt};
+    let f = Fixture::new();
+    let mut hub = Hub::new(
+        f.hub.clone(),
+        f.root.join("other-home/cache"),
+        "main".into(),
+        "HTTP Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    hub.executor.policy.lock_timeout = Duration::from_millis(80);
+    hub.executor.policy.command_timeout = Duration::from_millis(150);
+    let s = Server::with_app(App::new(hub, "p".into()).unwrap());
+    let alias = f.root.join("alias");
+    std::os::unix::fs::symlink(&f.hub, &alias).unwrap();
+    let cli_hub = Hub::new(
+        alias,
+        f.root.join("cli-home/cache"),
+        "main".into(),
+        "CLI Tester".into(),
+        true,
+        Duration::ZERO,
+    )
+    .unwrap();
+    assert_eq!(cli_hub.lock_path(), s.app.hub.lock_path());
+    let lock = fs::File::create(cli_hub.lock_path()).unwrap();
+    assert_eq!(
+        unsafe { libc::flock(lock.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+        0
+    );
+    let before = git(&f.hub, &["rev-parse", "HEAD"]);
+    let (code, response) = s.json(
+        "POST",
+        "/api/issues/p-aaaa/notes",
+        json!({"text":"must wait"}),
+    );
+    assert_eq!(code, 423, "{response}");
+    assert_eq!(git(&f.hub, &["rev-parse", "HEAD"]), before);
+    drop(lock);
+    let hook = f.hub.join(".git/hooks/pre-commit");
+    fs::write(&hook, "#!/bin/sh\nsleep 10\n").unwrap();
+    fs::set_permissions(&hook, fs::Permissions::from_mode(0o755)).unwrap();
+    let at = Instant::now();
+    let (code, response) = s.json(
+        "POST",
+        "/api/issues/p-aaaa/notes",
+        json!({"text":"retained after timeout"}),
+    );
+    assert_eq!(code, 504, "{response}");
+    assert_eq!(response["error"]["code"], "git_timeout");
+    assert!(at.elapsed() < Duration::from_secs(3));
+    assert!(cli_hub.journal_path().exists());
+    assert_eq!(git(&f.hub, &["rev-parse", "HEAD"]), before);
+    fs::remove_file(hook).unwrap();
+    let reject = f.root.join("remote.git/hooks/pre-receive");
+    fs::write(
+        &reject,
+        "#!/bin/sh\necho 'hook refusal fetch first' >&2\nexit 1\n",
+    )
+    .unwrap();
+    fs::set_permissions(&reject, fs::Permissions::from_mode(0o755)).unwrap();
+    let (code, response) = s.json(
+        "POST",
+        "/api/issues/p-aaaa/notes",
+        json!({"text":"retained hook refusal"}),
+    );
+    assert_eq!(code, 502, "{response}");
+    assert_eq!(response["error"]["code"], "git_error");
+    assert!(cli_hub.journal_path().exists());
+    fs::remove_file(reject).unwrap();
+    s.app.hub.sync().unwrap();
+    assert!(!cli_hub.journal_path().exists());
+}
+
+#[test]
+fn real_cli_and_http_writers_wait_then_preserve_both_notes() {
+    use std::os::unix::fs::PermissionsExt;
+    let f = Fixture::new();
+    let mut hub = Hub::new(
+        f.hub.clone(),
+        f.root.join("http-home/cache"),
+        "main".into(),
+        "HTTP Writer".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    hub.executor.policy.lock_timeout = Duration::from_secs(2);
+    let server = Server::with_app(App::new(hub, "p".into()).unwrap());
+    let entered = f.root.join("entered");
+    let release = f.root.join("release");
+    let overlap = f.root.join("overlap");
+    let hook = f.hub.join(".git/hooks/pre-commit");
+    fs::write(&hook, format!("#!/bin/sh\nif mkdir '{}' 2>/dev/null; then\n touch '{}'\n while test ! -f '{}'; do sleep 0.01; done\nelse\n touch '{}'\nfi\n", f.root.join("barrier").display(), entered.display(), release.display(), overlap.display())).unwrap();
+    fs::set_permissions(hook, fs::Permissions::from_mode(0o755)).unwrap();
+    let alias = f.root.join("alias");
+    std::os::unix::fs::symlink(&f.hub, &alias).unwrap();
+    let mut cli = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .args(["--branch", "main", "--no-sync", "--hub"])
+        .arg(alias)
+        .args(["--project", "p", "note", "p-aaaa", "CLI concurrent note"])
+        .env("BEANS_HOME", f.root.join("cli-home"))
+        .env("BN_ACTOR", "CLI Writer")
+        .env_remove("BEANS_HUB")
+        .env_remove("BN_CONFIG")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    let at = Instant::now();
+    while !entered.exists() {
+        assert!(at.elapsed() < Duration::from_secs(5));
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    std::thread::scope(|scope| {
+        let response = scope.spawn(|| {
+            server.json(
+                "POST",
+                "/api/issues/p-aaaa/notes",
+                json!({"text":"HTTP concurrent note"}),
+            )
+        });
+        std::thread::sleep(Duration::from_millis(150));
+        assert!(!overlap.exists());
+        fs::write(release, b"release").unwrap();
+        let (code, body) = response.join().unwrap();
+        assert_eq!(code, 200, "{body}");
+    });
+    let deadline = Instant::now();
+    loop {
+        if let Some(status) = cli.try_wait().unwrap() {
+            assert!(status.success());
+            break;
+        }
+        if deadline.elapsed() > Duration::from_secs(5) {
+            cli.kill().unwrap();
+            cli.wait().unwrap();
+            panic!("CLI writer watchdog");
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    let issue = fs::read_to_string(f.hub.join("projects/p/issues/p-aaaa-first.md")).unwrap();
+    assert_eq!(issue.matches("CLI concurrent note").count(), 1);
+    assert_eq!(issue.matches("HTTP concurrent note").count(), 1);
+    assert_eq!(
+        git(&f.hub, &["rev-list", "--count", "origin/main..HEAD"]),
+        "0"
+    );
 }

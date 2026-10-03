@@ -54,14 +54,15 @@ impl Sandbox {
             &self.0,
             &["clone", remote.to_str().unwrap(), dir.to_str().unwrap()],
         );
-        Hub {
+        Hub::new(
             dir,
-            cache: self.path(&format!("{name}-cache")),
-            branch: "main".into(),
-            actor: "Native Tester".into(),
-            no_sync: false,
-            throttle: Duration::ZERO,
-        }
+            self.path(&format!("{name}-cache")),
+            "main".into(),
+            "Native Tester".into(),
+            false,
+            Duration::ZERO,
+        )
+        .unwrap()
     }
     fn cli(&self, args: &[&str]) -> Output {
         Command::new(env!("CARGO_BIN_EXE_bn"))
@@ -219,11 +220,11 @@ fn hand_edits_offline_no_sync_and_owned_temps_are_preserved_or_recovered() {
         .unwrap();
     let out = hub.mutate(&mut Append::new("offline note")).unwrap_err();
     assert!(out.to_string().contains("committed locally"));
-    assert!(hub.cache.join("op-journal.json").exists());
+    assert!(hub.state_path().join("op-journal.json").exists());
     hub.git(&["remote", "set-url", "origin", remote.to_str().unwrap()])
         .unwrap();
     hub.sync().unwrap();
-    assert!(!hub.cache.join("op-journal.json").exists());
+    assert!(!hub.state_path().join("op-journal.json").exists());
     assert!(
         hub.git(&["log", "--format=%s"])
             .unwrap()
@@ -249,7 +250,7 @@ fn partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers() {
         }
         let result = hub.mutate(&mut op);
         assert!(result.is_err(), "{failure}");
-        assert!(hub.cache.join("op-journal.json").exists());
+        assert!(hub.state_path().join("op-journal.json").exists());
         assert!(
             fs::read_to_string(hub.dir.join("data.txt"))
                 .unwrap()
@@ -258,7 +259,7 @@ fn partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers() {
         let _ = fs::remove_file(hub.dir.join(".git/index.lock"));
         let _ = fs::remove_file(hub.dir.join(".git/hooks/pre-commit"));
         hub.sync().unwrap();
-        assert!(!hub.cache.join("op-journal.json").exists());
+        assert!(!hub.state_path().join("op-journal.json").exists());
         assert!(
             hub.git(&["log", "--format=%s"])
                 .unwrap()
@@ -270,9 +271,10 @@ fn partial_apply_stage_and_commit_errors_keep_recovery_and_sync_recovers() {
 fn lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch() {
     let s = Sandbox::new();
     let remote = s.remote(true);
-    let hub = s.clone_hub(&remote, "hub");
-    fs::create_dir_all(&hub.cache).unwrap();
-    let file = fs::File::create(hub.cache.join("hub.lock")).unwrap();
+    let mut hub = s.clone_hub(&remote, "hub");
+    hub.executor.policy.lock_timeout = Duration::from_millis(80);
+    fs::create_dir_all(hub.state_path()).unwrap();
+    let file = fs::File::create(hub.state_path().join("hub.lock")).unwrap();
     assert_eq!(
         unsafe { libc::flock(file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
         0
@@ -286,7 +288,7 @@ fn lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch() {
     );
     assert_eq!(op.calls, 0);
     assert!(hub.refresh().is_err());
-    assert!(!hub.cache.join("last-fetch-attempt").exists());
+    assert!(!hub.state_path().join("last-fetch-attempt").exists());
     drop(file);
     for marker in ["rebase-merge", "rebase-apply", "MERGE_HEAD"] {
         let p = hub.dir.join(".git").join(marker);
@@ -377,7 +379,7 @@ fn conflict_preserves_unowned_history_even_with_matching_subject() {
     );
     assert!(!hub.dir.join(".git/rebase-merge").exists());
     assert_eq!(op.calls, 1);
-    assert!(hub.cache.join("op-journal.json").exists());
+    assert!(hub.state_path().join("op-journal.json").exists());
 }
 #[test]
 fn repeated_races_exhaust_three_pushes_and_preserve_last_commit() {
@@ -395,7 +397,7 @@ fn repeated_races_exhaust_three_pushes_and_preserve_last_commit() {
             .unwrap()
             .contains("retained note")
     );
-    assert!(hub.cache.join("op-journal.json").exists());
+    assert!(hub.state_path().join("op-journal.json").exists());
 }
 #[test]
 fn sync_conflict_aborts_without_discarding_local_commit() {
@@ -418,12 +420,12 @@ fn fetch_throttle_keeps_locked_reads_nonblocking_and_local_view_available() {
     let mut hub = s.clone_hub(&remote, "hub");
     hub.throttle = Duration::from_secs(3600);
     hub.refresh().unwrap();
-    let first = fs::read(hub.cache.join("last-fetch-attempt")).unwrap();
+    let first = fs::read(hub.state_path().join("last-fetch-attempt")).unwrap();
     hub.git(&["remote", "set-url", "origin", "/nonexistent/bn-test-remote"])
         .unwrap();
     hub.refresh().unwrap();
     assert_eq!(
-        fs::read(hub.cache.join("last-fetch-attempt")).unwrap(),
+        fs::read(hub.state_path().join("last-fetch-attempt")).unwrap(),
         first
     );
 }
@@ -445,7 +447,7 @@ fn malformed_docs_fail_with_recoverable_state_and_existing_bytes_untouched() {
     assert!(!out.status.success());
     assert!(String::from_utf8_lossy(&out.stderr).contains("malformed"));
     assert_eq!(fs::read(path).unwrap(), malformed);
-    assert!(s.path("home/cache/op-journal.json").exists());
+    assert!(s.path("home/.beans-state/hub/op-journal.json").exists());
 }
 #[test]
 fn successful_rebase_and_dropped_operation_are_rederived_without_duplication() {
@@ -609,7 +611,7 @@ fn failed_create_retains_partial_scaffolding_and_locked_cli_reads_local_snapshot
     fs::write(hub.join("projects/demo/issues"), "hand-written obstruction").unwrap();
     let out = s.cli(&["create", "Write must fail"]);
     assert!(!out.status.success());
-    assert!(s.path("home/cache/op-journal.json").exists());
+    assert!(s.path("home/.beans-state/hub/op-journal.json").exists());
     assert!(!hub.join("projects/demo/beans.toml").exists());
     assert_eq!(
         fs::read_to_string(hub.join("projects/demo/issues")).unwrap(),
@@ -619,7 +621,7 @@ fn failed_create_retains_partial_scaffolding_and_locked_cli_reads_local_snapshot
     s.ok(&["sync"]);
     let created: serde_json::Value =
         serde_json::from_str(&s.ok(&["--json", "create", "Read while locked"])).unwrap();
-    let file = fs::File::create(s.path("home/cache/hub.lock")).unwrap();
+    let file = fs::File::create(s.path("home/.beans-state/hub/hub.lock")).unwrap();
     assert_eq!(
         unsafe { libc::flock(file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
         0
@@ -677,14 +679,15 @@ fn native_issue_note_replay_keeps_both_writers_and_frozen_primary_log() {
     let created: serde_json::Value =
         serde_json::from_str(&s.ok(&["--json", "create", "Native race"])).unwrap();
     let id = created["id"].as_str().unwrap();
-    let hub = Hub {
-        dir: s.path("home/hub"),
-        cache: s.path("home/cache"),
-        branch: "main".into(),
-        actor: "Native Tester".into(),
-        no_sync: false,
-        throttle: Duration::ZERO,
-    };
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
     let competitor = s.clone_hub(&remote, "competitor");
     let marker = s.path("raced");
     let text = format!(
@@ -747,14 +750,15 @@ fn cross_kind_id_collision_never_overwrites_request_or_creates_issue() {
         include_str!("fixtures/hub/projects/alpha/requests/alpha-r-c3d4-contract-request.md")
             .replace("alpha", "demo");
     fs::write(&path, &request).unwrap();
-    let hub = Hub {
-        dir: dir.clone(),
-        cache: s.path("home/cache"),
-        branch: "main".into(),
-        actor: "Tester".into(),
-        no_sync: true,
-        throttle: Duration::ZERO,
-    };
+    let hub = Hub::new(
+        dir.clone(),
+        s.path("home/cache"),
+        "main".into(),
+        "Tester".into(),
+        true,
+        Duration::ZERO,
+    )
+    .unwrap();
     let resolved = beans::vault::resolve(
         &dir,
         beans::vault::ResolveOptions {
@@ -820,14 +824,15 @@ fn identical_same_second_native_notes_both_survive_dropped_patch_with_hand_edits
         let created: serde_json::Value =
             serde_json::from_str(&s.ok(&["--json", "create", "Exact identical race"])).unwrap();
         let id = created["id"].as_str().unwrap();
-        let hub = Hub {
-            dir: s.path("home/hub"),
-            cache: s.path("home/cache"),
-            branch: "main".into(),
-            actor: "Same Writer".into(),
-            no_sync: false,
-            throttle: Duration::ZERO,
-        };
+        let hub = Hub::new(
+            s.path("home/hub"),
+            s.path("home/cache"),
+            "main".into(),
+            "Same Writer".into(),
+            false,
+            Duration::ZERO,
+        )
+        .unwrap();
         let competitor = s.clone_hub(&remote, "competitor");
         let resolved = |dir: &Path| {
             beans::vault::resolve(
@@ -959,7 +964,7 @@ fn symlinked_projects_project_and_issues_fail_before_any_external_write() {
                 .file_type()
                 .is_symlink()
         );
-        assert!(s.path("home/cache/op-journal.json").exists());
+        assert!(s.path("home/.beans-state/hub/op-journal.json").exists());
     }
 }
 #[test]
@@ -1113,14 +1118,15 @@ fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
     let created: serde_json::Value =
         serde_json::from_str(&s.ok(&["--json", "create", "Surviving native rebase"])).unwrap();
     let id = created["id"].as_str().unwrap();
-    let hub = Hub {
-        dir: s.path("home/hub"),
-        cache: s.path("home/cache"),
-        branch: "main".into(),
-        actor: "Native Tester".into(),
-        no_sync: false,
-        throttle: Duration::ZERO,
-    };
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
     let competitor = s.clone_hub(&remote, "competitor");
     let resolved = beans::vault::resolve(
         &hub.dir,
@@ -1159,6 +1165,8 @@ fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
         1
     );
 }
+#[path = "native/git_coordination.rs"]
+mod git_coordination;
 #[path = "native/git_resolver.rs"]
 mod git_resolver;
 #[path = "native/commands.rs"]

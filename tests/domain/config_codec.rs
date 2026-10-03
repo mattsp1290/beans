@@ -180,6 +180,7 @@ fn load_user_config_missing_returns_defaults() {
 fn encode_user_config_decodes_back() {
     use beans::domain::config::load_user_config;
     let cfg = UserConfig {
+        git: Default::default(),
         actor: "matt".into(),
         hub: UserHubConfig {
             remote: "git@github.com:owner/beans-hub.git".into(),
@@ -207,7 +208,7 @@ proptest::proptest! {
         throttle in proptest::collection::vec(proptest::char::any(),0..100),
     ) {
         let string=|v:Vec<char>|YamlString::from(v.into_iter().collect::<String>());
-        let cfg=UserConfig {actor:string(actor),hub:UserHubConfig {remote:string(remote),branch:string(branch)},fetch:UserFetchConfig {throttle:string(throttle)}};
+        let cfg=UserConfig {git:Default::default(),actor:string(actor),hub:UserHubConfig {remote:string(remote),branch:string(branch)},fetch:UserFetchConfig {throttle:string(throttle)}};
         let encoded=encode_user_config(&cfg);
         proptest::prop_assert_eq!(beans::domain::config::decode_user_config(&encoded).unwrap(),cfg);
     }
@@ -260,6 +261,7 @@ fn configuration_output_matches_committed_contract_bytes() {
         let output = match row["kind"].as_str().unwrap() {
             "user" => {
                 let cfg = UserConfig {
+                    git: Default::default(),
                     actor: bytes(&input["actor"]),
                     hub: UserHubConfig {
                         remote: bytes(&input["hub"]["remote"]),
@@ -310,4 +312,46 @@ fn encode_project_config_without_workflow() {
     );
     assert_eq!(output, b"name = \"p\"\nprefix = \"p\"\nremotes = []\n");
     assert_eq!(cfg.remotes, None);
+}
+
+#[test]
+fn git_policy_defaults_overrides_and_invalid_values() {
+    use beans::domain::config::decode_user_config;
+    let cfg = decode_user_config(b"[git]\nlock_timeout='0s'\ncommand_timeout='125ms'\nnetwork_timeout='2m'\ncleanup_timeout='1s'\ndiagnostics=true\n").unwrap();
+    let policy = cfg.git.policy().unwrap();
+    assert_eq!(policy.lock_timeout, std::time::Duration::ZERO);
+    assert_eq!(
+        policy.command_timeout,
+        std::time::Duration::from_millis(125)
+    );
+    assert_eq!(policy.network_timeout, std::time::Duration::from_secs(120));
+    assert!(policy.diagnostics);
+    assert_eq!(decode_user_config(&encode_user_config(&cfg)).unwrap(), cfg);
+    for key in [
+        "lock_timeout",
+        "command_timeout",
+        "network_timeout",
+        "cleanup_timeout",
+    ] {
+        for bad in [
+            "'-1s'",
+            "'bad'",
+            "'9999999999999999999h'",
+            "1",
+            "true",
+            "[]",
+            "''",
+        ] {
+            assert!(
+                decode_user_config(format!("[git]\n{key}={bad}\n").as_bytes()).is_err(),
+                "{key}={bad}"
+            );
+        }
+        if key != "lock_timeout" {
+            assert!(decode_user_config(format!("[git]\n{key}='0s'\n").as_bytes()).is_err());
+        }
+    }
+    for bad in ["'true'", "1", "[]"] {
+        assert!(decode_user_config(format!("[git]\ndiagnostics={bad}\n").as_bytes()).is_err());
+    }
 }
