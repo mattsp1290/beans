@@ -26,8 +26,8 @@ curl -fsSL https://github.com/mattsp1290/beans/releases/latest/download/install.
 
 The installer downloads the prebuilt `bn` for Linux or macOS on x86_64 or
 aarch64, verifies its SHA-256 against the release manifest and installs it into
-`$HOME/.local/bin`. It needs `curl` and `awk`, never uses `sudo` and never edits
-shell profiles. `BN_INSTALL_DIR` selects another directory and
+`$HOME/.local/bin`. It needs `curl`, `awk` and one of `sha256sum`, `shasum` or
+`openssl`, never uses `sudo` and never edits shell profiles. `BN_INSTALL_DIR` selects another directory and
 `BN_INSTALL_VERSION=vX.Y.Z` installs that release instead of the latest. Linux
 binaries are static and need no particular libc. Windows is not supported.
 

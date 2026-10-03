@@ -17,8 +17,10 @@ on:
 permissions:
   contents: read
 
+# Tag runs share one group so two releases never validate and promote
+# concurrently; dry runs only queue behind themselves.
 concurrency:
-  group: release-${{ github.ref }}
+  group: ${{ github.event_name == 'push' && 'release' || format('release-dry-{0}', github.ref) }}
   cancel-in-progress: false
 
 defaults:
@@ -29,6 +31,15 @@ env:
   # The release tag, or the dry-run input. build.rs embeds it: Actions
   # checkouts carry no tags for `git describe`.
   BN_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+  # jq filter over `gh release list` output: true when no other published,
+  # non-prerelease vX.Y.Z release is greater than or equal to $tag.
+  NO_NEWER_RELEASE: >-
+    def triple: ltrimstr("v") | split(".") | map(tonumber);
+    all(
+      .[] | select((.isDraft or .isPrerelease) | not) | .tagName
+        | select(. != $tag and test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"));
+      triple < ($tag | triple)
+    )
 
 # A skipped job skips its dependents by default, and `validate` is skipped on
 # dry runs, so every later job states its condition.
@@ -71,13 +82,7 @@ jobs:
             exit 1
           fi
           # Keeps `latest` correct: no release may sort at or above this one.
-          if ! jq -e --arg tag "$BN_VERSION" '
-            def triple: ltrimstr("v") | split(".") | map(tonumber);
-            all(
-              .[] | select((.isDraft or .isPrerelease) | not) | .tagName
-                | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"));
-              triple < ($tag | triple)
-            )' <<<"$releases" >/dev/null; then
+          if ! jq -e --arg tag "$BN_VERSION" "$NO_NEWER_RELEASE" <<<"$releases" >/dev/null; then
             echo "::error::$BN_VERSION is not greater than every published release"
             exit 1
           fi
@@ -120,7 +125,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Require a vX.Y.Z version
-        run: grep -Eqx 'v[0-9]+\.[0-9]+\.[0-9]+' <<<"$BN_VERSION"
+        run: |
+          [[ "$BN_VERSION" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
       - name: Download the built UI
         uses: actions/download-artifact@v8
         with:
@@ -149,9 +155,17 @@ jobs:
           [ "$reported" = "bn $BN_VERSION" ]
       - name: Serve the embedded UI
         run: $EXEC sh distribution/serve-check.sh "$BIN"
+      # --release makes the journeys run the binary that is uploaded below.
       - name: Run the Git and server journeys on the musl build
         if: runner.os == 'Linux'
-        run: cargo test --locked --target "$TARGET" --test native_cli --test native_server
+        run: cargo test --release --locked --target "$TARGET" --test native_cli --test native_server
+      # The dry run is the only place macOS sh, awk and mktemp meet the
+      # installer and `bn upgrade` before a prerelease is public.
+      - name: Run the installer tests on this platform
+        run: python3 -S distribution/tests/run_tests.py
+      - name: Run the upgrade journeys on macOS
+        if: runner.os == 'macOS'
+        run: cargo test --release --locked --target "$TARGET" --test native_cli upgrade
       - name: Name the asset
         run: cp -f "$BIN" "$ASSET"
       - uses: actions/upload-artifact@v7
@@ -276,6 +290,14 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
+      # A re-run of a superseded tag must not move `latest` backwards.
+      - name: Require that no newer release was published meanwhile
+        run: |
+          releases=$(gh release list --limit 1000 --json tagName,isDraft,isPrerelease)
+          if ! jq -e --arg tag "$BN_VERSION" "$NO_NEWER_RELEASE" <<<"$releases" >/dev/null; then
+            echo "::error::a release at or above $BN_VERSION is already published"
+            exit 1
+          fi
       - name: Mark the release as latest
         run: gh release edit "$BN_VERSION" --prerelease=false --latest
       - name: Install through the documented latest URL

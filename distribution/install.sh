@@ -25,16 +25,21 @@ valid_tag() {
   case $1 in
     '' | *[!0-9.v]*) return 1 ;;
   esac
-  printf '%s\n' "$1" | awk '/^v[0-9]+\.[0-9]+\.[0-9]+$/ { ok = 1 } END { exit !ok }'
+  # No leading zeros: one spelling per version.
+  printf '%s\n' "$1" |
+    awk '/^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/ { ok = 1 } END { exit !ok }'
 }
 
 # fetch <max-seconds> <url> <output|->
+# -q comes first so ~/.curlrc cannot change the output, --globoff keeps {} and
+# [] in a URL literal, and the time bound covers every retry.
 fetch() {
   if [ "$secure" = 1 ]; then
-    curl -fsSL --retry 3 --connect-timeout 10 --max-time "$1" \
-      --proto '=https' --proto-redir '=https' --url "$2" -o "$3"
+    curl -q -fsSL --globoff --connect-timeout 10 --retry 3 --retry-max-time "$1" \
+      --max-time "$1" --proto '=https' --proto-redir '=https' --url "$2" -o "$3"
   else
-    curl -fsSL --retry 3 --connect-timeout 10 --max-time "$1" --url "$2" -o "$3"
+    curl -q -fsSL --globoff --connect-timeout 10 --retry 3 --retry-max-time "$1" \
+      --max-time "$1" --url "$2" -o "$3"
   fi
 }
 
@@ -134,7 +139,21 @@ main() {
   [ "${#digest}" -eq 64 ] || fail "invalid sha256 for $target"
 
   dir=${BN_INSTALL_DIR:-${HOME:?HOME is not set}/.local/bin}
+  # Absolute and without trailing slashes, so it compares equal to PATH
+  # entries and can never be read as an option.
+  case $dir in
+    /*) ;;
+    *) dir=$PWD/$dir ;;
+  esac
+  while :; do
+    case $dir in
+      ?*/) dir=${dir%/} ;;
+      *) break ;;
+    esac
+  done
   mkdir -p "$dir" || fail "could not create $dir"
+  # mv would otherwise move the download into the directory and report success.
+  [ ! -d "$dir/bn" ] || fail "$dir/bn is a directory"
   trap cleanup EXIT
   trap 'cleanup; exit 1' INT TERM HUP
   tmp=$(mktemp "$dir/.bn-install.XXXXXX") || fail "could not create a temporary file in $dir"
@@ -144,7 +163,13 @@ main() {
   [ "$actual" = "$digest" ] || fail "checksum mismatch for $target"
 
   chmod 0755 "$tmp"
-  reported=$("$tmp" --version 2>/dev/null) || fail "downloaded binary does not run on this system"
+  # Bounded where coreutils timeout exists; macOS ships none.
+  if command -v timeout >/dev/null 2>&1; then
+    reported=$(timeout 10 "$tmp" --version 2>/dev/null) ||
+      fail "downloaded binary does not run on this system"
+  else
+    reported=$("$tmp" --version 2>/dev/null) || fail "downloaded binary does not run on this system"
+  fi
   [ "$reported" = "bn v$version" ] || fail "downloaded binary reports '$reported', expected 'bn v$version'"
 
   mv -f "$tmp" "$dir/bn"

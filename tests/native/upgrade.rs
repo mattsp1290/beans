@@ -41,6 +41,7 @@ impl Releases {
     }
     fn installed_at(relative: &str, latest: &str) -> Option<Self> {
         if Command::new("curl").arg("--version").output().is_err() {
+            assert!(std::env::var_os("CI").is_none(), "CI must provide curl");
             eprintln!("skipping: curl is not on PATH");
             return None;
         }

@@ -21,6 +21,7 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MANIFEST = os.path.join(ROOT, "distribution", "manifest.py")
 INSTALL = os.path.join(ROOT, "distribution", "install.sh")
+SERVE_CHECK = os.path.join(ROOT, "distribution", "serve-check.sh")
 SHELL = os.environ.get("DISTRIBUTION_TEST_SH", "sh")
 TARGETS = ("linux-x86_64", "linux-aarch64", "macos-x86_64", "macos-aarch64")
 KEYS = ("schema", "version", "tag", "assets", "sha256")
@@ -118,7 +119,7 @@ class ManifestTests(TempCase):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "m.json")))
 
     def test_manifest_malformed_tag(self):
-        for tag in ("1.2.3", "v1.2", "v1.2.3-rc1", "v1.2.3\n", "vx.y.z"):
+        for tag in ("1.2.3", "v1.2", "v1.2.3-rc1", "v1.2.3\n", "vx.y.z", "v01.2.3", "v1.2.00"):
             r = run_manifest("--tag", tag, "--base-url", "https://x", "--dir", self.binaries(),
                              "--output", os.path.join(self.tmp, "m.json"))
             self.assertNotEqual(r.returncode, 0, tag)
@@ -205,7 +206,7 @@ class InstallerTests(TempCase):
 
     def test_invalid_pinned_version(self):
         self.release("v9.9.9", latest=True)
-        for bad in ("9.9.9", "v9.9", "v9.9.9/../x", "v9.9.9 ", "v1.2.3\nx"):
+        for bad in ("9.9.9", "v9.9", "v9.9.9/../x", "v9.9.9 ", "v1.2.3\nx", "v09.9.9"):
             r = self.install(BN_INSTALL_VERSION=bad)
             self.assertNotEqual(r.returncode, 0, repr(bad))
             self.assertIn("BN_INSTALL_VERSION", r.stderr)
@@ -318,6 +319,55 @@ class InstallerTests(TempCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("shadows", r.stderr)
 
+    def test_destination_is_a_directory(self):
+        self.release("v9.9.9", latest=True)
+        os.makedirs(self.installed())
+        r = self.install()
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("is a directory", r.stderr)
+        self.assertEqual(os.listdir(self.installed()), [])
+        self.assertEqual(self.leftovers(), [])
+
+    def test_install_dir_spelling(self):
+        """A trailing slash or a relative directory names the same install."""
+        self.release("v9.9.9", latest=True)
+        env = self.env(BN_INSTALL_DIR=self.dest + "//")
+        env["PATH"] = self.dest + os.pathsep + env["PATH"]
+        r = self.install(env=env)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stderr, "")
+        self.assertIn("to %s/bn" % self.dest, r.stdout)
+
+        r = subprocess.run([SHELL, INSTALL], env=self.env(BN_INSTALL_DIR="relative"), cwd=self.tmp,
+                           capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        relative = os.path.join(self.tmp, "relative")
+        self.assertTrue(os.path.isfile(os.path.join(relative, "bn")))
+        self.assertIn('export PATH="%s:$PATH"' % relative, r.stderr)
+
+    def test_hash_tool_fallbacks(self):
+        """Each supported SHA-256 tool verifies the download when it is the only one."""
+        self.release("v9.9.9", latest=True)
+        needed = ("uname", "curl", "awk", "mkdir", "mktemp", "chmod", "mv", "rm")
+        ran = []
+        for hasher in ("sha256sum", "shasum", "openssl"):
+            if not shutil.which(hasher):
+                continue
+            tools = os.path.join(self.tmp, "tools-" + hasher)
+            os.makedirs(tools)
+            for name in needed + (hasher,):
+                os.symlink(shutil.which(name), os.path.join(tools, name))
+            dest = os.path.join(self.tmp, "dest-" + hasher)
+            env = self.env(BN_INSTALL_DIR=dest)
+            env["PATH"] = tools
+            r = subprocess.run([shutil.which(SHELL), INSTALL], env=env, capture_output=True, text=True, timeout=60)
+            self.assertEqual(r.returncode, 0, "%s: %s" % (hasher, r.stderr))
+            with open(os.path.join(dest, "bn")) as f:
+                self.assertEqual(f.read(), fake_binary("bn v9.9.9"))
+            ran.append(hasher)
+        self.assertTrue(ran, "no SHA-256 tool on PATH")
+        print("hash tools exercised: %s" % ", ".join(ran))
+
     def test_trap_list(self):
         with open(INSTALL) as f:
             text = f.read()
@@ -357,8 +407,9 @@ class StaticTests(unittest.TestCase):
     def test_shellcheck(self):
         if not shutil.which("shellcheck"):
             self.skipTest("shellcheck not found on PATH")
-        r = subprocess.run(["shellcheck", "-s", "sh", INSTALL], capture_output=True, text=True)
-        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        for script in (INSTALL, SERVE_CHECK):
+            r = subprocess.run(["shellcheck", "-s", "sh", script], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
     def test_installer_is_executable(self):
         self.assertTrue(os.stat(INSTALL).st_mode & stat.S_IXUSR)

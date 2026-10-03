@@ -11,7 +11,8 @@ import re
 import sys
 
 TARGETS = ("linux-x86_64", "linux-aarch64", "macos-x86_64", "macos-aarch64")
-TAG = re.compile(r"v[0-9]+\.[0-9]+\.[0-9]+")
+NUMBER = r"(0|[1-9][0-9]*)"
+TAG = re.compile(r"v%s\.%s\.%s" % (NUMBER, NUMBER, NUMBER))
 
 
 def digest(path):

@@ -58,14 +58,15 @@ corruption, not a compromised release. Artifact attestations are not produced.
 | --- | --- | --- |
 | `validate` | tag | Requires an annotated tag on `main`, equal to the `Cargo.toml` version, with no published release and greater than every published release |
 | `ci` | tag, dry run | Runs `ci.yml` for the commit, including `make verify`, and provides the built UI |
-| `build` | tag, dry run | Builds each target with `BN_VERSION` set, checks `--version`, runs `distribution/serve-check.sh`, and on Linux runs the Git and server journeys on the musl build |
+| `build` | tag, dry run | Builds each target with `BN_VERSION` set, checks `--version`, runs `distribution/serve-check.sh` and the installer tests, and runs the Git and server journeys against the release musl binary on Linux and the upgrade journeys on macOS |
 | `package` | tag, dry run | Writes `bn-manifest.json` and collects the six assets |
 | `publish` | tag | Creates a draft, attaches the assets, verifies them and publishes a prerelease |
 | `smoke` | tag | On all four platforms: pinned HTTPS install, real `bn upgrade --version <tag> --force`, serve check |
-| `promote` | tag | Marks the release latest, then installs through the documented latest URL and runs `bn upgrade --check --json` |
+| `promote` | tag | Refuses when a release at or above the tag is already published, marks the release latest, then installs through the documented latest URL and runs `bn upgrade --check --json` |
 
 `releases/latest` never resolves to a draft or a prerelease, so the installer
-default and `bn upgrade` only ever see a release that passed `smoke`.
+default and `bn upgrade` only ever see a release that passed `smoke`. Tag runs
+share one concurrency group and run one at a time.
 
 The released musl binaries are built from the commit that `ci.yml` verified in
 the same run, but they are not themselves the `make verify` subject: proof and
@@ -120,9 +121,26 @@ without the repository owner's approval.
   `gh release edit <older-tag> --latest`, or delete the release.
 
 `validate`, `publish`, `smoke` and `promote` cannot be exercised by a dry run.
+Do not re-run the jobs of a tag that a newer release has superseded; `promote`
+refuses it.
+
+An installer killed by `SIGKILL` can leave a `.bn-install.*` file in the install
+directory. Nothing removes it automatically; delete it by hand.
 
 A user rolls back with `bn upgrade --version <older-tag>` or
 `BN_INSTALL_VERSION=<older-tag>` with the installer.
+
+## Adding a target
+
+The four targets are spelled out in each of these places; change them together:
+
+- `distribution/manifest.py` (`TARGETS`) and `distribution/tests/run_tests.py`
+  (`TARGETS`, `host_target`).
+- `distribution/install.sh` (the `uname` mapping in `main`).
+- `src/cli/upgrade.rs` (`target`).
+- `.github/workflows/release.yml` (the `build` and `smoke` matrices and the
+  `ASSETS` list in `publish`).
+- The asset table above and the platform list in `README.md`.
 
 ## Versions and source builds
 

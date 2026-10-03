@@ -168,20 +168,23 @@ platform (`linux` or `macos`, `x86_64` or `aarch64`). It is unrelated to
 `~/.beans` and no Git. It fetches `bn-manifest.json`, downloads the binary into
 a temporary file beside the executable, verifies its SHA-256, runs its
 `--version`, and only then renames it over the executable. Any failure exits 1,
-leaves the binary byte-identical and removes the temporary file. A symlinked
+leaves the binary byte-identical and removes the temporary file. A run killed
+by a signal can leave a `.bn-upgrade-*` file beside the binary; a later
+`bn upgrade` removes it once it is an hour old. `curl` runs without
+`~/.curlrc`; proxy environment variables still apply. A symlinked
 install has its target replaced, not the link. A running `bn serve` keeps the
 old version until restarted.
 
 | Flag | Effect |
 | --- | --- |
-| `--check` | Report only; download nothing; exit 0 whether or not an update exists |
+| `--check` | Report only: fetch the manifest, install nothing; exit 0 whether or not an update exists |
 | `--force` | Install even when the release is not newer, and override the managed-install refusal |
 | `--version <tag>` | Install exactly `vX.Y.Z`, without comparing versions; this is the downgrade and rollback path |
 
 Without `--force` or `--version`, a release build `vA.B.C` and a development
 build `vA.B.C-N-g<sha>` upgrade only when the latest release is greater than
 `A.B.C`. A build with no release version (`dev`, a bare commit) cannot be
-compared: `upgrade` fails and asks for `--force`, and `--check` reports
+compared: `upgrade` fails and names `bn upgrade --force`, and `--check` reports
 `update_available: true`. Binaries under `$CARGO_HOME/bin`, `$HOME/.cargo/bin`
 or a Cargo `target/{debug,release}` directory are refused unless forced; use
 `make install` for those.
@@ -189,7 +192,7 @@ or a Cargo `target/{debug,release}` directory are refused unless forced; use
 Plain output is one line per event, such as `bn v0.3.0 is up to date`,
 `upgrading bn v0.3.0 -> v0.4.0` and `installed bn v0.4.0 at <path>`. `--json`
 prints one object with `current`, `latest`, `target`, `path`,
-`update_available` and `upgraded`. Other global flags are accepted and ignored.
+`update_available` and `upgraded`; with `--version`, `latest` is the pinned tag. Other global flags are accepted and ignored.
 
 `BN_RELEASE_BASE_URL` replaces the default
 `https://github.com/mattsp1290/beans/releases` for both `bn upgrade` and the

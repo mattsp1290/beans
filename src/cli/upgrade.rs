@@ -32,7 +32,10 @@ fn err(message: impl Into<String>) -> Error {
 
 fn parse_version(text: &str) -> Option<Version> {
     let mut parts = text.split('.').map(|part| {
-        let decimal = !part.is_empty() && part.bytes().all(|b| b.is_ascii_digit());
+        // No sign, no empty component and no leading zero: one spelling per version.
+        let decimal = !part.is_empty()
+            && part.bytes().all(|b| b.is_ascii_digit())
+            && (part == "0" || !part.starts_with('0'));
         decimal.then(|| part.parse::<u64>().ok()).flatten()
     });
     let version = (parts.next()??, parts.next()??, parts.next()??);
@@ -84,7 +87,7 @@ fn status_line(decision: Decision, current: &str, latest: &str) -> String {
         Decision::Upgrade => format!("bn {latest} is available (current {current})"),
         Decision::UpToDate => format!("bn {current} is up to date"),
         Decision::Unknown => {
-            format!("cannot compare bn {current} with {latest}; re-run with --force")
+            format!("cannot compare bn {current} with {latest}; run `bn upgrade --force`")
         }
     }
 }
@@ -204,7 +207,11 @@ fn validate(
 
 fn curl(base: &str, max_time: &str) -> Command {
     let mut curl = Command::new("curl");
-    curl.args(["-fsSL", "--retry", "3", "--connect-timeout", "10"])
+    // `-q` must come first: a user's ~/.curlrc could otherwise change the
+    // output. `--globoff` keeps `{}` and `[]` in a URL literal. The time
+    // bound covers every retry, not each attempt.
+    curl.args(["-q", "-fsSL", "--globoff", "--connect-timeout", "10"])
+        .args(["--retry", "3", "--retry-max-time", max_time])
         .args(["--max-time", max_time])
         .stdin(Stdio::null());
     if base.starts_with("https://") {
@@ -342,15 +349,22 @@ fn remove_stale_temps(dir: &Path) {
 }
 
 /// Runs `<binary> --version` under `timeout` and returns its trimmed stdout.
-fn reported_version(binary: &Path, timeout: Duration) -> Result<String, Error> {
+/// Output goes to a file in `dir`, not a pipe: a descendant that keeps a pipe
+/// open would hold a reader past the timeout.
+fn reported_version(binary: &Path, dir: &Path, timeout: Duration) -> Result<String, Error> {
     let failed = |reason: String| err(format!("downloaded bn did not run: {reason}"));
+    let capture = TempFile::create(dir)?;
     let mut attempt = 0;
     let mut child = loop {
         attempt += 1;
+        let stdout = fs::File::options()
+            .write(true)
+            .open(&capture.0)
+            .map_err(|e| failed(e.to_string()))?;
         let spawned = Command::new(binary)
             .arg("--version")
             .stdin(Stdio::null())
-            .stdout(Stdio::piped())
+            .stdout(stdout)
             .stderr(Stdio::null())
             .spawn();
         match spawned {
@@ -382,15 +396,8 @@ fn reported_version(binary: &Path, timeout: Duration) -> Result<String, Error> {
     if !status.success() {
         return Err(failed(status.to_string()));
     }
-    let mut reported = String::new();
-    child
-        .stdout
-        .take()
-        .unwrap()
-        .take(4096)
-        .read_to_string(&mut reported)
-        .map_err(|e| failed(e.to_string()))?;
-    Ok(reported.trim().to_owned())
+    let reported = fs::read(&capture.0).map_err(|e| failed(e.to_string()))?;
+    Ok(String::from_utf8_lossy(&reported).trim().to_owned())
 }
 
 /// Downloads and verifies `release` beside `exe`, then renames it over `exe`.
@@ -411,14 +418,18 @@ fn install(
     }
     fs::set_permissions(&temp.0, fs::Permissions::from_mode(0o755))
         .map_err(|e| err(e.to_string()))?;
-    let reported = reported_version(&temp.0, smoke_timeout)?;
+    let reported = reported_version(&temp.0, dir, smoke_timeout)?;
     let expected = format!("bn {}", release.tag);
     if reported != expected {
         return Err(err(format!(
             "downloaded bn reported `{reported}`, expected `{expected}`"
         )));
     }
-    fs::rename(&temp.0, exe).map_err(|e| err(format!("cannot replace {}: {e}", exe.display())))
+    // The rename must not outlive the bytes it names across a power loss.
+    fs::File::open(&temp.0)
+        .and_then(|file| file.sync_all())
+        .and_then(|()| fs::rename(&temp.0, exe))
+        .map_err(|e| err(format!("cannot replace {}: {e}", exe.display())))
 }
 
 struct Request<'a> {
@@ -532,7 +543,7 @@ pub(super) fn execute(matches: &clap::ArgMatches, json: bool) -> Result<(), Erro
                 "current": current,
                 "latest": outcome.latest,
                 "target": outcome.target,
-                "path": exe,
+                "path": exe.to_string_lossy(),
                 "update_available": outcome.update_available,
                 "upgraded": outcome.upgraded,
             })
@@ -579,6 +590,8 @@ mod tests {
             "v1..3",
             "v1.2.3-rc1",
             "v+1.2.3",
+            "v01.2.3",
+            "v1.2.03",
             "",
         ] {
             assert_eq!(parse_tag(bad), None, "{bad}");
@@ -701,6 +714,7 @@ mod tests {
 
         fn new(tag: &str, script: &str) -> Option<Self> {
             if Command::new("curl").arg("--version").output().is_err() {
+                assert!(std::env::var_os("CI").is_none(), "CI must provide curl");
                 eprintln!("skipping: curl is not on PATH");
                 return None;
             }
@@ -735,13 +749,19 @@ mod tests {
             self.0.join("install/bn")
         }
         fn run(&self, current: &str, timeout: Duration) -> Result<Outcome, Error> {
+            self.request(current, false, timeout)
+        }
+        fn check(&self, current: &str) -> Outcome {
+            self.request(current, true, SMOKE_TIMEOUT).unwrap()
+        }
+        fn request(&self, current: &str, check: bool, timeout: Duration) -> Result<Outcome, Error> {
             run(
                 &Request {
                     current,
                     exe: &self.exe(),
                     base_url: &self.base(),
                     cargo_bins: &[],
-                    check: false,
+                    check,
                     force: false,
                     tag: None,
                     smoke_timeout: timeout,
@@ -796,6 +816,12 @@ mod tests {
         let error = tree.run("dev", SMOKE_TIMEOUT).unwrap_err().to_string();
         assert!(error.contains("--force"), "{error}");
         assert!(tree.unchanged());
+        // Reporting never fails on an incomparable build, and never installs.
+        for (current, available) in [("dev", true), ("v0.0.1", true), ("v9.9.9", false)] {
+            let outcome = tree.check(current);
+            assert_eq!(outcome.update_available, available, "{current}");
+            assert!(!outcome.upgraded && tree.unchanged(), "{current}");
+        }
     }
 
     #[test]
@@ -808,6 +834,18 @@ mod tests {
         assert!(started.elapsed() < Duration::from_secs(20));
         assert!(error.to_string().contains("did not run"), "{error}");
         assert!(tree.unchanged());
+    }
+
+    #[test]
+    fn lingering_descendant_cannot_outlast_the_version_check() {
+        // The script exits at once but leaves a child holding its stdout.
+        let script = "#!/bin/sh\necho 'bn v9.9.9'\nsleep 60 &\n";
+        let Some(tree) = Tree::new("v9.9.9", script) else {
+            return;
+        };
+        let started = Instant::now();
+        assert!(tree.run("v0.0.1", SMOKE_TIMEOUT).unwrap().upgraded);
+        assert!(started.elapsed() < SMOKE_TIMEOUT);
     }
 
     #[test]
