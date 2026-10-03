@@ -80,6 +80,7 @@ Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch
 | `bn remember <text>...` | `--global[=<global>]` (default `false`), `--key <key>`, `--tag <tag>`, `--type <type>` |
 | `bn search <query>...` | `--all-projects[=<all-projects>]`, `--include-archived-handoffs[=<include-archived-handoffs>]`, `--kind <kind>` |
 | `bn status` | — |
+| `bn upgrade` | `--check[=<check>]` (default `false`), `--force[=<force>]` (default `false`), `--version <tag>` |
 | `bn help [COMMAND]...` | — |
 | `bn dep help [COMMAND]...` | — |
 | `bn request help [COMMAND]...` | — |
@@ -105,7 +106,7 @@ Plain issue/request/handoff `show` emits the stored markdown (`--raw` is accepte
 Lists use compact ID/title lines; graph/search/doctor/project/plan-validation/status
 reports are structured JSON in either presentation mode. `man` emits a complete
 roff manual to stdout, generated from the actual command tree: `bn man | man -l -`.
-Root help, version, prime and man need no initialized hub. Root invocation succeeds
+Root help, version, prime, man and upgrade need no initialized hub. Root invocation succeeds
 and prints help. Runtime failures exit 1; Clap argument failures exit 2. A separate not-found exit 3 is retired: runtime failures, including missing records, use exit 1 and a diagnostic. Automation should distinguish argument errors (2) from runtime errors (1), and inspect JSON semantic fields rather than old plain-text layouts.
 
 `close` requires `--reason` or `--force`; multiple IDs are separate commits and an
@@ -158,6 +159,43 @@ metadata through the native codecs. Retrying an identical import produces no new
 commit. `doctor` reports malformed/duplicate/unresolved documents and cycles and
 fails when problems are found; `dep cycles` fails when cycles are found.
 
+
+## Self-upgrade
+
+`bn upgrade` replaces the running binary with the latest GitHub release for its
+platform (`linux` or `macos`, `x86_64` or `aarch64`). It is unrelated to
+`bn update <id>`, which edits an issue. It needs `curl` on PATH and no hub, no
+`~/.beans` and no Git. It fetches `bn-manifest.json`, downloads the binary into
+a temporary file beside the executable, verifies its SHA-256, runs its
+`--version`, and only then renames it over the executable. Any failure exits 1,
+leaves the binary byte-identical and removes the temporary file. A symlinked
+install has its target replaced, not the link. A running `bn serve` keeps the
+old version until restarted.
+
+| Flag | Effect |
+| --- | --- |
+| `--check` | Report only; download nothing; exit 0 whether or not an update exists |
+| `--force` | Install even when the release is not newer, and override the managed-install refusal |
+| `--version <tag>` | Install exactly `vX.Y.Z`, without comparing versions; this is the downgrade and rollback path |
+
+Without `--force` or `--version`, a release build `vA.B.C` and a development
+build `vA.B.C-N-g<sha>` upgrade only when the latest release is greater than
+`A.B.C`. A build with no release version (`dev`, a bare commit) cannot be
+compared: `upgrade` fails and asks for `--force`, and `--check` reports
+`update_available: true`. Binaries under `$CARGO_HOME/bin`, `$HOME/.cargo/bin`
+or a Cargo `target/{debug,release}` directory are refused unless forced; use
+`make install` for those.
+
+Plain output is one line per event, such as `bn v0.3.0 is up to date`,
+`upgrading bn v0.3.0 -> v0.4.0` and `installed bn v0.4.0 at <path>`. `--json`
+prints one object with `current`, `latest`, `target`, `path`,
+`update_available` and `upgraded`. Other global flags are accepted and ignored.
+
+`BN_RELEASE_BASE_URL` replaces the default
+`https://github.com/mattsp1290/beans/releases` for both `bn upgrade` and the
+installer. It must start with `https://` or `file://`, and every asset URL in a
+manifest must equal `<base>/download/<tag>/bn-<target>` exactly. See
+[release.md](release.md) for the manifest and the installer.
 
 ## Shell and browser integration
 

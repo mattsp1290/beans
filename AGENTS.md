@@ -18,19 +18,21 @@ hub cloned at `~/.beans/hub`; `bn serve` provides its board and wiki.
 | `crates/beans-kernel/` | Same-source verified retry and splice bodies |
 | `tests/`, `tools/verification/` | Native regressions, properties, models and proof controls |
 | `ui/`, `build.rs` | Svelte app and compile-time embedded assets |
+| `distribution/`, `.github/workflows/release.yml` | Installer, release manifest generator, serve check and release automation |
 | `examples/agent_contract.rs` | Native YAML/workflow interface for repository skills |
 | `docs/`, `.agents/skills/` | Product format and agent workflows |
 
 ## Commands
 
 ```bash
-make ci               # UI checks/build, locked Rust checks/tests/build and skill tests
+make ci               # UI checks/build, locked Rust checks/tests/build, skill and distribution tests
 make build            # release bin/bn; embeds current ui/dist, no Node needed
 make test             # locked workspace tests
 make ui-build         # compile Svelte app into ui/dist
 make release-build    # complete UI and release binary
 make install          # complete UI and locked Cargo installation
 make verify           # native tests, Verus proof and production coupling controls
+make distribution-test # manifest generator and installer against file:// release trees
 ```
 
 `ui/dist/index.html` is the committed placeholder. Restore it after building;
@@ -90,7 +92,10 @@ blockers. See `docs/beans.toml.example`.
 `Makefile` derives `VERSION` from `git describe --tags --match 'v*' --always
 --dirty`, falling back to `dev` outside Git. `VERSION=...` overrides make builds;
 direct Cargo builds accept `BN_VERSION=...`. `build.rs` embeds the version and
-UI bytes. `bn --version` prints it. See `docs/release.md`.
+UI bytes. `bn --version` prints it. An annotated `vX.Y.Z` tag pushed to `origin`
+runs `.github/workflows/release.yml`, which publishes the binaries that
+`distribution/install.sh` and `bn upgrade` consume; never push a release tag
+without the owner's approval. See `docs/release.md`.
 
 CLI flags, JSON/exit behavior and browser/shell integration are documented in
 [docs/cli.md](docs/cli.md); HTTP, rendering and filesystem boundaries are in

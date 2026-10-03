@@ -145,3 +145,20 @@ use a bounded queue so diagnostic backpressure cannot extend a write lock. Legac
 journals remain evidence requiring explicit reconciliation; there is no automatic
 migration or old-binary bridge. All binaries upgrade together. See
 [Git write coordination](git-coordination.md) for limits and recovery.
+
+## 2026-10-03: GitHub Releases, a POSIX installer and `bn upgrade`
+
+Prebuilt binaries are published only as GitHub release assets, described by a
+`bn-manifest.json` asset that `distribution/install.sh` and `bn upgrade` both
+read. The workflow publishes a prerelease, smoke-tests it on every platform and
+only then marks it latest. Self-update is `bn upgrade`; `bn update <id>` stays
+the issue edit. HTTP goes through a `curl` subprocess and SHA-256 through the
+pinned `sha2` crate, so no TLS stack enters the lock. Linux binaries are static
+musl, raw and unarchived. A verified download replaces the binary by a
+same-directory rename; rollback is `bn upgrade --version <older-tag>`, with no
+backup file. Rejected: a manifest committed to `main` by CI (needs workflow
+write access and can race); GitHub Pages (extra setup, no benefit); the REST
+API (unauthenticated rate limit, large JSON for POSIX `sh`); `ureq`/`reqwest`
+(large pinned dependency tree); shelling out to `sha256sum`/`shasum` from Rust
+(tool varies by OS). Deferred: attestations, Windows, channels and update
+notices. See [release.md](release.md).
