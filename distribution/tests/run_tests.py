@@ -53,7 +53,9 @@ def run_manifest(*args):
 
 class TempCase(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="bn-dist-test-")
+        # Resolved: macOS temp directories sit behind a /var symlink, and the
+        # installer reports physical paths.
+        self.tmp = os.path.realpath(tempfile.mkdtemp(prefix="bn-dist-test-"))
         self.addCleanup(shutil.rmtree, self.tmp, True)
 
 
