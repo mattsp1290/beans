@@ -170,7 +170,6 @@ fn execute_configured(
         m.get_flag("no-sync"),
         std::time::Duration::from_nanos(config.throttle_duration() as u64),
     )?;
-    hub.lock_timeout = executor.policy.lock_timeout;
     hub.executor = executor;
     let resolver = crate::vault::PolicyGit(hub.executor.clone());
     if name == "init" {

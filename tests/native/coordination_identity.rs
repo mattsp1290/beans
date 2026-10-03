@@ -116,7 +116,7 @@ fn clone_state_is_independent_and_cache_clear_preserves_evidence_and_inode() {
     let remote = s.remote(true);
     let mut a = s.clone_hub(&remote, "a");
     let b = s.clone_hub(&remote, "b");
-    a.lock_timeout = Duration::from_millis(80);
+    a.executor.policy.lock_timeout = Duration::from_millis(80);
     for hub in [&a, &b] {
         fs::write(hub.state_path().join("last-fetch"), b"derived").unwrap();
         fs::write(hub.state_path().join("last-fetch-attempt"), b"derived").unwrap();

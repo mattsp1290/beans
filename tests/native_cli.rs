@@ -272,7 +272,7 @@ fn lock_and_interrupted_or_detached_checkout_do_not_mutate_or_fetch() {
     let s = Sandbox::new();
     let remote = s.remote(true);
     let mut hub = s.clone_hub(&remote, "hub");
-    hub.lock_timeout = Duration::from_millis(80);
+    hub.executor.policy.lock_timeout = Duration::from_millis(80);
     fs::create_dir_all(hub.state_path()).unwrap();
     let file = fs::File::create(hub.state_path().join("hub.lock")).unwrap();
     assert_eq!(

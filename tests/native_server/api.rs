@@ -346,7 +346,7 @@ fn native_http_git_deadline_hook_failure_and_cli_lock_share_state() {
         Duration::ZERO,
     )
     .unwrap();
-    hub.lock_timeout = Duration::from_millis(80);
+    hub.executor.policy.lock_timeout = Duration::from_millis(80);
     hub.executor.policy.command_timeout = Duration::from_millis(150);
     let s = Server::with_app(App::new(hub, "p".into()).unwrap());
     let alias = f.root.join("alias");
@@ -423,7 +423,7 @@ fn real_cli_and_http_writers_wait_then_preserve_both_notes() {
         Duration::ZERO,
     )
     .unwrap();
-    hub.lock_timeout = Duration::from_secs(2);
+    hub.executor.policy.lock_timeout = Duration::from_secs(2);
     let server = Server::with_app(App::new(hub, "p".into()).unwrap());
     let entered = f.root.join("entered");
     let release = f.root.join("release");

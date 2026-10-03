@@ -169,7 +169,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
         && !flag(root, "no-fetch")
         && let Err(e) = hub.refresh()
     {
-        eprintln!("bn: using local hub: {e}");
+        crate::gitops::diagnostics::warning(b"bn: using local hub: ", &e);
     }
     let explicit = std::env::var_os("BN_CONFIG")
         .filter(|v| !v.is_empty())

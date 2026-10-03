@@ -77,7 +77,7 @@ impl Fixture {
     }
     fn app(&self) -> Arc<App> {
         App::new(
-            Hub::new(self.hub.clone(), self.root.join("cache"), "main".into(), "HTTP Tester".into(), false, Duration::ZERO).map(|mut h| { h.lock_timeout = Duration::from_millis(80); h }).unwrap(),
+            Hub::new(self.hub.clone(), self.root.join("cache"), "main".into(), "HTTP Tester".into(), false, Duration::ZERO).map(|mut h| { h.executor.policy.lock_timeout = Duration::from_millis(80); h }).unwrap(),
             "p".into(),
         )
         .unwrap()

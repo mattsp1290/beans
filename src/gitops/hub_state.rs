@@ -43,7 +43,6 @@ impl Hub {
             actor,
             no_sync,
             throttle,
-            lock_timeout: std::time::Duration::from_secs(30),
             executor: crate::gitops::GitExecutor::default(),
         })
     }
@@ -107,7 +106,7 @@ impl Hub {
                 );
                 return Err(io_error(e));
             }
-            if !wait || start.elapsed() >= self.lock_timeout {
+            if !wait || start.elapsed() >= self.executor.policy.lock_timeout {
                 crate::gitops::diagnostics::emit(
                     self.executor.policy.diagnostics,
                     "lock_wait",
@@ -122,8 +121,12 @@ impl Hub {
                 .categorized(ErrorCategory::LockTimeout));
             }
             std::thread::sleep(
-                std::time::Duration::from_millis(50)
-                    .min(self.lock_timeout.saturating_sub(start.elapsed())),
+                std::time::Duration::from_millis(50).min(
+                    self.executor
+                        .policy
+                        .lock_timeout
+                        .saturating_sub(start.elapsed()),
+                ),
             );
         }
     }
@@ -201,7 +204,7 @@ impl Hub {
         self.stamp("last-fetch-attempt")?;
         self.git(&["fetch", "--quiet", "origin"])?;
         self.stamp("last-fetch")?;
-        if self.git(&["status", "--porcelain"])?.is_empty() {
+        if self.worktree_clean()? {
             self.git(&["merge", "--ff-only", "--quiet", &self.remote_ref()])?;
         }
         Ok(())
@@ -215,7 +218,7 @@ impl Hub {
         ])?;
         let counts: Vec<_> = counts.split_whitespace().collect();
         Ok(
-            serde_json::json!({"hub": self.dir, "branch": self.git(&["symbolic-ref", "--short", "-q", "HEAD"])?, "ahead": counts.first().and_then(|v| v.parse::<usize>().ok()), "behind": counts.get(1).and_then(|v| v.parse::<usize>().ok()), "dirty": self.git(&["status", "--porcelain"])?, "recovery": self.state.exists("op-journal.json")?, "remote": self.git(&["remote", "get-url", "origin"])?, "last_fetch": self.state.read("last-fetch").ok().and_then(|b| String::from_utf8(b).ok())}),
+            serde_json::json!({"hub": self.dir, "branch": self.git(&["symbolic-ref", "--short", "-q", "HEAD"])?, "ahead": counts.first().and_then(|v| v.parse::<usize>().ok()), "behind": counts.get(1).and_then(|v| v.parse::<usize>().ok()), "dirty": self.git(&["-c", "core.quotePath=true", "status", "--porcelain"])?, "recovery": self.state.exists("op-journal.json")?, "remote": self.git(&["remote", "get-url", "origin"])?, "last_fetch": self.state.read("last-fetch").ok().and_then(|b| String::from_utf8(b).ok())}),
         )
     }
 }

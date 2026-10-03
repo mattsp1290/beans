@@ -17,11 +17,7 @@ pub fn run() -> std::process::ExitCode {
     match cli::execute(cli::command().get_matches()) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(error) => {
-            use std::io::Write;
-            let mut stderr = std::io::stderr().lock();
-            let _ = stderr.write_all(b"bn: ");
-            let _ = stderr.write_all(error.as_bytes());
-            let _ = stderr.write_all(b"\n");
+            gitops::diagnostics::warning(b"bn: ", &error);
             std::process::ExitCode::FAILURE
         }
     }

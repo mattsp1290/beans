@@ -46,7 +46,12 @@ Help, version, man and prime do not load this policy.
 
 Every production Git command uses one Unix process-group executor, null stdin,
 disabled terminal prompts and SSH batch authentication. Hooks and credential
-helpers still run. Local steps use `command_timeout`; clone, fetch, push and
+helpers still run. For OpenSSH commands from `GIT_SSH_COMMAND`,
+`core.sshCommand`, or `GIT_SSH`, bn inserts `-o BatchMode=yes` immediately after
+the executable and before caller options: [OpenSSH uses the first value](https://man.openbsd.org/ssh_config).
+The executable, quoting, key selection and other options retain native bytes.
+Commands must invoke `ssh` directly; wrappers and shell expansions fail before
+the network Git step with an actionable error. Local steps use `command_timeout`; clone, fetch, push and
 ls-remote use `network_timeout`. Rebase abort gets a fresh `cleanup_timeout`.
 These are per-step limits, not a whole-operation deadline. Both pipes drain
 concurrently until EOF, including when the Git leader exits first. Output over
@@ -110,8 +115,10 @@ uses a monotonic clock. Nested operation records share the same ID.
 
 Records contain no arguments, paths, URLs, actors, subjects, document content,
 environment or raw error text. stdout/JSON product output is unchanged and the
-default is off. A bounded queue delivers complete lines through one stderr
-worker; backpressure and sink failure may drop events. Producers never wait on
+default is off. A queue capped at 128 packets and 1 MiB delivers lines through
+one worker with a private stderr descriptor. Runtime warnings and CLI errors
+use this same queue, independently of the diagnostics setting; backpressure
+and sink failure may drop messages, including warnings and errors. Producers never wait on
 that sink while holding a transaction lock. CLI exit allows at most 50 ms for
 queued diagnostics after locks release. Delivery is neither durable nor an
 audit log. Native tests qualify process and Git behavior; the verified retry

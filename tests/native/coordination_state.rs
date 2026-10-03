@@ -115,3 +115,38 @@ fn initialization_excludes_other_home_and_partial_clone_writer() {
         "1"
     );
 }
+
+#[test]
+fn unquoted_native_filename_survives_mutation_sync_refresh_and_status() {
+    use std::os::unix::ffi::OsStringExt;
+    let s = Sandbox::new();
+    let remote = s.remote(true);
+    s.ok(&["init", remote.to_str().unwrap()]);
+    let dir = s.path("home/hub");
+    git(&dir, &["config", "core.quotePath", "false"]);
+    let relative = PathBuf::from(std::ffi::OsString::from_vec(b"authored-\xff.txt".to_vec()));
+    fs::write(dir.join(&relative), b"authored bytes\xff\n").unwrap();
+    let status: serde_json::Value = serde_json::from_str(&s.ok(&["status"])).unwrap();
+    assert!(status["dirty"].as_str().unwrap().contains("\\377"));
+    s.ok(&["--no-sync", "create", "native hand edit"]);
+    s.ok(&["sync"]);
+    s.ok(&["list"]);
+    assert_eq!(
+        fs::read(dir.join(&relative)).unwrap(),
+        b"authored bytes\xff\n"
+    );
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&dir)
+        .args(["ls-files", "-z", "--"])
+        .arg(&relative)
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+    assert_eq!(output.stdout, b"authored-\xff.txt\0");
+    assert!(git(&dir, &["log", "--format=%s"]).contains("bn: hand edits"));
+    assert_eq!(
+        git(&dir, &["rev-list", "--count", "origin/main..HEAD"]),
+        "0"
+    );
+}

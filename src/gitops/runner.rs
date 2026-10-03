@@ -1,4 +1,6 @@
 //! Finite Unix process-group boundary for every system-Git invocation.
+#[path = "ssh.rs"]
+mod ssh;
 use crate::domain::{error::ErrorCategory, frontmatter::Error};
 use std::{
     ffi::{OsStr, OsString},
@@ -168,7 +170,7 @@ impl GitExecutor {
     }
     fn ssh_command(&self, dir: Option<&Path>, budget: Duration) -> Result<OsString, Error> {
         use std::os::unix::ffi::{OsStrExt, OsStringExt};
-        let mut command = if let Some(command) = std::env::var_os("GIT_SSH_COMMAND") {
+        let command = if let Some(command) = std::env::var_os("GIT_SSH_COMMAND") {
             command
         } else {
             let mut query = self.clone();
@@ -195,8 +197,7 @@ impl GitExecutor {
                 return Err(output.checked("config").unwrap_err());
             }
         };
-        command.push(" -o BatchMode=yes");
-        Ok(command)
+        ssh::noninteractive(command)
     }
     fn run_inner<I, S>(&self, dir: Option<&Path>, args: I, phase: &str) -> Result<GitOutput, Error>
     where

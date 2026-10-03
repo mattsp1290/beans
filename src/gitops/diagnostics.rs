@@ -3,6 +3,7 @@ use crate::domain::frontmatter::Error;
 use std::{
     cell::RefCell,
     io::Write,
+    os::fd::FromRawFd,
     sync::{
         OnceLock,
         atomic::{AtomicUsize, Ordering},
@@ -17,15 +18,24 @@ struct Context {
 }
 thread_local! { static CONTEXT: RefCell<Option<Context>> = const { RefCell::new(None) }; }
 static PENDING: AtomicUsize = AtomicUsize::new(0);
+static QUEUED_BYTES: AtomicUsize = AtomicUsize::new(0);
 static SINK: OnceLock<Option<SyncSender<Vec<u8>>>> = OnceLock::new();
 fn sink() -> Option<&'static SyncSender<Vec<u8>>> {
     SINK.get_or_init(|| {
         let (tx, rx) = sync_channel::<Vec<u8>>(128);
+        // A private descriptor avoids holding Rust's global stderr mutex while
+        // a slow sink blocks. Only this worker writes queued diagnostic packets.
+        let fd = unsafe { libc::fcntl(libc::STDERR_FILENO, libc::F_DUPFD_CLOEXEC, 3) };
+        if fd < 0 {
+            return None;
+        }
+        let mut stderr = unsafe { std::fs::File::from_raw_fd(fd) };
         std::thread::Builder::new()
             .name("bn-git-diagnostics".into())
             .spawn(move || {
                 for line in rx {
-                    let _ = std::io::stderr().lock().write_all(&line);
+                    let _ = stderr.write_all(&line);
+                    QUEUED_BYTES.fetch_sub(line.len(), Ordering::Relaxed);
                     PENDING.fetch_sub(1, Ordering::Relaxed);
                 }
             })
@@ -85,13 +95,33 @@ pub fn emit(
         return;
     };
     line.push(b'\n');
-    if let Some(tx) = sink() {
-        PENDING.fetch_add(1, Ordering::Relaxed);
-        if tx.try_send(line).is_err() {
-            PENDING.fetch_sub(1, Ordering::Relaxed);
-        }
+    message(line);
+}
+/// Runtime warnings/errors are separate from privacy-restricted timing records.
+/// All producers, including warnings inside a transaction, use bounded enqueue.
+pub fn warning(prefix: &[u8], error: &Error) {
+    message([prefix, error.as_bytes(), b"\n"].concat());
+}
+pub fn message(bytes: Vec<u8>) {
+    let Some(tx) = sink() else {
+        return;
+    };
+    let len = bytes.len();
+    if QUEUED_BYTES
+        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |n| {
+            n.checked_add(len).filter(|n| *n <= 1024 * 1024)
+        })
+        .is_err()
+    {
+        return;
+    }
+    PENDING.fetch_add(1, Ordering::Relaxed);
+    if tx.try_send(bytes).is_err() {
+        QUEUED_BYTES.fetch_sub(len, Ordering::Relaxed);
+        PENDING.fetch_sub(1, Ordering::Relaxed);
     }
 }
+
 pub fn result<T>(r: &Result<T, Error>) -> &'static str {
     use crate::domain::error::ErrorCategory::*;
     match r {

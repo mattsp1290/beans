@@ -24,7 +24,6 @@ pub struct Hub {
     pub dir: PathBuf,
     state: super::state::HubState,
     legacy_cache: PathBuf,
-    pub lock_timeout: std::time::Duration,
     pub executor: super::GitExecutor,
     pub branch: String,
     pub actor: String,
@@ -102,7 +101,7 @@ impl Hub {
                 {
                     return Err(e.context(b"initial fetch stopped before Apply"));
                 }
-                Err(e) => eprintln!("bn: fetch failed, working offline: {e}"),
+                Err(e) => super::diagnostics::warning(b"bn: fetch failed, working offline: ", &e),
             }
         }
         let mut random = [0u8; 16];
@@ -183,7 +182,7 @@ impl Hub {
                     }
                     // Abort is verified before facts permit any discard.
                     self.preflight()?;
-                    if !self.git(&["status", "--porcelain"])?.is_empty() {
+                    if !self.worktree_clean()? {
                         return Err(Error::new(
                             "hub changed during retry; preserve files and run bn sync".into(),
                         )

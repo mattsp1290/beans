@@ -46,6 +46,13 @@ impl Hub {
             error,
         ))
     }
+    pub(super) fn worktree_clean(&self) -> Result<bool, Error> {
+        Ok(self
+            .raw_git(["status", "--porcelain", "-z"], "status")?
+            .checked("status")?
+            .stdout
+            .is_empty())
+    }
     pub fn preflight(&self) -> Result<(), Error> {
         for marker in ["rebase-merge", "rebase-apply", "MERGE_HEAD"] {
             if self.dir.join(".git").join(marker).exists() {
@@ -105,7 +112,7 @@ impl Hub {
     }
     pub(super) fn commit_strays(&self) -> Result<(), Error> {
         self.remove_owned_temps()?;
-        if self.git(&["status", "--porcelain"])?.is_empty() {
+        if self.worktree_clean()? {
             return Ok(());
         }
         let recovered = self.state.exists("op-journal.json")?;
