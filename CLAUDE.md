@@ -47,7 +47,8 @@ When ending a work session, complete every step. Work is NOT complete until
 
 ## Build, test and architecture
 
-Use `make ci` for the UI, locked Rust workspace and repository skill checks.
+Use `make ci` for the UI, locked Rust workspace, repository skill checks and
+`make distribution-test` (manifest generator and installer).
 `make build` writes release `bin/bn` and embeds current `ui/dist` without Node.
 `make release-build` and `make install` first build the complete UI. Direct
 `cargo install --locked --path .` embeds whichever assets are present; run
@@ -69,6 +70,11 @@ product and runs actual `make verify` on native Linux x86_64. Permanent Verus,
 property/model and production coupling controls have separate stated limits in
 `docs/verification.md`. Dependency checks use locked Cargo metadata; format and
 Clippy cover all workspace targets.
+
+An annotated `vX.Y.Z` tag runs `.github/workflows/release.yml`, which builds,
+publishes, smoke-tests and promotes the binaries that `distribution/install.sh`
+and `bn upgrade` consume. Pushing a release tag needs the owner's approval; see
+[docs/release.md](docs/release.md).
 
 CLI flags, JSON/exit behavior and browser/shell integration are documented in
 [docs/cli.md](docs/cli.md); HTTP, rendering and filesystem boundaries are in

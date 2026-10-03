@@ -21,6 +21,29 @@ second.
 ## Install
 
 ```bash
+curl -fsSL https://github.com/mattsp1290/beans/releases/latest/download/install.sh | sh
+```
+
+The installer downloads the prebuilt `bn` for Linux or macOS on x86_64 or
+aarch64, verifies its SHA-256 against the release manifest and installs it into
+`$HOME/.local/bin`. It needs `curl`, `awk` and one of `sha256sum`, `shasum` or
+`openssl`, never uses `sudo` and never edits shell profiles. `BN_INSTALL_DIR` selects another directory and
+`BN_INSTALL_VERSION=vX.Y.Z` installs that release instead of the latest. Linux
+binaries are static and need no particular libc. Windows is not supported.
+
+```bash
+bn upgrade            # replace this binary with the latest release
+bn upgrade --check    # report only
+```
+
+`bn upgrade` manages installer-installed binaries; `--version vX.Y.Z` installs
+a specific release, which is also the rollback. Restart a running `bn serve`
+afterwards. It is unrelated to `bn update <id>`, which edits an issue. Remove
+bn with `rm "$HOME/.local/bin/bn"`.
+
+To build from source instead:
+
+```bash
 # From a source checkout with Rust 1.98.1 and Node 24:
 make release-build
 # Install the same complete app into Cargo's configured bin directory:
@@ -33,7 +56,10 @@ cargo install --locked --path .
 `bn` needs system `git` on PATH. Assets are embedded during compilation;
 `make build` works without Node using the committed placeholder, while
 `make release-build` and `make install` embed the complete board and wiki.
-No package registry release is currently published.
+Prebuilt binaries are published on
+[GitHub Releases](https://github.com/mattsp1290/beans/releases); no package
+registry release exists. `bn upgrade` refuses Cargo-installed and build-tree
+binaries unless forced; rebuild those from source.
 
 ## Quick start
 
@@ -96,7 +122,7 @@ merge the latest bundle rather than overwriting newer bindings.
 ## Development
 
 ```bash
-make ci               # UI and native checks: UI tests and build, vet, lint, Rust tests, build, tidy check
+make ci               # UI and native checks: UI tests and build, vet, lint, Rust tests, build, tidy check, distribution tests
 make build            # bin/bn embedding whatever ui/dist holds
 ```
 

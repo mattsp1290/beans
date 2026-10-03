@@ -8,6 +8,7 @@ mod import_commands;
 mod plan_commands;
 mod read_commands;
 mod record_commands;
+mod upgrade;
 
 mod manual;
 mod schema;

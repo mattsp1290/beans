@@ -10,6 +10,8 @@ on:
       - mvp/rust-only-cutover-cleanup
       - mvp/rust-only-cutover-final-journey
   pull_request:
+  # The release workflow gates on these same jobs and embeds their ui-dist.
+  workflow_call:
 
 permissions:
   contents: read
@@ -30,7 +32,7 @@ jobs:
       - name: Install the pinned compiler and checks
         run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools --component rustc-dev
       - name: Build and check the Rust product with the complete UI
-        run: make build vet lint tidy-check skill-test
+        run: make build vet lint tidy-check skill-test distribution-test
       - name: Execute native safety, proofs and production coupling controls
         run: make verify
       - name: Preserve compiler coverage and coupling evidence

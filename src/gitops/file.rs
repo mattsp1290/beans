@@ -35,18 +35,20 @@ fn mkdir_all(path: &Path) -> Result<(), Error> {
         Err(e) => Err(path_error("mkdir", path, e)),
     }
 }
-struct Temporary(PathBuf);
+/// A temporary file, removed when dropped unless it was renamed away.
+pub(crate) struct Temporary(pub(crate) PathBuf);
 impl Drop for Temporary {
     fn drop(&mut self) {
         let _ = fs::remove_file(&self.0);
     }
 }
-fn temporary(parent: &Path) -> Result<(Temporary, File), Error> {
+/// Creates a private file named `<prefix><random>` in `parent`.
+pub(crate) fn temporary(parent: &Path, prefix: &str) -> Result<(Temporary, File), Error> {
     for _ in 0..10000 {
         let mut bytes = [0; 4];
         getrandom::fill(&mut bytes)
             .map_err(|e| Error::new(format!("random temporary filename: {e}")))?;
-        let path = parent.join(format!(".bn-write-{}", u32::from_ne_bytes(bytes)));
+        let path = parent.join(format!("{prefix}{}", u32::from_ne_bytes(bytes)));
         match OpenOptions::new()
             .read(true)
             .write(true)
@@ -72,7 +74,7 @@ pub fn write_file(path: &Path, bytes: &[u8]) -> Result<(), Error> {
         .filter(|p| !p.as_os_str().is_empty())
         .unwrap_or(Path::new("."));
     mkdir_all(parent)?;
-    let (temp, mut file) = temporary(parent)?;
+    let (temp, mut file) = temporary(parent, ".bn-write-")?;
     let result = loop {
         match file.write(bytes) {
             Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,

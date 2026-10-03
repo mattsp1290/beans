@@ -1175,3 +1175,5 @@ mod retained_commands;
 mod review_regressions;
 #[path = "native/safety.rs"]
 mod safety;
+#[path = "native/upgrade.rs"]
+mod upgrade;
