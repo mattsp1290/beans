@@ -30,7 +30,7 @@ jobs:
       - name: Install the pinned compiler and checks
         run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy --component llvm-tools --component rustc-dev
       - name: Build and check the Rust product with the complete UI
-        run: make build vet lint tidy-check skill-test
+        run: make build vet lint tidy-check skill-test distribution-test
       - name: Execute native safety, proofs and production coupling controls
         run: make verify
       - name: Preserve compiler coverage and coupling evidence

@@ -6,7 +6,7 @@ VERSION ?= $(shell git describe --tags --match 'v*' --always --dirty 2>/dev/null
 export CARGO_TARGET_DIR
 export BN_VERSION = $(VERSION)
 
-.PHONY: build test vet lint tidy-check ci release-build install clean ui-install ui-test ui-check ui-build verify-native verify-toolchain verify-kernel verify-codec-coupling verify-retry-coupling verify skill-test
+.PHONY: build test vet lint tidy-check ci release-build install clean ui-install ui-test ui-check ui-build verify-native verify-toolchain verify-kernel verify-codec-coupling verify-retry-coupling verify skill-test distribution-test
 
 # UI assets are embedded at compile time. Plain build uses the checked-in
 # placeholder; release-build and ci build the complete app first.
@@ -41,7 +41,7 @@ ui-build:
 # Recursive steps also preserve asset/build ordering under make -j.
 ci:
 	$(MAKE) ui-install ui-test ui-check ui-build
-	$(MAKE) vet lint test build tidy-check skill-test
+	$(MAKE) vet lint test build tidy-check skill-test distribution-test
 
 release-build:
 	$(MAKE) ui-install ui-build
@@ -61,6 +61,9 @@ clean:
 skill-test:
 	python3 -S .agents/skills/bn-plan-loop/evals/run_tests.py
 	python3 -S .agents/skills/bn-build/evals/run_tests.py
+
+distribution-test:
+	python3 -S distribution/tests/run_tests.py
 
 verify-native:
 	python3 -S tools/verification/native.py
