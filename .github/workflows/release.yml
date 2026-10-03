@@ -1,0 +1,300 @@
+name: release
+
+# A pushed annotated vX.Y.Z tag publishes a release. A manual dispatch is a dry
+# run: it builds and packages every asset and publishes nothing.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Dry-run version, vX.Y.Z (use v0.0.0)
+        required: true
+        type: string
+        default: v0.0.0
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # The release tag, or the dry-run input. build.rs embeds it: Actions
+  # checkouts carry no tags for `git describe`.
+  BN_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+
+# A skipped job skips its dependents by default, and `validate` is skipped on
+# dry runs, so every later job states its condition.
+jobs:
+  validate:
+    name: Validate the release tag
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Require an annotated tag on main that matches Cargo.toml
+        run: |
+          # The checkout can leave the tag pointing at the commit.
+          git fetch --force origin "+refs/heads/main:refs/remotes/origin/main" "+refs/tags/$BN_VERSION:refs/tags/$BN_VERSION"
+          kind=$(git cat-file -t "refs/tags/$BN_VERSION")
+          if [ "$kind" != tag ]; then
+            echo "::error::$BN_VERSION is a lightweight tag; create it with git tag -a"
+            exit 1
+          fi
+          cargo_version=$(sed -n '/^\[package\]/,/^\[/s/^version = "\(.*\)"$/\1/p' Cargo.toml)
+          if [ "v$cargo_version" != "$BN_VERSION" ]; then
+            echo "::error::Cargo.toml version $cargo_version does not match $BN_VERSION"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$BN_VERSION^{commit}" origin/main; then
+            echo "::error::$BN_VERSION is not on main"
+            exit 1
+          fi
+      - name: Require a new, highest version
+        run: |
+          releases=$(gh release list --limit 1000 --json tagName,isDraft,isPrerelease)
+          if ! jq -e --arg tag "$BN_VERSION" 'all(.[] | select(.isDraft | not); .tagName != $tag)' <<<"$releases" >/dev/null; then
+            echo "::error::a published release for $BN_VERSION already exists"
+            exit 1
+          fi
+          # Keeps `latest` correct: no release may sort at or above this one.
+          if ! jq -e --arg tag "$BN_VERSION" '
+            def triple: ltrimstr("v") | split(".") | map(tonumber);
+            all(
+              .[] | select((.isDraft or .isPrerelease) | not) | .tagName
+                | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"));
+              triple < ($tag | triple)
+            )' <<<"$releases" >/dev/null; then
+            echo "::error::$BN_VERSION is not greater than every published release"
+            exit 1
+          fi
+
+  ci:
+    name: CI
+    needs: validate
+    if: ${{ !cancelled() && needs.validate.result != 'failure' }}
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: Build ${{ matrix.asset }}
+    needs: ci
+    if: ${{ !cancelled() && needs.ci.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - asset: bn-linux-x86_64
+            target: x86_64-unknown-linux-musl
+            runner: ubuntu-24.04
+          - asset: bn-linux-aarch64
+            target: aarch64-unknown-linux-musl
+            runner: ubuntu-24.04-arm
+          - asset: bn-macos-aarch64
+            target: aarch64-apple-darwin
+            runner: macos-15
+          # Built and executed on the arm64 runner through Rosetta 2.
+          - asset: bn-macos-x86_64
+            target: x86_64-apple-darwin
+            runner: macos-15
+            exec: arch -x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      ASSET: ${{ matrix.asset }}
+      TARGET: ${{ matrix.target }}
+      EXEC: ${{ matrix.exec }}
+      BIN: target/${{ matrix.target }}/release/bn
+    steps:
+      - uses: actions/checkout@v7
+      - name: Require a vX.Y.Z version
+        run: grep -Eqx 'v[0-9]+\.[0-9]+\.[0-9]+' <<<"$BN_VERSION"
+      - name: Download the built UI
+        uses: actions/download-artifact@v8
+        with:
+          name: ui-dist
+          path: ui/dist
+      - name: Refuse the placeholder UI
+        run: |
+          if [ -z "$(find ui/dist -mindepth 1 ! -name index.html | head -n 1)" ]; then
+            echo "::error::ui/dist holds only the committed placeholder"
+            exit 1
+          fi
+      - name: Install the pinned compiler
+        run: |
+          channel=$(sed -n 's/^channel = "\(.*\)"$/\1/p' rust-toolchain.toml)
+          rustup toolchain install "$channel" --profile minimal --target "$TARGET"
+          rustc --version | grep -F "rustc $channel "
+      - name: Install the musl toolchain
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - name: Build the release binary
+        run: cargo build --release --locked --target "$TARGET"
+      - name: Require the embedded version
+        run: |
+          reported=$($EXEC "$BIN" --version)
+          echo "$reported"
+          [ "$reported" = "bn $BN_VERSION" ]
+      - name: Serve the embedded UI
+        run: $EXEC sh distribution/serve-check.sh "$BIN"
+      - name: Run the Git and server journeys on the musl build
+        if: runner.os == 'Linux'
+        run: cargo test --locked --target "$TARGET" --test native_cli --test native_server
+      - name: Name the asset
+        run: cp -f "$BIN" "$ASSET"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+          if-no-files-found: error
+
+  package:
+    name: Package the release assets
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download the four binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: bn-*
+          path: release
+          merge-multiple: true
+      - name: Write the manifest and add the installer
+        run: |
+          python3 -S distribution/manifest.py --tag "$BN_VERSION" \
+            --base-url "https://github.com/$GITHUB_REPOSITORY/releases" \
+            --dir release --output release/bn-manifest.json
+          cp -f distribution/install.sh release/install.sh
+          ls -l release
+          cat release/bn-manifest.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-assets
+          path: release
+          if-no-files-found: error
+
+  publish:
+    name: Publish the prerelease
+    needs: package
+    if: ${{ !cancelled() && github.event_name == 'push' && needs.package.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ASSETS: bn-linux-aarch64 bn-linux-x86_64 bn-macos-aarch64 bn-macos-x86_64 bn-manifest.json install.sh
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-assets
+          path: release
+      - name: Replace a draft left by an earlier attempt
+        run: |
+          if [ "$(gh release view "$BN_VERSION" --json isDraft --jq .isDraft 2>/dev/null)" = true ]; then
+            gh release delete "$BN_VERSION" --yes
+          fi
+      - name: Create the draft and attach every asset
+        working-directory: release
+        run: |
+          gh release create "$BN_VERSION" --draft --prerelease --verify-tag --title "$BN_VERSION" --generate-notes
+          # shellcheck disable=SC2086 # ASSETS is a list of file names
+          gh release upload "$BN_VERSION" $ASSETS
+          attached=$(gh release view "$BN_VERSION" --json assets --jq '[.assets[].name] | sort | join(" ")')
+          if [ "$attached" != "$ASSETS" ]; then
+            echo "::error::release holds '$attached', expected '$ASSETS'"
+            exit 1
+          fi
+      # Public, but a prerelease: releases/latest keeps the previous release
+      # until the smoke job has installed this one on every platform.
+      - name: Publish as a prerelease
+        run: gh release edit "$BN_VERSION" --draft=false --prerelease --latest=false
+
+  smoke:
+    name: Smoke ${{ matrix.name }}
+    needs: publish
+    if: ${{ !cancelled() && github.event_name == 'push' && needs.publish.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            runner: ubuntu-24.04
+          - name: linux-aarch64
+            runner: ubuntu-24.04-arm
+          - name: macos-aarch64
+            runner: macos-15
+          # `arch` makes `uname -m` report x86_64 to the installer.
+          - name: macos-x86_64
+            runner: macos-15
+            exec: arch -x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    env:
+      EXEC: ${{ matrix.exec }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the pinned prerelease over HTTPS
+        run: |
+          BN="$RUNNER_TEMP/pinned/bn"
+          echo "BN=$BN" >>"$GITHUB_ENV"
+          curl -fsSL "https://github.com/$GITHUB_REPOSITORY/releases/download/$BN_VERSION/install.sh" |
+            BN_INSTALL_VERSION="$BN_VERSION" BN_INSTALL_DIR="$RUNNER_TEMP/pinned" $EXEC sh
+          [ "$($EXEC "$BN" --version)" = "bn $BN_VERSION" ]
+      - name: Upgrade the installed binary in place
+        run: |
+          $EXEC "$BN" upgrade --version "$BN_VERSION" --force
+          [ "$($EXEC "$BN" --version)" = "bn $BN_VERSION" ]
+      - name: Serve the embedded UI
+        run: $EXEC sh distribution/serve-check.sh "$BN"
+
+  promote:
+    name: Promote to latest
+    needs: smoke
+    if: ${{ !cancelled() && github.event_name == 'push' && needs.smoke.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Mark the release as latest
+        run: gh release edit "$BN_VERSION" --prerelease=false --latest
+      - name: Install through the documented latest URL
+        run: |
+          BN="$RUNNER_TEMP/latest/bn"
+          latest() {
+            curl -fsSL "https://github.com/$GITHUB_REPOSITORY/releases/latest/download/install.sh" |
+              BN_INSTALL_DIR="$RUNNER_TEMP/latest" sh &&
+              [ "$("$BN" --version)" = "bn $BN_VERSION" ] &&
+              "$BN" upgrade --check --json |
+              jq -e --arg tag "$BN_VERSION" '.latest == $tag and .update_available == false'
+          }
+          # The latest redirect can lag the edit.
+          for attempt in $(seq 1 12); do
+            if latest; then
+              exit 0
+            fi
+            echo "attempt $attempt: releases/latest does not serve $BN_VERSION yet"
+            sleep 10
+          done
+          echo "::error::releases/latest never served $BN_VERSION"
+          exit 1

@@ -10,6 +10,8 @@ on:
       - mvp/rust-only-cutover-cleanup
       - mvp/rust-only-cutover-final-journey
   pull_request:
+  # The release workflow gates on these same jobs and embeds their ui-dist.
+  workflow_call:
 
 permissions:
   contents: read
