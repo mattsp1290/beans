@@ -223,5 +223,33 @@ pub(super) fn commands() -> Vec<Command> {
                     .num_args(1),
             ),
         Command::new("status").about("Show the hub clone state and the resolved project"),
+        Command::new("upgrade")
+            .about("Replace this bn binary with the latest release")
+            .arg(
+                Arg::new("check")
+                    .long("check")
+                    .help("report whether a newer release exists; install nothing")
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
+            )
+            .arg(
+                Arg::new("force")
+                    .long("force")
+                    .help("install even when not newer or when Cargo manages this binary")
+                    .action(ArgAction::SetTrue)
+                    .num_args(0..=1)
+                    .require_equals(true)
+                    .default_missing_value("true"),
+            )
+            // The root command owns the id `version` for its banner flag.
+            .arg(
+                Arg::new("tag")
+                    .long("version")
+                    .help("install exactly this release tag (vX.Y.Z)")
+                    .value_name("tag")
+                    .num_args(1),
+            ),
     ]
 }
