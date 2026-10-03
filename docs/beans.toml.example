@@ -50,3 +50,10 @@ length = 4
 #
 # [fetch]
 # throttle = "60s"
+#
+# [git]
+# lock_timeout = "30s"       # zero permits one immediate lock attempt
+# command_timeout = "30s"   # positive finite local-step budget
+# network_timeout = "60s"   # clone, fetch, push, ls-remote
+# cleanup_timeout = "10s"   # fresh rebase-abort budget
+# diagnostics = false       # loss-tolerant timing JSON on stderr

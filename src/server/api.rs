@@ -13,21 +13,25 @@ pub fn error(status: u16, code: &str, message: &str) -> Response {
 }
 pub(super) fn failure(e: Error) -> Response {
     let message = e.to_string();
-    let (status, code) = if message.starts_with("issue not found:") {
+    let category = match e.category() {
+        Some(crate::domain::error::ErrorCategory::LockTimeout) => Some((423, "hub_locked")),
+        Some(crate::domain::error::ErrorCategory::GitTimeout) => Some((504, "git_timeout")),
+        Some(
+            crate::domain::error::ErrorCategory::GitFailure
+            | crate::domain::error::ErrorCategory::GitSignaled
+            | crate::domain::error::ErrorCategory::GitCleanup,
+        ) => Some((502, "git_error")),
+        Some(crate::domain::error::ErrorCategory::GitConflict) => Some((409, "git_conflict")),
+        None => None,
+    };
+    let (status, code) = if let Some(category) = category {
+        category
+    } else if message.starts_with("issue not found:") {
         (404, "not_found")
-    } else if message == "another bn is running on this hub (lock held)" {
-        (423, "hub_locked")
     } else if message.starts_with("dependency cycle rejected")
         || message.starts_with("parent cycle rejected")
     {
         (409, "dependency_cycle")
-    } else if message.starts_with("hub has an interrupted") || message.starts_with("hub is on") {
-        (409, "git_conflict")
-    } else if message.starts_with("git ")
-        || message.starts_with("push rejected")
-        || message.starts_with("rebase ")
-    {
-        (502, "git_error")
     } else {
         (400, "validation_error")
     };

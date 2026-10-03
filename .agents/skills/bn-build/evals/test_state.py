@@ -469,7 +469,8 @@ class StateTests(unittest.TestCase):
             self.assertEqual(f.git("rev-parse", "HEAD", cwd=f.hub_remote).stdout, remote_before)
             intents = f.write_json("allowed-intents.json", [{"sha": pending["commit"], "intent_key": "fixture-note", "milestone_id": f.root_id}])
             self.state("sync-barrier", *args, "--allow-pending", str(intents))
-            lockpath = Path(f.envs["builder"]["BEANS_HOME"]) / "cache/hub.lock"
+            canonical_hub = hub.resolve()
+            lockpath = canonical_hub.parent / ".beans-state" / canonical_hub.name / "hub.lock"
             with lockpath.open("w") as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 # bn's documented hub lock timeout is 30 seconds. Observe the

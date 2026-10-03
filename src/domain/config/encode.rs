@@ -70,6 +70,30 @@ pub fn encode_user_config(config: &UserConfig) -> Vec<u8> {
     scalar(&mut out, b"  branch = ", &config.hub.branch);
     out.extend_from_slice(b"\n[fetch]\n");
     scalar(&mut out, b"  throttle = ", &config.fetch.throttle);
+    if config.git != super::UserGitConfig::default() {
+        out.extend_from_slice(b"\n[git]\n");
+        scalar(&mut out, b"  lock_timeout = ", &config.git.lock_timeout);
+        scalar(
+            &mut out,
+            b"  command_timeout = ",
+            &config.git.command_timeout,
+        );
+        scalar(
+            &mut out,
+            b"  network_timeout = ",
+            &config.git.network_timeout,
+        );
+        scalar(
+            &mut out,
+            b"  cleanup_timeout = ",
+            &config.git.cleanup_timeout,
+        );
+        out.extend_from_slice(if config.git.diagnostics {
+            b"  diagnostics = true\n"
+        } else {
+            b"  diagnostics = false\n"
+        });
+    }
     out
 }
 

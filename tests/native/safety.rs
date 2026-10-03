@@ -171,7 +171,18 @@ fn real_push_races_recover_with_new_git_compare_and_swap_rejection_diagnostics()
     // race "failed to update ref"; Git 2.55 calls it "incorrect old value
     // provided". Normalize only that status for deterministic native coverage.
     let wrapper = format!(
-        "#!/bin/sh\nerr=$(mktemp) || exit 99\n/usr/bin/git \"$@\" 2>\"$err\"\nresult=$?\nsed 's/(failed to update ref)/(incorrect old value provided)/g' \"$err\" >\"$err.new\"\nif grep -q '\\[remote rejected\\].*(incorrect old value provided)' \"$err.new\"; then printf 'ref race\\n' >> '{}'; fi\ncat \"$err.new\" >&2\nrm -f \"$err\" \"$err.new\"\nexit \"$result\"\n",
+        r#"#!/bin/sh
+err=$(mktemp) || exit 99
+out=$(mktemp) || exit 99
+/usr/bin/git "$@" >"$out" 2>"$err"
+result=$?
+sed 's/(failed to update ref)/(incorrect old value provided)/g' "$out" >"$out.new"
+if awk -F '\t' '$1 == "!" && $2 == "HEAD:refs/heads/main" && $3 == "[remote rejected] (incorrect old value provided)" {{ found=1 }} END {{ exit !found }}' "$out.new" && grep -Eq "^remote: error: cannot lock ref 'refs/heads/main': is at [0-9a-f]{{40}} but expected [0-9a-f]{{40}}" "$err"; then printf 'ref race\n' >> '{}'; fi
+cat "$out.new"
+cat "$err" >&2
+rm -f "$err" "$out" "$out.new"
+exit "$result"
+"#,
         observed.display()
     );
     let shim = tools.join("git");
@@ -218,14 +229,15 @@ fn status_replay_records_latest_transition_and_adjacent_note_without_forging_old
         serde_json::from_str(&s.ok(&["--json", "create", "Status race"])).unwrap();
     let id = created["id"].as_str().unwrap();
     s.ok(&["update", id, "--status", "ready_for_review"]);
-    let hub = Hub {
-        dir: s.path("home/hub"),
-        cache: s.path("home/cache"),
-        branch: "main".into(),
-        actor: "Native Tester".into(),
-        no_sync: false,
-        throttle: Duration::ZERO,
-    };
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
     let competitor = s.clone_hub(&remote, "status-competitor");
     let raced = s.path("raced-status");
     hook(

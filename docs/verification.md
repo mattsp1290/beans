@@ -121,3 +121,13 @@ I/O adapters. Kernel proofs do not establish YAML interpretation, parser span
 construction, crash/fsync durability or whole-hub transaction correctness.
 Production coupling, properties, model exploration and real journeys provide
 separate evidence for those adapters within the scenarios they execute.
+
+## Git coordination qualification
+
+`tests/native/git_coordination.rs` uses disposable real remotes and native CLI
+barriers to qualify cross-home/alias exclusion, independent sidecar state,
+initialization exclusion, cache preservation, phase timeouts, rejected hooks and
+lost push responses. `tests/native_git_runner.rs` isolates PATH fixtures in
+subprocesses to test pipe draining, raw bytes, deadlines and descendant cleanup.
+These are native evidence, not an expansion of the Verus model or a guarantee
+against external writers, escaped process groups or uninterruptible kernel I/O.

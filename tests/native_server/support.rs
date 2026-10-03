@@ -77,14 +77,7 @@ impl Fixture {
     }
     fn app(&self) -> Arc<App> {
         App::new(
-            Hub {
-                dir: self.hub.clone(),
-                cache: self.root.join("cache"),
-                branch: "main".into(),
-                actor: "HTTP Tester".into(),
-                no_sync: false,
-                throttle: Duration::ZERO,
-            },
+            Hub::new(self.hub.clone(), self.root.join("cache"), "main".into(), "HTTP Tester".into(), false, Duration::ZERO).map(|mut h| { h.lock_timeout = Duration::from_millis(80); h }).unwrap(),
             "p".into(),
         )
         .unwrap()
@@ -126,7 +119,9 @@ struct Server {
 }
 impl Server {
     fn new(fixture: &Fixture) -> Self {
-        let app = fixture.app();
+        Self::with_app(fixture.app())
+    }
+    fn with_app(app: Arc<App>) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         listener.set_nonblocking(true).unwrap();
         let address = listener.local_addr().unwrap();

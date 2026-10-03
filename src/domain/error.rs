@@ -1,20 +1,39 @@
 //! Canonical diagnostic bytes. Rust Display is a read-only Unicode view;
 //! command transports must use as_bytes to preserve raw filename bytes in diagnostics.
 use super::yaml_string::YamlString;
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ErrorCategory {
+    LockTimeout,
+    GitTimeout,
+    GitFailure,
+    GitSignaled,
+    GitConflict,
+    GitCleanup,
+}
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Error {
     message: YamlString,
+    category: Option<ErrorCategory>,
 }
 impl Error {
     pub fn new(message: String) -> Self {
         Self {
             message: message.into(),
+            category: None,
         }
     }
     pub fn from_bytes(message: Vec<u8>) -> Self {
         Self {
             message: YamlString::from_bytes(message),
+            category: None,
         }
+    }
+    pub fn categorized(mut self, category: ErrorCategory) -> Self {
+        self.category = Some(category);
+        self
+    }
+    pub fn category(&self) -> Option<ErrorCategory> {
+        self.category
     }
     pub fn as_str(&self) -> Option<&str> {
         self.message.as_str()
@@ -27,7 +46,10 @@ impl Error {
     pub(crate) fn with_path(self, view: &str, raw: &[u8]) -> Self {
         let prefix = [view.as_bytes(), b": "].concat();
         if let Some(rest) = self.as_bytes().strip_prefix(prefix.as_slice()) {
-            Self::from_bytes([raw, b": ", rest].concat())
+            Self {
+                message: YamlString::from_bytes([raw, b": ", rest].concat()),
+                category: self.category,
+            }
         } else {
             self
         }
@@ -37,7 +59,10 @@ impl Error {
         let mut bytes = prefix.to_vec();
         bytes.extend_from_slice(b": ");
         bytes.extend_from_slice(self.as_bytes());
-        Self::from_bytes(bytes)
+        Self {
+            message: YamlString::from_bytes(bytes),
+            category: self.category,
+        }
     }
 }
 impl std::fmt::Display for Error {

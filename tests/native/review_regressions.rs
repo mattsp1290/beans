@@ -310,14 +310,15 @@ fn age_archive_rechecks_eligibility_after_push_race_and_rename_merge() {
             &other.dir,
             &["commit", "-m", "race refresh and newly eligible archive"],
         );
-        let hub = Hub {
-            dir: s.path("home/hub"),
-            cache: s.path("home/cache"),
-            branch: "main".into(),
-            actor: "Native Tester".into(),
-            no_sync: false,
-            throttle: Duration::ZERO,
-        };
+        let hub = Hub::new(
+            s.path("home/hub"),
+            s.path("home/cache"),
+            "main".into(),
+            "Native Tester".into(),
+            false,
+            Duration::ZERO,
+        )
+        .unwrap();
         let marker = s.path("raced");
         hook(
             &hub,

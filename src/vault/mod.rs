@@ -18,7 +18,7 @@ pub use classify::{
     skip_dir_name,
 };
 pub use document::{DocMetadata, YamlValue, doc_metadata, split_doc_frontmatter};
-pub use git::{GitCapture, GitResolver, SystemGit};
+pub use git::{GitCapture, GitResolver, PolicyGit, SystemGit};
 pub use graph::{GraphNote, LinkKind, LinkRef, NoteGraph, NoteKind, RawLink, Warning};
 pub use index::{Index, LoadOptions, Note, NoteData, Project};
 pub use paths::{Paths, check_hub, default_paths, default_paths_with};

@@ -11,7 +11,7 @@ pub(super) enum Node {
     String(String),
     Integer(i64),
     Float,
-    Bool,
+    Bool(bool),
     Array(Vec<Spanned<Node>>),
     Table(Vec<(String, Spanned<Node>)>),
 }
@@ -50,8 +50,8 @@ impl<'de> Deserialize<'de> for Node {
             fn visit_f64<E: serde::de::Error>(self, _: f64) -> Result<Node, E> {
                 Ok(Node::Float)
             }
-            fn visit_bool<E: serde::de::Error>(self, _: bool) -> Result<Node, E> {
-                Ok(Node::Bool)
+            fn visit_bool<E: serde::de::Error>(self, value: bool) -> Result<Node, E> {
+                Ok(Node::Bool(value))
             }
             fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Node, A::Error> {
                 let mut values = Vec::new();
@@ -92,7 +92,7 @@ impl Node {
             Self::String(_) => "string",
             Self::Integer(_) => "int64",
             Self::Float => "float64",
-            Self::Bool => "bool",
+            Self::Bool(_) => "bool",
             Self::Array(_) => "[]any",
             Self::Table(values) => {
                 let text = source.get(span).unwrap_or_default();

@@ -15,6 +15,13 @@ impl Actor {
         }
     }
     pub fn resolve(&mut self, user_actor: &[u8]) -> &[u8] {
+        self.resolve_policy(user_actor, &crate::gitops::GitExecutor::default())
+    }
+    pub fn resolve_policy(
+        &mut self,
+        user_actor: &[u8],
+        executor: &crate::gitops::GitExecutor,
+    ) -> &[u8] {
         self.resolve_with(
             user_actor,
             |key| {
@@ -22,12 +29,11 @@ impl Actor {
                 std::env::var_os(key).unwrap_or_default().as_bytes().into()
             },
             || {
-                std::process::Command::new("git")
-                    .args(["config", "user.name"])
-                    .output()
+                executor
+                    .run(None, ["config", "user.name"], "config")
                     .ok()
-                    .filter(|out| out.status.success())
-                    .map(|out| out.stdout)
+                    .filter(|o| o.status.success())
+                    .map(|o| o.stdout)
             },
         )
     }

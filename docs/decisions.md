@@ -134,3 +134,14 @@ embed Svelte assets. Same-source retry/splice proofs have executable negative
 controls and production LLVM coupling checks. Agent workflows call the canonical
 Rust workflow and restricted YAML interfaces. Earlier dated implementation
 references document decisions at the time and do not define current build paths.
+
+## 2026-10-03: Clone-scoped Rust Git coordination
+
+All cooperating writers share canonical sibling state independently of user home.
+Initialization uses the same persistent lock as mutations and cache maintenance.
+Every system-Git call has a finite Unix process-group boundary; only requested-ref
+porcelain contention evidence consumes the verified retry budget. Optional timings
+use a bounded queue so diagnostic backpressure cannot extend a write lock. Legacy
+journals remain evidence requiring explicit reconciliation; there is no automatic
+migration or old-binary bridge. All binaries upgrade together. See
+[Git write coordination](git-coordination.md) for limits and recovery.

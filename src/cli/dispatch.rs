@@ -164,6 +164,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
             | ("import", "bd")
     );
     if !write
+        && name != "doctor"
         && !hub.no_sync
         && !flag(root, "no-fetch")
         && let Err(e) = hub.refresh()
@@ -193,6 +194,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
                 .unwrap_or_default()
         }
     };
+    let git = crate::vault::PolicyGit(hub.executor.clone());
     let mut resolved = resolve(
         &hub.dir,
         ResolveOptions {
@@ -204,6 +206,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
             write: write && !(name == "import" && flag(leaf, "dry-run")),
             all_projects: allow_unscoped,
             env: Some(&lookup),
+            git: Some(&git),
             ..Default::default()
         },
     )?;
