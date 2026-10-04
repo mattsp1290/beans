@@ -58,7 +58,7 @@ corruption, not a compromised release. Artifact attestations are not produced.
 | --- | --- | --- |
 | `validate` | tag | Requires an annotated tag on `main`, equal to the `Cargo.toml` version, with no published release and greater than every published release |
 | `ci` | tag, dry run | Runs `ci.yml` for the commit, including `make verify`, and provides the built UI |
-| `build` | tag, dry run | Builds each target with `BN_VERSION` set, checks `--version`, runs `distribution/serve-check.sh` and the installer tests, and runs the Git and server journeys against the release musl binary on Linux and the upgrade journeys on macOS |
+| `build` | tag, dry run | Builds each target with `BN_VERSION` set, checks `--version`, runs `distribution/serve-check.sh` and the installer tests, and runs the Git and server journeys against the release musl binary on Linux and the in-crate upgrade flow tests on macOS |
 | `package` | tag, dry run | Writes `bn-manifest.json` and collects the six assets |
 | `publish` | tag | Creates a draft, attaches the assets, verifies them and publishes a prerelease |
 | `smoke` | tag | On all four platforms: pinned HTTPS install, real `bn upgrade --version <tag> --force`, serve check |

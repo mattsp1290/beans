@@ -163,9 +163,12 @@ jobs:
       # installer and `bn upgrade` before a prerelease is public.
       - name: Run the installer tests on this platform
         run: python3 -S distribution/tests/run_tests.py
-      - name: Run the upgrade journeys on macOS
+      # The CLI journeys in tests/native_cli.rs use Linux-only pipe calls, so
+      # macOS runs the in-crate flow tests: real curl, checksum, smoke run and
+      # rename against a file:// release tree.
+      - name: Run the upgrade flow tests on macOS
         if: runner.os == 'macOS'
-        run: cargo test --release --locked --target "$TARGET" --test native_cli upgrade
+        run: cargo test --release --locked --target "$TARGET" --lib upgrade
       - name: Name the asset
         run: cp -f "$BIN" "$ASSET"
       - uses: actions/upload-artifact@v7
