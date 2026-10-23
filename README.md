@@ -122,8 +122,8 @@ relationship summaries.
 Prompts are one-off instructions or delegations between actor identities. Use
 `bn prompt create` to send one, `bn prompt inbox` to discover addressed work,
 and claim it before acting. Prompts are coordination records, not reusable
-templates and not authorization: Beans does not authenticate `from`, `to`, or
-`claimed_by`. Requests capture desired project outcomes; issues execute and
+templates and not authorization. No authentication is performed for `from`,
+`to`, or `claimed_by`. Requests capture desired project outcomes; issues execute and
 track durable work; prompts may link one issue without becoming a dependency;
 handoffs preserve continuation context for a later session. Plans describe and
 bind structured execution, while docs and memories retain reference knowledge;
