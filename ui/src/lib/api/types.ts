@@ -61,7 +61,9 @@ export interface RequestSummary { id:string; title:string; status:RequestStatus;
 export interface RequestDetail extends RequestSummary { issues:LinkedIssueSummary[]; backlinks:Backlink[]; log:IssueLogEntry[]; toc:TocEntry[]; html:string }
 export interface ListRequestsParams { status?:RequestStatus; label?:string; priority?:number; q?:string; terminal?:boolean }
 
-export type PromptStatus = 'open' | 'in_progress' | 'completed' | 'declined' | 'cancelled'
+/** Prompt lifecycle values accepted and returned by the HTTP API. */
+export const PROMPT_STATUSES = ['open', 'in_progress', 'completed', 'declined', 'cancelled'] as const
+export type PromptStatus = (typeof PROMPT_STATUSES)[number]
 export interface PromptSummary {
   id: string
   title: string

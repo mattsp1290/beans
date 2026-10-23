@@ -53,4 +53,4 @@ export type {
   UpdateIssueRequest,
   WorkflowInfo,
 } from './types'
-export { ALL_PROJECTS } from './types'
+export { ALL_PROJECTS, PROMPT_STATUSES } from './types'

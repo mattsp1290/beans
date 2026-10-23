@@ -77,6 +77,7 @@ describe('ApiClient', () => {
   it('lists prompts with every filter and URL-encodes the project', async () => {
     const fetcher = mockFetch([])
     const client = new ApiClient({ fetch: fetcher })
+    const controller = new AbortController()
 
     await client.listPrompts('agent team/_all', {
       status: 'in_progress',
@@ -87,11 +88,11 @@ describe('ApiClient', () => {
       claimed_by: 'agent_three',
       q: 'exact/id & title',
       terminal: false,
-    })
+    }, controller.signal)
 
     expect(fetcher).toHaveBeenCalledWith(
       '/api/projects/agent%20team%2F_all/prompts?status=in_progress&label=needs+review&priority=0&from=human_one&to=agent_two&claimed_by=agent_three&q=exact%2Fid+%26+title&terminal=false',
-      { method: 'GET', headers: { Accept: 'application/json' }, body: undefined },
+      { method: 'GET', headers: { Accept: 'application/json' }, body: undefined, signal: controller.signal },
     )
   })
 

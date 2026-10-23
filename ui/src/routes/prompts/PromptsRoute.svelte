@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { api, type PromptDetail, type PromptStatus, type PromptSummary } from '../../lib/api'
+  import { api, PROMPT_STATUSES, type PromptDetail, type PromptStatus, type PromptSummary } from '../../lib/api'
   import EmptyState from '../../lib/components/EmptyState.svelte'
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
@@ -22,48 +22,62 @@
   let recipient = $state('')
   let includeTerminal = $state(false)
 
-  const statuses: { value: PromptStatus; label: string }[] = [
-    { value: 'open', label: 'Open' },
-    { value: 'in_progress', label: 'In progress' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'declined', label: 'Declined' },
-    { value: 'cancelled', label: 'Cancelled' },
-  ]
+  const statusLabels: Record<PromptStatus, string> = {
+    open: 'Open',
+    in_progress: 'In progress',
+    completed: 'Completed',
+    declined: 'Declined',
+    cancelled: 'Cancelled',
+  }
+  const statuses = PROMPT_STATUSES.map((value) => ({ value, label: statusLabels[value] }))
 
   $effect(() => {
     const requestedProject = project
     const requestedId = id
     reloadKey
-    query
-    status
-    recipient
-    includeTerminal
+    const requestedQuery = query
+    const requestedStatus = status
+    const requestedRecipient = recipient
+    const requestedTerminal = includeTerminal
     let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let controller: AbortController | undefined
     loading = true
     error = ''
     detail = null
     prompts = []
-    const request = requestedId
-      ? api.getPrompt(requestedId)
-      : api.listPrompts(requestedProject, {
-          q: query || undefined,
-          status: status || undefined,
-          to: recipient || undefined,
-          terminal: includeTerminal,
+    const settle = (request: Promise<PromptDetail | PromptSummary[]>) => request
+        .then((value) => {
+          if (cancelled) return
+          if (requestedId) detail = value as PromptDetail
+          else prompts = value as PromptSummary[]
         })
-    request
-      .then((value) => {
-        if (cancelled) return
-        if (requestedId) detail = value as PromptDetail
-        else prompts = value as PromptSummary[]
-      })
-      .catch((cause) => {
-        if (!cancelled) error = cause instanceof Error ? cause.message : 'Could not load prompts'
-      })
-      .finally(() => {
-        if (!cancelled) loading = false
-      })
-    return () => { cancelled = true }
+        .catch((cause) => {
+          if (!cancelled && !(cause instanceof DOMException && cause.name === 'AbortError')) {
+            error = cause instanceof Error ? cause.message : 'Could not load prompts'
+          }
+        })
+        .finally(() => {
+          if (!cancelled) loading = false
+        })
+    if (requestedId) {
+      void settle(api.getPrompt(requestedId))
+    } else {
+      controller = new AbortController()
+      timer = setTimeout(() => {
+        void settle(api.listPrompts(requestedProject, {
+          q: requestedQuery || undefined,
+          status: requestedStatus || undefined,
+          to: requestedRecipient || undefined,
+          terminal: requestedTerminal,
+        }, controller?.signal))
+      }, 150)
+    }
+    return () => {
+      cancelled = true
+      if (timer !== undefined) clearTimeout(timer)
+      controller?.abort()
+    }
   })
 
   function goTo(path: string) {

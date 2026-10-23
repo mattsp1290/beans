@@ -285,6 +285,84 @@ fn prompt_query_filters_searches_instruction_only_sorts_and_unions_inbox() {
 }
 
 #[test]
+fn prompts_for_issue_owns_resolution_ordering_terminal_and_duplicate_semantics() {
+    let hub = super::index::hub("prompts-for-issue-domain", false);
+    project(&hub.0, "p");
+    project(&hub.0, "q");
+    write(
+        &hub.0,
+        "projects/p/issues/main-issue.md",
+        "---\nid: p-i-main\naliases: [main-alias]\ntitle: Main issue\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n",
+    );
+    let cases = [
+        ("p", "alias.md", "p-p-alias", "open", 2, None, "main-alias"),
+        (
+            "p",
+            "basename.md",
+            "p-p-basename",
+            "completed",
+            0,
+            Some("worker"),
+            "main-issue",
+        ),
+        ("q", "cross.md", "q-p-cross", "open", 1, None, "p-i-main"),
+        (
+            "p",
+            "missing.md",
+            "p-p-missing",
+            "open",
+            0,
+            None,
+            "p-i-missing",
+        ),
+        (
+            "p",
+            "duplicate-a.md",
+            "p-p-duplicate",
+            "open",
+            3,
+            None,
+            "p-i-main",
+        ),
+        (
+            "p",
+            "duplicate-b.md",
+            "p-p-duplicate",
+            "open",
+            3,
+            None,
+            "p-i-main",
+        ),
+    ];
+    for (project_name, filename, id, status, priority, claimant, issue) in cases {
+        write(
+            &hub.0,
+            &format!("projects/{project_name}/prompts/{filename}"),
+            prompt!(
+                id,
+                id,
+                status,
+                priority,
+                "sender",
+                "recipient",
+                claimant,
+                Some(issue),
+                "2026-01-01T00:00:00Z",
+                "relationship",
+                "body",
+            ),
+        );
+    }
+
+    let index = Index::load(&hub.0).unwrap();
+    let issue = index.note_by_id(NoteKind::Issue, b"p-i-main").unwrap();
+    assert_eq!(
+        ids(index.prompts_for_issue(issue)),
+        ["p-p-basename", "q-p-cross", "p-p-alias", "p-p-duplicate"]
+    );
+}
+
+#[test]
 fn prompt_graph_links_issue_backlinks_without_dependency_edges_and_reports_missing() {
     let hub = super::index::hub("prompt-graph-domain", false);
     write(

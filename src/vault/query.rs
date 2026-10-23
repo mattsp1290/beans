@@ -172,6 +172,27 @@ impl Index {
     pub fn project_prompts(&self, filter: &PromptFilter) -> Vec<&Note> {
         self.filtered_prompts(filter, None)
     }
+    /// Returns every owned prompt whose issue reference resolves to `issue`.
+    /// Resolution and prompt ordering stay in the index boundary so callers do
+    /// not need to reproduce alias, basename, duplicate-ID, or terminal rules.
+    pub fn prompts_for_issue(&self, issue: &Note) -> Vec<&Note> {
+        if !matches!(issue.data, NoteData::Issue(_)) {
+            return Vec::new();
+        }
+        self.project_prompts(&PromptFilter {
+            terminal: true,
+            ..Default::default()
+        })
+        .into_iter()
+        .filter(|prompt| {
+            matches!(&prompt.data, NoteData::Prompt(document)
+                if self
+                    .resolve_issue_ref(document.metadata.issue.target.as_bytes())
+                    .1
+                    .is_some_and(|target| target.graph.path == issue.graph.path))
+        })
+        .collect()
+    }
     /// Returns the stable union of prompts addressed to or claimed by `actor`.
     pub fn prompt_inbox(&self, actor: &[u8], filter: &PromptFilter) -> Vec<&Note> {
         self.filtered_prompts(filter, Some(actor))

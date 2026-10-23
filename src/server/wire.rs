@@ -117,20 +117,7 @@ fn note_with_backlinks(
             );
             v["requests"] = json!(index.ordered_notes().iter().filter(|r| matches!(&r.data, NoteData::Request(r) if r.metadata.issues.iter().any(|l| l.target == d.metadata.id || l.target.as_bytes() == n.graph.basename))).map(|r| note(index,r,false)).collect::<Vec<_>>());
             if detail {
-                let prompts = index
-                    .project_prompts(&crate::vault::PromptFilter {
-                        terminal: true,
-                        ..Default::default()
-                    })
-                    .into_iter()
-                    .filter(|prompt| {
-                        matches!(&prompt.data, NoteData::Prompt(document)
-                            if index
-                                .resolve_issue_ref(document.metadata.issue.target.as_bytes())
-                                .1
-                                .is_some_and(|issue| issue.graph.path == n.graph.path))
-                    })
-                    .collect::<Vec<_>>();
+                let prompts = index.prompts_for_issue(n);
                 derived_prompts.extend(prompts.iter().map(|prompt| prompt.graph.basename.clone()));
                 v["prompts"] = json!(prompts.into_iter().map(prompt_summary).collect::<Vec<_>>());
             }

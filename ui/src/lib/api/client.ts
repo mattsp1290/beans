@@ -51,6 +51,7 @@ interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
   body?: unknown
   query?: Record<string, QueryValue>
+  signal?: AbortSignal
 }
 
 export class ApiClient {
@@ -88,7 +89,7 @@ export class ApiClient {
 
   getRequest(id: string): Promise<RequestDetail> { return this.request(`/requests/${encodeURIComponent(id)}`) }
 
-  listPrompts(project: string, params: ListPromptsParams = {}): Promise<PromptSummary[]> {
+  listPrompts(project: string, params: ListPromptsParams = {}, signal?: AbortSignal): Promise<PromptSummary[]> {
     return this.request(`/projects/${encodeURIComponent(project)}/prompts`, {
       query: {
         status: params.status,
@@ -100,6 +101,7 @@ export class ApiClient {
         q: params.q,
         terminal: params.terminal,
       },
+      signal,
     })
   }
 
@@ -225,11 +227,13 @@ export class ApiClient {
   }
 
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const response = await this.fetcher(`${this.baseUrl}${path}${buildQuery(options.query)}`, {
+    const init: RequestInit = {
       method: options.method ?? 'GET',
       headers: requestHeaders(options.body),
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
-    })
+    }
+    if (options.signal) init.signal = options.signal
+    const response = await this.fetcher(`${this.baseUrl}${path}${buildQuery(options.query)}`, init)
 
     if (response.status === 204) {
       return undefined as T

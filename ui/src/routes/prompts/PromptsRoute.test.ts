@@ -2,7 +2,7 @@
 
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { api, type PromptDetail, type PromptSummary } from '../../lib/api'
+import { api, PROMPT_STATUSES, type PromptDetail, type PromptSummary } from '../../lib/api'
 import PromptsRoute from './PromptsRoute.svelte'
 
 const summary: PromptSummary = {
@@ -28,13 +28,17 @@ afterEach(() => {
 })
 
 describe('PromptsRoute list', () => {
+  it('keeps the browser prompt-status contract aligned with the HTTP vocabulary', () => {
+    expect(PROMPT_STATUSES).toEqual(['open', 'in_progress', 'completed', 'declined', 'cancelled'])
+  })
+
   it('requests active prompts for all recipients by default, renders every card field, and updates filters', async () => {
     const list = vi.spyOn(api, 'listPrompts').mockResolvedValue([summary])
     const navigate = vi.fn()
     render(PromptsRoute, { project: '_all', id: null, reloadKey: 0, navigate })
 
     const card = await screen.findByRole('link', { name: /Review the patch/ })
-    expect(list).toHaveBeenCalledWith('_all', { q: undefined, status: undefined, to: undefined, terminal: false })
+    expect(list).toHaveBeenCalledWith('_all', { q: undefined, status: undefined, to: undefined, terminal: false }, expect.any(AbortSignal))
     expect(card.textContent).toContain('P1')
     expect(card.textContent).toContain('beans-p-a1 · open · beans')
     expect(card.textContent).toContain('alice → all · claimed by bob')
@@ -44,15 +48,43 @@ describe('PromptsRoute list', () => {
     expect(card.querySelector('time')?.getAttribute('datetime')).toBe(summary.updated)
 
     await fireEvent.input(screen.getByRole('searchbox', { name: 'Search' }), { target: { value: 'security' } })
-    await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', expect.objectContaining({ q: 'security' })))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', expect.objectContaining({ q: 'security' }), expect.any(AbortSignal)))
     await fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'completed' } })
-    await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', expect.objectContaining({ status: 'completed' })))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', expect.objectContaining({ status: 'completed' }), expect.any(AbortSignal)))
     await fireEvent.input(screen.getByRole('textbox', { name: 'Recipient' }), { target: { value: 'reviewer' } })
-    await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', expect.objectContaining({ to: 'reviewer' })))
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', expect.objectContaining({ to: 'reviewer' }), expect.any(AbortSignal)))
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Include terminal' }))
     await waitFor(() => expect(list).toHaveBeenLastCalledWith('_all', {
       q: 'security', status: 'completed', to: 'reviewer', terminal: true,
-    }))
+    }, expect.any(AbortSignal)))
+  })
+
+  it('debounces text filters and aborts a superseded list request', async () => {
+    const list = vi.spyOn(api, 'listPrompts')
+      .mockResolvedValueOnce([])
+      .mockReturnValue(new Promise(() => {}))
+    render(PromptsRoute, { project: '_all', id: null, reloadKey: 0, navigate: vi.fn() })
+    await waitFor(() => expect(list).toHaveBeenCalledTimes(1))
+    await screen.findByRole('region', { name: 'Prompts' })
+    const initialSignal = list.mock.calls[0][2]
+
+    const search = screen.getByRole('searchbox', { name: 'Search' })
+    await fireEvent.input(search, { target: { value: 's' } })
+    await fireEvent.input(search, { target: { value: 'security' } })
+
+    expect(initialSignal?.aborted).toBe(true)
+    expect(list).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(list).toHaveBeenCalledTimes(2))
+    const supersededSignal = list.mock.calls[1][2]
+    await fireEvent.input(search, { target: { value: 'security review' } })
+    expect(supersededSignal?.aborted).toBe(true)
+    expect(list).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(list).toHaveBeenCalledTimes(3))
+    expect(list).toHaveBeenLastCalledWith(
+      '_all',
+      expect.objectContaining({ q: 'security review' }),
+      expect.any(AbortSignal),
+    )
   })
 
   it('routes an ordinary card click but leaves modified and non-primary clicks to the browser', async () => {
