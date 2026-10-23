@@ -132,9 +132,11 @@ env -u BEANS_HUB -u BN_CONFIG BEANS_HOME="$COORD_HOME" BEANS_PROJECT="$PROJECT" 
   "$BIN" serve --host 127.0.0.1 --port "$PORT" >"$TMP/server.log" 2>&1 &
 SERVER_PID=$!
 ready=false
-for _n in $(seq 1 100); do
+_n=0
+while [ "$_n" -lt 100 ]; do
   if curl -fsS "http://127.0.0.1:$PORT/api/health" >"$TMP/health.json" 2>/dev/null; then ready=true; break; fi
   sleep 0.05
+  _n=$((_n + 1))
 done
 [ "$ready" = true ] || { printf 'server did not become ready\n' >&2; python3 -c 'import sys; print(open(sys.argv[1]).read(), end="", file=sys.stderr)' "$TMP/server.log"; exit 1; }
 curl -fsS "http://127.0.0.1:$PORT/api/projects/$PROJECT/prompts?status=completed" >"$TMP/prompts.json"
