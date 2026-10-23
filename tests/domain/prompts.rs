@@ -114,12 +114,45 @@ fn claim_is_atomic_conflict_safe_and_idempotent_for_the_same_actor() {
 }
 
 #[test]
+fn forced_reopening_clears_claimants_without_mutating_source_states() {
+    let cases = [
+        (prompt::IN_PROGRESS, Some("Agent A")),
+        (prompt::COMPLETED, Some("Agent A")),
+        (prompt::DECLINED, Some("Agent A")),
+        (prompt::CANCELLED, Some("Agent A")),
+        (prompt::DECLINED, None),
+        (prompt::CANCELLED, None),
+    ];
+
+    for (status, claimant) in cases {
+        let source = prompt::State::new(status, claimant, "receiver").unwrap();
+        let unchanged = source.clone();
+        let reopened = source.transition(prompt::OPEN, None, true).unwrap();
+
+        assert_eq!(reopened.status, prompt::OPEN, "forced {status} -> open");
+        assert_eq!(reopened.claimed_by, None, "forced {status} -> open");
+        assert_eq!(reopened.to, "receiver");
+        assert_eq!(source, unchanged, "source changed after reopening {status}");
+        assert!(
+            source.transition(prompt::OPEN, None, false).is_err(),
+            "ordinary {status} -> open"
+        );
+        assert_eq!(source, unchanged, "source changed after rejected {status}");
+    }
+}
+
+#[test]
 fn direct_status_changes_enforce_claim_effect_and_state_invariants_even_when_forced() {
     let open = prompt::State::new(prompt::OPEN, None, "receiver").unwrap();
     assert!(
         open.transition(prompt::IN_PROGRESS, Some("Agent A"), false)
             .is_err()
     );
+    assert!(
+        open.transition(prompt::IN_PROGRESS, Some("Agent A"), true)
+            .is_err()
+    );
+    assert!(prompt::State::new(prompt::COMPLETED, None, "receiver").is_err());
 
     let claimed = open.claim("Agent A").unwrap();
     assert_eq!(
@@ -136,8 +169,7 @@ fn direct_status_changes_enforce_claim_effect_and_state_invariants_even_when_for
     let completed = claimed.transition(prompt::COMPLETED, None, false).unwrap();
     assert_eq!(completed.claimed_by.as_deref(), Some("Agent A"));
 
-    // Force bypasses the matrix, not the open/unclaimed or invocation-actor rules.
-    assert!(completed.transition(prompt::OPEN, None, true).is_err());
+    // Force bypasses the matrix, not final state/status or invocation-actor rules.
     assert!(
         completed
             .transition(prompt::IN_PROGRESS, None, true)

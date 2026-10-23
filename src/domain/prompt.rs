@@ -126,9 +126,10 @@ impl State {
         ))
     }
 
-    /// Applies an explicit status effect while retaining claimant provenance.
-    /// Entering `in_progress` this way requires the already-recorded claimant
-    /// to equal the invocation actor; new claims must use [`Self::claim`].
+    /// Applies an explicit status effect while retaining claimant provenance,
+    /// except that reopening clears the claimant atomically. Entering
+    /// `in_progress` this way requires the already-recorded claimant to equal
+    /// the invocation actor; new claims must use [`Self::claim`].
     pub fn transition(
         &self,
         status: &str,
@@ -145,7 +146,11 @@ impl State {
         }
         let next = Self {
             status: status.to_owned(),
-            claimed_by: self.claimed_by.clone(),
+            claimed_by: if status == OPEN {
+                None
+            } else {
+                self.claimed_by.clone()
+            },
             to: self.to.clone(),
         };
         next.validate()?;
