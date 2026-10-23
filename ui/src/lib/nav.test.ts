@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Backlink } from './api'
-import { backlinkHref, handleRenderedContentClick, isInterceptableContentLink } from './nav'
+import { backlinkHref, handleNavigationClick, handleRenderedContentClick, isInterceptableContentLink } from './nav'
 
 function backlink(overrides: Partial<Backlink>): Backlink {
   return { from: 'bn-1', kind: 'reference', note_kind: 'issue', ...overrides }
@@ -59,10 +59,14 @@ describe('isInterceptableContentLink', () => {
 describe('handleRenderedContentClick', () => {
   interface FakeAnchor {
     getAttribute(name: string): string | null
+    hasAttribute(name: string): boolean
   }
 
   function fakeAnchor(href: string | null): FakeAnchor {
-    return { getAttribute: (name) => (name === 'href' ? href : null) }
+    return {
+      getAttribute: (name) => (name === 'href' ? href : null),
+      hasAttribute: () => false,
+    }
   }
 
   function fakeEvent(anchor: FakeAnchor | null): { event: MouseEvent; prevented: () => boolean } {
@@ -72,6 +76,7 @@ describe('handleRenderedContentClick', () => {
     }
     const event = {
       target,
+      button: 0,
       metaKey: false,
       ctrlKey: false,
       shiftKey: false,
@@ -131,5 +136,40 @@ describe('handleRenderedContentClick', () => {
 
     expect(navigate).not.toHaveBeenCalled()
     expect(prevented()).toBe(false)
+  })
+})
+
+describe('handleNavigationClick', () => {
+  it('only intercepts plain primary internal link clicks', () => {
+    const navigate = vi.fn()
+    for (const event of [
+      new MouseEvent('click', { button: 1, cancelable: true }),
+      new MouseEvent('click', { ctrlKey: true, cancelable: true }),
+    ]) {
+      handleNavigationClick(event, navigate, '/prompts/beans-p-a1', document.createElement('a'))
+      expect(event.defaultPrevented).toBe(false)
+    }
+
+    const target = document.createElement('a')
+    target.target = '_blank'
+    const targeted = new MouseEvent('click', { cancelable: true })
+    handleNavigationClick(targeted, navigate, '/prompts/beans-p-a1', target)
+    expect(targeted.defaultPrevented).toBe(false)
+
+    const download = document.createElement('a')
+    download.setAttribute('download', '')
+    const downloaded = new MouseEvent('click', { cancelable: true })
+    handleNavigationClick(downloaded, navigate, '/prompts/beans-p-a1', download)
+    expect(downloaded.defaultPrevented).toBe(false)
+
+    const external = new MouseEvent('click', { cancelable: true })
+    handleNavigationClick(external, navigate, 'https://example.test', document.createElement('a'))
+    expect(external.defaultPrevented).toBe(false)
+    expect(navigate).not.toHaveBeenCalled()
+
+    const ordinary = new MouseEvent('click', { cancelable: true })
+    handleNavigationClick(ordinary, navigate, '/prompts/beans-p-a1', document.createElement('a'))
+    expect(ordinary.defaultPrevented).toBe(true)
+    expect(navigate).toHaveBeenCalledWith('/prompts/beans-p-a1')
   })
 })

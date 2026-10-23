@@ -3,7 +3,7 @@
   import EmptyState from '../../lib/components/EmptyState.svelte'
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
-  import { backlinkHref, handleRenderedContentClick } from '../../lib/nav'
+  import { backlinkHref, handleNavigationClick, handleRenderedContentClick } from '../../lib/nav'
 
   interface Props {
     project: string
@@ -31,8 +31,8 @@
   ]
 
   $effect(() => {
-    project
-    id
+    const requestedProject = project
+    const requestedId = id
     reloadKey
     query
     status
@@ -41,10 +41,11 @@
     let cancelled = false
     loading = true
     error = ''
-    if (id) detail = null
-    const request = id
-      ? api.getPrompt(id)
-      : api.listPrompts(project, {
+    detail = null
+    prompts = []
+    const request = requestedId
+      ? api.getPrompt(requestedId)
+      : api.listPrompts(requestedProject, {
           q: query || undefined,
           status: status || undefined,
           to: recipient || undefined,
@@ -53,7 +54,7 @@
     request
       .then((value) => {
         if (cancelled) return
-        if (id) detail = value as PromptDetail
+        if (requestedId) detail = value as PromptDetail
         else prompts = value as PromptSummary[]
       })
       .catch((cause) => {
@@ -67,8 +68,7 @@
 
   function goTo(path: string) {
     return (event: MouseEvent) => {
-      event.preventDefault()
-      navigate(path)
+      handleNavigationClick(event, navigate, path)
     }
   }
 
@@ -84,7 +84,7 @@
   <ErrorState title="Could not load prompts" message={error} />
 {:else if id && !detail}
   <EmptyState title="Prompt not found" message="This prompt may have been moved or removed." />
-{:else if detail}
+{:else if id && detail}
   <article class="workspace prompt-detail" aria-label="Prompt detail">
     <button type="button" class="secondary back" onclick={() => navigate('/prompts')}>&larr; Back to prompts</button>
     <header>

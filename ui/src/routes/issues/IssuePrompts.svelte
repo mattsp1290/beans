@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { IssuePromptSummary } from '../../lib/api'
+  import { handleNavigationClick } from '../../lib/nav'
   import { isMissingPrompt, promptHref } from './prompts'
 
   interface Props {
@@ -10,8 +11,7 @@
   let { prompts, navigate }: Props = $props()
 
   function goTo(id: string, event: MouseEvent) {
-    event.preventDefault()
-    navigate(promptHref(id))
+    handleNavigationClick(event, navigate, promptHref(id))
   }
 </script>
 

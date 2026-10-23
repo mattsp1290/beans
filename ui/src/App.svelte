@@ -10,6 +10,7 @@
 	import PlansRoute from './routes/plans/PlansRoute.svelte'
 	import RequestsRoute from './routes/requests/RequestsRoute.svelte'
 	import PromptsRoute from './routes/prompts/PromptsRoute.svelte'
+	import { handleNavigationClick } from './lib/nav'
 	import { getRoute, parseIssueId, parsePlanId, parsePromptId, parseRequestId, parseWikiPath, routes } from './routes'
 
   const PROJECT_STORAGE_KEY = 'bn-ui:project'
@@ -140,14 +141,7 @@
   }
 
   function navigate(event: MouseEvent, path: string) {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-      return
-    }
-    event.preventDefault()
-    if (path === pathname + search) {
-      return
-    }
-    applyPath(path)
+    handleNavigationClick(event, go, path)
   }
 
   function go(path: string) {
