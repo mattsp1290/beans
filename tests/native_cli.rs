@@ -1191,6 +1191,8 @@ mod git_coordination;
 mod git_resolver;
 #[path = "native/prompts_contract.rs"]
 mod prompts_contract;
+#[path = "native/prompts_git_journeys.rs"]
+mod prompts_git_journeys;
 #[path = "native/commands.rs"]
 mod retained_commands;
 #[path = "native/review_regressions.rs"]
