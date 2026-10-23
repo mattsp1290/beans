@@ -48,7 +48,17 @@ fn real_http_mutations_share_cli_files_and_git_history() {
             .iter()
             .all(|v| v["id"] != id)
     );
-    assert_eq!(s.ok("/api/projects/p/issues?status=closed")[0]["id"], id);
+    let closed = s.ok("/api/projects/p/issues?status=closed");
+    let created_issue = closed
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|issue| issue["id"] == id)
+        .expect("created issue should be in the closed issue list");
+    assert_eq!(created_issue["title"], "Renamed");
+    assert_eq!(created_issue["status"], "closed");
+    assert_eq!(created_issue["priority"], 1);
+    assert_eq!(created_issue["labels"], json!(["new"]));
     assert_eq!(
         s.json("POST", &format!("{route}/reopen"), Value::Null).0,
         200
