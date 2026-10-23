@@ -13,6 +13,7 @@ mod issue_encode;
 pub mod log;
 pub mod memory;
 pub mod plan;
+pub mod prompt;
 pub mod request;
 mod request_document;
 mod request_encode;
