@@ -49,6 +49,11 @@ pushes the hub itself; never commit hub files by hand. `CLAUDE.md` has the
 session-completion checklist. Create continuation context with `bn handoff
 create --file - [--issue <id>]`; discover it with `bn handoff list`, not
 `bn ready`.
+Discover one-off delegations with `bn prompt inbox --json`, claim them before
+acting, and complete or decline them explicitly. Prompts do not replace
+`bn ready` issues or `bn handoff list` continuation context; link a prompt to
+an issue when execution needs durable tracking. Prompt actor identities are
+coordination metadata, not authentication.
 
 ## Non-Interactive Shell Commands
 

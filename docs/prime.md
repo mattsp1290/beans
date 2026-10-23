@@ -2,6 +2,11 @@
 
 bn stores issues as markdown files in the hub repository at ~/.beans/hub. Every mutating command commits and pushes to that repository; you never commit hub files yourself. Reads use the local clone and fetch at most once a minute; run bn sync to force it.
 
+Prompts are one-off instructions, requests capture desired project outcomes,
+issues track execution, and handoffs preserve continuation context. Plans bind
+structured execution; docs and memories are reference knowledge. Do not use
+one category's discovery command as a substitute for another.
+
 ## Where issues live
 
 The project is the name of the git repository you are in: bn resolves it from the basename of `git rev-parse --show-toplevel`, then from the repository's origin URL. Pass `--project <name>` to override, or `--all-projects` on reads to see the whole hub. The first write inside a new repository creates `projects/<name>/` in the hub.
@@ -20,19 +25,22 @@ Ids are `<prefix>-<hash>`, for example `beans-a3f2`; they are unique across the 
 - `bn note <id> <text>` — append a log note
 - `bn handoff create --file - [--issue <id>]` — save a session handoff from stdin
 - `bn handoff list` / `bn handoff show <id>` — discover continuation context (not `bn ready`)
+- `bn prompt inbox --json` — discover active one-off instructions addressed to your resolved actor (not `bn ready`)
+- `bn prompt update <id> --claim` — claim before acting; actor identity is coordination metadata, not authentication
+- For durable execution, link the prompt to one governing issue (or create the issue first). Add result/evidence with `bn prompt update <id> --note "..."`, then explicitly set `--status completed` or `declined`. Use a normal handoff when another session needs continuation context.
 - Attach a handoff to its governing issue when useful. Archive stale context explicitly (use `--dry-run` before bulk cleanup); do not create new `$HOME/.agents/projects/*/handoffs/` files. Historical external handoffs are not imported automatically.
 - `bn close <id...> -r "reason"` — close with a reason; idempotent
 - `bn reopen <id>` — back to the default status
 - `bn delete <id> [--force]` — remove the file; refuses while other issues link to it unless forced
 - `bn dep add <child> <parent>` — child is blocked by parent; `-t parent-child` sets the parent instead
 - `bn dep remove <child> <parent>`, `bn dep tree [id]`, `bn dep cycles`, `bn children <id>`, `bn blocked`
-- `bn search <query>` — issues, docs, memories, and handoffs
+- `bn search <query>` — issues, prompts, requests, plans, docs, memories, and handoffs
 - `bn remember "text" [--key k] [--global]` and `bn memories [keyword]` — persistent notes
 - `bn doc new <path>`, `bn doc list`, `bn doc backlinks <path>` — wiki pages
 - `bn plan init <title> --output <dir>`, edit, `bn plan validate <dir>`, `bn plan put <dir>` — project plans; create issues, then `bn plan link PLAN NODE ISSUE`; after `bn sync`, use `bn plan status PLAN --json` for execution state. Lifecycle remains explicit.
 - `bn request create|list|show|update|link|unlink` — hub-native requests; requests own their canonical `issues` links, and only bn mutates them
 - `bn status`, `bn sync`, `bn doctor` — hub state, force a pull and push, check for problems
-- `bn serve` — the issues board, requests, and wiki in a browser (requests are read-only there)
+- `bn serve` — the issues board, prompts, requests, plans, and wiki in a browser (prompts, requests, and plans are read-only there)
 
 Every read accepts `--json` for machine-readable output; use it instead of parsing tables.
 
@@ -46,4 +54,4 @@ Editing files in the hub with an editor is fine; the next bn command commits the
 
 ## Exit codes
 
-0 success, 1 usage or validation error, 2 not found, 3 git failure (run `bn sync`), 4 another bn holds the hub lock.
+0 success, 1 runtime/validation/not-found/Git/lock failure, 2 command-line argument parsing error. Diagnostics identify the failure category; `--json` does not create a separate JSON error protocol.

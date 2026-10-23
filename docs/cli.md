@@ -1,6 +1,6 @@
 # CLI reference
 
-`bn` implements issues, requests, plans, docs, memories and handoffs in one Rust executable. System Git transports hub changes; no additional product process implements commands. Existing document IDs, unknown frontmatter, authored body bytes and configuration remain usable without conversion. [format.md](format.md) defines the stored format; [server.md](server.md) describes HTTP and rendering.
+`bn` implements issues, prompts, requests, plans, docs, memories and handoffs in one Rust executable. System Git transports hub changes; no additional product process implements commands. Existing document IDs, unknown frontmatter, authored body bytes and configuration remain usable without conversion. [format.md](format.md) defines the stored format; [server.md](server.md) describes HTTP and rendering.
 
 ## Commands and flags
 
@@ -39,6 +39,14 @@ Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch
 | `bn request show <id>` | — |
 | `bn request unlink <id> <issue-id>...` | — |
 | `bn request update <id>` | `--body-file <body-file>`, `-d, --description <description>`, `--force[=<force>]` (default `false`), `--label <label>`, `--priority <priority>`, `--requested-by <requested-by>`, `--status <status>`, `--stdin[=<stdin>]` (default `false`), `--title <title>`, `--unlabel <unlabel>` |
+| `bn prompt <COMMAND>` | — |
+| `bn prompt create <title>` | `--to <to>` (required), `--from <from>`, `--issue <issue>`, `-l, --label <label>`, `-p, --priority <priority>` (default `2`), `-d, --description <description>`, `--body-file <body-file>`, `--stdin[=<stdin>]` (default `false`) |
+| `bn prompt list` | `--all-projects[=<all-projects>]` (default `false`), `--from <from>`, `--to <to>`, `--claimed-by <claimed-by>`, `--status <status>`, `--label <label>`, `-p, --priority <priority>`, `--query <query>`, `--terminal[=<terminal>]` (default `false`) |
+| `bn prompt inbox` | `--to <to>` (default resolved actor), `--all-projects[=<all-projects>]` (default `false`), `--claimed[=<claimed>]` (default `false`), `--terminal[=<terminal>]` (default `false`), `--limit <limit>` (default `50`; `0` means all) |
+| `bn prompt show <id>` | — |
+| `bn prompt update <id>` | `--claim[=<claim>]` (default `false`), `--status <status>`, `--force[=<force>]` (default `false`), `--title <title>`, `--to <to>`, `--priority <priority>`, `--label <label>`, `--unlabel <unlabel>`, `--note <note>`, `-d, --description <description>`, `--body-file <body-file>`, `--stdin[=<stdin>]` (default `false`) |
+| `bn prompt link <id> <issue-id>` | — |
+| `bn prompt unlink <id>` | — |
 | `bn handoff <COMMAND>` | — |
 | `bn handoff archive [id]...` | `--all-projects[=<all-projects>]` (default `false`), `--dry-run[=<dry-run>]` (default `false`), `--older-than <older-than>` |
 | `bn handoff attach <id> <issue-id>` | — |
@@ -84,6 +92,7 @@ Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch
 | `bn help [COMMAND]...` | — |
 | `bn dep help [COMMAND]...` | — |
 | `bn request help [COMMAND]...` | — |
+| `bn prompt help [COMMAND]...` | — |
 | `bn handoff help [COMMAND]...` | — |
 | `bn plan help [COMMAND]...` | — |
 | `bn cache help [COMMAND]...` | — |
@@ -93,16 +102,16 @@ Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch
 
 ## Output and mutation semantics
 
-`create`, `request create`, and `handoff create` print only the stable ID in plain
-mode; `--silent` retains that guarantee. JSON mutation results expose `id`, `key`
+`create`, `request create`, `prompt create`, and `handoff create` print only the stable ID in plain
+mode; `--silent`, where offered, retains that guarantee. JSON mutation results expose `id`, `key`
 (where useful), `commit`/`sha`, `pushed`, and `message`. `init --json` reports the
 hub, remote, branch, and config path. `sync --json` returns `{"synced":true,"status":{...}}`, with `ahead` and `behind` inside `status`. `status` reports hub Git state and read-only project resolution: an explicit `--project` takes precedence over `BEANS_PROJECT` and repository detection. Successful resolution includes `project`, `project_dir` and `resolution`; unresolved selection is reported in `resolution` without creating a project. Issue detail adds `description`, `body`, `log`, `path`, `project`, and
-`backlinks` to metadata. Request, memory, and handoff detail includes body and path;
-requests include log and issue links. Links retain `raw`/`target`/`display`/`heading`
+`backlinks` to metadata. Request, prompt, memory, and handoff detail includes
+body and path; requests and prompts include log and issue links. Links retain `raw`/`target`/`display`/`heading`
 semantic fields, and CLI timestamps are objects with `seconds`, `nanoseconds`, and `offset_seconds`. Plan
 JSON exposes its graph, summaries, sections and lifecycle. CLI dependency nodes/edges and search hits use PascalCase field spellings, such as `ID`, `Title`, `From` and `To`. Treat these semantic fields as the interface; presentation whitespace is not a byte-stability contract. HTTP timestamp fields use RFC3339 strings instead, as described in [server.md](server.md).
 
-Plain issue/request/handoff `show` emits the stored markdown (`--raw` is accepted).
+Plain issue/request/prompt/handoff `show` emits the stored markdown (`--raw` is accepted where listed).
 Lists use compact ID/title lines; graph/search/doctor/project/plan-validation/status
 reports are structured JSON in either presentation mode. `man` emits a complete
 roff manual to stdout, generated from the actual command tree: `bn man | man -l -`.
@@ -126,6 +135,46 @@ Request bodies select exactly one of `--description`, `--body-file` (including
 `-`), or `--stdin`; no body selects the project/hub request template. An explicit
 empty body suppresses that template. Request updates enforce the fixed lifecycle
 unless forced. Issue links validate the entire requested batch before writing.
+
+Prompt bodies likewise select exactly one of `--description`, `--body-file`
+(including `-`), or `--stdin`; no source loads the project, hub, or built-in
+prompt template, while an explicit empty source suppresses it. `list` and
+`inbox` sort by priority, creation time, then ID and exclude `completed`,
+`declined`, and `cancelled` unless `--terminal` is set or `--status` explicitly
+selects one. Inbox defaults `--to` to the resolved actor and never treats a
+missing actor as an unfiltered inbox. `--claimed` also includes prompts claimed
+by that selected actor. General list and the web UI do not default a recipient.
+
+`--claim` uses the frozen invocation actor, atomically records it in
+`claimed_by`, and advances `open` to `in_progress`; a retry by that same actor
+is a no-op, while a different claimant fails without a write. Claim does not
+rewrite `to`. A forced lifecycle correction cannot bypass field or claimant
+invariants. Beans does not authenticate identities: sender, recipient, and
+claimant are case-sensitive coordination metadata, not authorization.
+Prompt issue links are prompt-owned and nonstructural, so they do not affect
+dependencies, readiness, or plan execution.
+
+Prompt statuses are exactly `open`, `in_progress`, `completed`, `declined`, and
+`cancelled`. Ordinary transitions are `open` to `in_progress`, `declined`, or
+`cancelled`, and `in_progress` to `completed`, `declined`, or `cancelled`;
+`--force` is the explicit correction escape hatch. `--to` cannot be combined
+with claim or status. Reassignment is ordinarily limited to an open, unclaimed
+prompt; forced reassignment resets it to open and clears the claimant. Blank
+resolved actors fail with guidance to set global `--actor` or `BN_ACTOR`, except
+that inbox can use an explicit nonblank `--to`.
+
+Plain prompt list/inbox output is compact ID/title lines. Prompt JSON
+list/inbox objects contain exactly `id`, `aliases`, `title`, `status`,
+`priority`, `labels`, `from`, `to`, `claimed_by`, `issue`, `created`, `updated`,
+`path`, and `project`; detail adds `body` and `log`. Missing `claimed_by` and
+`issue` are `null`, and a linked issue is `{"raw":"[[id]]","target":"id"}`.
+Prompt writes return the six-field mutation envelope `id`, `key`, `sha`,
+`commit`, `pushed`, and `message`, with `key == id` and `commit == sha`. A
+semantic no-op still returns that envelope in JSON, with empty `sha` and
+`commit`, but makes no commit and appends no log entry. Prompt failures follow
+the ordinary runtime exit 1/text diagnostic contract and never emit success
+JSON; Clap argument errors exit 2.
+
 Handoff `--file -` reads stdin and preserves every final newline. Handoff IDs and
 `--older-than` are alternative archive selectors, and `--all-projects` requires
 an age selector. Active continuation discovery excludes archived notes by default.
@@ -209,6 +258,10 @@ The browser-open flag `serve --open` is also retired. The server binds only the 
 ## Transaction and byte ownership
 
 Writes and deletes use descriptor-relative no-follow containment and the shared locked Git/journal boundary. Hand edits are committed separately before the requested mutation. Each invocation freezes its actor, timestamp, source repository/branch/code SHA and Bn-Run nonce and has at most three push attempts. A replay re-reads the latest document and recalculates eligibility and status transitions. A surviving owned commit retains its original log; a dropped operation can be replayed without duplicating the note. Only a proven single invocation-owned commit can be discarded for replay; unowned commits and authored bytes remain protected. Transport/authentication/hook failures do not authorize history deletion.
+
+For prompts, this means a concurrent claim re-reads the current claimant under
+the mutation boundary: a different actor cannot silently replace ownership,
+and replay cannot duplicate claim or evidence log entries.
 
 Failure preserves necessary local commits and recovery evidence for `bn sync` and diagnosis. There is no blanket hub reset or recursive hub deletion. `cache clear` takes the shared lock and removes only `last-fetch` and `last-fetch-attempt` while retaining `hub.lock` and `op-journal.json`; recovery evidence is not derived cache. Read commands use snapshot indexing without plan/tree recovery or temporary-file cleanup. Malformed physical frontmatter encoding is rejected before edits; arbitrary body bytes and unrelated frontmatter intervals remain lossless. See [verification.md](verification.md) for the proof, property, model and production-test boundaries.
 

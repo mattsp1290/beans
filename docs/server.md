@@ -41,6 +41,14 @@ Prompt list responses contain exactly `id`, `title`, `status`, `priority`, `labe
 
 Prompt list status values are `open`, `in_progress`, `completed`, `declined`, and `cancelled`; priorities are integers from 0 through 4. Invalid status or priority filters return `400 validation_error` before querying. Lists exclude terminal prompts unless an explicit `status` is supplied or `terminal=true`; `_all` selects all projects. Unknown projects and prompt IDs return the standard `404 not_found` envelope. Prompt query matching follows the native case-folded, surrounding-whitespace-trimmed prompt query over title, ID, participants, labels, and body.
 
+The web app's Prompts screen is read-only. It lists active prompts for all
+recipients by default, exposes the list filters above, and supports direct
+`/prompts/<id>` deep links. Rendered prompt wikilinks, search results,
+backlinks, and issue-derived prompt relationships route to that detail view;
+the issue relationship is not repeated as a generic backlink. The screen has
+no claim, lifecycle, link, or edit control. Use the CLI for every prompt
+mutation.
+
 Defaults exclude terminal issues from the board; an explicit status or `archived=true` includes them. Project counts use configured terminal states and group held states with open. Project configuration uses root-level `name` and `prefix`; an absent prefix is displayed as the project name. See [beans.toml.example](beans.toml.example).
 
 | Mutation route | Method |
