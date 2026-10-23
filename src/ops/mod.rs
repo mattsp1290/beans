@@ -4,7 +4,7 @@ pub use context::{OperationConfig, prefix_for};
 pub(crate) mod issues;
 pub use issues::{IssueChange, IssueFields, IssueMutation};
 pub(crate) mod records;
-pub use records::{RecordChange, RecordMutation, RequestEdit};
+pub use records::{PromptEdit, RecordChange, RecordMutation, RequestEdit};
 pub(crate) fn scaffold_paths(
     hub: &std::path::Path,
     resolved: &crate::vault::Resolved,
