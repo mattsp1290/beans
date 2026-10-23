@@ -30,6 +30,27 @@ proptest! {
     }
 
     #[test]
+    fn prompt_edits_preserve_every_unowned_byte(
+        instruction in "[a-zA-Z0-9 雪☃]{0,80}",
+        blanks in 0usize..5,
+    ) {
+        let source = format!(
+            "---\nid: beans-p-ab12\naliases: [beans-p-ab12]\ntitle: Property prompt\nstatus: open\npriority: 2\nlabels: [agents]\nfrom: planner\nto: worker\nunknown: {{nested: [one, two]}}\n{}# retained comment\ncreated: 2026-09-11T15:51:49Z\nupdated: 2026-09-11T15:51:49Z\n---\n{instruction}\n\n## Log\n- opaque original\n\n## Tail\nretained tail ☃\n",
+            "\n".repeat(blanks)
+        );
+        let path = "projects/beans/prompts/beans-p-ab12-property-prompt.md";
+        let mut prompt = beans::domain::prompt::PromptDocument::parse(path, &source).unwrap();
+        prop_assert_eq!(prompt.encode().unwrap().bytes, source.as_bytes());
+        prompt.metadata.priority = 4;
+        let encoded = prompt.encode().unwrap();
+        let expected = source.replacen("priority: 2\n", "priority: 4\n", 1);
+        prop_assert_eq!(&encoded.bytes, expected.as_bytes());
+        for copy in encoded.copies {
+            prop_assert_eq!(&source.as_bytes()[copy.source], &encoded.bytes[copy.destination]);
+        }
+    }
+
+    #[test]
     fn preserved_intervals_keep_every_unchanged_byte_in_order(
         edits in prop::collection::vec((0usize..8, 0usize..8), 0..16),
         tail in 0usize..8,

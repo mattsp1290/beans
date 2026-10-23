@@ -32,6 +32,8 @@ mod plan_bundle;
 mod plan_graph;
 #[path = "domain/plans.rs"]
 mod plans;
+#[path = "domain/prompt_codec.rs"]
+mod prompt_codec;
 #[path = "domain/prompts.rs"]
 mod prompts;
 #[path = "domain/query.rs"]

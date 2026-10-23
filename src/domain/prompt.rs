@@ -1,4 +1,5 @@
 //! Prompt-specific identity, namespace, and fixed lifecycle rules.
+pub use super::prompt_document::{PromptDocument, PromptMetadata};
 use super::{frontmatter::Error, id, issue::quoted};
 
 pub const OPEN: &str = "open";

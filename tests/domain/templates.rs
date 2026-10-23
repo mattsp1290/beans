@@ -1,5 +1,6 @@
 use beans::domain::template::{
-    default_request_template, default_template, load_request_template, load_template,
+    default_prompt_template, default_request_template, default_template, load_prompt_template,
+    load_request_template, load_template,
 };
 use serde::Deserialize;
 use std::path::{Path, PathBuf};
@@ -69,6 +70,24 @@ fn load_template_prefers_project_then_hub_then_builtin() {
         load_template("epic", &project, &hub),
         default_template("epic")
     );
+}
+
+#[test]
+fn prompt_template_builtin_and_precedence() {
+    const BUILTIN: &[u8] = b"## Objective\n\n## Constraints\n\n## Expected result\n";
+    assert_eq!(default_prompt_template(), BUILTIN);
+    assert_eq!(default_template("prompt"), BUILTIN);
+
+    let scratch = Scratch::new();
+    let project = scratch.0.join("project");
+    let hub = scratch.0.join("hub");
+    scratch.write("hub/templates/prompt.md", b"hub prompt\n");
+    assert_eq!(load_prompt_template(&project, &hub), b"hub prompt\n");
+    scratch.write("project/templates/prompt.md", b"project prompt\n");
+    assert_eq!(load_prompt_template(&project, &hub), b"project prompt\n");
+    scratch.write("project/templates/prompt.md", b"");
+    assert_eq!(load_prompt_template(&project, &hub), b"");
+    assert_eq!(load_prompt_template(Path::new(""), Path::new("")), BUILTIN);
 }
 
 #[derive(Deserialize)]
