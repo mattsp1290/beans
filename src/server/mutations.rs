@@ -45,7 +45,13 @@ pub(super) fn mutate(
     q: &BTreeMap<String, String>,
     body: &[u8],
 ) -> Response {
-    if matches!(parts, ["api", "plans" | "requests", _]) {
+    if matches!(parts, ["api", "plans" | "requests", _])
+        || (matches!(method, &Method::POST | &Method::PATCH | &Method::DELETE)
+            && matches!(
+                parts,
+                ["api", "prompts", _] | ["api", "projects", _, "prompts"]
+            ))
+    {
         return error(405, "method_not_allowed", "resource is read-only");
     }
     let input: Input = if body.is_empty() {

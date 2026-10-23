@@ -1,5 +1,5 @@
 use super::*;
-use crate::vault::{NoteData, NoteKind, RequestFilter, SearchOptions};
+use crate::vault::{NoteData, NoteKind, PromptFilter, RequestFilter, SearchOptions};
 use axum::{Json, http::StatusCode};
 use serde::Serialize;
 use serde_json::json;
@@ -141,6 +141,33 @@ pub fn handle(app: &App, method: &Method, uri: &Uri, body: &[u8]) -> Response {
             }
             json_response(notes.into_iter().map(|n|wire::note(&index,n,false)).filter(|v|["status","type"].iter().all(|k|q.get(*k).is_none_or(|expected|v[*k]==*expected)) && q.get("label").is_none_or(|l|v["labels"].as_array().is_some_and(|a|a.contains(&json!(l)))) && (*kind=="requests" || q.get("q").is_none_or(|s|v.to_string().to_lowercase().contains(&s.to_lowercase())))).collect::<Vec<_>>())
         }
+        ["api", "projects", p, "prompts"] => {
+            if *p != "_all" && !index.projects.contains_key(p.as_bytes()) {
+                return error(404, "not_found", "project not found");
+            }
+            if q.get("status").is_some_and(|value| {
+                !value.is_empty() && !crate::domain::prompt::valid_status(value)
+            }) {
+                return error(400, "validation_error", "invalid prompt status");
+            }
+            if q.get("priority").is_some_and(|value| {
+                value.parse::<i64>().map_or(true, |priority| !(0..=4).contains(&priority))
+            }) {
+                return error(400, "validation_error", "invalid priority");
+            }
+            let notes = index.project_prompts(&PromptFilter {
+                project: project(p, app).into(),
+                status: q.get("status").cloned().unwrap_or_default().into_bytes(),
+                label: q.get("label").cloned().unwrap_or_default().into_bytes(),
+                priority: q.get("priority").and_then(|value| value.parse().ok()),
+                from: q.get("from").cloned().unwrap_or_default().into_bytes(),
+                to: q.get("to").cloned().unwrap_or_default().into_bytes(),
+                claimed_by: q.get("claimed_by").cloned().unwrap_or_default().into_bytes(),
+                query: q.get("q").cloned().unwrap_or_default().into_bytes(),
+                terminal: q.get("terminal").is_some_and(|value| value == "true"),
+            });
+            json_response(notes.into_iter().map(wire::prompt_summary).collect::<Vec<_>>())
+        }
         ["api",kind @ ("issues" | "requests" | "plans"),id] => {
             let kind = match *kind {"issues"=>NoteKind::Issue,"requests"=>NoteKind::Request,_=>NoteKind::Plan};
             match index.note_by_id(kind,id.as_bytes()) { Some(n)=>{
@@ -149,6 +176,10 @@ pub fn handle(app: &App, method: &Method, uri: &Uri, body: &[u8]) -> Response {
                 json_response(value)
             },None=>error(404,"not_found","record not found") }
         }
+        ["api", "prompts", id] => match index.note_by_id(NoteKind::Prompt, id.as_bytes()) {
+            Some(note) => json_response(wire::prompt_detail(&index, note)),
+            None => error(404, "not_found", "prompt not found"),
+        },
         ["api","graph"] => {
             let graph = index.dependency_graph(if q.get("all").is_some_and(|v|v=="true") {b""} else {qp},false);
             json_response(json!({"nodes":graph.nodes.iter().map(|n|json!({"id":n.id,"title":n.title,"status":n.status,"priority":n.priority,"type":n.kind,"project":n.project,"archived":n.archived})).collect::<Vec<_>>(),"edges":graph.edges.iter().map(|e|json!({"from":e.from,"to":e.to,"kind":e.kind})).collect::<Vec<_>>()}))

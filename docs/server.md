@@ -25,8 +25,9 @@ Read routes accept GET and HEAD. Project selectors use `project=NAME` or the ser
 | `/api/projects/:project/issues` | Issues; `archived`, `status`, `type`, `label`, `q` |
 | `/api/projects/:project/ready` | Work whose configured status and blockers make it ready |
 | `/api/projects/:project/requests` | Requests; `status`, `label`, `priority`, `q`, `terminal` |
+| `/api/projects/:project/prompts` | Prompts; `status`, `label`, `priority`, `from`, `to`, `claimed_by`, `q`, `terminal` |
 | `/api/projects/:project/plans` | Plans; `status` |
-| `/api/issues/:id`, `/api/requests/:id`, `/api/plans/:id` | Detail; `include_archived_handoffs` controls extra backlinks |
+| `/api/issues/:id`, `/api/requests/:id`, `/api/plans/:id`, `/api/prompts/:id` | Detail; `include_archived_handoffs` controls extra backlinks on the established detail routes |
 | `/api/graph` | Dependencies and parents; `project` or `all=true` |
 | `/api/search` | `q`, comma-separated `kind`, `project`, `include_archived_handoffs` |
 | `/api/docs/tree` | Indexed wiki paths for the selected project and global docs |
@@ -35,6 +36,10 @@ Read routes accept GET and HEAD. Project selectors use `project=NAME` or the ser
 | `/api/events` | Server-sent reload events |
 
 Known `created`, `updated` and log `at` fields are HTTP RFC3339 strings, preserving fractional nanoseconds and numeric offsets. CLI/domain JSON uses timestamp objects with `seconds`, `nanoseconds` and `offset_seconds`. HTTP issue relationships expose target IDs; CLI relationship objects retain `raw`, `target`, `display` and `heading`. Use the appropriate wire interface rather than copying timestamp or relationship representations between them. Request body queries use the native request filter, including case folding and surrounding-whitespace trimming.
+
+Prompt list responses contain exactly `id`, `title`, `status`, `priority`, `labels`, `from`, `to`, `claimed_by`, `created`, `updated`, `project`, `path`, and `has_issue`. `claimed_by` is JSON null when unclaimed and `has_issue` is a boolean. Prompt detail adds `html`, `toc`, `backlinks`, `outlinks`, `log`, and `issue`; `issue` is null when unlinked, otherwise it is `{id,title,missing}`. A missing target is data (`missing: true`), not an HTTP error. Issue detail includes a derived `prompts` array of these exact prompt summaries and omits the corresponding structural prompt links from generic `backlinks` so the relationship is not duplicated. Prompt IDs are looked up in the prompt namespace, independently of equal issue IDs.
+
+Prompt list status values are `open`, `in_progress`, `completed`, `declined`, and `cancelled`; priorities are integers from 0 through 4. Invalid status or priority filters return `400 validation_error` before querying. Lists exclude terminal prompts unless an explicit `status` is supplied or `terminal=true`; `_all` selects all projects. Unknown projects and prompt IDs return the standard `404 not_found` envelope. Prompt query matching follows the native case-folded, surrounding-whitespace-trimmed prompt query over title, ID, participants, labels, and body.
 
 Defaults exclude terminal issues from the board; an explicit status or `archived=true` includes them. Project counts use configured terminal states and group held states with open. Project configuration uses root-level `name` and `prefix`; an absent prefix is displayed as the project name. See [beans.toml.example](beans.toml.example).
 
@@ -48,11 +53,13 @@ Defaults exclude terminal issues from the board; an explicit status or `archived
 | `/api/issues/:id/deps` | POST with `target` and relationship `type` |
 | `/api/issues/:id/deps/:target` | DELETE; `type` defaults to `blocks` |
 
-Issue mutations enter `IssueMutation` through `Hub::mutate`; requests and plans are read-only HTTP resources. Errors use `{"error":{"code":"...","message":"..."}}`. Validation and malformed JSON return 400, missing resources 404, read-only resource mutations 405, dependency cycles and interrupted/detached Git state 409, hub lock wait expiration 423 (`hub_locked`), Git command/transport failures 502 (`git_error`), and Git deadlines 504 (`git_timeout`). Unknown mutation routes can return 404. Transport body-limit failures retain their HTTP status. Unknown API paths and absent file/asset paths never receive SPA HTML. Embedded assets use explicit MIME types and `nosniff`; HEAD preserves headers and length while omitting the response body. Extensionless application routes fall back to the embedded index page.
+Issue mutations enter `IssueMutation` through `Hub::mutate`; requests, plans, and prompts are read-only HTTP resources. `POST`, `PATCH`, and `DELETE` on `/api/projects/:project/prompts` and `/api/prompts/:id` return `405 method_not_allowed` before request-body JSON decoding, including for empty or malformed bodies. Errors use `{"error":{"code":"...","message":"..."}}`. Validation and malformed JSON return 400, missing resources 404, read-only resource mutations 405, dependency cycles and interrupted/detached Git state 409, hub lock wait expiration 423 (`hub_locked`), Git command/transport failures 502 (`git_error`), and Git deadlines 504 (`git_timeout`). Unknown mutation routes can return 404. Transport body-limit failures retain their HTTP status. Unknown API paths and absent file/asset paths never receive SPA HTML. Embedded assets use explicit MIME types and `nosniff`; HEAD preserves headers and length while omitting the response body. Extensionless application routes fall back to the embedded index page.
 
 ## Markdown and search
 
 Comrak produces safe HTML with raw HTML disabled and unsafe URL schemes filtered. Wikilinks resolve indexed names and aliases, including heading fragments. Note embeds expand one level; nested note embeds become links. Heading embeds render links instead of inserting block bodies into heading attributes. Indexed image embeds and Markdown images use the asset endpoint. Code spans/fences, authored links and image-alt text protect literal syntax and authored marker strings.
+
+Wikilinks to prompts render `/prompts/<id>`. The read-only prompt API supplies the detail needed for later UI interception; the server does not add prompt mutation behavior.
 
 Highlights, tables, tasks, footnotes, heading self-links and a TOC for all heading levels are supported. One heading formatter and collision allocator assign IDs, self-link targets and outer TOC entries from the same visible text. Embedded headings do not enter the outer document's TOC. Hashtags become `.hashtag` links, such as `#project` linking to `/search?q=project`; the Search screen receives that query and searches indexed content. Hashtags inside code, authored links or image-alt text remain literal. Frontmatter is excluded from rendered document content.
 

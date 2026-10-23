@@ -7,7 +7,58 @@ fn s(v: &[u8]) -> String {
     String::from_utf8_lossy(v).into_owned()
 }
 pub fn backlinks(index: &Index, note: &Note, archived: bool) -> Value {
-    json!(index.issue_backlinks(&note.graph.basename, archived).iter().filter(|r| r.kind != crate::vault::LinkKind::RequestIssue).filter_map(|r| index.lookup(&r.from).map(|n| json!({"from":s(n.graph.id.as_deref().unwrap_or(&n.graph.basename)),"kind":r.kind,"note_kind":n.graph.kind,"path":s(&n.graph.path),"title":s(&n.title)}))).collect::<Vec<_>>())
+    json!(index.issue_backlinks(&note.graph.basename, archived).iter().filter(|r| !matches!(r.kind, crate::vault::LinkKind::RequestIssue | crate::vault::LinkKind::PromptIssue)).filter_map(|r| index.lookup(&r.from).map(|n| json!({"from":s(n.graph.id.as_deref().unwrap_or(&n.graph.basename)),"kind":r.kind,"note_kind":n.graph.kind,"path":s(&n.graph.path),"title":s(&n.title)}))).collect::<Vec<_>>())
+}
+/// Stable HTTP-only prompt list projection. Domain and CLI JSON deliberately
+/// retain different timestamp and relationship representations.
+pub fn prompt_summary(n: &Note) -> Value {
+    let NoteData::Prompt(document) = &n.data else {
+        unreachable!("prompt summary received a non-prompt note")
+    };
+    let metadata = &document.metadata;
+    json!({
+        "id": metadata.id,
+        "title": metadata.title,
+        "status": metadata.status,
+        "priority": metadata.priority,
+        "labels": metadata.labels,
+        "from": metadata.from,
+        "to": metadata.to,
+        "claimed_by": metadata.claimed_by,
+        "created": timestamp(&metadata.created),
+        "updated": timestamp(&metadata.updated),
+        "project": s(&n.project),
+        "path": s(&n.graph.path),
+        "has_issue": !metadata.issue.target.is_empty(),
+    })
+}
+pub fn prompt_detail(index: &Index, n: &Note) -> Value {
+    let NoteData::Prompt(document) = &n.data else {
+        unreachable!("prompt detail received a non-prompt note")
+    };
+    let mut value = prompt_summary(n);
+    let rendered = markdown::render(&document.body.to_string(), index, &s(&n.graph.path));
+    value["html"] = json!(rendered.html);
+    value["toc"] = json!(rendered.toc);
+    value["backlinks"] = backlinks(index, n, false);
+    value["outlinks"] = json!(
+        n.graph
+            .outlinks
+            .iter()
+            .map(|link| json!({"to":s(&link.to),"kind":link.kind}))
+            .collect::<Vec<_>>()
+    );
+    value["log"] = log_entries(&document.log);
+    value["issue"] = if document.metadata.issue.target.is_empty() {
+        Value::Null
+    } else {
+        let (id, resolved) = index.resolve_issue_ref(document.metadata.issue.target.as_bytes());
+        resolved.map_or_else(
+            || json!({"id":s(&id),"title":"","missing":true}),
+            |issue| json!({"id":s(issue.graph.id.as_deref().unwrap_or(&id)),"title":s(&issue.title),"missing":false}),
+        )
+    };
+    value
 }
 pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
     let mut v = match &n.data {
@@ -41,6 +92,7 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
                     .collect::<Vec<_>>()
             );
             v["requests"] = json!(index.ordered_notes().iter().filter(|r| matches!(&r.data, NoteData::Request(r) if r.metadata.issues.iter().any(|l| l.target == d.metadata.id || l.target.as_bytes() == n.graph.basename))).map(|r| note(index,r,false)).collect::<Vec<_>>());
+            v["prompts"] = json!(index.project_prompts(&crate::vault::PromptFilter { terminal:true, ..Default::default() }).into_iter().filter(|r| matches!(&r.data, NoteData::Prompt(r) if r.metadata.issue.target == d.metadata.id || r.metadata.issue.target.as_bytes() == n.graph.basename)).map(prompt_summary).collect::<Vec<_>>());
             v
         }
         NoteData::Request(d) => {
