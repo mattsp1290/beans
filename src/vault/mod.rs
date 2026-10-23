@@ -25,8 +25,8 @@ pub use paths::{Paths, check_hub, default_paths, default_paths_with};
 pub use project_name::{project_name, valid_project_name};
 pub use query::{
     BlockedIssue, DependencyEdge, DependencyGraph, DependencyNode, ExecutionBlocker,
-    ExecutionCounts, ExecutionIssue, ExecutionNode, Hit, PlanExecution, RequestFilter,
-    SearchOptions,
+    ExecutionCounts, ExecutionIssue, ExecutionNode, Hit, PlanExecution, PromptFilter,
+    RequestFilter, SearchOptions,
 };
 pub use remote::{NO_REMOTE, normalize_remote_url, remote_host, validate_remote_url};
 pub use resolve::{OUTSIDE_REPO, ResolveOptions, Resolved, project_dirs, resolve};

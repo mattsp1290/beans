@@ -7,6 +7,7 @@ use crate::{
         issue::IssueDocument,
         memory::MemoryDocument,
         plan::{self, Plan},
+        prompt::PromptDocument,
         request::RequestDocument,
         text::Link,
     },
@@ -18,6 +19,7 @@ pub enum NoteData {
     Request(Box<RequestDocument>),
     Memory(Box<MemoryDocument>),
     Handoff(Box<HandoffDocument>),
+    Prompt(Box<PromptDocument>),
     Plan(Box<Plan>),
     Doc(Box<DocMetadata>),
 }
@@ -221,7 +223,31 @@ impl Note {
                     raw,
                 )
             }
-            _ => unreachable!(),
+            NoteKind::Prompt => {
+                let doc = PromptDocument::parse_bytes(&name, bytes)
+                    .map_err(|e| e.with_path(&name, rel))?;
+                let body = doc.body.as_bytes().to_vec();
+                let mut raw = links(&body);
+                structural(&mut raw, &doc.metadata.issue, LinkKind::PromptIssue);
+                let meta = &doc.metadata;
+                let fields = (
+                    Some(meta.id.as_bytes().to_vec()),
+                    strings(&meta.aliases),
+                    meta.title.as_bytes().to_vec(),
+                    tags(&meta.labels),
+                );
+                (
+                    NoteData::Prompt(Box::new(doc)),
+                    fields.0,
+                    fields.1,
+                    fields.2,
+                    fields.3,
+                    vec![],
+                    body,
+                    raw,
+                )
+            }
+            NoteKind::Doc | NoteKind::Plan => unreachable!(),
         };
         // Derive issue/memory projects from the last `projects` path
         // component. Use the original Linux path bytes, not the parser view.

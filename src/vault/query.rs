@@ -62,6 +62,18 @@ pub struct RequestFilter {
     pub query: Vec<u8>,
     pub terminal: bool,
 }
+#[derive(Clone, Debug, Default)]
+pub struct PromptFilter {
+    pub project: Vec<u8>,
+    pub status: Vec<u8>,
+    pub label: Vec<u8>,
+    pub priority: Option<i64>,
+    pub from: Vec<u8>,
+    pub to: Vec<u8>,
+    pub claimed_by: Vec<u8>,
+    pub query: Vec<u8>,
+    pub terminal: bool,
+}
 impl Index {
     pub(super) fn owned_notes(&self, kind: NoteKind) -> Vec<&Note> {
         self.ordered_notes()
@@ -143,6 +155,92 @@ impl Index {
         out.sort_by(|a, b| {
             let (NoteData::Request(a), NoteData::Request(b)) = (&a.data, &b.data) else {
                 unreachable!()
+            };
+            (
+                a.metadata.priority,
+                instant(&a.metadata.created),
+                &a.metadata.id,
+            )
+                .cmp(&(
+                    b.metadata.priority,
+                    instant(&b.metadata.created),
+                    &b.metadata.id,
+                ))
+        });
+        out
+    }
+    pub fn project_prompts(&self, filter: &PromptFilter) -> Vec<&Note> {
+        self.filtered_prompts(filter, None)
+    }
+    /// Returns the stable union of prompts addressed to or claimed by `actor`.
+    pub fn prompt_inbox(&self, actor: &[u8], filter: &PromptFilter) -> Vec<&Note> {
+        self.filtered_prompts(filter, Some(actor))
+    }
+    fn filtered_prompts<'a>(
+        &'a self,
+        filter: &PromptFilter,
+        inbox_actor: Option<&[u8]>,
+    ) -> Vec<&'a Note> {
+        let query = super::lowercase::lower(
+            YamlString::from_bytes(filter.query.clone())
+                .trimmed()
+                .as_bytes(),
+        );
+        let mut out: Vec<_> = self
+            .owned_notes(NoteKind::Prompt)
+            .into_iter()
+            .filter(|n| {
+                let NoteData::Prompt(doc) = &n.data else {
+                    unreachable!("prompt kind must contain prompt data")
+                };
+                let prompt = &doc.metadata;
+                if (!filter.project.is_empty() && n.project != filter.project)
+                    || (!filter.status.is_empty() && prompt.status.as_bytes() != filter.status)
+                    || (!filter.label.is_empty()
+                        && !prompt
+                            .labels
+                            .iter()
+                            .any(|label| label.as_bytes() == filter.label))
+                    || filter
+                        .priority
+                        .is_some_and(|priority| priority != prompt.priority)
+                    || (!filter.from.is_empty() && prompt.from.as_bytes() != filter.from)
+                    || (!filter.to.is_empty() && prompt.to.as_bytes() != filter.to)
+                    || (!filter.claimed_by.is_empty()
+                        && prompt.claimed_by.as_deref().map(str::as_bytes)
+                            != Some(filter.claimed_by.as_slice()))
+                    || inbox_actor.is_some_and(|actor| {
+                        prompt.to.as_bytes() != actor
+                            && prompt.claimed_by.as_deref().map(str::as_bytes) != Some(actor)
+                    })
+                {
+                    return false;
+                }
+                if !filter.terminal
+                    && filter.status.is_empty()
+                    && crate::domain::prompt::is_terminal(&prompt.status)
+                {
+                    return false;
+                }
+                if query.is_empty() {
+                    return true;
+                }
+                let fields = [
+                    n.title.as_slice(),
+                    prompt.id.as_bytes(),
+                    prompt.from.as_bytes(),
+                    prompt.to.as_bytes(),
+                    prompt.claimed_by.as_deref().unwrap_or_default().as_bytes(),
+                    prompt.labels.join("\n").as_bytes(),
+                    n.body.as_slice(),
+                ]
+                .join(&b'\n');
+                contains(&super::lowercase::lower(&fields), &query)
+            })
+            .collect();
+        out.sort_by(|a, b| {
+            let (NoteData::Prompt(a), NoteData::Prompt(b)) = (&a.data, &b.data) else {
+                unreachable!("prompt query returned non-prompt data")
             };
             (
                 a.metadata.priority,

@@ -13,6 +13,7 @@ pub enum NoteKind {
     Request,
     Plan,
     Handoff,
+    Prompt,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -23,6 +24,7 @@ pub enum LinkKind {
     RequestIssue,
     Embed,
     HandoffIssue,
+    PromptIssue,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RawLink {
@@ -142,7 +144,8 @@ impl NoteGraph {
                         NoteKind::Request => "request",
                         NoteKind::Plan => "plan",
                         NoteKind::Handoff => "handoff",
-                        _ => unreachable!(),
+                        NoteKind::Prompt => "prompt",
+                        NoteKind::Doc | NoteKind::Memory => unreachable!(),
                     };
                     duplicates.push(Warning {
                         path: note.path.clone(),
@@ -186,6 +189,21 @@ impl NoteGraph {
                 };
                 if let Some(target) = self.lookup(&raw.target) {
                     link.to = target.basename.clone();
+                    // A prompt's structured issue relationship is the canonical
+                    // backlink summary; suppress a duplicate body wikilink to the
+                    // same issue while preserving unrelated body links.
+                    if link.kind == LinkKind::PromptIssue {
+                        if let Some(backlinks) = self.backlinks.get_mut(&link.to) {
+                            backlinks.retain(|existing| {
+                                !(existing.from == link.from && existing.kind == LinkKind::Body)
+                            });
+                        }
+                        outlinks.retain(|existing: &LinkRef| {
+                            !(existing.to == link.to
+                                && existing.from == link.from
+                                && existing.kind == LinkKind::Body)
+                        });
+                    }
                     self.backlinks
                         .entry(link.to.clone())
                         .or_default()
@@ -265,6 +283,11 @@ impl NoteGraph {
             }
         }
         if let Some(note) = self.by_id(NoteKind::Handoff, target)
+            && let Some(note) = self.by_path(&note.path)
+        {
+            return Some(note);
+        }
+        if let Some(note) = self.by_id(NoteKind::Prompt, target)
             && let Some(note) = self.by_path(&note.path)
         {
             return Some(note);

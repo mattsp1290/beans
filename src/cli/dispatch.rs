@@ -54,6 +54,7 @@ pub(super) fn note_json(note: &Note) -> serde_json::Value {
             v
         }
         NoteData::Handoff(d) => serde_json::to_value(&d.metadata).unwrap(),
+        NoteData::Prompt(d) => serde_json::to_value(&d.metadata).unwrap(),
         NoteData::Memory(d) => serde_json::to_value(&d.metadata).unwrap(),
         NoteData::Plan(d) => serde_json::to_value(d).unwrap(),
         NoteData::Doc(d) => serde_json::json!({"title":String::from_utf8_lossy(&d.title)}),
