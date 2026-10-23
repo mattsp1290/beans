@@ -155,6 +155,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
         (name, action),
         ("dep", "add" | "remove")
             | ("request", "create" | "update" | "link" | "unlink")
+            | ("prompt", "create" | "update" | "link" | "unlink")
             | (
                 "handoff",
                 "create" | "attach" | "detach" | "archive" | "restore"
@@ -323,6 +324,9 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
     }
     if name == "request" || name == "handoff" {
         return super::record_commands::execute(name, m, hub, resolved, actor, explicit, json);
+    }
+    if name == "prompt" {
+        return super::prompt_commands::execute(m, hub, resolved, actor, explicit, json);
     }
     if name == "plan" {
         return super::plan_commands::execute(m, hub, resolved, explicit, json);

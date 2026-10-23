@@ -2,6 +2,7 @@ mod content;
 mod handoffs;
 mod issues;
 mod plans;
+mod prompts;
 mod requests;
 
 pub(super) fn commands() -> Vec<clap::Command> {
@@ -19,6 +20,7 @@ pub(super) fn commands() -> Vec<clap::Command> {
     commands.extend(requests::commands());
     commands.extend(handoffs::commands());
     commands.extend(plans::commands());
+    commands.extend(prompts::commands());
     commands.extend(content::commands());
     commands
 }

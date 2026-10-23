@@ -11199,6 +11199,519 @@
       "runnable": true,
       "short": "Change fields of an issue (one commit, one log line per field)",
       "use": "update \u003cid\u003e"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [],
+      "long": "",
+      "path": [
+        "prompt"
+      ],
+      "retired": false,
+      "runnable": false,
+      "short": "Create and manage agent prompts",
+      "use": "prompt"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "body-file",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "description",
+          "no_option_default": "",
+          "shorthand": "d",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "from",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "issue",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "[]",
+          "deprecated": "",
+          "hidden": false,
+          "name": "label",
+          "no_option_default": "",
+          "shorthand": "l",
+          "type": "stringArray",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "2",
+          "deprecated": "",
+          "hidden": false,
+          "name": "priority",
+          "no_option_default": "",
+          "shorthand": "p",
+          "type": "int",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "stdin",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "to",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        }
+      ],
+      "long": "",
+      "path": [
+        "prompt",
+        "create"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "Create a prompt",
+      "use": "create \u003ctitle\u003e"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "all-projects",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "claimed-by",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "from",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "label",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "priority",
+          "no_option_default": "",
+          "shorthand": "p",
+          "type": "int",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "query",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "status",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "terminal",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "to",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        }
+      ],
+      "long": "",
+      "path": [
+        "prompt",
+        "list"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "List prompts",
+      "use": "list"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "all-projects",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "claimed",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "50",
+          "deprecated": "",
+          "hidden": false,
+          "name": "limit",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "int",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "terminal",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "to",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        }
+      ],
+      "long": "",
+      "path": [
+        "prompt",
+        "inbox"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "List prompts addressed to you",
+      "use": "inbox"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [],
+      "long": "",
+      "path": [
+        "prompt",
+        "show"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "Show a prompt",
+      "use": "show \u003cid\u003e"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "body-file",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "claim",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "description",
+          "no_option_default": "",
+          "shorthand": "d",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "force",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "[]",
+          "deprecated": "",
+          "hidden": false,
+          "name": "label",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "stringArray",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "note",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "priority",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "int",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "status",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "false",
+          "deprecated": "",
+          "hidden": false,
+          "name": "stdin",
+          "no_option_default": "true",
+          "shorthand": "",
+          "type": "bool",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "title",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "",
+          "deprecated": "",
+          "hidden": false,
+          "name": "to",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "string",
+          "usage": ""
+        },
+        {
+          "annotations": null,
+          "default": "[]",
+          "deprecated": "",
+          "hidden": false,
+          "name": "unlabel",
+          "no_option_default": "",
+          "shorthand": "",
+          "type": "stringArray",
+          "usage": ""
+        }
+      ],
+      "long": "",
+      "path": [
+        "prompt",
+        "update"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "Update a prompt",
+      "use": "update \u003cid\u003e"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [],
+      "long": "",
+      "path": [
+        "prompt",
+        "link"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "Link a prompt to an issue",
+      "use": "link \u003cid\u003e \u003cissue-id\u003e"
+    },
+    {
+      "aliases": null,
+      "args_validator_present": false,
+      "argument_probes": [],
+      "hidden": false,
+      "inherited_flags": [],
+      "local_flags": [],
+      "long": "",
+      "path": [
+        "prompt",
+        "unlink"
+      ],
+      "retired": false,
+      "runnable": true,
+      "short": "Unlink a prompt from its issue",
+      "use": "unlink \u003cid\u003e"
     }
   ],
   "retired_protocols": [

@@ -172,7 +172,7 @@ pub fn execute(
                 && kinds.split(',').any(|kind| {
                     !matches!(
                         kind,
-                        "issue" | "request" | "memory" | "handoff" | "doc" | "plan"
+                        "issue" | "request" | "memory" | "handoff" | "doc" | "plan" | "prompt"
                     )
                 })
             {

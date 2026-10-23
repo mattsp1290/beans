@@ -24,6 +24,306 @@ fn prompt_edit(title: Option<&str>, to: Option<&str>) -> beans::ops::PromptEdit 
     }
 }
 
+#[test]
+fn native_prompt_cli_contract_and_journey() {
+    let mut root = beans::cli::command();
+    root.build();
+    let prompt = root
+        .find_subcommand("prompt")
+        .expect("the public prompt command is registered");
+    for command in [
+        "create", "list", "inbox", "show", "update", "link", "unlink",
+    ] {
+        assert!(
+            prompt.find_subcommand(command).is_some(),
+            "missing prompt {command}"
+        );
+    }
+
+    let s = fixture();
+    let issue = s
+        .ok(&["create", "prompt issue", "--silent"])
+        .trim()
+        .to_owned();
+    let created = json(
+        &s,
+        &[
+            "--json",
+            "--actor",
+            "  sender  ",
+            "prompt",
+            "create",
+            "Review CLI",
+            "--to",
+            "  queue  ",
+            "--description",
+            "Exact body\n\n",
+            "--priority",
+            "1",
+            "--label",
+            "cli",
+            "--issue",
+            &issue,
+        ],
+    );
+    assert_eq!(
+        created
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>(),
+        ["commit", "id", "key", "message", "pushed", "sha"]
+            .into_iter()
+            .map(str::to_owned)
+            .collect()
+    );
+    let id = created["id"].as_str().unwrap().to_owned();
+    assert_eq!(created["key"], id);
+    assert_eq!(created["commit"], created["sha"]);
+    assert_eq!(created["pushed"], true);
+
+    let detail = json(&s, &["--json", "prompt", "show", &id]);
+    assert_eq!(
+        detail
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>(),
+        [
+            "aliases",
+            "body",
+            "claimed_by",
+            "created",
+            "from",
+            "id",
+            "issue",
+            "labels",
+            "log",
+            "path",
+            "priority",
+            "project",
+            "status",
+            "title",
+            "to",
+            "updated",
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect()
+    );
+    assert_eq!(detail["from"], "sender");
+    assert_eq!(detail["to"], "queue");
+    assert_eq!(detail["claimed_by"], serde_json::Value::Null);
+    assert_eq!(
+        detail["issue"],
+        serde_json::json!({"raw": format!("[[{issue}]]"), "target": issue})
+    );
+    assert_eq!(detail["body"], "Exact body\n\n");
+    for timestamp in ["created", "updated"] {
+        assert_eq!(
+            detail[timestamp]
+                .as_object()
+                .unwrap()
+                .keys()
+                .cloned()
+                .collect::<std::collections::BTreeSet<_>>(),
+            ["nanoseconds", "offset_seconds", "seconds"]
+                .into_iter()
+                .map(str::to_owned)
+                .collect()
+        );
+    }
+    assert_eq!(
+        detail["log"][0]
+            .as_object()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>(),
+        ["actor", "at", "branch", "event", "raw", "repo", "sha"]
+            .into_iter()
+            .map(str::to_owned)
+            .collect()
+    );
+    let path = s.path("home/hub").join(detail["path"].as_str().unwrap());
+    assert!(path.ends_with(format!("{id}-review-cli.md")));
+    assert_eq!(
+        s.ok(&["prompt", "show", &id]).as_bytes(),
+        fs::read(&path).unwrap()
+    );
+
+    let summaries = json(
+        &s,
+        &[
+            "--json",
+            "prompt",
+            "list",
+            "--from",
+            "sender",
+            "--to",
+            "queue",
+            "--label",
+            "cli",
+            "--priority",
+            "1",
+            "--query",
+            "exact body",
+        ],
+    );
+    assert_eq!(summaries.as_array().unwrap().len(), 1);
+    assert_eq!(summaries[0].as_object().unwrap().len(), 14);
+    assert_eq!(
+        json(&s, &["--json", "prompt", "inbox", "--to", " queue "])[0]["id"],
+        id
+    );
+    let identities = fixture();
+    assert!(
+        identities
+            .cli(&[
+                "--actor", " ", "prompt", "inbox", "--to", "queue", "--limit", "1",
+            ])
+            .status
+            .success()
+    );
+    let explicit_sender = identities.cli(&[
+        "--actor",
+        " ",
+        "prompt",
+        "create",
+        "Explicit sender",
+        "--to",
+        "queue",
+        "--from",
+        "sender",
+    ]);
+    assert!(explicit_sender.status.success());
+    let explicit_id = String::from_utf8(explicit_sender.stdout).unwrap();
+    let missing_claimant = identities.cli(&[
+        "--actor",
+        " ",
+        "prompt",
+        "update",
+        explicit_id.trim(),
+        "--claim",
+    ]);
+    assert!(!missing_claimant.status.success());
+    assert!(
+        String::from_utf8_lossy(&missing_claimant.stderr)
+            .contains("set global --actor or BN_ACTOR")
+    );
+    let missing_sender = s.cli(&[
+        "--actor",
+        " ",
+        "prompt",
+        "create",
+        "Missing sender",
+        "--to",
+        "queue",
+    ]);
+    assert!(!missing_sender.status.success());
+    assert!(
+        String::from_utf8_lossy(&missing_sender.stderr).contains("set global --actor or BN_ACTOR")
+    );
+
+    s.ok(&["--actor", " worker ", "prompt", "update", &id, "--claim"]);
+    let claimed = json(&s, &["--json", "prompt", "show", &id]);
+    assert_eq!(claimed["status"], "in_progress");
+    assert_eq!(claimed["claimed_by"], "worker");
+    let claimed_bytes = fs::read(&path).unwrap();
+    let head = git(&s.path("home/hub"), &["rev-parse", "HEAD"]);
+    let replay = json(
+        &s,
+        &[
+            "--json", "--actor", "worker", "prompt", "update", &id, "--claim",
+        ],
+    );
+    assert_eq!(replay["sha"], "");
+    assert_eq!(replay["commit"], "");
+    assert_eq!(git(&s.path("home/hub"), &["rev-parse", "HEAD"]), head);
+    let conflict = s.cli(&["--actor", "other", "prompt", "update", &id, "--claim"]);
+    assert!(!conflict.status.success());
+    assert_eq!(fs::read(&path).unwrap(), claimed_bytes);
+
+    s.ok(&[
+        "--actor",
+        "worker",
+        "prompt",
+        "update",
+        &id,
+        "--status",
+        "completed",
+        "--note",
+        "completion evidence",
+    ]);
+    assert!(
+        json(&s, &["--json", "prompt", "list"])
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(
+        json(&s, &["--json", "prompt", "list", "--terminal"])[0]["id"],
+        id
+    );
+    s.ok(&["prompt", "update", &id, "--to", "next", "--force"]);
+    let reset = json(&s, &["--json", "prompt", "show", &id]);
+    assert_eq!(reset["status"], "open");
+    assert_eq!(reset["claimed_by"], serde_json::Value::Null);
+    assert_eq!(reset["to"], "next");
+
+    let before_name = path.clone();
+    s.ok(&["prompt", "update", &id, "--title", "Renamed"]);
+    assert!(before_name.exists());
+    assert!(
+        !s.path("home/hub/projects/demo/prompts")
+            .join(format!("{id}-renamed.md"))
+            .exists()
+    );
+    let noop = json(
+        &s,
+        &["--json", "prompt", "update", &id, "--title", "Renamed"],
+    );
+    assert_eq!(noop["sha"], "");
+    assert!(!s.cli(&["prompt", "update", &id]).status.success());
+    assert!(
+        !s.cli(&["prompt", "update", &id, "--force"])
+            .status
+            .success()
+    );
+    assert!(
+        !s.cli(&["prompt", "update", &id, "--to", "x", "--claim", "--force"])
+            .status
+            .success()
+    );
+    assert!(
+        !s.cli(&[
+            "prompt", "update", &id, "--to", "x", "--status", "open", "--force",
+        ])
+        .status
+        .success()
+    );
+
+    s.ok(&["prompt", "unlink", &id]);
+    assert_eq!(
+        json(&s, &["--json", "prompt", "show", &id])["issue"],
+        serde_json::Value::Null
+    );
+    s.ok(&["prompt", "link", &id, &issue]);
+    assert_eq!(
+        json(&s, &["--json", "prompt", "show", &id])["issue"]["target"],
+        issue
+    );
+    assert!(
+        json(&s, &["--json", "search", "Renamed", "--kind", "prompt"])
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|hit| hit["ID"] == id)
+    );
+}
+
 struct PromptRace {
     primary: beans::ops::RecordMutation,
     competitor: Hub,
@@ -1425,6 +1725,25 @@ fn stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects() {
     assert_eq!(
         json(&s, &["--json", "request", "show", id])["issues"],
         before["issues"]
+    );
+    let prompt = stdin_run(
+        &[
+            "--json",
+            "prompt",
+            "create",
+            "stdin prompt",
+            "--to",
+            "queue",
+            "--stdin",
+        ],
+        "verbatim prompt\n\n\n",
+    );
+    assert_eq!(
+        json(
+            &s,
+            &["--json", "prompt", "show", prompt["id"].as_str().unwrap()]
+        )["body"],
+        "verbatim prompt\n\n\n"
     );
     assert!(
         !s.cli(&[
