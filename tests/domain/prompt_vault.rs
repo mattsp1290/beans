@@ -546,95 +546,155 @@ fn cross_kind_identical_ids_are_typed_and_generic_lookup_is_issue_first() {
     assert_eq!(graph.lookup(b"same-id").unwrap().kind, NoteKind::Issue);
 }
 
-#[test]
-fn duplicate_prompt_owner_and_diagnostics_match_clean_reload_after_incremental_reload() {
-    let hub = super::index::hub("prompt-reload-parity-domain", false);
-    let first_path = write(
-        &hub.0,
-        "projects/p/prompts/a.md",
-        prompt!(
-            "p-p-duplicate",
-            "first",
-            "open",
-            1,
-            "a",
-            "b",
-            None,
-            None,
-            "2026-01-01T00:00:00Z",
-            "x",
-            "first body",
-        ),
-    );
-    write(
-        &hub.0,
-        "projects/p/prompts/z.md",
-        prompt!(
-            "p-p-duplicate",
-            "second",
-            "open",
-            1,
-            "a",
-            "b",
-            None,
-            None,
-            "2026-01-01T00:00:00Z",
-            "x",
-            "second body",
-        ),
-    );
-    let mut index = Index::load(&hub.0).unwrap();
-    let changed = std::fs::read_to_string(&first_path)
-        .unwrap()
-        .replace("title: first", "title: first changed");
-    std::fs::write(&first_path, changed).unwrap();
-    index.reload(std::slice::from_ref(&first_path)).unwrap();
+#[derive(Debug, PartialEq, Eq)]
+struct DuplicatePromptState {
+    owner: Option<Vec<u8>>,
+    query: Vec<Vec<u8>>,
+    warnings: Vec<(Vec<u8>, String)>,
+}
 
-    let incremental_owner = index
-        .note_by_id(NoteKind::Prompt, b"p-p-duplicate")
-        .map(|note| (note.graph.path.clone(), note.title.clone()));
-    let incremental_query = index
-        .project_prompts(&PromptFilter {
-            terminal: true,
-            ..Default::default()
-        })
-        .into_iter()
-        .map(|note| (note.graph.path.clone(), note.title.clone()))
-        .collect::<Vec<_>>();
-    let incremental_warnings = index
-        .graph
-        .warnings()
-        .iter()
-        .map(|warning| (warning.path.clone(), warning.error.to_string()))
-        .collect::<Vec<_>>();
-
-    index.reload_all().unwrap();
-    assert_eq!(
-        incremental_owner,
-        index
+fn duplicate_prompt_state(index: &Index) -> DuplicatePromptState {
+    DuplicatePromptState {
+        owner: index
             .note_by_id(NoteKind::Prompt, b"p-p-duplicate")
-            .map(|note| (note.graph.path.clone(), note.title.clone()))
-    );
-    assert_eq!(
-        incremental_query,
-        index
+            .map(|note| note.graph.path.clone()),
+        query: index
             .project_prompts(&PromptFilter {
                 terminal: true,
                 ..Default::default()
             })
             .into_iter()
-            .map(|note| (note.graph.path.clone(), note.title.clone()))
-            .collect::<Vec<_>>()
-    );
-    assert_eq!(
-        incremental_warnings,
-        index
+            .map(|note| note.graph.path.clone())
+            .collect(),
+        warnings: index
             .graph
             .warnings()
             .iter()
             .map(|warning| (warning.path.clone(), warning.error.to_string()))
-            .collect::<Vec<_>>()
+            .collect(),
+    }
+}
+
+fn assert_incremental_matches_clean(index: &mut Index) {
+    let incremental = duplicate_prompt_state(index);
+    index.reload_all().unwrap();
+    assert_eq!(incremental, duplicate_prompt_state(index));
+}
+
+#[test]
+fn duplicate_prompt_owner_and_diagnostics_match_clean_reload_for_every_reload_path() {
+    let hub = super::index::hub("prompt-reload-parity-domain", false);
+    let later_path = write(
+        &hub.0,
+        "projects/p/prompts/z.md",
+        prompt!(
+            "p-p-duplicate",
+            "later",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "later body",
+        ),
     );
+    let mut index = Index::load(&hub.0).unwrap();
+
+    // A newly discovered, lexically earlier duplicate must take the same
+    // ownership it would receive during a clean sorted walk.
+    let earlier_path = write(
+        &hub.0,
+        "projects/p/prompts/a.md",
+        prompt!(
+            "p-p-duplicate",
+            "earlier",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "earlier body",
+        ),
+    );
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    assert_incremental_matches_clean(&mut index);
+
+    // Editing an indexed owner preserves the same deterministic result.
+    let changed = std::fs::read_to_string(&earlier_path)
+        .unwrap()
+        .replace("title: earlier", "title: earlier changed");
+    std::fs::write(&earlier_path, changed).unwrap();
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    assert_incremental_matches_clean(&mut index);
+
+    // Deletion followed by recreation must not turn append order into ID
+    // ownership order.
+    std::fs::remove_file(&earlier_path).unwrap();
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    assert_eq!(
+        duplicate_prompt_state(&index).owner,
+        Some(b"projects/p/prompts/z.md".to_vec())
+    );
+    std::fs::write(
+        &earlier_path,
+        prompt!(
+            "p-p-duplicate",
+            "recreated",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "recreated body",
+        ),
+    )
+    .unwrap();
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    assert_incremental_matches_clean(&mut index);
+
+    // A malformed path has no indexed slot. Repairing it must still recover
+    // sorted ownership rather than appending after the later duplicate.
+    std::fs::remove_file(&earlier_path).unwrap();
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    std::fs::write(&earlier_path, "---\nid: p-p-duplicate\n").unwrap();
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    assert!(
+        index
+            .graph
+            .warnings()
+            .iter()
+            .any(|warning| warning.path == b"projects/p/prompts/a.md")
+    );
+    std::fs::write(
+        &earlier_path,
+        prompt!(
+            "p-p-duplicate",
+            "repaired",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "repaired body",
+        ),
+    )
+    .unwrap();
+    index.reload(std::slice::from_ref(&earlier_path)).unwrap();
+    assert_incremental_matches_clean(&mut index);
+
+    assert!(later_path.exists());
 }
 
 #[test]
