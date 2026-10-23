@@ -1,0 +1,18 @@
+List prompts addressed to you
+
+Usage: bn prompt inbox [OPTIONS]
+
+Options:
+      --branch <branch>
+      --to <to>                        recipient (default: resolved actor)
+      --all-projects[=<all-projects>]  every project [default: false] [possible values: true, false]
+      --actor <actor>                  audit actor (overrides $BN_ACTOR)
+      --claimed[=<claimed>]            include prompts claimed by the selected actor even if addressed elsewhere [default: false] [possible values: true, false]
+      --hub <hub>                      hub clone directory (overrides $BEANS_HUB)
+      --terminal[=<terminal>]          include terminal prompts [default: false] [possible values: true, false]
+      --json[=<json>]                  machine-readable JSON output [default: false] [possible values: true, false]
+      --limit <limit>                  maximum prompts (0 = all) [default: 50]
+      --no-fetch[=<no-fetch>]          reads: skip the throttled fetch [default: false] [possible values: true, false]
+      --no-sync[=<no-sync>]            mutations: commit locally without fetching or pushing [default: false] [possible values: true, false]
+      --project <project>              project name (overrides $BEANS_PROJECT and git auto-detection)
+  -h, --help                           Print help

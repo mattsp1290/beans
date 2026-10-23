@@ -1,0 +1,23 @@
+Create and manage agent prompts
+
+Usage: bn prompt [OPTIONS] <COMMAND>
+
+Commands:
+  create  Create a prompt
+  list    List prompts
+  inbox   List prompts addressed to you
+  show    Show a prompt
+  update  Update a prompt
+  link    Link a prompt to an issue
+  unlink  Unlink a prompt from its issue
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --branch <branch>
+      --actor <actor>          audit actor (overrides $BN_ACTOR)
+      --hub <hub>              hub clone directory (overrides $BEANS_HUB)
+      --json[=<json>]          machine-readable JSON output [default: false] [possible values: true, false]
+      --no-fetch[=<no-fetch>]  reads: skip the throttled fetch [default: false] [possible values: true, false]
+      --no-sync[=<no-sync>]    mutations: commit locally without fetching or pushing [default: false] [possible values: true, false]
+      --project <project>      project name (overrides $BEANS_PROJECT and git auto-detection)
+  -h, --help                   Print help

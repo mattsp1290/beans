@@ -563,11 +563,11 @@ fn prompt_actor_resolution_chain_is_real_trimmed_case_preserving_and_never_broad
 
 #[test]
 fn prompt_json_fixture_and_failure_atomicity_are_exact() {
-    fn normalize(value: &mut serde_json::Value, id: &str, issue: &str) {
+    fn normalize(value: &mut serde_json::Value, id: &str, second_id: &str, issue: &str) {
         match value {
             serde_json::Value::Array(values) => {
                 for value in values {
-                    normalize(value, id, issue);
+                    normalize(value, id, second_id, issue);
                 }
             }
             serde_json::Value::Object(object) => {
@@ -583,11 +583,7 @@ fn prompt_json_fixture_and_failure_atomicity_are_exact() {
                 }
                 let is_log = object.contains_key("event");
                 for (key, value) in object.iter_mut() {
-                    if key == "path" {
-                        *value = serde_json::json!("<PATH>");
-                    } else if key == "raw" && is_log {
-                        *value = serde_json::json!("<RAW>");
-                    } else if key == "repo" {
+                    if key == "repo" {
                         *value = serde_json::json!("<REPO>");
                     } else if key == "branch" {
                         *value = serde_json::json!("<BRANCH>");
@@ -598,12 +594,15 @@ fn prompt_json_fixture_and_failure_atomicity_are_exact() {
                     {
                         *value = serde_json::json!("<SHA>");
                     } else {
-                        normalize(value, id, issue);
+                        normalize(value, id, second_id, issue);
                     }
                 }
             }
             serde_json::Value::String(text) => {
-                *text = text.replace(id, "<ID>").replace(issue, "<ISSUE>");
+                *text = text
+                    .replace(id, "<ID>")
+                    .replace(second_id, "<SECOND_ID>")
+                    .replace(issue, "<ISSUE>");
             }
             _ => {}
         }
@@ -635,6 +634,24 @@ fn prompt_json_fixture_and_failure_atomicity_are_exact() {
     );
     let id = created["id"].as_str().unwrap().to_owned();
     actual.insert("create".into(), created);
+    let second = json(
+        &s,
+        &[
+            "--json",
+            "prompt",
+            "create",
+            "Fixture Earlier",
+            "--to",
+            "Native Tester",
+            "--description",
+            "second fixture body\n",
+            "--priority",
+            "0",
+            "--label",
+            "fixture",
+        ],
+    );
+    let second_id = second["id"].as_str().unwrap().to_owned();
     actual.insert(
         "link".into(),
         json(&s, &["--json", "prompt", "link", &id, &issue]),
@@ -664,7 +681,7 @@ fn prompt_json_fixture_and_failure_atomicity_are_exact() {
         ),
     );
     let mut actual = serde_json::Value::Object(actual);
-    normalize(&mut actual, &id, &issue);
+    normalize(&mut actual, &id, &second_id, &issue);
     assert_eq!(actual, expected);
 
     let path = s
