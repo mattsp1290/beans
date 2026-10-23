@@ -76,6 +76,26 @@ impl Sandbox {
             .output()
             .unwrap()
     }
+    fn cli_env(&self, args: &[&str], set: &[(&str, &str)]) -> Output {
+        let git_home = self.path("identity-home");
+        fs::create_dir_all(&git_home).unwrap();
+        let mut command = Command::new(env!("CARGO_BIN_EXE_bn"));
+        command
+            .args(args)
+            .env("BEANS_HOME", self.path("home"))
+            .env("BEANS_PROJECT", "demo")
+            .env("HOME", &git_home)
+            .env_remove("BN_ACTOR")
+            .env_remove("USER")
+            .env_remove("BEANS_HUB")
+            .env_remove("BN_CONFIG")
+            .env_remove("GIT_CONFIG_GLOBAL")
+            .current_dir(&self.0);
+        for (key, value) in set {
+            command.env(key, value);
+        }
+        command.output().unwrap()
+    }
     fn ok(&self, args: &[&str]) -> String {
         let o = self.cli(args);
         assert!(
