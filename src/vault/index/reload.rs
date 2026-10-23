@@ -69,6 +69,14 @@ impl Index {
             self.reload_plan(parts[1], &parts[..4].join(&b'/'));
             return;
         }
+        // Prompt IDs are intentionally kind-scoped and may be duplicated. Keep
+        // their sorted-load owner stable across an incremental edit without
+        // changing the established reload ordering for older note kinds.
+        let prior = self
+            .order
+            .iter()
+            .position(|note| note.graph.path == rel)
+            .filter(|&index| self.order[index].graph.kind == NoteKind::Prompt);
         self.remove(rel);
         self.graph.clear_parse_warning(rel);
         self.assets.remove(rel);
@@ -77,6 +85,7 @@ impl Index {
             return;
         }
         self.load_path(rel);
+        self.restore_position(rel, prior);
     }
     fn reload_plan(&mut self, project: &[u8], root: &[u8]) {
         let manifest = [root, b"/plan.md"].concat();
@@ -97,5 +106,17 @@ impl Index {
         self.remove(&manifest);
         self.graph.clear_parse_warning(&manifest);
         self.load_plan(project, root);
+    }
+    fn restore_position(&mut self, path: &[u8], prior: Option<usize>) {
+        let Some(prior) = prior else {
+            return;
+        };
+        let Some(current) = self.order.iter().position(|note| note.graph.path == path) else {
+            return;
+        };
+        if current != prior {
+            let note = self.order.remove(current);
+            self.order.insert(prior.min(self.order.len()), note);
+        }
     }
 }

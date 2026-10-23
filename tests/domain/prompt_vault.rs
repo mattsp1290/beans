@@ -1,6 +1,9 @@
 use beans::{
     markdown,
-    vault::{Index, LinkKind, NoteData, NoteKind, PromptFilter, SearchOptions, classify},
+    vault::{
+        GraphNote, Index, LinkKind, NoteData, NoteGraph, NoteKind, PromptFilter, SearchOptions,
+        classify,
+    },
 };
 use std::path::{Path, PathBuf};
 
@@ -211,38 +214,54 @@ fn prompt_query_filters_searches_instruction_only_sorts_and_unions_inbox() {
         })),
         ["p-p-c"]
     );
-    for filter in [
-        PromptFilter {
-            label: b"alpha".to_vec(),
-            ..Default::default()
-        },
-        PromptFilter {
-            priority: Some(1),
-            ..Default::default()
-        },
-        PromptFilter {
-            from: b"sender".to_vec(),
-            project: b"p".to_vec(),
-            ..Default::default()
-        },
-        PromptFilter {
-            to: b"alice".to_vec(),
-            project: b"p".to_vec(),
-            ..Default::default()
-        },
-        PromptFilter {
-            claimed_by: b"alice".to_vec(),
-            ..Default::default()
-        },
-        PromptFilter {
-            query: b"instruction needle".to_vec(),
-            ..Default::default()
-        },
-    ] {
-        assert!(
-            !index.project_prompts(&filter).is_empty(),
-            "filter {filter:?}"
-        );
+    let filters = [
+        (
+            PromptFilter {
+                label: b"alpha".to_vec(),
+                ..Default::default()
+            },
+            vec!["q-p-a", "p-p-a"],
+        ),
+        (
+            PromptFilter {
+                priority: Some(1),
+                ..Default::default()
+            },
+            vec!["p-p-a", "p-p-b"],
+        ),
+        (
+            PromptFilter {
+                from: b"sender".to_vec(),
+                project: b"p".to_vec(),
+                ..Default::default()
+            },
+            vec!["p-p-a", "p-p-b"],
+        ),
+        (
+            PromptFilter {
+                to: b"alice".to_vec(),
+                project: b"p".to_vec(),
+                ..Default::default()
+            },
+            vec!["p-p-a", "p-p-b"],
+        ),
+        (
+            PromptFilter {
+                claimed_by: b"alice".to_vec(),
+                ..Default::default()
+            },
+            vec!["p-p-a"],
+        ),
+        (
+            PromptFilter {
+                query: b"instruction needle".to_vec(),
+                ..Default::default()
+            },
+            vec!["p-p-a"],
+        ),
+    ];
+    for (filter, expected) in filters {
+        assert_eq!(ids(index.project_prompts(&filter)), expected, "{filter:?}");
     }
     assert!(
         index
@@ -354,6 +373,271 @@ fn prompt_graph_links_issue_backlinks_without_dependency_edges_and_reports_missi
 }
 
 #[test]
+fn prompt_issue_dedup_is_note_local_and_applies_to_unresolved_targets() {
+    let hub = super::index::hub("prompt-graph-dedup-domain", false);
+    write(
+        &hub.0,
+        "projects/p/docs/shared.md",
+        "---\ntitle: shared doc\n---\n[[p-i-a]]\n",
+    );
+    write(
+        &hub.0,
+        "projects/p/issues/p-i-a.md",
+        "---\nid: p-i-a\ntitle: issue\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n",
+    );
+    write(
+        &hub.0,
+        "projects/p/prompts/shared.md",
+        prompt!(
+            "p-p-shared",
+            "shared prompt",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            Some("p-i-a"),
+            "2026-01-01T00:00:00Z",
+            "link",
+            "[[p-i-a]]",
+        ),
+    );
+    write(
+        &hub.0,
+        "projects/p/prompts/unresolved.md",
+        prompt!(
+            "p-p-unresolved",
+            "unresolved",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            Some("p-i-missing"),
+            "2026-01-01T00:00:00Z",
+            "link",
+            "[[p-i-missing]]",
+        ),
+    );
+
+    let index = Index::load(&hub.0).unwrap();
+    let backlinks = &index.graph.backlinks()[b"p-i-a".as_slice()];
+    assert_eq!(
+        backlinks
+            .iter()
+            .filter(|link| link.from == b"shared" && link.kind == LinkKind::Body)
+            .count(),
+        1,
+        "the doc backlink sharing the prompt basename must be retained"
+    );
+    assert_eq!(
+        backlinks
+            .iter()
+            .filter(|link| link.from == b"shared" && link.kind == LinkKind::PromptIssue)
+            .count(),
+        1
+    );
+    let unresolved = index
+        .note_by_id(NoteKind::Prompt, b"p-p-unresolved")
+        .unwrap();
+    assert_eq!(
+        unresolved
+            .graph
+            .outlinks
+            .iter()
+            .filter(|link| link.to == b"p-i-missing")
+            .count(),
+        1
+    );
+    assert_eq!(
+        index
+            .graph
+            .warnings()
+            .iter()
+            .filter(|warning| warning.error.to_string().contains("p-i-missing"))
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn issue_id_precedes_colliding_prompt_basename_and_alias() {
+    let hub = super::index::hub("prompt-lookup-precedence-domain", false);
+    for id in ["p-i-basename", "p-i-alias"] {
+        write(
+            &hub.0,
+            &format!("projects/p/issues/{id}-owner.md"),
+            format!(
+                "---\nid: {id}\ntitle: {id} issue\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n"
+            ),
+        );
+    }
+    write(
+        &hub.0,
+        "projects/p/prompts/p-i-basename.md",
+        prompt!(
+            "p-p-basename",
+            "basename collision",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "body",
+        ),
+    );
+    let alias_prompt = prompt!(
+        "p-p-alias",
+        "alias collision",
+        "open",
+        1,
+        "a",
+        "b",
+        None,
+        None,
+        "2026-01-01T00:00:00Z",
+        "x",
+        "body",
+    )
+    .replace("aliases: [p-p-alias-alias]", "aliases: [p-i-alias]");
+    write(&hub.0, "projects/p/prompts/alias-owner.md", alias_prompt);
+
+    let index = Index::load(&hub.0).unwrap();
+    for id in [b"p-i-basename".as_slice(), b"p-i-alias"] {
+        assert_eq!(index.lookup(id).unwrap().graph.kind, NoteKind::Issue);
+        assert_eq!(index.lookup(id).unwrap().graph.id.as_deref(), Some(id));
+    }
+    assert_eq!(
+        index.lookup(b"p-p-basename").unwrap().graph.kind,
+        NoteKind::Prompt
+    );
+    assert_eq!(
+        index.lookup(b"p-p-alias").unwrap().graph.kind,
+        NoteKind::Prompt
+    );
+}
+
+#[test]
+fn cross_kind_identical_ids_are_typed_and_generic_lookup_is_issue_first() {
+    let mut graph = NoteGraph::default();
+    for (kind, name) in [
+        (NoteKind::Issue, "issue"),
+        (NoteKind::Request, "request"),
+        (NoteKind::Prompt, "prompt"),
+    ] {
+        graph.register(GraphNote {
+            kind,
+            path: format!("{name}.md").into_bytes(),
+            basename: name.as_bytes().to_vec(),
+            id: Some(b"same-id".to_vec()),
+            aliases: vec![],
+            raw_out: vec![],
+            outlinks: vec![],
+        });
+    }
+    graph.rebuild();
+
+    for kind in [NoteKind::Issue, NoteKind::Request, NoteKind::Prompt] {
+        assert_eq!(graph.by_id(kind, b"same-id").unwrap().kind, kind);
+    }
+    assert_eq!(graph.lookup(b"same-id").unwrap().kind, NoteKind::Issue);
+}
+
+#[test]
+fn duplicate_prompt_owner_and_diagnostics_match_clean_reload_after_incremental_reload() {
+    let hub = super::index::hub("prompt-reload-parity-domain", false);
+    let first_path = write(
+        &hub.0,
+        "projects/p/prompts/a.md",
+        prompt!(
+            "p-p-duplicate",
+            "first",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "first body",
+        ),
+    );
+    write(
+        &hub.0,
+        "projects/p/prompts/z.md",
+        prompt!(
+            "p-p-duplicate",
+            "second",
+            "open",
+            1,
+            "a",
+            "b",
+            None,
+            None,
+            "2026-01-01T00:00:00Z",
+            "x",
+            "second body",
+        ),
+    );
+    let mut index = Index::load(&hub.0).unwrap();
+    let changed = std::fs::read_to_string(&first_path)
+        .unwrap()
+        .replace("title: first", "title: first changed");
+    std::fs::write(&first_path, changed).unwrap();
+    index.reload(std::slice::from_ref(&first_path)).unwrap();
+
+    let incremental_owner = index
+        .note_by_id(NoteKind::Prompt, b"p-p-duplicate")
+        .map(|note| (note.graph.path.clone(), note.title.clone()));
+    let incremental_query = index
+        .project_prompts(&PromptFilter {
+            terminal: true,
+            ..Default::default()
+        })
+        .into_iter()
+        .map(|note| (note.graph.path.clone(), note.title.clone()))
+        .collect::<Vec<_>>();
+    let incremental_warnings = index
+        .graph
+        .warnings()
+        .iter()
+        .map(|warning| (warning.path.clone(), warning.error.to_string()))
+        .collect::<Vec<_>>();
+
+    index.reload_all().unwrap();
+    assert_eq!(
+        incremental_owner,
+        index
+            .note_by_id(NoteKind::Prompt, b"p-p-duplicate")
+            .map(|note| (note.graph.path.clone(), note.title.clone()))
+    );
+    assert_eq!(
+        incremental_query,
+        index
+            .project_prompts(&PromptFilter {
+                terminal: true,
+                ..Default::default()
+            })
+            .into_iter()
+            .map(|note| (note.graph.path.clone(), note.title.clone()))
+            .collect::<Vec<_>>()
+    );
+    assert_eq!(
+        incremental_warnings,
+        index
+            .graph
+            .warnings()
+            .iter()
+            .map(|warning| (warning.path.clone(), warning.error.to_string()))
+            .collect::<Vec<_>>()
+    );
+}
+
+#[test]
 fn prompt_diagnostics_duplicate_ids_are_kind_scoped_and_malformed_files_warn() {
     let hub = super::index::hub("prompt-diagnostics-domain", false);
     for name in ["one", "two"] {
@@ -408,8 +692,21 @@ fn prompt_diagnostics_duplicate_ids_are_kind_scoped_and_malformed_files_warn() {
             .iter()
             .any(|warning| warning.path == b"projects/p/prompts/malformed.md")
     );
-    assert!(index.note_by_id(NoteKind::Issue, b"p-p-same").is_some());
-    assert!(index.note_by_id(NoteKind::Request, b"p-r-same").is_some());
+    assert_eq!(
+        index
+            .note_by_id(NoteKind::Issue, b"p-p-same")
+            .unwrap()
+            .title,
+        b"issue"
+    );
+    assert_eq!(
+        index
+            .note_by_id(NoteKind::Request, b"p-r-same")
+            .unwrap()
+            .title,
+        b"request"
+    );
+    assert!(index.note_by_id(NoteKind::Prompt, b"p-p-same").is_some());
     assert_eq!(
         index.lookup(b"p-p-same").unwrap().graph.kind,
         NoteKind::Issue

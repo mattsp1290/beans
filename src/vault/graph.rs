@@ -180,30 +180,37 @@ impl NoteGraph {
         }
         let mut unresolved = Vec::new();
         for i in 0..self.order.len() {
+            let mut links = self.order[i]
+                .raw_out
+                .iter()
+                .map(|raw| {
+                    let mut link = LinkRef {
+                        from: self.order[i].basename.clone(),
+                        to: raw.target.clone(),
+                        kind: raw.kind,
+                    };
+                    let resolved = if let Some(target) = self.lookup(&raw.target) {
+                        link.to = target.basename.clone();
+                        true
+                    } else {
+                        false
+                    };
+                    (link, resolved, raw.target.as_slice())
+                })
+                .collect::<Vec<_>>();
+            if self.order[i].kind == NoteKind::Prompt {
+                let issue_targets = links
+                    .iter()
+                    .filter(|(link, _, _)| link.kind == LinkKind::PromptIssue)
+                    .map(|(link, _, _)| link.to.clone())
+                    .collect::<Vec<_>>();
+                links.retain(|(link, _, _)| {
+                    link.kind != LinkKind::Body || !issue_targets.contains(&link.to)
+                });
+            }
             let mut outlinks = Vec::new();
-            for raw in &self.order[i].raw_out {
-                let mut link = LinkRef {
-                    from: self.order[i].basename.clone(),
-                    to: raw.target.clone(),
-                    kind: raw.kind,
-                };
-                if let Some(target) = self.lookup(&raw.target) {
-                    link.to = target.basename.clone();
-                    // A prompt's structured issue relationship is the canonical
-                    // backlink summary; suppress a duplicate body wikilink to the
-                    // same issue while preserving unrelated body links.
-                    if link.kind == LinkKind::PromptIssue {
-                        if let Some(backlinks) = self.backlinks.get_mut(&link.to) {
-                            backlinks.retain(|existing| {
-                                !(existing.from == link.from && existing.kind == LinkKind::Body)
-                            });
-                        }
-                        outlinks.retain(|existing: &LinkRef| {
-                            !(existing.to == link.to
-                                && existing.from == link.from
-                                && existing.kind == LinkKind::Body)
-                        });
-                    }
+            for (link, resolved, raw_target) in links {
+                if resolved {
                     self.backlinks
                         .entry(link.to.clone())
                         .or_default()
@@ -214,7 +221,7 @@ impl NoteGraph {
                         error: Error::from_bytes(
                             [
                                 b"unresolved link [[".as_slice(),
-                                &raw.target,
+                                raw_target,
                                 b"]] in ",
                                 &self.order[i].path,
                             ]
@@ -267,6 +274,18 @@ impl NoteGraph {
             target = target.rsplit(|&b| b == b'/').next().unwrap();
         }
         let target = target.strip_suffix(b".md").unwrap_or(target);
+        let prompt_collision = self.by_id(NoteKind::Prompt, target).is_some()
+            || self
+                .by_basename(target)
+                .is_some_and(|note| note.kind == NoteKind::Prompt)
+            || self
+                .aliases
+                .get(target)
+                .and_then(|basename| self.by_basename(basename))
+                .is_some_and(|note| note.kind == NoteKind::Prompt);
+        if prompt_collision && let Some(note) = self.by_id(NoteKind::Issue, target) {
+            return Some(note);
+        }
         if let Some(note) = self.by_basename(target) {
             return Some(note);
         }
