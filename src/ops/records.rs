@@ -12,7 +12,36 @@ use crate::{
     gitops::{Operation, check_hub_write_path, remove_hub_file, write_hub_file},
     vault::{Index, LoadOptions, NoteData, NoteKind, Resolved},
 };
-use std::path::{Path, PathBuf};
+use std::{
+    ffi::{OsStr, OsString},
+    os::unix::ffi::OsStrExt,
+    path::{Path, PathBuf},
+};
+
+fn filename_reserves_id(name: &OsStr, id: &str) -> bool {
+    let Some(stem) = name.as_bytes().strip_suffix(b".md") else {
+        return false;
+    };
+    stem == id.as_bytes()
+        || stem
+            .strip_prefix(id.as_bytes())
+            .is_some_and(|suffix| suffix.starts_with(b"-"))
+}
+
+fn directory_filenames(path: &Path) -> Result<Vec<OsString>, Error> {
+    let entries = match std::fs::read_dir(path) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(error) => return Err(Error::new(error.to_string())),
+    };
+    entries
+        .map(|entry| {
+            entry
+                .map(|entry| entry.file_name())
+                .map_err(|error| Error::new(error.to_string()))
+        })
+        .collect()
+}
 #[derive(Clone, Debug, Default)]
 pub struct RequestEdit {
     pub title: Option<String>,
@@ -208,12 +237,14 @@ impl Operation for RecordMutation {
         if creating && self.id.is_empty() {
             let prefix = String::from_utf8_lossy(&super::prefix_for(hub, &self.resolved.project))
                 .into_owned();
+            let filenames = directory_filenames(&hub.join(base.join(family.directory())))?;
             let mut exists = |id: &str| {
                 ix.lookup(id.as_bytes()).is_some()
                     || ix
                         .ordered_notes()
                         .iter()
                         .any(|n| n.graph.id.as_deref() == Some(id.as_bytes()))
+                    || filenames.iter().any(|name| filename_reserves_id(name, id))
             };
             self.id = crate::domain::id::new_id(
                 &format!("{prefix}-{}", family.infix()),
@@ -268,6 +299,18 @@ impl Operation for RecordMutation {
                 base.join(family.directory()).join(filename)
             });
         check_hub_write_path(hub, &path)?;
+        if creating {
+            match std::fs::symlink_metadata(hub.join(&path)) {
+                Ok(_) => {
+                    return Err(Error::new(format!(
+                        "record destination already exists: {}",
+                        path.display()
+                    )));
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => return Err(Error::new(error.to_string())),
+            }
+        }
         self.id = existing
             .and_then(|n| n.graph.id.as_ref())
             .map(|v| String::from_utf8_lossy(v).into_owned())
@@ -523,7 +566,6 @@ impl Operation for RecordMutation {
                     "prompt updated".into()
                 };
                 self.log.event = event.into();
-                doc.metadata.updated = self.log.at.clone();
                 doc.append_log(self.log.clone());
                 doc.encode()?.bytes
             }

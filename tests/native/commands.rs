@@ -49,6 +49,59 @@ impl Operation for PromptRace {
     }
 }
 
+struct FuturePromptUpdate {
+    path: PathBuf,
+    body: Vec<u8>,
+    at: beans::domain::issue::Timestamp,
+}
+impl Operation for FuturePromptUpdate {
+    fn subject(&self) -> String {
+        "future prompt update".into()
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        let absolute = hub.join(&self.path);
+        let mut document = beans::domain::prompt::PromptDocument::parse_bytes(
+            &self.path.to_string_lossy(),
+            &fs::read(&absolute).map_err(|error| Error::new(error.to_string()))?,
+        )?;
+        document.set_body_bytes(&self.body);
+        document.append_log(beans::domain::log::LogEntry {
+            at: self.at.clone(),
+            actor: "remote-editor".into(),
+            event: "future remote body".into(),
+            ..Default::default()
+        });
+        fs::write(&absolute, document.encode()?.bytes)
+            .map_err(|error| Error::new(error.to_string()))?;
+        Ok(vec![self.path.clone()])
+    }
+}
+
+struct FuturePromptRace {
+    primary: beans::ops::RecordMutation,
+    competitor: Hub,
+    competitor_update: FuturePromptUpdate,
+    fired: bool,
+    survived: Vec<bool>,
+}
+impl Operation for FuturePromptRace {
+    fn subject(&self) -> String {
+        self.primary.subject()
+    }
+    fn after_rebase(&mut self, present: bool) {
+        self.survived.push(present);
+        self.primary.after_rebase(present);
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        let paths = self.primary.apply(hub)?;
+        if !self.fired {
+            self.fired = true;
+            self.competitor.mutate(&mut self.competitor_update)?;
+        }
+        Ok(paths)
+    }
+}
+
 struct ReplayProbe {
     primary: beans::ops::RecordMutation,
     survived: Vec<bool>,
@@ -325,6 +378,197 @@ fn native_prompt_operations_are_lossless_audited_and_replay_safe() {
             .join(format!("projects/demo/prompts/{}.md", fallback.id))
             .exists()
     );
+}
+
+#[test]
+fn prompt_creation_never_overwrites_unindexed_destination_artifacts() {
+    let s = fixture();
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    let resolved = beans::vault::Resolved {
+        project: b"demo".to_vec(),
+        ..Default::default()
+    };
+    let prompts = s.path("home/hub/projects/demo/prompts");
+    fs::create_dir_all(&prompts).unwrap();
+
+    let malformed_path = prompts.join("demo-p-dead-malformed-collision.md");
+    let malformed = b"not a prompt at all\n\0original bytes\n".to_vec();
+    fs::write(&malformed_path, &malformed).unwrap();
+    hub.sync().unwrap();
+    let mut malformed_create = beans::ops::RecordMutation::new(
+        resolved.clone(),
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(
+            Some("Malformed Collision"),
+            Some("queue"),
+        )),
+        "creator".into(),
+        None,
+    );
+    malformed_create.id = "demo-p-dead".into();
+    assert!(hub.mutate(&mut malformed_create).is_err());
+    assert_eq!(fs::read(&malformed_path).unwrap(), malformed);
+
+    let mut source = beans::ops::RecordMutation::new(
+        resolved.clone(),
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(Some("Source"), Some("queue"))),
+        "creator".into(),
+        None,
+    );
+    hub.mutate(&mut source).unwrap();
+    let source_path = prompts.join(format!("{}-source.md", source.id));
+    let mismatched = fs::read(&source_path).unwrap();
+    fs::remove_file(&source_path).unwrap();
+    let mismatch_path = prompts.join("demo-p-beef-metadata-mismatch.md");
+    fs::write(&mismatch_path, &mismatched).unwrap();
+    hub.sync().unwrap();
+    let mut mismatch_create = beans::ops::RecordMutation::new(
+        resolved,
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(
+            Some("Metadata Mismatch"),
+            Some("queue"),
+        )),
+        "creator".into(),
+        None,
+    );
+    mismatch_create.id = "demo-p-beef".into();
+    assert!(hub.mutate(&mut mismatch_create).is_err());
+    assert_eq!(fs::read(&mismatch_path).unwrap(), mismatched);
+}
+
+#[test]
+fn generated_prompt_ids_reserve_unparseable_prompt_filenames() {
+    let s = fixture();
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    let hub_config = s.path("home/hub/beans.toml");
+    let mut config = fs::read_to_string(&hub_config).unwrap_or_default();
+    config.push_str("\n[ids]\nlength = 1\n");
+    fs::write(&hub_config, config).unwrap();
+    let prompts = s.path("home/hub/projects/demo/prompts");
+    fs::create_dir_all(&prompts).unwrap();
+    let artifact = b"reserved malformed prompt bytes\n";
+    for suffix in b"abcdefghijklmnopqrstuvwxyz0123456789" {
+        fs::write(
+            prompts.join(format!("demo-p-{}-reserved.md", char::from(*suffix))),
+            artifact,
+        )
+        .unwrap();
+    }
+    hub.sync().unwrap();
+    let mut create = beans::ops::RecordMutation::new(
+        beans::vault::Resolved {
+            project: b"demo".to_vec(),
+            ..Default::default()
+        },
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(Some("Reserved"), Some("queue"))),
+        "creator".into(),
+        None,
+    );
+    hub.mutate(&mut create).unwrap();
+    assert_eq!(create.id.len(), "demo-p-".len() + 2);
+    for suffix in b"abcdefghijklmnopqrstuvwxyz0123456789" {
+        assert_eq!(
+            fs::read(prompts.join(format!("demo-p-{}-reserved.md", char::from(*suffix)))).unwrap(),
+            artifact
+        );
+    }
+}
+
+#[test]
+fn replay_keeps_remote_future_updated_and_appends_each_prompt_log_once() {
+    let s = fixture();
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    let resolved = beans::vault::Resolved {
+        project: b"demo".to_vec(),
+        ..Default::default()
+    };
+    let mut create = beans::ops::RecordMutation::new(
+        resolved.clone(),
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(Some("Monotonic"), Some("queue"))),
+        "creator".into(),
+        None,
+    );
+    hub.mutate(&mut create).unwrap();
+    let relative = PathBuf::from(format!("projects/demo/prompts/{}-monotonic.md", create.id));
+    let future = beans::domain::issue::Timestamp {
+        seconds: 4_102_444_800,
+        nanoseconds: 0,
+        offset_seconds: 0,
+    };
+    let remote_body = b"remote bytes that must remain latest\n".to_vec();
+    let primary = beans::ops::RecordMutation::new(
+        resolved,
+        create.id,
+        beans::ops::RecordChange::PromptUpdate(beans::ops::PromptEdit {
+            title: Some("Locally Retitled".into()),
+            note: Some("losing operation evidence".into()),
+            ..Default::default()
+        }),
+        "local-editor".into(),
+        None,
+    );
+    let competitor = s.clone_hub(&s.path("remote.git"), "future-prompt-winner");
+    let mut race = FuturePromptRace {
+        primary,
+        competitor,
+        competitor_update: FuturePromptUpdate {
+            path: relative.clone(),
+            body: remote_body.clone(),
+            at: future.clone(),
+        },
+        fired: false,
+        survived: Vec::new(),
+    };
+    hub.mutate(&mut race).unwrap();
+    assert_eq!(race.survived, [false]);
+    let latest = beans::domain::prompt::PromptDocument::parse_bytes(
+        &relative.to_string_lossy(),
+        &fs::read(s.path("home/hub").join(&relative)).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(latest.metadata.updated, future);
+    assert_eq!(latest.body.as_bytes(), remote_body);
+    for event in [
+        b"future remote body".as_slice(),
+        b"losing operation evidence",
+    ] {
+        assert_eq!(
+            latest
+                .log
+                .iter()
+                .filter(|entry| entry.event.as_bytes() == event)
+                .count(),
+            1
+        );
+    }
 }
 
 #[test]
