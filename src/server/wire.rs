@@ -7,7 +7,19 @@ fn s(v: &[u8]) -> String {
     String::from_utf8_lossy(v).into_owned()
 }
 pub fn backlinks(index: &Index, note: &Note, archived: bool) -> Value {
-    json!(index.issue_backlinks(&note.graph.basename, archived).iter().filter(|r| !matches!(r.kind, crate::vault::LinkKind::RequestIssue | crate::vault::LinkKind::PromptIssue)).filter_map(|r| index.lookup(&r.from).map(|n| json!({"from":s(n.graph.id.as_deref().unwrap_or(&n.graph.basename)),"kind":r.kind,"note_kind":n.graph.kind,"path":s(&n.graph.path),"title":s(&n.title)}))).collect::<Vec<_>>())
+    backlinks_without_derived_prompts(index, note, archived, &[])
+}
+fn backlinks_without_derived_prompts(
+    index: &Index,
+    note: &Note,
+    archived: bool,
+    derived_prompts: &[Vec<u8>],
+) -> Value {
+    json!(index.issue_backlinks(&note.graph.basename, archived).iter().filter(|r| {
+        !matches!(r.kind, crate::vault::LinkKind::RequestIssue)
+            && !(matches!(r.kind, crate::vault::LinkKind::PromptIssue)
+                && derived_prompts.contains(&r.from))
+    }).filter_map(|r| index.lookup(&r.from).map(|n| json!({"from":s(n.graph.id.as_deref().unwrap_or(&n.graph.basename)),"kind":r.kind,"note_kind":n.graph.kind,"path":s(&n.graph.path),"title":s(&n.title)}))).collect::<Vec<_>>())
 }
 /// Stable HTTP-only prompt list projection. Domain and CLI JSON deliberately
 /// retain different timestamp and relationship representations.
@@ -61,6 +73,7 @@ pub fn prompt_detail(index: &Index, n: &Note) -> Value {
     value
 }
 pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
+    let mut derived_prompts = Vec::new();
     let mut v = match &n.data {
         NoteData::Issue(d) => {
             let mut v = serde_json::to_value(&d.metadata).unwrap();
@@ -92,7 +105,22 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
                     .collect::<Vec<_>>()
             );
             v["requests"] = json!(index.ordered_notes().iter().filter(|r| matches!(&r.data, NoteData::Request(r) if r.metadata.issues.iter().any(|l| l.target == d.metadata.id || l.target.as_bytes() == n.graph.basename))).map(|r| note(index,r,false)).collect::<Vec<_>>());
-            v["prompts"] = json!(index.project_prompts(&crate::vault::PromptFilter { terminal:true, ..Default::default() }).into_iter().filter(|r| matches!(&r.data, NoteData::Prompt(r) if r.metadata.issue.target == d.metadata.id || r.metadata.issue.target.as_bytes() == n.graph.basename)).map(prompt_summary).collect::<Vec<_>>());
+            let prompts = index
+                .project_prompts(&crate::vault::PromptFilter {
+                    terminal: true,
+                    ..Default::default()
+                })
+                .into_iter()
+                .filter(|prompt| {
+                    matches!(&prompt.data, NoteData::Prompt(document)
+                        if index
+                            .resolve_issue_ref(document.metadata.issue.target.as_bytes())
+                            .1
+                            .is_some_and(|issue| issue.graph.path == n.graph.path))
+                })
+                .collect::<Vec<_>>();
+            derived_prompts.extend(prompts.iter().map(|prompt| prompt.graph.basename.clone()));
+            v["prompts"] = json!(prompts.into_iter().map(prompt_summary).collect::<Vec<_>>());
             v
         }
         NoteData::Request(d) => {
@@ -148,7 +176,7 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
         let rendered = markdown::render(&text, index, &s(&n.graph.path));
         v["html"] = json!(rendered.html);
         v["toc"] = json!(rendered.toc);
-        v["backlinks"] = backlinks(index, n, false);
+        v["backlinks"] = backlinks_without_derived_prompts(index, n, false, &derived_prompts);
         v["outlinks"] = json!(
             n.graph
                 .outlinks

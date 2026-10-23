@@ -488,6 +488,100 @@ fn prompt_http_detail_issue_reverse_rendering_search_and_malformed_warning() {
 }
 
 #[test]
+fn issue_prompt_reverse_relationships_resolve_aliases_and_indexed_paths() {
+    let f = Fixture::new();
+    f.write(
+        "projects/p/issues/p-aaaa-first.md",
+        "---\nid: p-aaaa\naliases: [p-aaaa, first-alias]\ntitle: First\ntype: task\nstatus: open\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n",
+    );
+    f.write(
+        "projects/p/prompts/p-p-d4e5-alias.md",
+        "---\nid: p-p-d4e5\naliases: [p-p-d4e5]\ntitle: Alias relationship\nstatus: open\npriority: 0\nlabels: [resolution]\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[first-alias]]\"\ncreated: 2026-02-01T00:00:00Z\nupdated: 2026-02-02T00:00:00Z\n---\nAlias instructions.\n",
+    );
+    f.write(
+        "projects/p/prompts/p-p-e5f6-path.md",
+        "---\nid: p-p-e5f6\naliases: [p-p-e5f6]\ntitle: Path relationship\nstatus: open\npriority: 2\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[projects/p/issues/p-aaaa-first.md]]\"\ncreated: 2026-02-03T00:00:00Z\nupdated: 2026-02-04T00:00:00Z\n---\nPath instructions.\n",
+    );
+    // This duplicate-ID prompt is indexed and produces a real PromptIssue
+    // backlink, but is not an owned prompt and therefore has no derived summary.
+    // Its generic relationship must not disappear merely because of its kind.
+    f.write(
+        "projects/p/prompts/z-shadowed-p-p-c3d4.md",
+        "---\nid: p-p-c3d4\naliases: [shadowed-prompt]\ntitle: Shadowed relationship\nstatus: open\npriority: 4\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[p-aaaa]]\"\ncreated: 2026-02-05T00:00:00Z\nupdated: 2026-02-06T00:00:00Z\n---\nShadowed instructions.\n",
+    );
+
+    let s = Server::new(&f);
+    let issue = s.ok("/api/issues/p-aaaa");
+    let prompts = issue["prompts"].as_array().unwrap();
+    assert_eq!(
+        prompts
+            .iter()
+            .map(|prompt| prompt["id"].as_str().unwrap())
+            .collect::<Vec<_>>(),
+        vec!["p-p-d4e5", "p-p-a1b2", "p-p-e5f6"]
+    );
+    assert_eq!(
+        prompts[0],
+        json!({
+            "id": "p-p-d4e5",
+            "title": "Alias relationship",
+            "status": "open",
+            "priority": 0,
+            "labels": ["resolution"],
+            "from": "Lead Agent",
+            "to": "Worker Agent",
+            "claimed_by": null,
+            "created": "2026-02-01T00:00:00Z",
+            "updated": "2026-02-02T00:00:00Z",
+            "project": "p",
+            "path": "projects/p/prompts/p-p-d4e5-alias.md",
+            "has_issue": true,
+        })
+    );
+    assert_eq!(
+        prompts[2],
+        json!({
+            "id": "p-p-e5f6",
+            "title": "Path relationship",
+            "status": "open",
+            "priority": 2,
+            "labels": [],
+            "from": "Lead Agent",
+            "to": "Worker Agent",
+            "claimed_by": null,
+            "created": "2026-02-03T00:00:00Z",
+            "updated": "2026-02-04T00:00:00Z",
+            "project": "p",
+            "path": "projects/p/prompts/p-p-e5f6-path.md",
+            "has_issue": true,
+        })
+    );
+
+    let prompt_backlinks = issue["backlinks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|link| link["kind"] == "prompt_issue")
+        .cloned()
+        .collect::<Vec<_>>();
+    assert_eq!(
+        prompt_backlinks,
+        vec![json!({
+            "from": "p-p-c3d4",
+            "kind": "prompt_issue",
+            "note_kind": "prompt",
+            "path": "projects/p/prompts/z-shadowed-p-p-c3d4.md",
+            "title": "Shadowed relationship",
+        })]
+    );
+
+    assert_eq!(
+        s.ok("/api/prompts/p-p-b2c3")["issue"],
+        json!({"id":"missing-a1b2","title":"","missing":true})
+    );
+}
+
+#[test]
 fn prompt_http_wikilinks_and_all_mutations_are_read_only_before_decoding() {
     let f = Fixture::new();
     f.write(
