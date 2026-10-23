@@ -488,6 +488,64 @@ fn prompt_http_detail_issue_reverse_rendering_search_and_malformed_warning() {
 }
 
 #[test]
+fn issue_reverse_prompt_summaries_are_detail_only() {
+    let f = Fixture::new();
+    let s = Server::new(&f);
+
+    let prompt = s.ok("/api/projects/p/prompts")[0].clone();
+    assert_eq!(s.ok("/api/issues/p-aaaa")["prompts"], json!([prompt]));
+
+    let issues = s.ok("/api/projects/p/issues");
+    let issue = issues
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|issue| issue["id"] == "p-aaaa")
+        .unwrap();
+    let keys = issue
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        keys,
+        [
+            "aliases",
+            "archived",
+            "assignee",
+            "blocked_by",
+            "blockers",
+            "children",
+            "created",
+            "description",
+            "id",
+            "labels",
+            "log",
+            "parent",
+            "path",
+            "priority",
+            "project",
+            "requests",
+            "status",
+            "title",
+            "type",
+            "updated",
+            "url",
+            "workflow",
+        ]
+        .into_iter()
+        .collect()
+    );
+
+    assert_eq!(
+        s.ok("/api/projects/p/issues?q=Review%20HTTP%20projection"),
+        json!([])
+    );
+    assert_eq!(s.ok("/api/projects/p/issues?q=First")[0]["id"], "p-aaaa");
+}
+
+#[test]
 fn archived_issue_backlinks_preserve_prompt_deduplication_and_resolution() {
     let f = Fixture::new();
     f.write(
