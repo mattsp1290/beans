@@ -24,20 +24,10 @@ fn prompt_edit(title: Option<&str>, to: Option<&str>) -> beans::ops::PromptEdit 
     }
 }
 
-struct RemoteMarker;
-impl Operation for RemoteMarker {
-    fn subject(&self) -> String {
-        "bn: concurrent prompt marker".into()
-    }
-    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
-        write_file(&hub.join("concurrent-prompt.txt"), b"remote edit\n")?;
-        Ok(vec!["concurrent-prompt.txt".into()])
-    }
-}
-
 struct PromptRace {
     primary: beans::ops::RecordMutation,
     competitor: Hub,
+    competitor_update: beans::ops::RecordMutation,
     fired: bool,
     survived: Vec<bool>,
 }
@@ -53,9 +43,38 @@ impl Operation for PromptRace {
         let paths = self.primary.apply(hub)?;
         if !self.fired {
             self.fired = true;
-            self.competitor.mutate(&mut RemoteMarker)?;
+            self.competitor.mutate(&mut self.competitor_update)?;
         }
         Ok(paths)
+    }
+}
+
+struct ReplayProbe {
+    primary: beans::ops::RecordMutation,
+    survived: Vec<bool>,
+}
+impl Operation for ReplayProbe {
+    fn subject(&self) -> String {
+        self.primary.subject()
+    }
+    fn after_rebase(&mut self, present: bool) {
+        self.survived.push(present);
+        self.primary.after_rebase(present);
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        self.primary.apply(hub)
+    }
+}
+
+fn wait_for_path(path: &Path) {
+    let start = std::time::Instant::now();
+    while !path.exists() {
+        assert!(
+            start.elapsed() < Duration::from_secs(10),
+            "timed out waiting for {}",
+            path.display()
+        );
+        std::thread::sleep(Duration::from_millis(10));
     }
 }
 
@@ -121,6 +140,9 @@ fn native_prompt_operations_are_lossless_audited_and_replay_safe() {
         1,
     );
     fs::write(&path, authored).unwrap();
+    // Publish the hand-authored bytes so the retry owns only its mutation commit.
+    // The competing clone can then force the discard-and-reapply path safely.
+    hub.sync().unwrap();
     let mut edit = beans::ops::PromptEdit {
         title: Some("Renamed".into()),
         note: Some("exact evidence".into()),
@@ -134,21 +156,48 @@ fn native_prompt_operations_are_lossless_audited_and_replay_safe() {
         None,
     );
     let competitor = s.clone_hub(&s.path("remote.git"), "prompt-competitor");
+    let remote_body = b"remote latest prompt bytes\n".to_vec();
+    let competitor_update = beans::ops::RecordMutation::new(
+        resolved.clone(),
+        created.id.clone(),
+        beans::ops::RecordChange::PromptUpdate(beans::ops::PromptEdit {
+            body: Some(remote_body.clone()),
+            note: Some("remote body evidence".into()),
+            ..Default::default()
+        }),
+        "remote-editor".into(),
+        None,
+    );
     let mut race = PromptRace {
         primary: update,
         competitor,
+        competitor_update,
         fired: false,
         survived: Vec::new(),
     };
     assert!(hub.mutate(&mut race).unwrap().pushed);
-    assert_eq!(race.survived, [true]);
+    assert_eq!(race.survived, [false]);
     assert!(path.exists(), "title edits must not rename the prompt");
     let bytes = fs::read(&path).unwrap();
     assert!(String::from_utf8_lossy(&bytes).contains("vendor: [keep, me] # authored"));
     let doc =
         beans::domain::prompt::PromptDocument::parse_bytes(path.to_str().unwrap(), &bytes).unwrap();
-    assert_eq!(doc.log.len(), 2);
-    assert_eq!(doc.log[1].event.as_bytes(), b"exact evidence");
+    assert_eq!(doc.body.as_bytes(), remote_body);
+    assert_eq!(doc.log.len(), 3);
+    assert_eq!(
+        doc.log
+            .iter()
+            .filter(|entry| entry.event.as_bytes() == b"remote body evidence")
+            .count(),
+        1
+    );
+    assert_eq!(
+        doc.log
+            .iter()
+            .filter(|entry| entry.event.as_bytes() == b"exact evidence")
+            .count(),
+        1
+    );
 
     edit.note = None;
     let mut noop = beans::ops::RecordMutation::new(
@@ -275,6 +324,127 @@ fn native_prompt_operations_are_lossless_audited_and_replay_safe() {
         s.path("home/hub")
             .join(format!("projects/demo/prompts/{}.md", fallback.id))
             .exists()
+    );
+}
+
+#[test]
+fn conflicting_prompt_claim_is_rejected_when_its_commit_loses_the_push_race() {
+    let s = fixture();
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    let resolved = beans::vault::Resolved {
+        project: b"demo".to_vec(),
+        repo_head: b"feedface".to_vec(),
+        repo_branch: b"feature".to_vec(),
+        ..Default::default()
+    };
+    let mut create = beans::ops::RecordMutation::new(
+        resolved.clone(),
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(Some("Raced claim"), Some("queue"))),
+        "creator".into(),
+        None,
+    );
+    hub.mutate(&mut create).unwrap();
+    let relative = PathBuf::from(format!(
+        "projects/demo/prompts/{}-raced-claim.md",
+        create.id
+    ));
+    let competitor = s.clone_hub(&s.path("remote.git"), "claim-winner");
+    let entered = s.path("claim-push-entered");
+    let release = s.path("claim-push-release");
+    hook(
+        &hub,
+        "pre-push",
+        &format!(
+            "if test ! -e '{}'; then\n  : > '{}'\n  while test ! -e '{}'; do sleep 0.01; done\nfi",
+            entered.display(),
+            entered.display(),
+            release.display()
+        ),
+    );
+
+    let claim = beans::ops::PromptEdit {
+        claim: true,
+        ..Default::default()
+    };
+    let mut losing_claim = ReplayProbe {
+        primary: beans::ops::RecordMutation::new(
+            resolved.clone(),
+            create.id.clone(),
+            beans::ops::RecordChange::PromptUpdate(claim.clone()),
+            "worker-a".into(),
+            None,
+        ),
+        survived: Vec::new(),
+    };
+    let loser = std::thread::spawn(move || {
+        let result = hub.mutate(&mut losing_claim);
+        (result, losing_claim)
+    });
+    wait_for_path(&entered);
+    assert_eq!(
+        git(
+            &s.path("home/hub"),
+            &["rev-list", "--count", "origin/main..HEAD"]
+        ),
+        "1",
+        "worker A must have committed its claim before worker B pushes"
+    );
+
+    let mut winning_claim = beans::ops::RecordMutation::new(
+        resolved,
+        create.id,
+        beans::ops::RecordChange::PromptUpdate(claim),
+        "worker-b".into(),
+        None,
+    );
+    let winning_result = competitor.mutate(&mut winning_claim);
+    fs::write(&release, b"continue\n").unwrap();
+    winning_result.unwrap();
+    let winning_head = git(&competitor.dir, &["rev-parse", "HEAD"]);
+    let winning_bytes = fs::read(competitor.dir.join(&relative)).unwrap();
+
+    let (losing_result, losing_claim) = loser.join().unwrap();
+    assert!(losing_result.is_err());
+    assert_eq!(losing_claim.survived, [false]);
+    assert_eq!(
+        fs::read(s.path("home/hub").join(&relative)).unwrap(),
+        winning_bytes
+    );
+    assert_eq!(
+        git(&s.path("remote.git"), &["rev-parse", "main"]),
+        winning_head
+    );
+    let latest = beans::domain::prompt::PromptDocument::parse_bytes(
+        relative.to_str().unwrap(),
+        &winning_bytes,
+    )
+    .unwrap();
+    assert_eq!(latest.metadata.claimed_by.as_deref(), Some("worker-b"));
+    assert_eq!(
+        latest
+            .log
+            .iter()
+            .filter(|entry| entry.event.as_bytes() == b"prompt claimed")
+            .count(),
+        1
+    );
+    let subject = format!("bn: record {}", latest.metadata.id);
+    assert_eq!(
+        git(&competitor.dir, &["log", "--format=%s", "origin/main"])
+            .lines()
+            .filter(|candidate| *candidate == subject)
+            .count(),
+        2,
+        "the remote must contain only prompt creation and worker B's claim"
     );
 }
 
