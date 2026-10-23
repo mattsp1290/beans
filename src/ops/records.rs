@@ -9,7 +9,7 @@ use crate::{
         request::{self, RequestDocument, RequestMetadata},
         text::Link,
     },
-    gitops::{Operation, check_hub_write_path, remove_hub_file, write_hub_file},
+    gitops::{Operation, check_hub_write_path, create_hub_file, remove_hub_file, write_hub_file},
     vault::{Index, LoadOptions, NoteData, NoteKind, Resolved},
 };
 use std::{
@@ -599,7 +599,11 @@ impl Operation for RecordMutation {
             return Ok(vec![destination, path]);
         }
         let mut paths = super::scaffold_paths(hub, &self.resolved)?;
-        write_hub_file(hub, &path, &bytes)?;
+        if creating && family == RecordFamily::Prompt {
+            create_hub_file(hub, &path, &bytes)?;
+        } else {
+            write_hub_file(hub, &path, &bytes)?;
+        }
         paths.push(path);
         self.present = true;
         Ok(paths)

@@ -212,6 +212,29 @@ impl PreparedHubWrite {
         }
         Ok(())
     }
+    fn commit_no_replace(self) -> Result<(), Error> {
+        reject_symlink(&self.parent, OsStr::from_bytes(self.target.as_bytes()))?;
+        // A same-directory hard link publishes the synced inode atomically and
+        // fails with EEXIST instead of replacing a concurrently created target.
+        // Drop then removes only our temporary link and ownership evidence.
+        if unsafe {
+            libc::linkat(
+                self.parent.as_raw_fd(),
+                self.temp.as_ptr(),
+                self.parent.as_raw_fd(),
+                self.target.as_ptr(),
+                0,
+            )
+        } < 0
+        {
+            let e = std::io::Error::last_os_error();
+            if e.kind() == std::io::ErrorKind::AlreadyExists {
+                return Err(Error::new("hub write destination already exists".into()));
+            }
+            return Err(error(e));
+        }
+        Ok(())
+    }
 }
 impl Drop for PreparedHubWrite {
     fn drop(&mut self) {
@@ -223,6 +246,10 @@ impl Drop for PreparedHubWrite {
 }
 pub fn write_hub_file(hub: &Path, relative: &Path, bytes: &[u8]) -> Result<(), Error> {
     PreparedHubWrite::prepare(hub, relative, bytes)?.commit()
+}
+/// Atomically install a new file, failing without changing an existing destination.
+pub fn create_hub_file(hub: &Path, relative: &Path, bytes: &[u8]) -> Result<(), Error> {
+    PreparedHubWrite::prepare(hub, relative, bytes)?.commit_no_replace()
 }
 /// Exact registered orphan candidates; arbitrary basename matches are ignored.
 pub(crate) fn owned_orphans(hub: &Path) -> Result<Vec<(PathBuf, PathBuf)>, Error> {

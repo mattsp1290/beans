@@ -447,6 +447,75 @@ fn prompt_creation_never_overwrites_unindexed_destination_artifacts() {
 }
 
 #[test]
+fn prompt_creation_loses_a_toctou_race_without_overwriting_the_winner() {
+    use std::io::Write as _;
+
+    let s = fixture();
+    let hub_dir = s.path("home/hub");
+    let templates = hub_dir.join("projects/demo/templates");
+    fs::create_dir_all(&templates).unwrap();
+    let template = templates.join("prompt.md");
+    assert!(
+        Command::new("mkfifo")
+            .arg(&template)
+            .status()
+            .unwrap()
+            .success()
+    );
+
+    let relative = PathBuf::from("projects/demo/prompts/demo-p-race-atomic-collision.md");
+    let destination = hub_dir.join(&relative);
+    fs::create_dir_all(destination.parent().unwrap()).unwrap();
+    let apply_hub = hub_dir.clone();
+    let mutation = std::thread::spawn(move || {
+        let mut create = beans::ops::RecordMutation::new(
+            beans::vault::Resolved {
+                project: b"demo".to_vec(),
+                ..Default::default()
+            },
+            String::new(),
+            beans::ops::RecordChange::PromptCreate(prompt_edit(
+                Some("Atomic Collision"),
+                Some("queue"),
+            )),
+            "creator".into(),
+            None,
+        );
+        create.id = "demo-p-race".into();
+        create.apply(&apply_hub)
+    });
+
+    // Opening the FIFO writer returns only once prompt creation has passed its
+    // destination check and blocked while loading the body template.
+    let mut template_writer = fs::OpenOptions::new().write(true).open(&template).unwrap();
+    let hand_authored = b"hand-authored bytes win exactly\n\0do not replace\n";
+    fs::write(&destination, hand_authored).unwrap();
+    template_writer
+        .write_all(b"prompt template body\n")
+        .unwrap();
+    drop(template_writer);
+
+    let error = mutation.join().unwrap().unwrap_err();
+    assert!(error.to_string().contains("already exists"), "{error}");
+    assert_eq!(fs::read(destination).unwrap(), hand_authored);
+    assert!(
+        fs::read_dir(hub_dir.join("projects/demo/prompts"))
+            .unwrap()
+            .all(|entry| !entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".bn-write-"))
+    );
+    assert_eq!(
+        fs::read_dir(hub_dir.join(".git/bn-temp-owners"))
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[test]
 fn generated_prompt_ids_reserve_unparseable_prompt_filenames() {
     let s = fixture();
     let hub = Hub::new(
