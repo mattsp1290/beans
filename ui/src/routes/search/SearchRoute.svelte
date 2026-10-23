@@ -3,6 +3,7 @@
   import EmptyState from '../../lib/components/EmptyState.svelte'
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
+  import { searchResultPath } from './routing'
 
   interface Props {
     project: string
@@ -81,16 +82,6 @@
     }
   }
 
-  function resultPath(result: SearchResult): string {
-    if (result.kind === 'issue') {
-      return `/issues/${encodeURIComponent(result.id)}`
-    }
-		if (result.kind === 'request') { return `/requests/${encodeURIComponent(result.id)}` }
-    if (result.kind === 'memory') {
-      return `/search?q=${encodeURIComponent(result.basename)}`
-    }
-    return `/wiki/${result.path.replace(/\.md$/i, '')}`
-  }
 
   function errorMessage(err: unknown): string {
     if (err instanceof ApiError) {
@@ -112,6 +103,7 @@
         <option value="">All</option>
         <option value="issue">Issues</option>
 			<option value="request">Requests</option>
+			<option value="prompt">Prompts</option>
         <option value="doc">Docs</option>
         <option value="memory">Memories</option>
         <option value="handoff">Handoffs</option>
@@ -136,7 +128,7 @@
           <button
             type="button"
             class="search-result"
-            onclick={() => navigate(resultPath(result))}
+            onclick={() => navigate(searchResultPath(result))}
           >
             <span class="type-pill">{result.kind}</span>
             <span class="search-result-copy">

@@ -6,6 +6,7 @@ export interface AppRoute {
 }
 
 export const routes: AppRoute[] = [
+	{ path: '/prompts', label: 'Prompts', title: 'Prompts', description: 'Read-only agent prompts' },
 	{ path: '/requests', label: 'Requests', title: 'Requests', description: 'Read-only project requests' },
 	{ path: '/plans', label: 'Plans', title: 'Plans', description: 'Read-only implementation plans' },
   {
@@ -43,6 +44,7 @@ export const routes: AppRoute[] = [
 /** Returns the route metadata (nav highlight, page title) for a pathname. */
 export function getRoute(pathname: string): AppRoute {
 	const route = (path: string) => routes.find((item) => item.path === path)!
+	if (pathname === '/prompts' || pathname.startsWith('/prompts/')) { return route('/prompts') }
 	if (pathname === '/plans' || pathname.startsWith('/plans/')) { return route('/plans') }
 	if (pathname === '/requests' || pathname.startsWith('/requests/')) { return route('/requests') }
 	if (pathname === '/' || pathname === '/issues' || pathname.startsWith('/issues/')) {
@@ -75,6 +77,18 @@ export function parsePlanId(pathname: string): string | null {
 }
 
 export function parseRequestId(pathname: string): string | null { const match=/^\/requests\/([^/]+)\/?$/.exec(pathname); return match?decodeURIComponent(match[1]):null }
+
+/** Extracts a canonical `<prefix>-p-<hash>` prompt id from an exact detail path. */
+export function parsePromptId(pathname: string): string | null {
+  const match = /^\/prompts\/([^/]+)\/?$/.exec(pathname)
+  if (!match) return null
+  try {
+    const id = decodeURIComponent(match[1])
+    return /^[a-z0-9][a-z0-9-]*-p-[a-z0-9]+$/.test(id) ? id : null
+  } catch {
+    return null
+  }
+}
 
 /** Extracts the doc path from `/wiki` or `/wiki/*path`, as a hub-relative path (no leading slash). */
 export function parseWikiPath(pathname: string): string {

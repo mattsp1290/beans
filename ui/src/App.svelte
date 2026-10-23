@@ -9,7 +9,8 @@
   import WikiRoute from './routes/wiki/WikiRoute.svelte'
 	import PlansRoute from './routes/plans/PlansRoute.svelte'
 	import RequestsRoute from './routes/requests/RequestsRoute.svelte'
-	import { getRoute, parseIssueId, parsePlanId, parseRequestId, parseWikiPath, routes } from './routes'
+	import PromptsRoute from './routes/prompts/PromptsRoute.svelte'
+	import { getRoute, parseIssueId, parsePlanId, parsePromptId, parseRequestId, parseWikiPath, routes } from './routes'
 
   const PROJECT_STORAGE_KEY = 'bn-ui:project'
   const EMPTY_WORKFLOW: WorkflowInfo = { statuses: [], active: [], terminal: [] }
@@ -20,6 +21,7 @@
   const issueId = $derived(parseIssueId(pathname))
 	const planId = $derived(parsePlanId(pathname))
 	const requestId = $derived(parseRequestId(pathname))
+	const promptId = $derived(parsePromptId(pathname))
   const wikiPath = $derived(parseWikiPath(pathname))
   const searchQuery = $derived(new URLSearchParams(search).get('q') ?? '')
 
@@ -189,6 +191,8 @@
 		<IssueDetailRoute id={issueId} navigate={go} {reloadKey} onBanner={setBanner} />
 	{:else if requestId || pathname === '/requests'}
 		<RequestsRoute {project} id={requestId} navigate={go} {reloadKey} />
+	{:else if promptId || pathname === '/prompts'}
+		<PromptsRoute {project} id={promptId} navigate={go} {reloadKey} />
   {:else if pathname === '/ready'}
     <ReadyRoute {project} navigate={go} {reloadKey} />
   {:else if pathname === '/graph'}

@@ -13,6 +13,7 @@ export function backlinkHref(link: Backlink): string {
 		return `/search?q=${encodeURIComponent(link.from)}`
 	}
 	if (link.note_kind === 'request') { return `/requests/${encodeURIComponent(link.from)}` }
+	if (link.note_kind === 'prompt') { return `/prompts/${encodeURIComponent(link.from)}` }
   return `/wiki/${docPathSegments(link.path ?? link.from)}`
 }
 
@@ -35,7 +36,7 @@ export function isInterceptableContentLink(href: string): boolean {
   if (href.startsWith('/wiki/new')) {
     return false
   }
-	return href.startsWith('/issues/') || href.startsWith('/requests/') || href.startsWith('/wiki/') || href.startsWith('/search')
+	return href.startsWith('/issues/') || href.startsWith('/requests/') || href.startsWith('/prompts/') || href.startsWith('/wiki/') || href.startsWith('/search')
 }
 
 /**

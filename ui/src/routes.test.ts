@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRoute, parseIssueId, parsePlanId, parseRequestId, parseWikiPath } from './routes'
+import { getRoute, parseIssueId, parsePlanId, parsePromptId, parseRequestId, parseWikiPath } from './routes'
 
 describe('routes', () => {
   it('redirects the root path to the issues board metadata', () => {
@@ -32,6 +32,11 @@ describe('routes', () => {
 		expect(parseRequestId('/requests/p-r-a3f2')).toBe('p-r-a3f2')
 	})
 
+  it('maps prompt list and detail deep links to Prompts', () => {
+    expect(getRoute('/prompts')).toMatchObject({ path: '/prompts', title: 'Prompts' })
+    expect(getRoute('/prompts/beans-p-a3f2')).toMatchObject({ path: '/prompts', title: 'Prompts' })
+  })
+
   it('maps wiki index and wiki page paths to the wiki route metadata', () => {
     expect(getRoute('/wiki')).toMatchObject({ path: '/wiki', title: 'Wiki' })
     expect(getRoute('/wiki/projects/beans/README')).toMatchObject({
@@ -62,6 +67,20 @@ describe('parsePlanId', () => {
     expect(parsePlanId('/plans/p-plan-a3f2')).toBe('p-plan-a3f2')
     expect(parsePlanId('/plans/p%2Fplan')).toBe('p/plan')
     expect(parsePlanId('/plans')).toBeNull()
+  })
+})
+
+describe('parsePromptId', () => {
+  it('accepts only canonical prompt ids on exact detail paths', () => {
+    expect(parsePromptId('/prompts/beans-p-a3f2')).toBe('beans-p-a3f2')
+    expect(parsePromptId('/prompts/team-one-p-9z/')).toBe('team-one-p-9z')
+    for (const path of ['/prompts', '/prompts/', '/prompts/BN-p-a1', '/prompts/beans-r-a1', '/prompts/beans-p-a-1', '/prompts/beans-p-a1/more', '/prompts/%E0%A4%A']) {
+      expect(parsePromptId(path)).toBeNull()
+    }
+  })
+
+  it('decodes a valid encoded prompt id', () => {
+    expect(parsePromptId('/prompts/beans%2Dp%2Da3f2')).toBe('beans-p-a3f2')
   })
 })
 

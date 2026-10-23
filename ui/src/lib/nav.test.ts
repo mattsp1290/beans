@@ -31,12 +31,17 @@ describe('backlinkHref', () => {
 	it('routes a request backlink to request detail', () => {
 		expect(backlinkHref(backlink({ note_kind: 'request', from: 'beans-r-a3f2' }))).toBe('/requests/beans-r-a3f2')
 	})
+
+  it('routes a prompt backlink to prompt detail with encoding', () => {
+    expect(backlinkHref(backlink({ note_kind: 'prompt', from: 'beans-p-a/b' }))).toBe('/prompts/beans-p-a%2Fb')
+  })
 })
 
 describe('isInterceptableContentLink', () => {
-  it('intercepts issue, wiki, and search links', () => {
+  it('intercepts issue, prompt, wiki, and search links', () => {
     expect(isInterceptableContentLink('/issues/bn-1')).toBe(true)
 		expect(isInterceptableContentLink('/requests/bn-r-1')).toBe(true)
+    expect(isInterceptableContentLink('/prompts/bn-p-a1')).toBe(true)
     expect(isInterceptableContentLink('/wiki/projects/beans/README')).toBe(true)
     expect(isInterceptableContentLink('/search?q=hello')).toBe(true)
   })

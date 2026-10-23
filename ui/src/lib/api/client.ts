@@ -13,6 +13,9 @@ import type {
 	ListRequestsParams,
 	RequestDetail,
 	RequestSummary,
+	ListPromptsParams,
+	PromptDetail,
+	PromptSummary,
   ListIssuesParams,
   MutationResult,
   ProjectSummary,
@@ -42,7 +45,7 @@ export interface ApiClientOptions {
   fetch?: typeof fetch
 }
 
-type QueryValue = string | boolean | undefined
+type QueryValue = string | number | boolean | undefined
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
@@ -84,6 +87,25 @@ export class ApiClient {
   }
 
   getRequest(id: string): Promise<RequestDetail> { return this.request(`/requests/${encodeURIComponent(id)}`) }
+
+  listPrompts(project: string, params: ListPromptsParams = {}): Promise<PromptSummary[]> {
+    return this.request(`/projects/${encodeURIComponent(project)}/prompts`, {
+      query: {
+        status: params.status,
+        label: params.label,
+        priority: params.priority,
+        from: params.from,
+        to: params.to,
+        claimed_by: params.claimed_by,
+        q: params.q,
+        terminal: params.terminal,
+      },
+    })
+  }
+
+  getPrompt(id: string): Promise<PromptDetail> {
+    return this.request(`/prompts/${encodeURIComponent(id)}`)
+  }
 
   ready(project: string): Promise<Issue[]> {
     return this.request(`/projects/${encodeURIComponent(project)}/ready`)
