@@ -73,6 +73,17 @@ pub fn prompt_detail(index: &Index, n: &Note) -> Value {
     value
 }
 pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
+    note_with_backlinks(index, n, detail, false)
+}
+pub fn detail(index: &Index, n: &Note, include_archived_handoffs: bool) -> Value {
+    note_with_backlinks(index, n, true, include_archived_handoffs)
+}
+fn note_with_backlinks(
+    index: &Index,
+    n: &Note,
+    detail: bool,
+    include_archived_handoffs: bool,
+) -> Value {
     let mut derived_prompts = Vec::new();
     let mut v = match &n.data {
         NoteData::Issue(d) => {
@@ -176,7 +187,12 @@ pub fn note(index: &Index, n: &Note, detail: bool) -> Value {
         let rendered = markdown::render(&text, index, &s(&n.graph.path));
         v["html"] = json!(rendered.html);
         v["toc"] = json!(rendered.toc);
-        v["backlinks"] = backlinks_without_derived_prompts(index, n, false, &derived_prompts);
+        v["backlinks"] = backlinks_without_derived_prompts(
+            index,
+            n,
+            include_archived_handoffs,
+            &derived_prompts,
+        );
         v["outlinks"] = json!(
             n.graph
                 .outlinks

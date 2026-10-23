@@ -171,9 +171,7 @@ pub fn handle(app: &App, method: &Method, uri: &Uri, body: &[u8]) -> Response {
         ["api",kind @ ("issues" | "requests" | "plans"),id] => {
             let kind = match *kind {"issues"=>NoteKind::Issue,"requests"=>NoteKind::Request,_=>NoteKind::Plan};
             match index.note_by_id(kind,id.as_bytes()) { Some(n)=>{
-                let mut value=wire::note(&index,n,true);
-                if q.get("include_archived_handoffs").is_some_and(|v|v=="true") {value["backlinks"]=wire::backlinks(&index,n,true);}
-                json_response(value)
+                json_response(wire::detail(&index,n,q.get("include_archived_handoffs").is_some_and(|v|v=="true")))
             },None=>error(404,"not_found","record not found") }
         }
         ["api", "prompts", id] => match index.note_by_id(NoteKind::Prompt, id.as_bytes()) {

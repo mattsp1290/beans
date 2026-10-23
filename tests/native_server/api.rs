@@ -488,7 +488,7 @@ fn prompt_http_detail_issue_reverse_rendering_search_and_malformed_warning() {
 }
 
 #[test]
-fn issue_prompt_reverse_relationships_resolve_aliases_and_indexed_paths() {
+fn archived_issue_backlinks_preserve_prompt_deduplication_and_resolution() {
     let f = Fixture::new();
     f.write(
         "projects/p/issues/p-aaaa-first.md",
@@ -509,53 +509,47 @@ fn issue_prompt_reverse_relationships_resolve_aliases_and_indexed_paths() {
         "projects/p/prompts/z-shadowed-p-p-c3d4.md",
         "---\nid: p-p-c3d4\naliases: [shadowed-prompt]\ntitle: Shadowed relationship\nstatus: open\npriority: 4\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[p-aaaa]]\"\ncreated: 2026-02-05T00:00:00Z\nupdated: 2026-02-06T00:00:00Z\n---\nShadowed instructions.\n",
     );
+    f.write(
+        "projects/p/handoffs/archive/2026/p-handoff1-old.md",
+        "---\nid: p-handoff1\ntitle: Archived issue handoff\ncreated: 2026-02-07T00:00:00Z\nupdated: 2026-02-08T00:00:00Z\n---\nContinue [[p-aaaa]].\n",
+    );
 
     let s = Server::new(&f);
-    let issue = s.ok("/api/issues/p-aaaa");
-    let prompts = issue["prompts"].as_array().unwrap();
+    let issue = s.ok("/api/issues/p-aaaa?include_archived_handoffs=true");
     assert_eq!(
-        prompts
-            .iter()
-            .map(|prompt| prompt["id"].as_str().unwrap())
-            .collect::<Vec<_>>(),
-        vec!["p-p-d4e5", "p-p-a1b2", "p-p-e5f6"]
+        issue["prompts"],
+        json!([
+            {
+                "id": "p-p-d4e5", "title": "Alias relationship", "status": "open",
+                "priority": 0, "labels": ["resolution"], "from": "Lead Agent",
+                "to": "Worker Agent", "claimed_by": null,
+                "created": "2026-02-01T00:00:00Z", "updated": "2026-02-02T00:00:00Z",
+                "project": "p", "path": "projects/p/prompts/p-p-d4e5-alias.md",
+                "has_issue": true
+            },
+            {
+                "id": "p-p-a1b2", "title": "Review HTTP projection", "status": "open",
+                "priority": 1, "labels": ["urgent", "api"], "from": "Lead Agent",
+                "to": "Worker Agent", "claimed_by": null,
+                "created": "2026-01-02T03:04:05.123+01:30", "updated": "2026-01-03T04:05:06Z",
+                "project": "p", "path": "projects/p/prompts/p-p-a1b2-review.md",
+                "has_issue": true
+            },
+            {
+                "id": "p-p-e5f6", "title": "Path relationship", "status": "open",
+                "priority": 2, "labels": [], "from": "Lead Agent", "to": "Worker Agent",
+                "claimed_by": null, "created": "2026-02-03T00:00:00Z",
+                "updated": "2026-02-04T00:00:00Z", "project": "p",
+                "path": "projects/p/prompts/p-p-e5f6-path.md", "has_issue": true
+            }
+        ])
     );
-    assert_eq!(
-        prompts[0],
-        json!({
-            "id": "p-p-d4e5",
-            "title": "Alias relationship",
-            "status": "open",
-            "priority": 0,
-            "labels": ["resolution"],
-            "from": "Lead Agent",
-            "to": "Worker Agent",
-            "claimed_by": null,
-            "created": "2026-02-01T00:00:00Z",
-            "updated": "2026-02-02T00:00:00Z",
-            "project": "p",
-            "path": "projects/p/prompts/p-p-d4e5-alias.md",
-            "has_issue": true,
-        })
-    );
-    assert_eq!(
-        prompts[2],
-        json!({
-            "id": "p-p-e5f6",
-            "title": "Path relationship",
-            "status": "open",
-            "priority": 2,
-            "labels": [],
-            "from": "Lead Agent",
-            "to": "Worker Agent",
-            "claimed_by": null,
-            "created": "2026-02-03T00:00:00Z",
-            "updated": "2026-02-04T00:00:00Z",
-            "project": "p",
-            "path": "projects/p/prompts/p-p-e5f6-path.md",
-            "has_issue": true,
-        })
-    );
+
+    assert!(issue["backlinks"].as_array().unwrap().iter().any(|link| {
+        link["from"] == "p-handoff1"
+            && link["note_kind"] == "handoff"
+            && link["path"] == "projects/p/handoffs/archive/2026/p-handoff1-old.md"
+    }));
 
     let prompt_backlinks = issue["backlinks"]
         .as_array()
