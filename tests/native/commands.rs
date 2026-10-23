@@ -119,6 +119,58 @@ impl Operation for ReplayProbe {
     }
 }
 
+struct MalformedPromptArtifact {
+    path: PathBuf,
+    bytes: Vec<u8>,
+}
+impl Operation for MalformedPromptArtifact {
+    fn subject(&self) -> String {
+        "concurrent malformed prompt artifact".into()
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        let absolute = hub.join(&self.path);
+        fs::create_dir_all(absolute.parent().unwrap())
+            .map_err(|error| Error::new(error.to_string()))?;
+        fs::write(&absolute, &self.bytes).map_err(|error| Error::new(error.to_string()))?;
+        Ok(vec![self.path.clone()])
+    }
+}
+
+struct PromptCreateReservationRace {
+    primary: beans::ops::RecordMutation,
+    competitor: Hub,
+    fired: bool,
+    survived: Vec<bool>,
+    artifact: Option<(PathBuf, Vec<u8>)>,
+}
+impl Operation for PromptCreateReservationRace {
+    fn subject(&self) -> String {
+        self.primary.subject()
+    }
+    fn after_rebase(&mut self, present: bool) {
+        self.survived.push(present);
+        self.primary.after_rebase(present);
+    }
+    fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        let paths = self.primary.apply(hub)?;
+        if !self.fired {
+            self.fired = true;
+            let path = PathBuf::from(format!(
+                "projects/demo/prompts/{}-other.md",
+                self.primary.id
+            ));
+            let bytes = b"malformed concurrent winner bytes\n\0preserve exactly\n".to_vec();
+            let mut winner = MalformedPromptArtifact {
+                path: path.clone(),
+                bytes: bytes.clone(),
+            };
+            self.competitor.mutate(&mut winner)?;
+            self.artifact = Some((path, bytes));
+        }
+        Ok(paths)
+    }
+}
+
 fn wait_for_path(path: &Path) {
     let start = std::time::Instant::now();
     while !path.exists() {
@@ -169,6 +221,23 @@ fn native_prompt_operations_are_lossless_audited_and_replay_safe() {
         "creator",
     );
     assert!(result.unwrap().pushed);
+    assert!(
+        fs::read_dir(s.path("home/hub/projects/demo/prompts"))
+            .unwrap()
+            .all(|entry| !entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".bn-write-")),
+        "successful prompt publication must remove its temporary link"
+    );
+    assert_eq!(
+        fs::read_dir(s.path("home/hub/.git/bn-temp-owners"))
+            .unwrap()
+            .count(),
+        0,
+        "successful prompt publication must remove its ownership evidence"
+    );
     let path = s.path("home/hub").join(format!(
         "projects/demo/prompts/{}-preserve-this-prompt.md",
         created.id
@@ -448,7 +517,11 @@ fn prompt_creation_never_overwrites_unindexed_destination_artifacts() {
 
 #[test]
 fn prompt_creation_loses_a_toctou_race_without_overwriting_the_winner() {
-    use std::io::Write as _;
+    use std::{
+        io::Write as _,
+        os::unix::fs::OpenOptionsExt as _,
+        sync::mpsc::{self, TryRecvError},
+    };
 
     let s = fixture();
     let hub_dir = s.path("home/hub");
@@ -467,6 +540,7 @@ fn prompt_creation_loses_a_toctou_race_without_overwriting_the_winner() {
     let destination = hub_dir.join(&relative);
     fs::create_dir_all(destination.parent().unwrap()).unwrap();
     let apply_hub = hub_dir.clone();
+    let (result_tx, result_rx) = mpsc::sync_channel(1);
     let mutation = std::thread::spawn(move || {
         let mut create = beans::ops::RecordMutation::new(
             beans::vault::Resolved {
@@ -482,12 +556,36 @@ fn prompt_creation_loses_a_toctou_race_without_overwriting_the_winner() {
             None,
         );
         create.id = "demo-p-race".into();
-        create.apply(&apply_hub)
+        result_tx.send(create.apply(&apply_hub)).unwrap();
     });
 
-    // Opening the FIFO writer returns only once prompt creation has passed its
-    // destination check and blocked while loading the body template.
-    let mut template_writer = fs::OpenOptions::new().write(true).open(&template).unwrap();
+    // A nonblocking writer succeeds only after prompt creation has passed its
+    // destination check and is blocked with the FIFO open for reading. Polling
+    // the result channel makes an early mutation exit fail promptly.
+    let deadline = std::time::Instant::now() + Duration::from_secs(10);
+    let mut template_writer = loop {
+        match fs::OpenOptions::new()
+            .write(true)
+            .custom_flags(libc::O_NONBLOCK)
+            .open(&template)
+        {
+            Ok(writer) => break writer,
+            Err(error) if error.raw_os_error() == Some(libc::ENXIO) => {}
+            Err(error) => panic!("failed to synchronize through template FIFO: {error}"),
+        }
+        match result_rx.try_recv() {
+            Ok(result) => panic!("mutation exited before opening template FIFO: {result:?}"),
+            Err(TryRecvError::Disconnected) => {
+                panic!("mutation thread exited before opening template FIFO")
+            }
+            Err(TryRecvError::Empty) => {}
+        }
+        assert!(
+            std::time::Instant::now() < deadline,
+            "timed out waiting for mutation to open template FIFO"
+        );
+        std::thread::park_timeout(Duration::from_millis(10));
+    };
     let hand_authored = b"hand-authored bytes win exactly\n\0do not replace\n";
     fs::write(&destination, hand_authored).unwrap();
     template_writer
@@ -495,7 +593,11 @@ fn prompt_creation_loses_a_toctou_race_without_overwriting_the_winner() {
         .unwrap();
     drop(template_writer);
 
-    let error = mutation.join().unwrap().unwrap_err();
+    let error = result_rx
+        .recv_timeout(Duration::from_secs(10))
+        .expect("mutation did not finish after template release")
+        .unwrap_err();
+    mutation.join().unwrap();
     assert!(error.to_string().contains("already exists"), "{error}");
     assert_eq!(fs::read(destination).unwrap(), hand_authored);
     assert!(
@@ -560,6 +662,63 @@ fn generated_prompt_ids_reserve_unparseable_prompt_filenames() {
             artifact
         );
     }
+}
+
+#[test]
+fn replay_revalidates_assigned_prompt_id_against_unparseable_remote_filename() {
+    let s = fixture();
+    let hub = Hub::new(
+        s.path("home/hub"),
+        s.path("home/cache"),
+        "main".into(),
+        "Native Tester".into(),
+        false,
+        Duration::ZERO,
+    )
+    .unwrap();
+    let competitor = s.clone_hub(&s.path("remote.git"), "malformed-reservation-winner");
+    let primary = beans::ops::RecordMutation::new(
+        beans::vault::Resolved {
+            project: b"demo".to_vec(),
+            ..Default::default()
+        },
+        String::new(),
+        beans::ops::RecordChange::PromptCreate(prompt_edit(
+            Some("Reserved During Replay"),
+            Some("queue"),
+        )),
+        "creator".into(),
+        None,
+    );
+    let mut race = PromptCreateReservationRace {
+        primary,
+        competitor,
+        fired: false,
+        survived: Vec::new(),
+        artifact: None,
+    };
+
+    let result = hub.mutate(&mut race);
+    assert!(result.is_err(), "replay must reject the newly reserved ID");
+    assert_eq!(
+        race.survived.len(),
+        1,
+        "the rejected push must enter the non-fast-forward replay path"
+    );
+    let (artifact, bytes) = race.artifact.as_ref().unwrap();
+    assert_eq!(fs::read(s.path("home/hub").join(artifact)).unwrap(), *bytes);
+    assert_eq!(
+        fs::read(race.competitor.dir.join(artifact)).unwrap(),
+        *bytes
+    );
+    let prompt = race.competitor.dir.join(format!(
+        "projects/demo/prompts/{}-reserved-during-replay.md",
+        race.primary.id
+    ));
+    assert!(
+        !prompt.exists(),
+        "the rejected replay must not publish its prompt"
+    );
 }
 
 #[test]

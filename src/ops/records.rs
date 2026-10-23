@@ -252,6 +252,31 @@ impl Operation for RecordMutation {
                 ix.hub_config.ids.length as isize,
             );
         }
+        if creating && family == RecordFamily::Prompt {
+            let RecordChange::PromptCreate(edit) = &self.change else {
+                unreachable!();
+            };
+            let planned_filename = crate::domain::id::filename(
+                &self.id,
+                &crate::domain::id::slug(edit.title.as_deref().unwrap_or_default()),
+            );
+            let planned_path = base.join(family.directory()).join(&planned_filename);
+            let exact_valid = ix.note_by_id(kind, self.id.as_bytes()).is_some_and(|note| {
+                note.project == self.resolved.project
+                    && note.graph.path.as_slice() == planned_path.as_os_str().as_bytes()
+            });
+            let conflicting_reservation =
+                directory_filenames(&hub.join(base.join(family.directory())))?
+                    .into_iter()
+                    .filter(|name| filename_reserves_id(name, &self.id))
+                    .any(|name| name != OsStr::new(&planned_filename) || !exact_valid);
+            if conflicting_reservation {
+                return Err(Error::new(format!(
+                    "record ID collides with an existing prompt filename: {}",
+                    self.id
+                )));
+            }
+        }
         if creating
             && ix.lookup(self.id.as_bytes()).is_some()
             && ix.note_by_id(kind, self.id.as_bytes()).is_none()
