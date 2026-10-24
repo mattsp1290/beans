@@ -1195,6 +1195,8 @@ mod prompts_contract;
 mod prompts_git_journeys;
 #[path = "native/commands.rs"]
 mod retained_commands;
+#[path = "native/prompts/mod.rs"]
+mod retained_prompts;
 #[path = "native/review_regressions.rs"]
 mod review_regressions;
 #[path = "native/safety.rs"]

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { IssuePromptSummary } from '../../lib/api'
+  import type { PromptSummary } from '../../lib/api'
   import { handleNavigationClick } from '../../lib/nav'
-  import { isMissingPrompt, promptHref } from './prompts'
+  import { promptHref } from './prompts'
 
   interface Props {
-    prompts: IssuePromptSummary[]
+    prompts: PromptSummary[]
     navigate: (path: string) => void
   }
 
@@ -23,16 +23,12 @@
     <ul class="dependency-list">
       {#each prompts as prompt (prompt.id)}
         <li>
-          {#if isMissingPrompt(prompt)}
-            <span><span class="status-pill missing">missing</span> {prompt.id}</span>
-          {:else}
-            <span>
-              <a href={promptHref(prompt.id)} onclick={(event) => goTo(prompt.id, event)}>{prompt.title}</a>
-              <span class="project-pill">{prompt.project}</span>
-              <span class="status-pill">{prompt.status}</span>
-              <span>P{prompt.priority}</span>
-            </span>
-          {/if}
+          <span>
+            <a href={promptHref(prompt.id)} onclick={(event) => goTo(prompt.id, event)}>{prompt.title}</a>
+            <span class="project-pill">{prompt.project}</span>
+            <span class="status-pill">{prompt.status}</span>
+            <span>P{prompt.priority}</span>
+          </span>
         </li>
       {/each}
     </ul>

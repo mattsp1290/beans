@@ -11,6 +11,7 @@ pub mod id;
 pub mod issue;
 mod issue_encode;
 pub mod log;
+mod lossless_record;
 pub mod memory;
 pub mod plan;
 pub mod prompt;

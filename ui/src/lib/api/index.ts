@@ -25,7 +25,7 @@ export type {
   IssueChildSummary,
   IssueDetail,
   IssueLogEntry,
-	IssuePromptSummary,
+
   ListIssuesParams,
 	ListRequestsParams,
 	ListPromptsParams,

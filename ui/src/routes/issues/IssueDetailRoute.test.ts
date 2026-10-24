@@ -16,7 +16,7 @@ const issue: IssueDetail = {
       claimed_by: null, created: '2026-10-22T01:00:00Z', updated: '2026-10-23T01:00:00Z', project: 'beans',
       path: 'projects/beans/prompts/a1.md', has_issue: true,
     },
-    { id: 'beans-p-gone', missing: true },
+
   ],
   requests: [], blockers: [], children: [], log: [],
   backlinks: [
@@ -31,15 +31,14 @@ afterEach(() => {
 })
 
 describe('IssueDetailRoute prompt integration', () => {
-  it('renders linked and missing prompts, suppresses duplicate generic backlinks, and preserves click semantics', async () => {
+  it('renders derived prompts, suppresses duplicate generic backlinks, and preserves click semantics', async () => {
     vi.spyOn(api, 'getIssue').mockResolvedValue(issue)
     const navigate = vi.fn()
     render(IssueDetailRoute, { id: issue.id, navigate, reloadKey: 0, onBanner: vi.fn() })
 
     const prompt = await screen.findByRole('link', { name: 'Review patch' })
     expect(prompt.getAttribute('href')).toBe('/prompts/beans-p-a1')
-    expect(screen.getByText('beans-p-gone')).toBeTruthy()
-    expect(screen.getByText('missing')).toBeTruthy()
+
     expect(screen.queryByText('Duplicate prompt backlink')).toBeNull()
     expect(screen.getByRole('link', { name: 'Project readme' })).toBeTruthy()
 

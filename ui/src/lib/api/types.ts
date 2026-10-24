@@ -80,7 +80,6 @@ export interface PromptSummary {
   has_issue: boolean
 }
 export interface PromptIssueSummary { id:string; title:string; missing:boolean }
-export type IssuePromptSummary = PromptSummary | { id:string; missing:true }
 export interface PromptDetail extends PromptSummary {
   html: string
   toc: TocEntry[]
@@ -171,7 +170,7 @@ export interface Issue {
   backlinks?: Backlink[]
 	blockers?: IssueBlocker[]
 	requests?: {id:string;title:string;status:RequestStatus;priority:number;project:string}[]
-	prompts?: IssuePromptSummary[]
+	prompts?: PromptSummary[]
 }
 
 export interface WorkflowInfo {

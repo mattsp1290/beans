@@ -2,12 +2,13 @@
 //! retained; only changed prompt-owned fields and explicitly changed body/log
 //! content are rendered.
 use super::authored_yaml;
-use super::frontmatter::{EditResult, Error, Field, Frontmatter, Node, NodeKind};
+use super::frontmatter::{EditResult, Error, Field, Frontmatter, Node};
 use super::issue::{Timestamp, quoted};
 use super::issue_encode::{comment_suffix, instant, raw_link, timestamp_pair};
-use super::log::{LogEntry, parse_section_bytes};
+use super::log::LogEntry;
+use super::lossless_record::{LosslessRecord, RecordMetadata};
 use super::prompt;
-use super::text::{Link, RequestBody, split_request_body};
+use super::text::{Link, RequestBody};
 use super::yaml_render::{flow_pair, link_pair, string_pair};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -54,9 +55,8 @@ pub struct PromptDocument {
     pub log: Vec<LogEntry>,
     /// Unknown fields to append when encoding a newly authored prompt.
     pub new_extra: authored_yaml::Node,
-    document: Option<Frontmatter>,
+    record: LosslessRecord,
     original_metadata: PromptMetadata,
-    original_log_len: usize,
 }
 
 impl PromptDocument {
@@ -67,8 +67,7 @@ impl PromptDocument {
             body: Default::default(),
             log: Vec::new(),
             new_extra: authored_yaml::Node::default(),
-            document: None,
-            original_log_len: 0,
+            record: LosslessRecord::new(),
         }
     }
 
@@ -77,70 +76,19 @@ impl PromptDocument {
     }
 
     pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
-        if source.windows(2).any(|window| window == b"\r\n") {
-            return Err(Error::new(format!(
-                "{path}: has Windows line endings (\\r\\n); bn requires \\n"
-            )));
-        }
-        let project = project_from_path(path)?;
-        let document = Frontmatter::parse_bytes(path, source)?;
-        let mut metadata = PromptMetadata {
-            project,
-            ..PromptMetadata::default()
-        };
-        let mut seen = HashSet::new();
-        for field in document.fields() {
-            let key = field.key.as_str();
-            if !OWNED.contains(&key) {
-                continue;
-            }
-            if !seen.insert(key) {
-                return Err(Error::new(format!(
-                    "{path}: line {}: duplicate frontmatter key {}",
-                    document.diagnostic_line(field.key_line),
-                    quoted(key)
-                )));
-            }
-            metadata.read(key, &field.value).map_err(|error| {
-                Error::new(format!(
-                    "{path}: line {}: {error}",
-                    document.diagnostic_line(field.value.line)
-                ))
-            })?;
-        }
-        for key in REQUIRED {
-            if !seen.contains(key) {
-                return Err(Error::new(format!(
-                    "{path}: frontmatter is missing required key {}",
-                    quoted(key)
-                )));
-            }
-        }
-        metadata
-            .validate()
-            .map_err(|error| Error::new(format!("{path}: {error}")))?;
-        let sections = split_request_body(document.body());
-        let body = super::yaml_string::YamlString::from_bytes(
-            document.slice_bytes(sections.before_log).into(),
-        );
-        let log = parse_section_bytes(document.slice_bytes(sections.log));
-        let original_log_len = log.len();
+        let parsed = LosslessRecord::parse::<PromptMetadata>(path, source)?;
         Ok(Self {
-            original_metadata: metadata.clone(),
-            metadata,
-            body,
-            log,
+            original_metadata: parsed.metadata.clone(),
+            metadata: parsed.metadata,
+            body: parsed.body,
+            log: parsed.log,
             new_extra: authored_yaml::Node::default(),
-            document: Some(document),
-            original_log_len,
+            record: parsed.record,
         })
     }
 
     pub fn unknown_fields(&self) -> impl Iterator<Item = &Field> {
-        self.document
-            .iter()
-            .flat_map(|document| document.fields())
-            .filter(|field| !OWNED.contains(&field.key.as_str()))
+        self.record.unknown_fields::<PromptMetadata>()
     }
 
     /// Replace all instruction Markdown preceding the owned Log section without
@@ -154,106 +102,50 @@ impl PromptDocument {
     }
 
     pub fn append_log(&mut self, entry: LogEntry) {
-        if instant(&entry.at) > instant(&self.metadata.updated) {
-            self.metadata.updated = Timestamp {
-                offset_seconds: 0,
-                ..entry.at.clone()
-            };
-        }
-        self.log.push(entry);
+        LosslessRecord::append_log(&mut self.metadata.updated, &mut self.log, entry);
     }
 
     pub fn render_body(&self) -> Result<String, Error> {
-        String::from_utf8(self.render_body_bytes()?)
-            .map_err(|_| Error::new("body is not UTF-8; use render_body_bytes".into()))
+        self.record
+            .render_body::<PromptMetadata>(&self.body, &self.log)
     }
 
     pub fn render_body_bytes(&self) -> Result<Vec<u8>, Error> {
-        let original = self.original_body();
-        let mut output = self.body.as_bytes().to_vec();
-        let entries = self.log.get(self.original_log_len..).unwrap_or_default();
-        if !original.log.is_empty() {
-            let raw = self.document.as_ref().unwrap().slice_bytes(original.log);
-            output.extend_from_slice(&super::log::append_to_section_bytes(raw, entries)?);
-        } else if !entries.is_empty() {
-            if !output.is_empty() {
-                if !output.ends_with(b"\n") {
-                    output.extend_from_slice(b"\n\n");
-                } else if !output.ends_with(b"\n\n") {
-                    output.push(b'\n');
-                }
-            }
-            output.extend_from_slice(b"## Log\n");
-            for entry in entries {
-                output.extend_from_slice(&entry.line_bytes()?);
-            }
-        }
-        if let Some(document) = &self.document {
-            output.extend_from_slice(document.slice_bytes(original.tail));
-        }
-        Ok(output)
+        self.record
+            .render_body_bytes::<PromptMetadata>(&self.body, &self.log)
     }
 
     pub fn original_bytes(&self) -> &[u8] {
-        self.document
-            .as_ref()
-            .map_or(&[], Frontmatter::original_bytes)
+        self.record.original_bytes()
     }
 
     pub fn original(&self) -> &str {
-        self.document.as_ref().map_or("", Frontmatter::original)
+        self.record.original()
     }
 
     pub fn frontmatter(&self) -> Option<&Frontmatter> {
-        self.document.as_ref()
+        self.record.frontmatter()
     }
 
     pub fn original_body(&self) -> RequestBody<'_> {
-        split_request_body(self.document.as_ref().map_or("", Frontmatter::body))
+        self.record.original_body()
     }
 
     pub fn encode(&mut self) -> Result<EditResult, Error> {
         self.metadata.normalize_identities()?;
-        if self.document.is_none()
+        if self.record.frontmatter().is_none()
             && !self.metadata.id.is_empty()
             && !self.metadata.aliases.contains(&self.metadata.id)
         {
             self.metadata.aliases.insert(0, self.metadata.id.clone());
         }
-        self.metadata.validate()?;
-        let Some(document) = &self.document else {
-            let mut output = String::from("---\n");
-            for &key in OWNED {
-                if let Some(field) = self.metadata.render(key, "")? {
-                    output.push_str(&field);
-                }
-            }
-            output.push_str(&super::extra_encode::mapping_fields(&self.new_extra)?);
-            output.push_str("---\n");
-            let mut output = output.into_bytes();
-            output.extend_from_slice(&self.render_body_bytes()?);
-            return Ok(EditResult {
-                bytes: output,
-                copies: Vec::new(),
-            });
-        };
-        let mut rendered = Vec::new();
-        for &key in OWNED {
-            if self.metadata.changed(&self.original_metadata, key) {
-                let comment = document
-                    .fields()
-                    .iter()
-                    .find(|field| field.key == key)
-                    .filter(|field| field.value.kind == NodeKind::Scalar)
-                    .map_or(String::new(), |field| document.scalar_comment(field));
-                rendered.push((key, self.metadata.render(key, &comment)?));
-            }
-        }
-        let changes: Vec<_> = rendered
-            .iter()
-            .map(|(key, value)| (*key, value.as_ref().map(|value| value.as_bytes())))
-            .collect();
-        document.splice_owned(OWNED, &changes, &self.render_body_bytes()?)
+        self.record.encode::<PromptMetadata>(
+            &self.metadata,
+            &self.original_metadata,
+            &self.body,
+            &self.log,
+            &self.new_extra,
+        )
     }
 }
 
@@ -383,32 +275,25 @@ fn strings(node: &Node, key: &str) -> Result<Vec<String>, Error> {
         .collect())
 }
 
-fn project_from_path(path: &str) -> Result<String, Error> {
-    let absolute = path.starts_with('/');
-    let mut parts = Vec::new();
-    for part in path.split('/') {
-        match part {
-            "" | "." => {}
-            ".." if parts.last().is_some_and(|part| *part != "..") => {
-                parts.pop();
-            }
-            ".." if absolute => {}
-            _ => parts.push(part),
-        }
+impl RecordMetadata for PromptMetadata {
+    const KIND: &'static str = "prompt";
+    const DIRECTORY: &'static str = "prompts";
+    const OWNED: &'static [&'static str] = OWNED;
+    const REQUIRED: &'static [&'static str] = REQUIRED;
+
+    fn set_project(&mut self, project: String) {
+        self.project = project;
     }
-    if parts.len() >= 4 {
-        let tail = &parts[parts.len() - 4..];
-        if tail[0] == "projects"
-            && !tail[1].is_empty()
-            && tail[2] == "prompts"
-            && tail[3]
-                .strip_suffix(".md")
-                .is_some_and(|stem| !stem.is_empty())
-        {
-            return Ok(tail[1].to_owned());
-        }
+    fn read(&mut self, key: &str, node: &Node) -> Result<(), Error> {
+        self.read(key, node)
     }
-    Err(Error::new(format!(
-        "{path}: prompt path must be projects/<project>/prompts/<id>-<slug>.md"
-    )))
+    fn validate(&self) -> Result<(), Error> {
+        PromptMetadata::validate(self)
+    }
+    fn changed(&self, previous: &Self, key: &str) -> bool {
+        self.changed(previous, key)
+    }
+    fn render(&self, key: &str, comment: &str) -> Result<Option<String>, Error> {
+        self.render(key, comment)
+    }
 }
