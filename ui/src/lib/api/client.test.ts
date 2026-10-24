@@ -74,6 +74,38 @@ describe('ApiClient', () => {
     })
   })
 
+  it('lists prompts with every filter and URL-encodes the project', async () => {
+    const fetcher = mockFetch([])
+    const client = new ApiClient({ fetch: fetcher })
+    const controller = new AbortController()
+
+    await client.listPrompts('agent team/_all', {
+      status: 'in_progress',
+      label: 'needs review',
+      priority: 0,
+      from: 'human_one',
+      to: 'agent_two',
+      claimed_by: 'agent_three',
+      q: 'exact/id & title',
+      terminal: false,
+    }, controller.signal)
+
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/projects/agent%20team%2F_all/prompts?status=in_progress&label=needs+review&priority=0&from=human_one&to=agent_two&claimed_by=agent_three&q=exact%2Fid+%26+title&terminal=false',
+      { method: 'GET', headers: { Accept: 'application/json' }, body: undefined, signal: controller.signal },
+    )
+  })
+
+  it('fetches a prompt detail with a URL-encoded id', async () => {
+    const fetcher = mockFetch({ id: 'bn-p-a1', html: '<p>Do it</p>' })
+    const client = new ApiClient({ fetch: fetcher })
+
+    await expect(client.getPrompt('bn-p/a1')).resolves.toMatchObject({ html: '<p>Do it</p>' })
+    expect(fetcher).toHaveBeenCalledWith('/api/prompts/bn-p%2Fa1', {
+      method: 'GET', headers: { Accept: 'application/json' }, body: undefined,
+    })
+  })
+
   it('loads the ready queue for a project', async () => {
     const fetcher = mockFetch([issue()])
     const client = new ApiClient({ fetch: fetcher })

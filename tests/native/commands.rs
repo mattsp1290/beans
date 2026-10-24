@@ -14,6 +14,7 @@ fn issue_path(s: &Sandbox, id: &str) -> PathBuf {
     let v = json(s, &["--json", "show", id]);
     s.path("home/hub").join(v["path"].as_str().unwrap())
 }
+
 #[test]
 fn native_retained_relationships_archive_reopen_and_force_delete() {
     let s = fixture();
@@ -519,6 +520,25 @@ fn stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects() {
     assert_eq!(
         json(&s, &["--json", "request", "show", id])["issues"],
         before["issues"]
+    );
+    let prompt = stdin_run(
+        &[
+            "--json",
+            "prompt",
+            "create",
+            "stdin prompt",
+            "--to",
+            "queue",
+            "--stdin",
+        ],
+        "verbatim prompt\n\n\n",
+    );
+    assert_eq!(
+        json(
+            &s,
+            &["--json", "prompt", "show", prompt["id"].as_str().unwrap()]
+        )["body"],
+        "verbatim prompt\n\n\n"
     );
     assert!(
         !s.cli(&[

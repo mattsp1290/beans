@@ -4,11 +4,11 @@ use super::authored_yaml;
 use super::frontmatter::{Error, Field, Frontmatter, Node};
 use super::issue::{Timestamp, quoted};
 use super::issue_encode::instant;
-use super::log::{LogEntry, parse_section_bytes};
+use super::log::LogEntry;
+use super::lossless_record::LosslessRecord;
 use super::request;
-use super::text::{Link, RequestBody, split_request_body};
+use super::text::{Link, RequestBody};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 
 pub(super) const OWNED: &[&str] = &[
     "id",
@@ -22,7 +22,7 @@ pub(super) const OWNED: &[&str] = &[
     "created",
     "updated",
 ];
-const REQUIRED: &[&str] = &[
+pub(super) const REQUIRED: &[&str] = &[
     "id", "aliases", "title", "status", "priority", "created", "updated",
 ];
 
@@ -48,9 +48,8 @@ pub struct RequestDocument {
     pub log: Vec<LogEntry>,
     /// Used only for newly authored documents; parsed unknown bytes are retained.
     pub new_extra: authored_yaml::Node,
-    pub(super) document: Option<Frontmatter>,
+    pub(super) record: LosslessRecord,
     pub(super) original_metadata: RequestMetadata,
-    original_log_len: usize,
 }
 
 impl RequestDocument {
@@ -61,8 +60,7 @@ impl RequestDocument {
             body: Default::default(),
             log: Vec::new(),
             new_extra: authored_yaml::Node::default(),
-            document: None,
-            original_log_len: 0,
+            record: LosslessRecord::new(),
         }
     }
 
@@ -70,71 +68,19 @@ impl RequestDocument {
         Self::parse_bytes(path, source.as_bytes())
     }
     pub fn parse_bytes(path: &str, source: &[u8]) -> Result<Self, Error> {
-        // Reject CRLF before validating the request path.
-        if source.windows(2).any(|v| v == b"\r\n") {
-            return Err(Error::new(format!(
-                "{path}: has Windows line endings (\\r\\n); bn requires \\n"
-            )));
-        }
-        let project = project_from_path(path)?;
-        let document = Frontmatter::parse_bytes(path, source)?;
-        let mut metadata = RequestMetadata {
-            project,
-            ..RequestMetadata::default()
-        };
-        let mut seen = HashSet::new();
-        for field in document.fields() {
-            let key = field.key.as_str();
-            if !OWNED.contains(&key) {
-                continue;
-            }
-            if !seen.insert(key) {
-                return Err(Error::new(format!(
-                    "{path}: line {}: duplicate frontmatter key {}",
-                    document.diagnostic_line(field.key_line),
-                    quoted(key)
-                )));
-            }
-            metadata.read(key, &field.value).map_err(|error| {
-                Error::new(format!(
-                    "{path}: line {}: {error}",
-                    document.diagnostic_line(field.value.line)
-                ))
-            })?;
-        }
-        for key in REQUIRED {
-            if !seen.contains(key) {
-                return Err(Error::new(format!(
-                    "{path}: frontmatter is missing required key {}",
-                    quoted(key)
-                )));
-            }
-        }
-        metadata
-            .validate()
-            .map_err(|error| Error::new(format!("{path}: {error}")))?;
-        let sections = split_request_body(document.body());
-        let body = super::yaml_string::YamlString::from_bytes(
-            document.slice_bytes(sections.before_log).into(),
-        );
-        let log = parse_section_bytes(document.slice_bytes(sections.log));
-        let original_log_len = log.len();
+        let parsed = LosslessRecord::parse::<RequestMetadata>(path, source)?;
         Ok(Self {
-            original_metadata: metadata.clone(),
-            metadata,
-            body,
-            log,
+            original_metadata: parsed.metadata.clone(),
+            metadata: parsed.metadata,
+            body: parsed.body,
+            log: parsed.log,
             new_extra: authored_yaml::Node::default(),
-            document: Some(document),
-            original_log_len,
+            record: parsed.record,
         })
     }
 
     pub fn unknown_fields(&self) -> impl Iterator<Item = &Field> {
-        self.document
-            .iter()
-            .flat_map(|document| document.fields())
-            .filter(|field| !OWNED.contains(&field.key.as_str()))
+        self.record.unknown_fields::<RequestMetadata>()
     }
 
     /// Replace all Markdown preceding the Log, retaining one final newline.
@@ -151,59 +97,30 @@ impl RequestDocument {
     }
 
     pub fn append_log(&mut self, entry: LogEntry) {
-        if instant(&entry.at) > instant(&self.metadata.updated) {
-            self.metadata.updated = Timestamp {
-                offset_seconds: 0,
-                ..entry.at.clone()
-            };
-        }
-        self.log.push(entry);
+        LosslessRecord::append_log(&mut self.metadata.updated, &mut self.log, entry);
     }
 
     pub fn render_body(&self) -> Result<String, Error> {
-        String::from_utf8(self.render_body_bytes()?)
-            .map_err(|_| Error::new("body is not UTF-8; use render_body_bytes".into()))
+        self.record
+            .render_body::<RequestMetadata>(&self.body, &self.log)
     }
 
     pub fn render_body_bytes(&self) -> Result<Vec<u8>, Error> {
-        let original = self.original_body();
-        let mut output = self.body.as_bytes().to_vec();
-        let entries = self.log.get(self.original_log_len..).unwrap_or_default();
-        if !original.log.is_empty() {
-            let raw = self.document.as_ref().unwrap().slice_bytes(original.log);
-            output.extend_from_slice(&super::log::append_to_section_bytes(raw, entries)?);
-        } else if !entries.is_empty() {
-            if !output.is_empty() && !output.ends_with(b"---\n") {
-                if !output.ends_with(b"\n") {
-                    output.extend_from_slice(b"\n\n");
-                } else if !output.ends_with(b"\n\n") {
-                    output.push(b'\n');
-                }
-            }
-            output.extend_from_slice(b"## Log\n");
-            for entry in entries {
-                output.extend_from_slice(&entry.line_bytes()?);
-            }
-        }
-        if let Some(document) = &self.document {
-            output.extend_from_slice(document.slice_bytes(original.tail));
-        }
-        Ok(output)
+        self.record
+            .render_body_bytes::<RequestMetadata>(&self.body, &self.log)
     }
 
     pub fn original_bytes(&self) -> &[u8] {
-        self.document
-            .as_ref()
-            .map_or(&[], Frontmatter::original_bytes)
+        self.record.original_bytes()
     }
     pub fn original(&self) -> &str {
-        self.document.as_ref().map_or("", Frontmatter::original)
+        self.record.original()
     }
     pub fn frontmatter(&self) -> Option<&Frontmatter> {
-        self.document.as_ref()
+        self.record.frontmatter()
     }
     pub fn original_body(&self) -> RequestBody<'_> {
-        split_request_body(self.document.as_ref().map_or("", Frontmatter::body))
+        self.record.original_body()
     }
 }
 
@@ -242,7 +159,7 @@ impl RequestMetadata {
         Ok(())
     }
 
-    fn read(&mut self, key: &str, node: &Node) -> Result<(), Error> {
+    pub(super) fn read(&mut self, key: &str, node: &Node) -> Result<(), Error> {
         match key {
             "id" => self.id = node.scalar(key)?.to_owned(),
             "title" => self.title = node.scalar(key)?.to_owned(),
@@ -282,35 +199,4 @@ impl RequestMetadata {
         }
         Ok(())
     }
-}
-
-fn project_from_path(path: &str) -> Result<String, Error> {
-    // Linux filepath.Clean is lexical: do not resolve symlinks or filesystem state.
-    let absolute = path.starts_with('/');
-    let mut parts = Vec::new();
-    for part in path.split('/') {
-        match part {
-            "" | "." => {}
-            ".." if parts.last().is_some_and(|&p| p != "..") => {
-                parts.pop();
-            }
-            ".." if absolute => {}
-            _ => parts.push(part),
-        }
-    }
-    if parts.len() >= 4 {
-        let tail = &parts[parts.len() - 4..];
-        if tail[0] == "projects"
-            && !tail[1].is_empty()
-            && tail[2] == "requests"
-            && tail[3]
-                .strip_suffix(".md")
-                .is_some_and(|stem| !stem.is_empty())
-        {
-            return Ok(tail[1].to_owned());
-        }
-    }
-    Err(Error::new(format!(
-        "{path}: request path must be projects/<project>/requests/<id>-<slug>.md"
-    )))
 }

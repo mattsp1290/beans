@@ -219,7 +219,7 @@ pub(super) fn commands() -> Vec<Command> {
             .arg(
                 Arg::new("kind")
                     .long("kind")
-                    .help("issue, request, doc, memory, plan, or handoff")
+                    .help("issue, request, doc, memory, plan, handoff, or prompt")
                     .num_args(1),
             ),
         Command::new("status").about("Show the hub clone state and the resolved project"),

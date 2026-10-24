@@ -1,7 +1,7 @@
 # beans
 
 `bn` (beans) is a git-backed issue tracker and wiki for humans and coding
-agents. Issues, docs, memories, requests, plans, and session handoffs are markdown files with YAML frontmatter
+agents. Issues, prompts, docs, memories, requests, plans, and session handoffs are markdown files with YAML frontmatter
 in one git repository, the hub, cloned at `~/.beans/hub`. Every `bn` command
 that changes something makes one commit and pushes it, so git is the source
 of truth across machines and every change has an author, a time, and a
@@ -67,6 +67,10 @@ binaries unless forced; rebuild those from source.
 bn init git@github.com:you/beans-hub.git       # clone the hub repository
 cd ~/git/myapp                               # the project is the repository you are in
 issue=$(bn create "Fix the login redirect" -p 1 -l bug)
+prompt=$(printf 'Review the redirect fix and record evidence.\n' | bn prompt create "Review login redirect" --to reviewer --issue "$issue" --stdin)
+BN_ACTOR=reviewer bn prompt inbox
+BN_ACTOR=reviewer bn prompt update "$prompt" --claim
+BN_ACTOR=reviewer bn prompt update "$prompt" --status completed --note "reviewed in the linked issue"
 bn ready                                     # issues with no open blockers
 bn update "$issue" --claim
 bn close "$issue" -r "shipped in 4c1d2e"
@@ -92,6 +96,7 @@ bn prime                                     # the rules, for agents
     └── projects/<name>/
         ├── beans.toml           name, prefix, remotes
         ├── issues/<id>-<slug>.md
+        ├── prompts/<id>-<slug>.md
         ├── requests/<id>-<slug>.md
         ├── archive/<YYYY>/<id>-<slug>.md
         ├── docs/
@@ -114,6 +119,16 @@ create`, then `bn request link` to associate work. Their fixed lifecycle is
 managed from the CLI; `bn serve` offers read-only browsing, search, and issue
 relationship summaries.
 
+Prompts are one-off instructions or delegations between actor identities. Use
+`bn prompt create` to send one, `bn prompt inbox` to discover addressed work,
+and claim it before acting. Prompts are coordination records, not reusable
+templates and not authorization. No authentication is performed for `from`,
+`to`, or `claimed_by`. Requests capture desired project outcomes; issues execute and
+track durable work; prompts may link one issue without becoming a dependency;
+handoffs preserve continuation context for a later session. Plans describe and
+bind structured execution, while docs and memories retain reference knowledge;
+none is an implicit prompt inbox. Prompt browsing in `bn serve` is read-only.
+
 Plans can track execution without changing their authored lifecycle: publish a
 bundle, create its issues, run `bn plan link PLAN NODE ISSUE`, then `bn sync`
 and `bn plan status PLAN --json`. A stale `plan put` is rejected; retrieve and
@@ -124,7 +139,13 @@ merge the latest bundle rather than overwriting newer bindings.
 ```bash
 make ci               # UI and native checks: UI tests and build, vet, lint, Rust tests, build, tidy check, distribution tests
 make build            # bin/bn embedding whatever ui/dist holds
+cargo build --locked
+scripts/manual-prompt-journey.sh  # disposable bare hub, two homes/clones, CLI + read-only HTTP
 ```
+
+The prompt journey uses only a `mktemp` directory, cleans it on exit, and never
+reads or writes the user's Beans home. Set `BN_BIN=/absolute/path/to/bn` to
+exercise another binary.
 
 Decisions and their reasons are in [`docs/decisions.md`](docs/decisions.md).
 `AGENTS.md` and `CLAUDE.md` are the instructions for AI coding agents.

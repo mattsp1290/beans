@@ -1,8 +1,9 @@
 //! Minimal request edits use the same verified splice geometry as issues;
 //! their field ownership, validation and body selection remain distinct.
-use super::frontmatter::{EditResult, Error, NodeKind};
+use super::frontmatter::{EditResult, Error, Node};
 use super::issue_encode::{comment_suffix, instant, raw_link, timestamp_pair};
-use super::request_document::{OWNED, RequestDocument, RequestMetadata};
+use super::lossless_record::RecordMetadata;
+use super::request_document::{OWNED, REQUIRED, RequestDocument, RequestMetadata};
 use super::yaml_render::{flow_pair, link_pair, string_pair};
 
 impl RequestDocument {
@@ -12,45 +13,18 @@ impl RequestDocument {
         if !self.metadata.id.is_empty() && !self.metadata.aliases.contains(&self.metadata.id) {
             self.metadata.aliases.insert(0, self.metadata.id.clone());
         }
-        self.metadata.validate()?;
-        let Some(document) = &self.document else {
-            let mut output = String::from("---\n");
-            for &key in OWNED {
-                if let Some(field) = self.metadata.render(key, "")? {
-                    output.push_str(&field);
-                }
-            }
-            output.push_str(&super::extra_encode::mapping_fields(&self.new_extra)?);
-            output.push_str("---\n");
-            let mut output = output.into_bytes();
-            output.extend_from_slice(&self.render_body_bytes()?);
-            return Ok(EditResult {
-                bytes: output,
-                copies: Vec::new(),
-            });
-        };
-        let mut rendered = Vec::new();
-        for &key in OWNED {
-            if self.metadata.changed(&self.original_metadata, key) {
-                let comment = document
-                    .fields()
-                    .iter()
-                    .find(|field| field.key == key)
-                    .filter(|field| field.value.kind == NodeKind::Scalar)
-                    .map_or(String::new(), |field| document.scalar_comment(field));
-                rendered.push((key, self.metadata.render(key, &comment)?));
-            }
-        }
-        let changes: Vec<_> = rendered
-            .iter()
-            .map(|(key, value)| (*key, value.as_ref().map(|value| value.as_bytes())))
-            .collect();
-        document.splice_owned(OWNED, &changes, &self.render_body_bytes()?)
+        self.record.encode::<RequestMetadata>(
+            &self.metadata,
+            &self.original_metadata,
+            &self.body,
+            &self.log,
+            &self.new_extra,
+        )
     }
 }
 
 impl RequestMetadata {
-    fn changed(&self, previous: &Self, key: &str) -> bool {
+    pub(super) fn changed(&self, previous: &Self, key: &str) -> bool {
         match key {
             "id" => self.id != previous.id,
             "aliases" => self.aliases != previous.aliases,
@@ -66,7 +40,7 @@ impl RequestMetadata {
         }
     }
 
-    fn render(&self, key: &str, comment: &str) -> Result<Option<String>, Error> {
+    pub(super) fn render(&self, key: &str, comment: &str) -> Result<Option<String>, Error> {
         let value = match key {
             "id" => string_pair(key, &self.id, comment),
             "aliases" => flow_pair(key, &self.aliases),
@@ -105,5 +79,36 @@ impl RequestMetadata {
             _ => unreachable!("request owned key"),
         };
         Ok(Some(value))
+    }
+}
+
+impl RecordMetadata for RequestMetadata {
+    const KIND: &'static str = "request";
+    const DIRECTORY: &'static str = "requests";
+    const OWNED: &'static [&'static str] = OWNED;
+    const REQUIRED: &'static [&'static str] = REQUIRED;
+
+    fn set_project(&mut self, project: String) {
+        self.project = project;
+    }
+
+    fn read(&mut self, key: &str, node: &Node) -> Result<(), Error> {
+        self.read(key, node)
+    }
+
+    fn validate(&self) -> Result<(), Error> {
+        RequestMetadata::validate(self)
+    }
+
+    fn changed(&self, previous: &Self, key: &str) -> bool {
+        self.changed(previous, key)
+    }
+
+    fn render(&self, key: &str, comment: &str) -> Result<Option<String>, Error> {
+        self.render(key, comment)
+    }
+
+    fn separate_before_new_log(body: &[u8]) -> bool {
+        !body.is_empty() && !body.ends_with(b"---\n")
     }
 }

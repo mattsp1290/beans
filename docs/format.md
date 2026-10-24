@@ -191,6 +191,77 @@ Ordinary transitions are `open → accepted → in_progress → resolved` and
 `open`, `accepted`, or `in_progress` → `declined`. Corrections or reopening
 require an explicit forced update.
 
+## Prompt file
+
+Path: `projects/<project>/prompts/<id>-<slug>.md`. Prompts are always
+project-scoped; a hub-level or nested prompt path is invalid. IDs use the
+collision-checked `<project-prefix>-p-<hash>` namespace. The filename falls
+back to `<id>.md` when the title produces an empty slug. As with issues and
+requests, the path is frozen at creation and a title edit never renames it.
+
+```markdown
+---
+id: beans-p-a3f2
+aliases: [beans-p-a3f2]
+title: Review parser edge cases
+status: open
+priority: 2
+labels: [review]
+from: coordinator
+to: parser-agent
+issue: "[[beans-ab12-parser-hardening]]"
+created: 2026-10-23T17:26:43Z
+updated: 2026-10-23T17:26:43Z
+---
+Inspect the parser changes and report evidence in the prompt log.
+
+## Log
+- 2026-10-23T17:26:43Z coordinator: prompt created
+```
+
+The owned keys, in write order, are `id`, `aliases`, `title`, `status`,
+`priority`, `labels`, `from`, `to`, `claimed_by`, `issue`, `created`, and
+`updated`. `id`, `title`, `status`, `priority`, `from`, `to`, `created`, and
+`updated` are required; `aliases` contains the ID on newly created prompts.
+`claimed_by` is absent until claim and `issue` is an optional canonical
+wikilink to one issue. Priority is an integer from 0 through 4.
+
+The complete Markdown before the owned `## Log` section is the one-off
+instruction body. The log is append-only through `bn` and follows the issue
+log syntax. A successful non-no-op mutation appends one entry; a combined
+update still appends only one. Parsing, no-op encoding, and owned-field edits
+have the same lossless guarantee as issues and requests: unknown frontmatter,
+comments, key presentation, instruction bytes, existing log entries, and
+opaque trailing sections remain byte-identical unless that interval is owned
+by the requested edit.
+
+Prompt status is fixed, not configurable:
+
+| Status | Meaning | Terminal |
+| --- | --- | --- |
+| `open` | Addressed but unclaimed | no |
+| `in_progress` | Claimed and underway | no |
+| `completed` | Delegated work completed | yes |
+| `declined` | Recipient or claimant declined it | yes |
+| `cancelled` | Sender cancelled it | yes |
+
+Ordinary transitions are `open` to `in_progress`, `declined`, or `cancelled`,
+and `in_progress` to `completed`, `declined`, or `cancelled`; same-state
+updates are allowed. `--force` bypasses only this transition matrix. Invalid
+statuses and claimant/state invariants still fail. Claim atomically sets
+`claimed_by` to the invocation actor and changes `open` to `in_progress`.
+Returning to `open` or forcibly reassigning `to` clears the claimant. Terminal
+states retain an existing claimant as provenance.
+
+`from`, `to`, and `claimed_by` are trimmed, case-sensitive, nonempty opaque
+actor identities (`claimed_by` may be absent). Beans does not authenticate or
+authorize them: addressing and claiming are coordination metadata, and any
+actor may claim a role- or queue-addressed prompt. The prompt owns its issue
+link; issue detail derives the reverse relationship without modifying the
+issue. This link is nonstructural: it never blocks an issue, changes readiness,
+or binds plan execution. Forced deletion leaves a dangling prompt link for
+`bn doctor` and search diagnostics rather than rewriting authored prompt data.
+
 ## Memory file
 
 Path: `memories/<key>.md` at hub level, or `projects/<project>/memories/`.
@@ -261,8 +332,8 @@ only exposes plan browsing and graph inspection; it never mutates plans.
 ## Templates
 
 `projects/<project>/templates/<type>.md`, then hub-level
-`templates/<type>.md`, then the built-in default (embedded in the binary from
-`issue/templates/`). A template is a body only, no frontmatter. Built-ins:
+`templates/<type>.md`, then the built-in default embedded in the binary. A
+template is a body only, no frontmatter. Built-ins:
 
 | type | body |
 | --- | --- |
@@ -271,6 +342,11 @@ only exposes plan browsing and graph inspection; it never mutates plans.
 | feature | `## Motivation`, `## Acceptance` |
 | epic | `## Goal`, `## Scope` |
 | chore | empty |
+| prompt | `## Objective`, `## Constraints`, `## Expected result` |
+
+Prompt creation uses `projects/<project>/templates/prompt.md`, then
+`templates/prompt.md`, then the built-in prompt body above. Supplying an
+explicit empty body suppresses the template.
 
 ## Configuration
 

@@ -88,6 +88,7 @@ fn href(note: &Note) -> String {
         NoteKind::Issue => format!("/issues/{}", encode(&id)),
         NoteKind::Request => format!("/requests/{}", encode(&id)),
         NoteKind::Plan => format!("/plans/{}", encode(&id)),
+        NoteKind::Prompt => format!("/prompts/{}", encode(&id)),
         NoteKind::Memory => format!(
             "/search?q={}",
             encode(&String::from_utf8_lossy(&note.graph.basename))

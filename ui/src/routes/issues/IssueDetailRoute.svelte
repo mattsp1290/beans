@@ -4,6 +4,8 @@
   import ErrorState from '../../lib/components/ErrorState.svelte'
   import LoadingState from '../../lib/components/LoadingState.svelte'
   import { backlinkHref, handleRenderedContentClick } from '../../lib/nav'
+  import { withoutPromptBacklinkDuplicates } from './prompts'
+  import IssuePrompts from './IssuePrompts.svelte'
 
   interface Props {
     id: string
@@ -318,6 +320,8 @@
       <div class="rendered" onclick={(event) => handleRenderedContentClick(event, navigate)}>{@html issue.html}</div>
     </div>
 
+    <IssuePrompts prompts={issue.prompts ?? []} {navigate} />
+
     <div class="detail-section">
       <h3>Requests</h3>
       {#if !issue.requests || issue.requests.length === 0}
@@ -410,11 +414,11 @@
       </div>
     </div>
 
-    {#if issue.backlinks && issue.backlinks.length > 0}
+    {#if issue.backlinks && withoutPromptBacklinkDuplicates(issue.backlinks, issue.prompts ?? []).length > 0}
       <div class="detail-section">
         <h3>Backlinks</h3>
         <ul class="plain-list">
-          {#each issue.backlinks as link, index (index)}
+          {#each withoutPromptBacklinkDuplicates(issue.backlinks, issue.prompts ?? []) as link, index (index)}
             <li>
               <a href={backlinkHref(link)} onclick={goTo(backlinkHref(link))}>
                 {link.title ?? link.from}

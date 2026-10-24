@@ -230,6 +230,30 @@ fn index_original_load_basics() {
     assert!(ix.assets.contains(b"docs/img/screenshot.png".as_slice()));
 }
 #[test]
+fn prompt_fixture_loads_with_stable_id_and_project() {
+    use beans::vault::{NoteData, NoteKind};
+    let root = hub("prompt-basics", false);
+    let source =
+        Path::new("tests/fixtures/hub/projects/alpha/prompts/alpha-p-a1b2-review-contract.md");
+    let destination = root
+        .0
+        .join("projects/p/prompts/alpha-p-a1b2-review-contract.md");
+    std::fs::create_dir_all(destination.parent().unwrap()).unwrap();
+    std::fs::copy(source, destination).unwrap();
+    let ix = Index::load(&root.0).unwrap();
+    let note = ix.note_by_id(NoteKind::Prompt, b"alpha-p-a1b2").unwrap();
+    assert_eq!(note.project, b"p");
+    assert!(matches!(note.data, NoteData::Prompt(_)));
+    assert_eq!(
+        ix.lookup(b"alpha-p-a1b2").unwrap().graph.path,
+        note.graph.path
+    );
+    assert_eq!(
+        ix.lookup(b"contract-prompt").unwrap().graph.path,
+        note.graph.path
+    );
+}
+#[test]
 fn index_original_load_warnings() {
     let root = hub("warnings", true);
     let ix = Index::load(&root.0).unwrap();

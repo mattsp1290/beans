@@ -17,6 +17,7 @@ pub fn classify(path: &[u8]) -> Option<(NoteKind, Vec<u8>)> {
             b"docs" if count >= 2 => NoteKind::Doc,
             b"memories" if count == 2 => NoteKind::Memory,
             b"requests" if count == 2 => NoteKind::Request,
+            b"prompts" if count == 2 => NoteKind::Prompt,
             b"handoffs"
                 if count == 2 || count == 4 && parts[3] == b"archive" && parts[4].len() == 4 =>
             {

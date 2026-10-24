@@ -10,12 +10,17 @@ pub fn default_template(kind: &str) -> &'static [u8] {
         "epic" => include_bytes!("templates/epic.md"),
         "chore" => include_bytes!("templates/chore.md"),
         "request" => default_request_template(),
+        "prompt" => default_prompt_template(),
         _ => include_bytes!("templates/task.md"),
     }
 }
 
 pub fn default_request_template() -> &'static [u8] {
     include_bytes!("templates/request.md")
+}
+
+pub fn default_prompt_template() -> &'static [u8] {
+    include_bytes!("templates/prompt.md")
 }
 
 pub fn load_template(kind: &str, project: &Path, hub: &Path) -> Vec<u8> {
@@ -32,6 +37,10 @@ pub fn load_template(kind: &str, project: &Path, hub: &Path) -> Vec<u8> {
 
 pub fn load_request_template(project: &Path, hub: &Path) -> Vec<u8> {
     load_template("request", project, hub)
+}
+
+pub fn load_prompt_template(project_dir: &Path, hub_dir: &Path) -> Vec<u8> {
+    load_template("prompt", project_dir, hub_dir)
 }
 
 // filepath.Join cleans the complete Linux path before opening it, and a slash

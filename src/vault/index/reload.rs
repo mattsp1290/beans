@@ -77,6 +77,7 @@ impl Index {
             return;
         }
         self.load_path(rel);
+        self.restore_prompt_order(rel);
     }
     fn reload_plan(&mut self, project: &[u8], root: &[u8]) {
         let manifest = [root, b"/plan.md"].concat();
@@ -97,5 +98,26 @@ impl Index {
         self.remove(&manifest);
         self.graph.clear_parse_warning(&manifest);
         self.load_plan(project, root);
+    }
+    /// Keep prompt paths in lexical order so duplicate-ID ownership and
+    /// diagnostics match a clean sorted walk. Older note kinds retain their
+    /// established incremental append behavior.
+    fn restore_prompt_order(&mut self, path: &[u8]) {
+        let Some(current) = self
+            .order
+            .iter()
+            .position(|note| note.graph.path == path && note.graph.kind == NoteKind::Prompt)
+        else {
+            return;
+        };
+        let note = self.order.remove(current);
+        let insertion = self
+            .order
+            .iter()
+            .position(|candidate| {
+                candidate.graph.kind == NoteKind::Prompt && candidate.graph.path.as_slice() > path
+            })
+            .unwrap_or(self.order.len());
+        self.order.insert(insertion, note);
     }
 }

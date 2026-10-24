@@ -1,0 +1,22 @@
+List prompts
+
+Usage: bn prompt list [OPTIONS]
+
+Options:
+      --all-projects[=<all-projects>]  every project [default: false] [possible values: true, false]
+      --branch <branch>
+      --from <from>                    only this sender
+      --actor <actor>                  audit actor (overrides $BN_ACTOR)
+      --to <to>                        only this recipient
+      --claimed-by <claimed-by>        only this claimant
+      --hub <hub>                      hub clone directory (overrides $BEANS_HUB)
+      --json[=<json>]                  machine-readable JSON output [default: false] [possible values: true, false]
+      --status <status>                only this status
+      --label <label>                  only this label
+      --no-fetch[=<no-fetch>]          reads: skip the throttled fetch [default: false] [possible values: true, false]
+      --no-sync[=<no-sync>]            mutations: commit locally without fetching or pushing [default: false] [possible values: true, false]
+  -p, --priority <priority>            only this priority
+      --project <project>              project name (overrides $BEANS_PROJECT and git auto-detection)
+      --query <query>                  text query
+      --terminal[=<terminal>]          include terminal prompts [default: false] [possible values: true, false]
+  -h, --help                           Print help

@@ -53,13 +53,51 @@ export interface IssueLogEntry {
 }
 
 /** What kind of note a backlink's `from` (and `path`, when set) refers to. */
-export type NoteKind = 'issue' | 'doc' | 'memory' | 'plan' | 'request' | 'handoff'
+export type NoteKind = 'issue' | 'doc' | 'memory' | 'plan' | 'request' | 'prompt' | 'handoff'
 
 export type RequestStatus = 'open' | 'accepted' | 'in_progress' | 'resolved' | 'declined'
 export interface LinkedIssueSummary { id:string; title?:string; status?:string; priority?:number; project?:string; archived?:boolean; missing?:boolean }
 export interface RequestSummary { id:string; title:string; status:RequestStatus; priority:number; labels:string[]; requested_by:string; created:string; updated:string; project:string; path:string; issue_count:number }
 export interface RequestDetail extends RequestSummary { issues:LinkedIssueSummary[]; backlinks:Backlink[]; log:IssueLogEntry[]; toc:TocEntry[]; html:string }
 export interface ListRequestsParams { status?:RequestStatus; label?:string; priority?:number; q?:string; terminal?:boolean }
+
+/** Prompt lifecycle values accepted and returned by the HTTP API. */
+export const PROMPT_STATUSES = ['open', 'in_progress', 'completed', 'declined', 'cancelled'] as const
+export type PromptStatus = (typeof PROMPT_STATUSES)[number]
+export interface PromptSummary {
+  id: string
+  title: string
+  status: PromptStatus
+  priority: number
+  labels: string[]
+  from: string
+  to: string
+  claimed_by: string | null
+  created: string
+  updated: string
+  project: string
+  path: string
+  has_issue: boolean
+}
+export interface PromptIssueSummary { id:string; title:string; missing:boolean }
+export interface PromptDetail extends PromptSummary {
+  html: string
+  toc: TocEntry[]
+  backlinks: Backlink[]
+  outlinks: DocOutlink[]
+  log: IssueLogEntry[]
+  issue: PromptIssueSummary | null
+}
+export interface ListPromptsParams {
+  status?: PromptStatus
+  label?: string
+  priority?: number
+  from?: string
+  to?: string
+  claimed_by?: string
+  q?: string
+  terminal?: boolean
+}
 
 export type PlanStatus = 'draft' | 'blocked' | 'ready' | 'complete'
 export interface PlanNode { id: string; label: string; kind: string; ref?: string }
@@ -132,6 +170,7 @@ export interface Issue {
   backlinks?: Backlink[]
 	blockers?: IssueBlocker[]
 	requests?: {id:string;title:string;status:RequestStatus;priority:number;project:string}[]
+	prompts?: PromptSummary[]
 }
 
 export interface WorkflowInfo {

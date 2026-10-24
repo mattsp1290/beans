@@ -1,5 +1,6 @@
 <script lang="ts">
   import AppShell from './lib/components/AppShell.svelte'
+	import EmptyState from './lib/components/EmptyState.svelte'
   import { ALL_PROJECTS, api, type ProjectSummary, type WorkflowInfo } from './lib/api'
   import GraphRoute from './routes/graph/GraphRoute.svelte'
   import IssueDetailRoute from './routes/issues/IssueDetailRoute.svelte'
@@ -9,17 +10,21 @@
   import WikiRoute from './routes/wiki/WikiRoute.svelte'
 	import PlansRoute from './routes/plans/PlansRoute.svelte'
 	import RequestsRoute from './routes/requests/RequestsRoute.svelte'
-	import { getRoute, parseIssueId, parsePlanId, parseRequestId, parseWikiPath, routes } from './routes'
+	import PromptsRoute from './routes/prompts/PromptsRoute.svelte'
+	import { handleNavigationClick } from './lib/nav'
+	import { getRoute, parseIssueId, parsePlanId, parsePromptId, parseRequestId, parseWikiPath, routes } from './routes'
 
   const PROJECT_STORAGE_KEY = 'bn-ui:project'
   const EMPTY_WORKFLOW: WorkflowInfo = { statuses: [], active: [], terminal: [] }
 
   let pathname = $state(window.location.pathname)
   let search = $state(window.location.search)
+	let hash = $state(window.location.hash)
   const route = $derived(getRoute(pathname))
   const issueId = $derived(parseIssueId(pathname))
 	const planId = $derived(parsePlanId(pathname))
 	const requestId = $derived(parseRequestId(pathname))
+	const promptId = $derived(parsePromptId(pathname))
   const wikiPath = $derived(parseWikiPath(pathname))
   const searchQuery = $derived(new URLSearchParams(search).get('q') ?? '')
 
@@ -122,46 +127,35 @@
     }
   }
 
-  /** Splits a path-with-optional-query (e.g. `/search?q=foo`) into its parts. */
-  function splitPath(path: string): { pathname: string; search: string } {
-    const separator = path.indexOf('?')
-    return separator === -1
-      ? { pathname: path, search: '' }
-      : { pathname: path.slice(0, separator), search: path.slice(separator) }
-  }
-
   function applyPath(path: string) {
-    const next = splitPath(path)
-    history.pushState({}, '', path)
-    pathname = next.pathname
-    search = next.search
+		const destination = new URL(path, window.location.href)
+		const next = destination.pathname + destination.search + destination.hash
+		history.pushState({}, '', next)
+		pathname = destination.pathname
+		search = destination.search
+		hash = destination.hash
   }
 
   function navigate(event: MouseEvent, path: string) {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-      return
-    }
-    event.preventDefault()
-    if (path === pathname + search) {
-      return
-    }
-    applyPath(path)
+    handleNavigationClick(event, go, path)
   }
 
   function go(path: string) {
-    if (path === pathname + search) {
+		const destination = new URL(path, window.location.href)
+		if (destination.pathname + destination.search + destination.hash === pathname + search + hash) {
       return
     }
     applyPath(path)
   }
 
-  function syncPathname() {
+	function syncLocation() {
     pathname = window.location.pathname
     search = window.location.search
+		hash = window.location.hash
   }
 </script>
 
-<svelte:window onpopstate={syncPathname} />
+<svelte:window onpopstate={syncLocation} onhashchange={syncLocation} />
 
 <svelte:head>
   <title>{route.title} | beans</title>
@@ -189,6 +183,10 @@
 		<IssueDetailRoute id={issueId} navigate={go} {reloadKey} onBanner={setBanner} />
 	{:else if requestId || pathname === '/requests'}
 		<RequestsRoute {project} id={requestId} navigate={go} {reloadKey} />
+	{:else if promptId || pathname === '/prompts'}
+		<PromptsRoute {project} id={promptId} navigate={go} {reloadKey} />
+	{:else if pathname.startsWith('/prompts/')}
+		<EmptyState title="Prompt not found" message="Use a valid prompt link or return to the prompts list." />
   {:else if pathname === '/ready'}
     <ReadyRoute {project} navigate={go} {reloadKey} />
   {:else if pathname === '/graph'}

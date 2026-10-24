@@ -48,7 +48,17 @@ fn real_http_mutations_share_cli_files_and_git_history() {
             .iter()
             .all(|v| v["id"] != id)
     );
-    assert_eq!(s.ok("/api/projects/p/issues?status=closed")[0]["id"], id);
+    let closed = s.ok("/api/projects/p/issues?status=closed");
+    let created_issue = closed
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|issue| issue["id"] == id)
+        .expect("created issue should be in the closed issue list");
+    assert_eq!(created_issue["title"], "Renamed");
+    assert_eq!(created_issue["status"], "closed");
+    assert_eq!(created_issue["priority"], 1);
+    assert_eq!(created_issue["labels"], json!(["new"]));
     assert_eq!(
         s.json("POST", &format!("{route}/reopen"), Value::Null).0,
         200
@@ -146,7 +156,7 @@ fn real_http_docs_graph_search_assets_spa_and_head_security() {
     assert_eq!(page["toc"][1]["id"], "section");
     assert_eq!(s.ok("/api/docs/tree")["docs"][0]["title"], "Guide");
     let graph = s.ok("/api/graph?all=true");
-    assert_eq!(graph["nodes"].as_array().unwrap().len(), 2);
+    assert_eq!(graph["nodes"].as_array().unwrap().len(), 3);
     assert_eq!(graph["edges"][0]["kind"], "blocks");
     assert_eq!(s.ok("/api/search?q=Guide&kind=doc")[0]["kind"], "doc");
     let (code, headers, body) = s.request("GET", "/api/assets/projects/p/docs/my%20image.png", "");
@@ -244,6 +254,424 @@ fn real_http_request_relationships_plan_details_and_read_only_routes() {
     assert_eq!(s.request("POST", "/api/plans/p-plan-a3f2", "{}").0, 405);
     assert_eq!(s.request("POST", "/api/requests/p-r-a3f2", "{}").0, 405);
 }
+#[test]
+fn prompt_http_list_filters_exact_summary_and_errors() {
+    let f = Fixture::new();
+    let s = Server::new(&f);
+    let prompts = s.ok("/api/projects/p/prompts");
+    assert_eq!(prompts.as_array().unwrap().len(), 2);
+    assert_eq!(prompts[0]["id"], "p-p-a1b2");
+    let keys = prompts[0]
+        .as_object()
+        .unwrap()
+        .keys()
+        .cloned()
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        keys,
+        [
+            "claimed_by",
+            "created",
+            "from",
+            "has_issue",
+            "id",
+            "labels",
+            "path",
+            "priority",
+            "project",
+            "status",
+            "title",
+            "to",
+            "updated"
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect()
+    );
+    assert!(prompts[0]["claimed_by"].is_null());
+    assert_eq!(prompts[0]["has_issue"], true);
+    assert_eq!(prompts[0]["created"], "2026-01-02T03:04:05.123+01:30");
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?to=Worker%20Agent")
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?from=Reviewer")[0]["id"],
+        "p-p-c3d4"
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?claimed_by=Reviewer")[0]["id"],
+        "p-p-c3d4"
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?status=completed")[0]["id"],
+        "p-p-b2c3"
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?terminal=true")
+            .as_array()
+            .unwrap()
+            .len(),
+        3
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?label=urgent")[0]["id"],
+        "p-p-a1b2"
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?priority=2")[0]["id"],
+        "p-p-c3d4"
+    );
+    assert_eq!(
+        s.ok("/api/projects/p/prompts?q=NEEDLE")[0]["id"],
+        "p-p-c3d4"
+    );
+    assert_eq!(
+        s.ok("/api/projects/_all/prompts?q=other")[0]["project"],
+        "q"
+    );
+    for path in [
+        "/api/projects/p/prompts?status=bogus",
+        "/api/projects/p/prompts?priority=9",
+    ] {
+        let (code, value) = s.json("GET", path, Value::Null);
+        assert_eq!(code, 400);
+        assert_eq!(value["error"]["code"], "validation_error");
+    }
+    for path in ["/api/projects/nope/prompts", "/api/prompts/nope"] {
+        let (code, value) = s.json("GET", path, Value::Null);
+        assert_eq!(code, 404);
+        assert_eq!(value["error"]["code"], "not_found");
+    }
+}
+
+#[test]
+fn prompt_http_detail_issue_reverse_rendering_search_and_malformed_warning() {
+    let f = Fixture::new();
+    let s = Server::new(&f);
+    let detail = s.ok("/api/prompts/p-p-a1b2");
+    assert_eq!(detail["title"], "Review HTTP projection");
+    let detail_keys = detail
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        detail_keys,
+        [
+            "backlinks",
+            "claimed_by",
+            "created",
+            "from",
+            "has_issue",
+            "html",
+            "id",
+            "issue",
+            "labels",
+            "log",
+            "outlinks",
+            "path",
+            "priority",
+            "project",
+            "status",
+            "title",
+            "to",
+            "toc",
+            "updated",
+        ]
+        .into_iter()
+        .collect()
+    );
+    assert_eq!(
+        detail["issue"],
+        json!({"id":"p-aaaa","title":"First","missing":false})
+    );
+    assert!(detail["html"].as_str().unwrap().contains("/issues/p-bbbb"));
+    assert!(
+        detail["html"]
+            .as_str()
+            .unwrap()
+            .contains("/api/assets/projects/p/docs/img.png")
+    );
+    assert!(!detail["html"].as_str().unwrap().contains("<script>"));
+    assert!(
+        detail["toc"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["id"] == "prompt-instructions")
+    );
+    assert!(detail["log"][0]["at"].as_str().unwrap().ends_with('Z'));
+    assert_eq!(
+        s.ok("/api/prompts/p-p-b2c3")["issue"],
+        json!({"id":"missing-a1b2","title":"","missing":true})
+    );
+    assert!(s.ok("/api/prompts/p-p-c3d4")["issue"].is_null());
+    assert_eq!(
+        s.ok("/api/issues/p-p-a1b2")["title"],
+        "Issue sharing a prompt ID"
+    );
+    let issue = s.ok("/api/issues/p-aaaa");
+    assert_eq!(issue["prompts"][0]["id"], "p-p-a1b2");
+    assert!(
+        issue["backlinks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|link| link["note_kind"] != "prompt")
+    );
+    assert_eq!(
+        s.ok("/api/search?q=searchable&kind=prompt&project=p")
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
+    assert_eq!(
+        s.ok("/api/search?q=searchable&kind=prompt&project=p")[0]["kind"],
+        "prompt"
+    );
+    assert_eq!(
+        s.ok("/api/search?q=searchable&kind=prompt&project=q")[0]["project"],
+        "q"
+    );
+    assert!(
+        detail["outlinks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|link| link["to"] == "p-bbbb-second")
+    );
+    assert!(
+        s.app
+            .index
+            .read()
+            .unwrap()
+            .graph
+            .warnings()
+            .iter()
+            .any(|warning| String::from_utf8_lossy(&warning.path).contains("p-p-bad-malformed.md"))
+    );
+    let doctor = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .args([
+            "--hub",
+            f.hub.to_str().unwrap(),
+            "--json",
+            "--no-fetch",
+            "doctor",
+            "--all-projects",
+        ])
+        .env("BEANS_HOME", f.root.join("doctor-home"))
+        .env_remove("BN_CONFIG")
+        .output()
+        .unwrap();
+    assert!(
+        !doctor.status.success(),
+        "doctor stdout={} stderr={}",
+        String::from_utf8_lossy(&doctor.stdout),
+        String::from_utf8_lossy(&doctor.stderr)
+    );
+    let doctor: Value = serde_json::from_slice(&doctor.stdout).unwrap();
+    assert_eq!(doctor["ok"], false);
+    assert!(
+        doctor["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|warning| {
+                warning["path"]
+                    .as_str()
+                    .is_some_and(|path| path.contains("p-p-bad-malformed.md"))
+            })
+    );
+    assert!(
+        s.ok("/api/projects/p/prompts?terminal=true")
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|prompt| prompt["id"] != "p-p-bad")
+    );
+}
+
+#[test]
+fn issue_reverse_prompt_summaries_are_detail_only() {
+    let f = Fixture::new();
+    let s = Server::new(&f);
+
+    let prompt = s.ok("/api/projects/p/prompts")[0].clone();
+    assert_eq!(s.ok("/api/issues/p-aaaa")["prompts"], json!([prompt]));
+
+    let issues = s.ok("/api/projects/p/issues");
+    let issue = issues
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|issue| issue["id"] == "p-aaaa")
+        .unwrap();
+    let keys = issue
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        keys,
+        [
+            "aliases",
+            "archived",
+            "assignee",
+            "blocked_by",
+            "blockers",
+            "children",
+            "created",
+            "description",
+            "id",
+            "labels",
+            "log",
+            "parent",
+            "path",
+            "priority",
+            "project",
+            "requests",
+            "status",
+            "title",
+            "type",
+            "updated",
+            "url",
+            "workflow",
+        ]
+        .into_iter()
+        .collect()
+    );
+
+    assert_eq!(
+        s.ok("/api/projects/p/issues?q=Review%20HTTP%20projection"),
+        json!([])
+    );
+    assert_eq!(s.ok("/api/projects/p/issues?q=First")[0]["id"], "p-aaaa");
+}
+
+#[test]
+fn archived_issue_backlinks_preserve_prompt_deduplication_and_resolution() {
+    let f = Fixture::new();
+    f.write(
+        "projects/p/issues/p-aaaa-first.md",
+        "---\nid: p-aaaa\naliases: [p-aaaa, first-alias]\ntitle: First\ntype: task\nstatus: open\npriority: 1\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\n",
+    );
+    f.write(
+        "projects/p/prompts/p-p-d4e5-alias.md",
+        "---\nid: p-p-d4e5\naliases: [p-p-d4e5]\ntitle: Alias relationship\nstatus: open\npriority: 0\nlabels: [resolution]\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[first-alias]]\"\ncreated: 2026-02-01T00:00:00Z\nupdated: 2026-02-02T00:00:00Z\n---\nAlias instructions.\n",
+    );
+    f.write(
+        "projects/p/prompts/p-p-e5f6-path.md",
+        "---\nid: p-p-e5f6\naliases: [p-p-e5f6]\ntitle: Path relationship\nstatus: open\npriority: 2\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[projects/p/issues/p-aaaa-first.md]]\"\ncreated: 2026-02-03T00:00:00Z\nupdated: 2026-02-04T00:00:00Z\n---\nPath instructions.\n",
+    );
+    // This duplicate-ID prompt is indexed and produces a real PromptIssue
+    // backlink, but is not an owned prompt and therefore has no derived summary.
+    // Its generic relationship must not disappear merely because of its kind.
+    f.write(
+        "projects/p/prompts/z-shadowed-p-p-c3d4.md",
+        "---\nid: p-p-c3d4\naliases: [shadowed-prompt]\ntitle: Shadowed relationship\nstatus: open\npriority: 4\nfrom: Lead Agent\nto: Worker Agent\nissue: \"[[p-aaaa]]\"\ncreated: 2026-02-05T00:00:00Z\nupdated: 2026-02-06T00:00:00Z\n---\nShadowed instructions.\n",
+    );
+    f.write(
+        "projects/p/handoffs/archive/2026/p-handoff1-old.md",
+        "---\nid: p-handoff1\ntitle: Archived issue handoff\ncreated: 2026-02-07T00:00:00Z\nupdated: 2026-02-08T00:00:00Z\n---\nContinue [[p-aaaa]].\n",
+    );
+
+    let s = Server::new(&f);
+    let issue = s.ok("/api/issues/p-aaaa?include_archived_handoffs=true");
+    assert_eq!(
+        issue["prompts"],
+        json!([
+            {
+                "id": "p-p-d4e5", "title": "Alias relationship", "status": "open",
+                "priority": 0, "labels": ["resolution"], "from": "Lead Agent",
+                "to": "Worker Agent", "claimed_by": null,
+                "created": "2026-02-01T00:00:00Z", "updated": "2026-02-02T00:00:00Z",
+                "project": "p", "path": "projects/p/prompts/p-p-d4e5-alias.md",
+                "has_issue": true
+            },
+            {
+                "id": "p-p-a1b2", "title": "Review HTTP projection", "status": "open",
+                "priority": 1, "labels": ["urgent", "api"], "from": "Lead Agent",
+                "to": "Worker Agent", "claimed_by": null,
+                "created": "2026-01-02T03:04:05.123+01:30", "updated": "2026-01-03T04:05:06Z",
+                "project": "p", "path": "projects/p/prompts/p-p-a1b2-review.md",
+                "has_issue": true
+            },
+            {
+                "id": "p-p-e5f6", "title": "Path relationship", "status": "open",
+                "priority": 2, "labels": [], "from": "Lead Agent", "to": "Worker Agent",
+                "claimed_by": null, "created": "2026-02-03T00:00:00Z",
+                "updated": "2026-02-04T00:00:00Z", "project": "p",
+                "path": "projects/p/prompts/p-p-e5f6-path.md", "has_issue": true
+            }
+        ])
+    );
+
+    assert!(issue["backlinks"].as_array().unwrap().iter().any(|link| {
+        link["from"] == "p-handoff1"
+            && link["note_kind"] == "handoff"
+            && link["path"] == "projects/p/handoffs/archive/2026/p-handoff1-old.md"
+    }));
+
+    let prompt_backlinks = issue["backlinks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|link| link["kind"] == "prompt_issue")
+        .cloned()
+        .collect::<Vec<_>>();
+    assert_eq!(
+        prompt_backlinks,
+        vec![json!({
+            "from": "p-p-c3d4",
+            "kind": "prompt_issue",
+            "note_kind": "prompt",
+            "path": "projects/p/prompts/z-shadowed-p-p-c3d4.md",
+            "title": "Shadowed relationship",
+        })]
+    );
+
+    assert_eq!(
+        s.ok("/api/prompts/p-p-b2c3")["issue"],
+        json!({"id":"missing-a1b2","title":"","missing":true})
+    );
+}
+
+#[test]
+fn prompt_http_wikilinks_and_all_mutations_are_read_only_before_decoding() {
+    let f = Fixture::new();
+    f.write(
+        "projects/p/docs/prompt-link.md",
+        "# Prompt link\n\n[[p-p-c3d4]]\n",
+    );
+    let s = Server::new(&f);
+    assert!(
+        s.ok("/api/docs/projects/p/docs/prompt-link")["html"]
+            .as_str()
+            .unwrap()
+            .contains("href=\"/prompts/p-p-c3d4\"")
+    );
+    for method in ["POST", "PATCH", "DELETE"] {
+        for path in ["/api/projects/p/prompts", "/api/prompts/p-p-a1b2"] {
+            for body in ["", "{"] {
+                let (code, _, response) = s.request(method, path, body);
+                assert_eq!(code, 405, "{method} {path}: {response}");
+                let value: Value = serde_json::from_str(&response).unwrap();
+                assert_eq!(
+                    value,
+                    json!({"error":{"code":"method_not_allowed","message":"resource is read-only"}})
+                );
+            }
+        }
+    }
+}
+
 #[test]
 fn real_http_lock_contention_and_git_conflict_are_not_validation_errors() {
     use std::os::fd::AsRawFd;

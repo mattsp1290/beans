@@ -25,14 +25,20 @@ export type {
   IssueChildSummary,
   IssueDetail,
   IssueLogEntry,
+
   ListIssuesParams,
 	ListRequestsParams,
+	ListPromptsParams,
   MutationResult,
   NoteKind,
 	RequestDetail,
 	RequestStatus,
 	RequestSummary,
 	LinkedIssueSummary,
+	PromptDetail,
+	PromptIssueSummary,
+	PromptStatus,
+	PromptSummary,
   ProjectCounts,
   ProjectSummary,
 	PlanDetail,
@@ -47,4 +53,4 @@ export type {
   UpdateIssueRequest,
   WorkflowInfo,
 } from './types'
-export { ALL_PROJECTS } from './types'
+export { ALL_PROJECTS, PROMPT_STATUSES } from './types'

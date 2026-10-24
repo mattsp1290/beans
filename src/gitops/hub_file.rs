@@ -122,14 +122,24 @@ fn unlink(parent: &File, name: &CString) -> Result<(), Error> {
         Err(error(e))
     }
 }
-/// Prepared atomic write. Drop clears its exact temporary and ownership record;
-/// an interrupted process leaves both so the locked recovery path can verify it.
+fn cleanup_published(
+    remove_temp: impl FnOnce() -> Result<(), Error>,
+    remove_evidence: impl FnOnce() -> Result<(), Error>,
+) -> Result<(), Error> {
+    remove_temp()?;
+    remove_evidence()
+}
+/// Prepared atomic write. Before publication, Drop clears its exact temporary
+/// and ownership record; an interrupted process leaves both so the locked
+/// recovery path can verify it. No-replace publication cleans explicitly so a
+/// cleanup error retains recovery evidence without deleting the destination.
 pub struct PreparedHubWrite {
     parent: File,
     owners: Option<File>,
     temp: CString,
     target: CString,
     owner: CString,
+    cleanup_on_drop: bool,
 }
 impl PreparedHubWrite {
     pub fn prepare(hub: &Path, relative: &Path, bytes: &[u8]) -> Result<Self, Error> {
@@ -180,6 +190,7 @@ impl PreparedHubWrite {
             temp,
             target: cstr(parts.last().unwrap())?,
             owner,
+            cleanup_on_drop: true,
         };
         let fd = unsafe {
             libc::openat(
@@ -212,9 +223,48 @@ impl PreparedHubWrite {
         }
         Ok(())
     }
+    fn commit_no_replace(mut self) -> Result<(), Error> {
+        reject_symlink(&self.parent, OsStr::from_bytes(self.target.as_bytes()))?;
+        // A same-directory hard link publishes the synced inode atomically and
+        // fails with EEXIST instead of replacing a concurrently created target.
+        // Before publication, Drop removes our temporary link and evidence.
+        if unsafe {
+            libc::linkat(
+                self.parent.as_raw_fd(),
+                self.temp.as_ptr(),
+                self.parent.as_raw_fd(),
+                self.target.as_ptr(),
+                0,
+            )
+        } < 0
+        {
+            let e = std::io::Error::last_os_error();
+            if e.kind() == std::io::ErrorKind::AlreadyExists {
+                return Err(Error::new("hub write destination already exists".into()));
+            }
+            return Err(error(e));
+        }
+        // Once the target is published, Drop must not erase recovery evidence
+        // when temporary-link cleanup fails. Recovery can safely remove only
+        // the registered temporary link; it never touches the target.
+        self.cleanup_on_drop = false;
+        cleanup_published(
+            || unlink(&self.parent, &self.temp),
+            || {
+                if let Some(owners) = &self.owners {
+                    unlink(owners, &self.owner)
+                } else {
+                    Ok(())
+                }
+            },
+        )
+    }
 }
 impl Drop for PreparedHubWrite {
     fn drop(&mut self) {
+        if !self.cleanup_on_drop {
+            return;
+        }
         let _ = unlink(&self.parent, &self.temp);
         if let Some(owners) = &self.owners {
             let _ = unlink(owners, &self.owner);
@@ -223,6 +273,10 @@ impl Drop for PreparedHubWrite {
 }
 pub fn write_hub_file(hub: &Path, relative: &Path, bytes: &[u8]) -> Result<(), Error> {
     PreparedHubWrite::prepare(hub, relative, bytes)?.commit()
+}
+/// Atomically install a new file, failing without changing an existing destination.
+pub fn create_hub_file(hub: &Path, relative: &Path, bytes: &[u8]) -> Result<(), Error> {
+    PreparedHubWrite::prepare(hub, relative, bytes)?.commit_no_replace()
 }
 /// Exact registered orphan candidates; arbitrary basename matches are ignored.
 pub(crate) fn owned_orphans(hub: &Path) -> Result<Vec<(PathBuf, PathBuf)>, Error> {
@@ -329,4 +383,43 @@ pub fn remove_hub_file(hub: &Path, relative: &Path) -> Result<(), Error> {
     let name = parts.last().unwrap();
     reject_symlink(&parent, name)?;
     unlink(&parent, &cstr(name)?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::cell::Cell;
+
+    #[test]
+    fn published_cleanup_retains_evidence_when_temp_unlink_fails() {
+        let evidence_removed = Cell::new(false);
+        let result = cleanup_published(
+            || Err(Error::new("injected temp unlink failure".into())),
+            || {
+                evidence_removed.set(true);
+                Ok(())
+            },
+        );
+        assert!(result.is_err());
+        assert!(!evidence_removed.get());
+    }
+
+    #[test]
+    fn published_cleanup_removes_temp_before_evidence_on_success() {
+        let temp_removed = Cell::new(false);
+        let evidence_removed = Cell::new(false);
+        cleanup_published(
+            || {
+                temp_removed.set(true);
+                Ok(())
+            },
+            || {
+                assert!(temp_removed.get());
+                evidence_removed.set(true);
+                Ok(())
+            },
+        )
+        .unwrap();
+        assert!(evidence_removed.get());
+    }
 }

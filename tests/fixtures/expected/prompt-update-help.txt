@@ -1,0 +1,28 @@
+Update a prompt
+
+Usage: bn prompt update [OPTIONS] <id>
+
+Arguments:
+  <id>
+
+Options:
+      --branch <branch>
+      --claim[=<claim>]            claim this prompt [default: false] [possible values: true, false]
+      --status <status>            new status
+      --actor <actor>              audit actor (overrides $BN_ACTOR)
+      --force[=<force>]            allow reassignment or status correction [default: false] [possible values: true, false]
+      --hub <hub>                  hub clone directory (overrides $BEANS_HUB)
+      --title <title>              new title
+      --json[=<json>]              machine-readable JSON output [default: false] [possible values: true, false]
+      --to <to>                    new recipient
+      --no-fetch[=<no-fetch>]      reads: skip the throttled fetch [default: false] [possible values: true, false]
+      --priority <priority>        new priority
+      --label <label>              add label (repeatable)
+      --no-sync[=<no-sync>]        mutations: commit locally without fetching or pushing [default: false] [possible values: true, false]
+      --project <project>          project name (overrides $BEANS_PROJECT and git auto-detection)
+      --unlabel <unlabel>          remove label (repeatable)
+      --note <note>                audit note
+  -d, --description <description>  prompt Markdown
+      --body-file <body-file>      read prompt Markdown from file
+      --stdin[=<stdin>]            read prompt Markdown from stdin [default: false] [possible values: true, false]
+  -h, --help                       Print help
