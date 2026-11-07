@@ -81,6 +81,19 @@ pub fn command() -> Command {
 }
 pub fn execute(m: clap::ArgMatches) -> Result<(), Error> {
     let (name, sub) = m.subcommand().unwrap();
+    if m.get_flag("no-sync") {
+        match name {
+            "sync" => eprintln!(
+                "bn: warning: --no-sync is not recommended for shared work and is ignored by bn sync. This command still fetches and pushes the hub. Omit --no-sync for normal use."
+            ),
+            "init" => eprintln!(
+                "bn: warning: --no-sync is not recommended for shared work and is ignored by bn init. This command still clones the remote and may push the initial hub commit. Omit --no-sync for normal use."
+            ),
+            _ => eprintln!(
+                "bn: warning: --no-sync is not recommended for shared work. Hub mutations save and commit only to this local hub without publishing to the remote. Agents and machines using other hub clones cannot see these changes until they are synced. Use this flag only when you explicitly intend to keep changes local. Omit --no-sync for normal use, or run bn sync to publish local changes."
+            ),
+        }
+    }
     // These commands need no hub.
     match name {
         "prime" => {

@@ -16,6 +16,115 @@ fn issue_path(s: &Sandbox, id: &str) -> PathBuf {
 }
 
 #[test]
+fn native_no_sync_warns_without_changing_output_or_publishing_local_changes() {
+    let s = fixture();
+    let hub = s.path("home/hub");
+    let remote = s.path("remote.git");
+    let remote_before = git(&remote, &["rev-parse", "HEAD"]);
+    let body = s.path("handoff.md");
+    fs::write(&body, "Continue this work on the next machine.\n").unwrap();
+    let handoff = s.cli(&[
+        "handoff",
+        "create",
+        "Local continuation",
+        "--file",
+        body.to_str().unwrap(),
+        "--no-sync",
+        "--silent",
+    ]);
+    assert!(handoff.status.success());
+    let stderr = String::from_utf8(handoff.stderr).unwrap();
+    assert_eq!(stderr.matches("bn: warning:").count(), 1);
+    assert!(stderr.contains("--no-sync is not recommended"));
+    assert!(stderr.contains("save and commit only to this local hub"));
+    assert!(stderr.contains("other hub clones cannot see these changes"));
+    assert!(stderr.contains("only when you explicitly intend to keep changes local"));
+    assert!(stderr.contains("run bn sync to publish local changes"));
+    let stdout = String::from_utf8(handoff.stdout).unwrap();
+    let handoff_id = stdout.trim();
+    assert_eq!(stdout, format!("{handoff_id}\n"));
+    assert!(!handoff_id.contains(char::is_whitespace));
+    let saved = json(&s, &["--json", "handoff", "show", handoff_id]);
+    assert_eq!(saved["title"], "Local continuation");
+    assert_eq!(saved["body"], "Continue this work on the next machine.\n");
+    assert_eq!(git(&remote, &["rev-parse", "HEAD"]), remote_before);
+    assert_ne!(git(&hub, &["rev-parse", "HEAD"]), remote_before);
+
+    let created = s.cli(&["--no-sync", "--json", "create", "Local issue"]);
+    assert!(created.status.success());
+    assert!(String::from_utf8_lossy(&created.stderr).contains("--no-sync is not recommended"));
+    let created: serde_json::Value = serde_json::from_slice(&created.stdout).unwrap();
+    assert_eq!(created["pushed"], false);
+    assert_eq!(git(&hub, &["rev-parse", "HEAD"]), created["sha"]);
+    assert_eq!(git(&remote, &["rev-parse", "HEAD"]), remote_before);
+
+    let synced = s.cli(&["--no-sync", "--json", "sync"]);
+    assert!(synced.status.success());
+    let stderr = String::from_utf8(synced.stderr).unwrap();
+    assert_eq!(stderr.matches("bn: warning:").count(), 1);
+    assert!(stderr.contains("--no-sync is not recommended"));
+    assert!(stderr.contains("ignored by bn sync"));
+    assert!(stderr.contains("still fetches and pushes"));
+    assert!(!stderr.contains("without publishing"));
+    let synced: serde_json::Value = serde_json::from_slice(&synced.stdout).unwrap();
+    assert_eq!(synced["synced"], true);
+    assert_eq!(
+        git(&remote, &["rev-parse", "HEAD"]),
+        git(&hub, &["rev-parse", "HEAD"])
+    );
+    let observer = s.clone_hub(&remote, "observer");
+    let shared_path = saved["path"].as_str().unwrap();
+    assert_eq!(
+        fs::read_to_string(observer.dir.join(shared_path)).unwrap(),
+        fs::read_to_string(hub.join(shared_path)).unwrap()
+    );
+}
+
+#[test]
+fn native_no_sync_init_warning_explains_initial_publication() {
+    let s = Sandbox::new();
+    let remote = s.remote(false);
+    let initialized = s.cli(&["--no-sync", "--json", "init", remote.to_str().unwrap()]);
+    assert!(initialized.status.success());
+    let stderr = String::from_utf8(initialized.stderr).unwrap();
+    assert_eq!(stderr.matches("bn: warning:").count(), 1);
+    assert!(stderr.contains("--no-sync is not recommended"));
+    assert!(stderr.contains("ignored by bn init"));
+    assert!(stderr.contains("still clones the remote"));
+    assert!(stderr.contains("may push the initial hub commit"));
+    assert!(!stderr.contains("without publishing"));
+    let initialized: serde_json::Value = serde_json::from_slice(&initialized.stdout).unwrap();
+    let hub = s.path("home/hub");
+    assert_eq!(initialized["hub"], hub.to_str().unwrap());
+    assert_eq!(initialized["remote"], remote.to_str().unwrap());
+    assert_eq!(initialized["branch"], "main");
+    assert_eq!(
+        git(&remote, &["rev-parse", "HEAD"]),
+        git(&hub, &["rev-parse", "HEAD"])
+    );
+}
+
+#[test]
+fn native_no_sync_warning_covers_reads_and_no_hub_commands_but_respects_false() {
+    let s = fixture();
+    for args in [vec!["--json", "list"], vec!["prime"]] {
+        let normal = s.cli(&args);
+        assert!(normal.status.success());
+        assert!(!String::from_utf8_lossy(&normal.stderr).contains("bn: warning:"));
+        for (flag, warns) in [("--no-sync", true), ("--no-sync=false", false)] {
+            let mut flagged = args.clone();
+            flagged.push(flag);
+            let output = s.cli(&flagged);
+            assert!(output.status.success());
+            assert_eq!(output.stdout, normal.stdout);
+            let stderr = String::from_utf8(output.stderr).unwrap();
+            assert_eq!(stderr.matches("bn: warning:").count(), usize::from(warns));
+            assert_eq!(stderr.contains("--no-sync is not recommended"), warns);
+        }
+    }
+}
+
+#[test]
 fn native_retained_relationships_archive_reopen_and_force_delete() {
     let s = fixture();
     let a = s.ok(&["create", "parent", "--silent"]).trim().to_owned();

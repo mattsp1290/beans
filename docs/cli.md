@@ -8,6 +8,8 @@ The inventory below includes every public command, container and generated help 
 
 Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch`, `--json`, `--no-fetch`, and `--no-sync`. `-h`/`--help` is available on commands; `-v`/`--version` belongs to the root. Boolean flags accept a bare flag or `=true`/`=false`. Flags without defaults select no change or filter unless their help says otherwise. Repeated `--label`, `--blocked-by`, `--issue`, and `--tag` values are accepted where listed.
 
+`--no-sync` makes hub mutations save and commit locally without fetching or pushing. Those changes remain unavailable to agents and machines using other hub clones until a sync publishes them. Every command executed with `--no-sync` emits a warning on stderr that discourages it except for intentionally local work. The warning also appears with `--json` and `--silent`, without changing stdout. Omitting the flag or passing `--no-sync=false` emits no such warning. Explicit `bn sync` still fetches and pushes even with `--no-sync`. `bn init` still clones the remote and may push an initial hub commit. Both commands warn that the flag is ignored.
+
 `BEANS_HOME`, `BEANS_HUB`, `BEANS_PROJECT`, `BN_ACTOR` and `BN_CONFIG` select paths, project, actor and workflow configuration. Workflow keys merge with precedence `BN_CONFIG` > project `beans.toml` > hub `beans.toml` > defaults. Review, validation and merge hold statuses neither become ready nor satisfy blockers. See [beans.toml.example](beans.toml.example).
 
 | Command and arguments | Local flags |
