@@ -140,6 +140,9 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
         print!("{}", super::manual::render());
         return Ok(());
     }
+    if name == "project" && matches!(action, "apply" | "catalog" | "inspect") {
+        return super::project_commands::execute(m, hub);
+    }
     let write = matches!(
         name,
         "create"

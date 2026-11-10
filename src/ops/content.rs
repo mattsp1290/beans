@@ -10,6 +10,7 @@ use crate::{
 use std::path::{Path, PathBuf};
 #[derive(Clone, Debug)]
 pub enum ContentChange {
+    ProjectApply(super::projects::ProjectRequest),
     Remember {
         key: String,
         body: String,
@@ -39,6 +40,9 @@ pub struct ContentMutation {
     pub id: String,
     pub actor: String,
     pub explicit_workflow: Option<PathBuf>,
+    pub project_snapshot: Option<super::projects::ProjectSnapshot>,
+    pub project_replayed: bool,
+    project_authored: bool,
     present: bool,
     at: crate::domain::issue::Timestamp,
 }
@@ -52,6 +56,9 @@ impl ContentMutation {
             resolved,
             change,
             id: String::new(),
+            project_snapshot: None,
+            project_replayed: false,
+            project_authored: false,
             actor: "bn".into(),
             explicit_workflow: std::env::var_os("BN_CONFIG")
                 .filter(|v| !v.is_empty())
@@ -67,8 +74,17 @@ impl Operation for ContentMutation {
     }
     fn after_rebase(&mut self, present: bool) {
         self.present = present;
+        self.project_authored &= present;
     }
     fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
+        if let ContentChange::ProjectApply(request) = &self.change {
+            let (paths, snapshot, replayed) = request.apply(hub)?;
+            self.id = request.project_id.clone();
+            self.project_snapshot = Some(snapshot);
+            self.project_replayed = replayed && !self.project_authored;
+            self.project_authored |= !replayed;
+            return Ok(paths);
+        }
         let project = String::from_utf8_lossy(&self.resolved.project);
         let base = PathBuf::from("projects").join(project.as_ref());
         check_hub_write_path(hub, &base.join("beans.toml"))?;
@@ -189,7 +205,16 @@ impl Operation for ContentMutation {
                 .unwrap_or_else(|| format!("# {title}\n").into_bytes());
                 (p, bytes)
             }
+            ContentChange::ProjectApply(_) => unreachable!(),
             ContentChange::Project { link } => {
+                if let Ok(source) =
+                    crate::vault::read_public_file(hub, &format!("projects/{project}/beans.toml"))
+                    && super::projects::managed(&source)?
+                {
+                    return Err(Error::new(
+                        "managed projects require bn project apply".into(),
+                    ));
+                }
                 let mut paths = super::scaffold_paths(hub, &self.resolved)?;
                 if *link {
                     if self.resolved.repo_remote.is_empty() {

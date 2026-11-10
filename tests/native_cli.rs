@@ -1189,6 +1189,8 @@ fn surviving_native_note_commit_is_recognized_after_successful_rebase() {
 mod git_coordination;
 #[path = "native/git_resolver.rs"]
 mod git_resolver;
+#[path = "native/projects.rs"]
+mod projects;
 #[path = "native/prompts_contract.rs"]
 mod prompts_contract;
 #[path = "native/prompts_git_journeys.rs"]

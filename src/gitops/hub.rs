@@ -165,6 +165,12 @@ impl Hub {
                     self.git(&["fetch", "--quiet", "origin"])?;
                     let rebase = self.git(&["rebase", "--quiet", &self.remote_ref()]);
                     if rebase.is_ok() {
+                        result.sha = self.git(&[
+                            "log",
+                            "-1",
+                            "--format=%H",
+                            &format!("--grep=^Bn-Run: {nonce}$"),
+                        ])?;
                         op.after_rebase(self.nonce_present(&nonce)?);
                         continue;
                     }
@@ -202,6 +208,7 @@ impl Hub {
                     match decide_retry(facts) {
                         RetryAction::DiscardOwnedAndReplay => {
                             self.git(&["reset", "--hard", "--quiet", &self.remote_ref()])?;
+                            result.sha.clear();
                             op.after_rebase(self.nonce_present(&nonce)?);
                         }
                         _ => {
