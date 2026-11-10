@@ -158,6 +158,17 @@ pub(super) fn commands() -> Vec<Command> {
                     .about("Add the current repository's remote to a project's remotes")
                     .arg(Arg::new("name").index(1).required(true)),
             )
+            .subcommand(
+                Command::new("apply")
+                    .about("Apply a retryable GitHub project mutation")
+                    .arg(Arg::new("request-file").long("request-file").required(true)),
+            )
+            .subcommand(Command::new("catalog").about("List active managed GitHub projects"))
+            .subcommand(
+                Command::new("inspect")
+                    .about("Read a managed project, including archived history")
+                    .arg(Arg::new("project-id").required(true)),
+            )
             .subcommand(Command::new("list").about("List the projects in the hub"))
             .subcommand(
                 Command::new("show")

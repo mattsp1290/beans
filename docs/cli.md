@@ -83,6 +83,9 @@ Global flags accepted by commands are `--actor`, `--hub`, `--project`, `--branch
 | `bn man` | — |
 | `bn memories [keyword]...` | `--all[=<all>]` (default `false`), `-n, --limit <limit>` (default `0`), `--tag <tag>`, `--type <type>` |
 | `bn project <COMMAND>` | — |
+| `bn project apply` | `--request-file <file>` (required; `-` reads stdin) |
+| `bn project catalog` | None |
+| `bn project inspect <project-id>` | None |
 | `bn project create <name>` | `--link[=<link>]` (default `false`) |
 | `bn project link <name>` | — |
 | `bn project list` | — |
@@ -188,6 +191,8 @@ Docs use project/hub `templates/doc.md` when present and refuse overwrite. Doc
 listing includes global docs with the selected project's docs; without a project,
 it lists all docs. `--global` selects only global docs. Project linking appends
 only the remote value and preserves authored TOML comments, keys, and tables.
+Managed GitHub projects use the [retryable project contract](github-projects.md)
+for display name, stable repository membership, and archive mutations.
 
 Plan init/get require a new `--output` directory. Put captures a validated complete
 bundle before Git effects, checks optimistic `updated` revisions and immutable
