@@ -111,6 +111,16 @@ pub fn check_hub_write_path(hub: &Path, relative: &Path) -> Result<(), Error> {
     }
     reject_symlink(&parent, parts.last().unwrap())
 }
+pub(crate) fn check_hub_directory(hub: &Path, relative: &Path) -> Result<bool, Error> {
+    let mut directory = root(hub)?;
+    for part in components(relative)? {
+        match child(&directory, part, false)? {
+            Some(next) => directory = next,
+            None => return Ok(false),
+        }
+    }
+    Ok(true)
+}
 fn unlink(parent: &File, name: &CString) -> Result<(), Error> {
     if unsafe { libc::unlinkat(parent.as_raw_fd(), name.as_ptr(), 0) } == 0 {
         return Ok(());

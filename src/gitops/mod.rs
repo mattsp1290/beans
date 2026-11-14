@@ -7,6 +7,7 @@ pub(crate) use file::{Temporary, temporary};
 mod hub;
 pub use hub::{Hub, MutationResult, Operation};
 mod hub_file;
+pub(crate) use hub_file::check_hub_directory;
 pub use hub_file::{
     PreparedHubWrite, check_hub_write_path, create_hub_file, remove_hub_file, write_hub_file,
 };

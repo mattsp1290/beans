@@ -1,5 +1,6 @@
 //! Lossless domain documents and their semantic views.
 pub mod authored_yaml;
+pub mod channel;
 pub mod config;
 pub mod contracts;
 pub mod duration;
