@@ -49,6 +49,7 @@ exec /usr/bin/git "$@"
     let original_config = fs::read(&config).ok();
     timed_policy(s);
     let output = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args(["--branch", "main", "--project", "demo"])
         .args(args)
         .env("BEANS_HOME", s.path("home"))

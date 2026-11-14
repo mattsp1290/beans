@@ -22,7 +22,7 @@ def isolated_env(root: Path, actor: str = "builder") -> dict[str, str]:
     for key in list(env):
         if key.startswith(("BEANS_", "BN_", "GIT_CONFIG_")) or key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"):
             env.pop(key)
-    env.update({"BEANS_HOME": str(root / actor / "beans-home"),
+    env.update({"BN_NO_UPDATE_CHECK": "1", "BEANS_HOME": str(root / actor / "beans-home"),
                 "BEANS_HUB": str(root / actor / "hub"), "BEANS_PROJECT": "fixture",
                 "BN_ACTOR": actor, "GIT_CONFIG_GLOBAL": str(root / "gitconfig"),
                 "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0",

@@ -91,6 +91,7 @@ impl Fixture {
     }
     fn cli(&self, args: &[&str]) -> Value {
         let output = Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args([
                 "--hub",
                 self.hub.to_str().unwrap(),

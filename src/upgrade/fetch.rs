@@ -75,3 +75,57 @@ pub(super) fn download(base: &str, url: &str, destination: &Path) -> Result<(), 
     }
     Ok(())
 }
+
+pub(super) fn fetch_notice_manifest(
+    base: &str,
+    url: &str,
+    directory: &Path,
+) -> Result<Vec<u8>, Error> {
+    use std::{
+        io::{Seek, SeekFrom},
+        os::unix::process::CommandExt,
+        time::{Duration, Instant},
+    };
+    let (temporary, mut file) = crate::gitops::temporary(directory, ".bn-update-check-")?;
+    drop(temporary);
+    let mut child = curl(base, "1")
+        .args([
+            "--retry",
+            "0",
+            "--connect-timeout",
+            "1",
+            "--max-filesize",
+            "65536",
+            "--url",
+            url,
+        ])
+        .process_group(0)
+        .stdout(file.try_clone().map_err(curl_error)?)
+        .stderr(Stdio::null())
+        .spawn()
+        .map_err(curl_error)?;
+    let deadline = Instant::now() + Duration::from_secs(1);
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break status,
+            Ok(None) if Instant::now() < deadline => std::thread::sleep(Duration::from_millis(10)),
+            _ => {
+                unsafe { libc::kill(-(child.id() as i32), libc::SIGKILL) };
+                let _ = child.wait();
+                return Err(Error::from("automatic update check timed out"));
+            }
+        }
+    };
+    if !status.success() {
+        return Err(Error::from("automatic update check failed"));
+    }
+    file.seek(SeekFrom::Start(0)).map_err(curl_error)?;
+    let mut raw = Vec::new();
+    file.take(MANIFEST_LIMIT + 1)
+        .read_to_end(&mut raw)
+        .map_err(curl_error)?;
+    if raw.len() as u64 > MANIFEST_LIMIT {
+        return Err(Error::from("release manifest too large"));
+    }
+    Ok(raw)
+}

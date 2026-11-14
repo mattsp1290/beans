@@ -261,6 +261,7 @@ fn project_concurrent_same_create_is_one_authored_operation() {
         .unwrap();
     let start = || {
         Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args([
                 "--json",
                 "project",
@@ -329,7 +330,7 @@ fn project_contended_publication_reports_rebased_commit_and_invocation_identity(
         &hub,
         "pre-push",
         &format!(
-            "test ! -e '{}' || exit 0\n: > '{}'\ngit rev-parse HEAD > '{}'\n'{}' --hub '{}' --actor 'Competing owner' --json project apply --request-file '{}' > /dev/null",
+            "test ! -e '{}' || exit 0\n: > '{}'\ngit rev-parse HEAD > '{}'\nBN_NO_UPDATE_CHECK=1 '{}' --hub '{}' --actor 'Competing owner' --json project apply --request-file '{}' > /dev/null",
             marker.display(),
             marker.display(),
             before_rebase.display(),

@@ -39,6 +39,7 @@ fn native_server_startup_failure_and_signals_close_active_sse() {
     let occupied = TcpListener::bind("127.0.0.1:0").unwrap();
     let port = occupied.local_addr().unwrap().port().to_string();
     let output = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args(["--hub", f.hub.to_str().unwrap(), "serve", "--port", &port])
         .env("BEANS_HOME", f.root.join("home"))
         .output()
@@ -49,6 +50,7 @@ fn native_server_startup_failure_and_signals_close_active_sse() {
         let address = listener.local_addr().unwrap();
         drop(listener);
         let mut child = Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args([
                 "--hub",
                 f.hub.to_str().unwrap(),
@@ -201,6 +203,7 @@ fn native_snapshot_reload_and_reads_are_serialized_without_recovery() {
         "backup must remain\n"
     );
     let output = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .arg("--version")
         .output()
         .unwrap();

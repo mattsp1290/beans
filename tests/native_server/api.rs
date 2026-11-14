@@ -457,6 +457,7 @@ fn prompt_http_detail_issue_reverse_rendering_search_and_malformed_warning() {
             .any(|warning| String::from_utf8_lossy(&warning.path).contains("p-p-bad-malformed.md"))
     );
     let doctor = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args([
             "--hub",
             f.hub.to_str().unwrap(),
@@ -862,6 +863,7 @@ fn real_cli_and_http_writers_wait_then_preserve_both_notes() {
     let alias = f.root.join("alias");
     std::os::unix::fs::symlink(&f.hub, &alias).unwrap();
     let mut cli = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args(["--branch", "main", "--no-sync", "--hub"])
         .arg(alias)
         .args(["--project", "p", "note", "p-aaaa", "CLI concurrent note"])

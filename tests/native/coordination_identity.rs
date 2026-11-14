@@ -31,6 +31,7 @@ fn distinct_homes_and_alias_share_native_write_lock() {
     }
     let spawn = |home: &str, hub: &Path, title: &str| {
         Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args(["--no-sync", "--hub"])
             .arg(hub)
             .args(["--project", "demo", "create", title])

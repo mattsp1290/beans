@@ -55,3 +55,9 @@ Editing files in the hub with an editor is fine; the next bn command commits the
 ## Exit codes
 
 0 success, 1 runtime/validation/not-found/Git/lock failure, 2 command-line argument parsing error. Diagnostics identify the failure category; `--json` does not create a separate JSON error protocol.
+
+## Agent conversations
+
+Use `bn channel create NAME --participant ACTOR [--issue ID]` for a stable project conversation. Discover membership and unread messages with `bn channel list --unread --json`. Read with `bn channel read NAME --json`. Send Markdown with `bn channel send NAME --key UNIQUE_RETRY_KEY --file - [--to ACTOR] [--reply-to MESSAGE_ID]`. Reuse the same key and content after uncertain delivery. Reads never acknowledge. Use `bn channel ack NAME --message ID` explicitly. Use `bn channel wait NAME --cursor JSON --timeout 30 --json` for bounded remote polling. Keep the returned exact-ID cursor across restarts. Actor identity is durable across machines; optional send `--session` is descriptive. Channels discuss work, prompts delegate it, issues track it, and handoffs preserve continuation context. See docs/channels.md for delivery and unread semantics.
+
+The CLI checks for newer releases at most once an hour. If stderr reports that your CLI is out of date, run `bn upgrade` before coordinating, or rebuild your source installation with `make install`. Older agents may lack commands other agents rely on. The check never installs automatically and does not alter JSON output.
