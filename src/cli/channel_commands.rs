@@ -1,7 +1,7 @@
 use super::dispatch::{body, flag, optional, output, value, values};
 use crate::{
     domain::{
-        channel::{Cursor, ReadResult},
+        channel::{Cursor, Delivery, Message, ReadResult},
         error::ErrorCategory,
         frontmatter::Error,
     },
@@ -28,15 +28,44 @@ fn parsed_cursor(matches: &ArgMatches) -> Result<Option<Cursor>, Error> {
         None => optional(matches, "cursor"),
     };
     raw.map(|raw| {
-        serde_json::from_str(&raw).map_err(|e| Error::new(format!("invalid channel cursor: {e}")))
+        serde_json::from_str::<Option<Cursor>>(&raw)
+            .map_err(|e| Error::new(format!("invalid channel cursor: {e}")))
     })
     .transpose()
+    .map(Option::flatten)
+}
+#[derive(Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ReadStatus {
+    Messages,
+    Timeout,
+    SyncError,
+}
+impl ReadStatus {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Messages => "messages",
+            Self::Timeout => "timeout",
+            Self::SyncError => "sync_error",
+        }
+    }
+}
+#[derive(Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+enum RefreshReason {
+    Disabled,
+    Failed,
+    Throttled,
+    Refreshed,
+    Busy,
+    Deadline,
+    Stale,
 }
 #[derive(serde::Serialize)]
 struct Freshness {
     source: &'static str,
     refresh_skipped: bool,
-    refresh_reason: &'static str,
+    refresh_reason: RefreshReason,
     last_fetch: Option<String>,
     last_fetch_attempt: Option<String>,
     sync_error: Option<String>,
@@ -46,7 +75,7 @@ fn fetch_stamp(hub: &Hub, name: &str) -> Option<String> {
         .ok()
         .map(|s| s.trim().to_owned())
 }
-fn freshness(hub: &Hub, error: Option<&Error>, reason: &'static str) -> Freshness {
+fn freshness(hub: &Hub, error: Option<&Error>, reason: RefreshReason) -> Freshness {
     let last_fetch = fetch_stamp(hub, "last-fetch");
     let last_fetch_attempt = fetch_stamp(hub, "last-fetch-attempt");
     let parse = |raw: &Option<String>| {
@@ -54,12 +83,15 @@ fn freshness(hub: &Hub, error: Option<&Error>, reason: &'static str) -> Freshnes
             time::OffsetDateTime::parse(raw, &time::format_description::well_known::Rfc3339).ok()
         })
     };
-    let previous_failure = reason == "throttled"
+    let previous_failure = reason == RefreshReason::Throttled
         && parse(&last_fetch_attempt)
             .is_some_and(|attempt| parse(&last_fetch).is_none_or(|fetched| attempt > fetched));
     Freshness {
         source: "local",
-        refresh_skipped: matches!(reason, "disabled" | "throttled" | "busy"),
+        refresh_skipped: matches!(
+            reason,
+            RefreshReason::Disabled | RefreshReason::Throttled | RefreshReason::Busy
+        ),
         refresh_reason: reason,
         last_fetch,
         last_fetch_attempt,
@@ -71,27 +103,50 @@ fn freshness(hub: &Hub, error: Option<&Error>, reason: &'static str) -> Freshnes
 }
 fn read_freshness(hub: &Hub, disabled: bool) -> Freshness {
     if disabled {
-        return freshness(hub, None, "disabled");
+        return freshness(hub, None, RefreshReason::Disabled);
     }
     let before = fetch_stamp(hub, "last-fetch-attempt");
-    let error = hub.refresh().err();
+    let mut error = hub.refresh().err();
+    let mut reason = if error.is_some() {
+        RefreshReason::Failed
+    } else if before == fetch_stamp(hub, "last-fetch-attempt") {
+        RefreshReason::Throttled
+    } else {
+        RefreshReason::Refreshed
+    };
+    let refresh_skipped = reason == RefreshReason::Throttled;
+    if error.is_none() {
+        match hub.channel_remote_applied() {
+            Ok(true) => (),
+            Ok(false) => {
+                reason = RefreshReason::Stale;
+                error = Some(Error::new(
+                    "fetched remote changes are not applied to the local hub; run bn sync".into(),
+                ));
+            }
+            Err(failure) => {
+                reason = RefreshReason::Stale;
+                error = Some(failure);
+            }
+        }
+    }
     if let Some(error) = &error {
         crate::gitops::diagnostics::warning(b"bn: reading local channels: ", error);
     }
-    let reason = if error.is_some() {
-        "failed"
-    } else if before == fetch_stamp(hub, "last-fetch-attempt") {
-        "throttled"
-    } else {
-        "refreshed"
-    };
-    freshness(hub, error.as_ref(), reason)
+    let mut result = freshness(hub, error.as_ref(), reason);
+    result.refresh_skipped = refresh_skipped;
+    result
+}
+enum ReadSnapshot<'a> {
+    Observed(&'a ReadResult),
+    Unchanged(Option<&'a Cursor>),
 }
 #[derive(serde::Serialize)]
 struct ReadResponse<'a> {
-    #[serde(flatten)]
-    read: &'a ReadResult,
-    status: &'static str,
+    messages: &'a [Message],
+    cursor: Option<&'a Cursor>,
+    unread: &'a [String],
+    status: ReadStatus,
     freshness: Freshness,
     #[serde(skip_serializing_if = "Option::is_none")]
     channel: Option<&'a crate::domain::channel::Channel>,
@@ -103,17 +158,23 @@ struct ReadResponse<'a> {
         Option<&'a std::collections::BTreeMap<String, std::collections::BTreeSet<String>>>,
 }
 fn print_read(
-    read: &ReadResult,
-    status: &'static str,
+    read: ReadSnapshot<'_>,
+    status: ReadStatus,
     freshness: Freshness,
     context: Option<&crate::domain::channel::ChannelView>,
     warnings: &[crate::ops::channels::ChannelWarning],
     json_output: bool,
 ) -> Result<(), Error> {
+    let (messages, cursor, unread): (&[Message], Option<&Cursor>, &[String]) = match read {
+        ReadSnapshot::Observed(read) => (&read.messages, Some(&read.cursor), &read.unread),
+        ReadSnapshot::Unchanged(cursor) => (&[], cursor, &[]),
+    };
     if json_output {
         return output(
             &serde_json::to_value(ReadResponse {
-                read,
+                messages,
+                cursor,
+                unread,
                 status,
                 freshness,
                 channel: context.map(|v| &v.channel),
@@ -124,15 +185,15 @@ fn print_read(
             .expect("channel response is serializable"),
         );
     }
-    for message in &read.messages {
+    for message in messages {
         println!("{}\t{}\t{}", message.id, message.actor, message.body);
     }
     println!(
         "cursor {}",
-        serde_json::to_string(&read.cursor).expect("cursor is serializable")
+        serde_json::to_string(&cursor).expect("cursor is serializable")
     );
-    if status != "messages" {
-        eprintln!("bn: channel {status}");
+    if status != ReadStatus::Messages {
+        eprintln!("bn: channel {}", status.as_str());
     }
     Ok(())
 }
@@ -201,8 +262,8 @@ pub fn execute(
         let previous = parsed_cursor(leaf)?;
         let read = view.read(actor, previous.as_ref(), flag(leaf, "unread"))?;
         return print_read(
-            &read,
-            "messages",
+            ReadSnapshot::Observed(&read),
+            ReadStatus::Messages,
             read_freshness,
             Some(&view),
             &warnings,
@@ -241,7 +302,7 @@ pub fn execute(
     let mut operation = ChannelMutation::new(resolved, actor.into(), change)?;
     match hub.mutate(&mut operation) {
         Ok(result) => {
-            let payload = json!({"id":operation.id(),"key":key,"commit":result.sha,"sha":result.sha,"pushed":result.pushed,"delivery":if result.pushed {"published"} else {"local"},"message":result.message});
+            let payload = json!({"id":operation.id(),"key":key,"commit":result.sha,"sha":result.sha,"pushed":result.pushed,"delivery":if result.pushed {Delivery::Published} else {Delivery::Local},"message":result.message});
             if json_output {
                 output(&payload)
             } else {
@@ -255,8 +316,8 @@ pub fn execute(
         Err(error) => {
             if json_output {
                 let delivery = operation.failure_delivery();
-                let mut response = json!({"id":operation.id(),"key":key,"pushed":false,"delivery":delivery,"error":error.to_string()});
-                if delivery == "uncertain" {
+                let mut response = json!({"id":operation.failure_id(),"key":key,"pushed":false,"delivery":delivery,"error":error.to_string()});
+                if delivery == Delivery::Uncertain {
                     response["retry"] = json!(
                         "reuse the same channel, actor, key, and payload; run bn sync to recover"
                     );
@@ -286,60 +347,72 @@ fn wait(
         .ok_or_else(|| Error::new("channel wait timeout is too large".into()))?;
     let reference = value(matches, "id");
     let cursor = parsed_cursor(matches)?;
-    if let Ok(view) = ChannelStore::resolve(&hub.dir, project, &reference) {
-        if !view.members.contains(actor) {
-            return Err(Error::new(
-                "actor is not a channel member; join first".into(),
-            ));
-        }
-        view.read(actor, cursor.as_ref(), true)?;
-    }
+    let fallback_read = ChannelStore::resolve(&hub.dir, project, &reference)
+        .ok()
+        .map(|view| {
+            let mut read = view.read(actor, cursor.as_ref(), true)?;
+            read.messages.clear();
+            read.cursor = cursor.clone().unwrap_or_else(|| Cursor {
+                channel: view.channel.id,
+                seen: Default::default(),
+            });
+            Ok::<_, Error>(read)
+        })
+        .transpose()?;
     let mut last_read = None;
-    let mut reason = "refreshed";
+    let mut reason = RefreshReason::Refreshed;
     loop {
         let remaining = deadline.saturating_duration_since(Instant::now());
         if remaining.is_zero() || last_read.is_some() && remaining < interval {
             std::thread::sleep(remaining);
             return wait_timeout(
                 hub,
-                last_read.as_ref(),
+                last_read.as_ref().or(fallback_read.as_ref()),
                 cursor.as_ref(),
                 reason,
                 None,
                 json_output,
             );
         }
-        if let Err(error) = hub.refresh_until(deadline) {
-            if error.category() == Some(ErrorCategory::LockTimeout) {
-                reason = "busy";
-                std::thread::sleep(
-                    interval.min(deadline.saturating_duration_since(Instant::now())),
-                );
-                continue;
-            }
-            if error.category() == Some(ErrorCategory::GitTimeout)
-                && last_read.is_some()
-                && Instant::now() >= deadline
-            {
-                return wait_timeout(
-                    hub,
-                    last_read.as_ref(),
-                    cursor.as_ref(),
-                    "deadline",
-                    Some(&error),
+        let view = match hub.refresh_until(deadline, || {
+            ChannelStore::resolve(&hub.dir, project, &reference)
+        }) {
+            Ok(view) => view,
+            Err(error) => {
+                if error.category() == Some(ErrorCategory::LockTimeout) {
+                    reason = RefreshReason::Busy;
+                    std::thread::sleep(
+                        interval.min(deadline.saturating_duration_since(Instant::now())),
+                    );
+                    continue;
+                }
+                if error.category() == Some(ErrorCategory::GitTimeout)
+                    && last_read.is_some()
+                    && Instant::now() >= deadline
+                {
+                    return wait_timeout(
+                        hub,
+                        last_read.as_ref(),
+                        cursor.as_ref(),
+                        RefreshReason::Deadline,
+                        Some(&error),
+                        json_output,
+                    );
+                }
+                print_read(
+                    fallback_read.as_ref().or(last_read.as_ref()).map_or(
+                        ReadSnapshot::Unchanged(cursor.as_ref()),
+                        ReadSnapshot::Observed,
+                    ),
+                    ReadStatus::SyncError,
+                    freshness(hub, Some(&error), RefreshReason::Failed),
+                    None,
+                    &[],
                     json_output,
-                );
-            }
-            if json_output {
-                output(
-                    &json!({"status":"sync_error","messages":[],"cursor":cursor,"unread":[],"freshness":freshness(hub,Some(&error),"failed")}),
                 )?;
-            } else {
-                eprintln!("bn: channel sync_error");
+                return Err(error);
             }
-            return Err(error);
-        }
-        let view = ChannelStore::resolve(&hub.dir, project, &reference)?;
+        };
         if !view.members.contains(actor) {
             return Err(Error::new(
                 "actor is not a channel member; join first".into(),
@@ -348,16 +421,16 @@ fn wait(
         let read = view.read(actor, cursor.as_ref(), true)?;
         if !read.messages.is_empty() {
             return print_read(
-                &read,
-                "messages",
-                freshness(hub, None, "refreshed"),
+                ReadSnapshot::Observed(&read),
+                ReadStatus::Messages,
+                freshness(hub, None, RefreshReason::Refreshed),
                 None,
                 &[],
                 json_output,
             );
         }
         last_read = Some(read);
-        reason = "refreshed";
+        reason = RefreshReason::Refreshed;
         std::thread::sleep(interval.min(deadline.saturating_duration_since(Instant::now())));
     }
 }
@@ -365,26 +438,16 @@ fn wait_timeout(
     hub: &Hub,
     last_read: Option<&ReadResult>,
     cursor: Option<&Cursor>,
-    reason: &'static str,
+    reason: RefreshReason,
     error: Option<&Error>,
     json_output: bool,
 ) -> Result<(), Error> {
-    if let Some(read) = last_read {
-        return print_read(
-            read,
-            "timeout",
-            freshness(hub, error, reason),
-            None,
-            &[],
-            json_output,
-        );
-    }
-    if json_output {
-        output(
-            &json!({"status":"timeout","messages":[],"cursor":cursor,"unread":[],"freshness":freshness(hub,error,reason)}),
-        )
-    } else {
-        eprintln!("bn: channel timeout");
-        Ok(())
-    }
+    print_read(
+        last_read.map_or(ReadSnapshot::Unchanged(cursor), ReadSnapshot::Observed),
+        ReadStatus::Timeout,
+        freshness(hub, error, reason),
+        None,
+        &[],
+        json_output,
+    )
 }

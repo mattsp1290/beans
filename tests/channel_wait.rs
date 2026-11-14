@@ -171,6 +171,41 @@ fn busy_lock_is_retried_and_wait_timeout_preserves_cursor() {
     assert_eq!(result["status"], "timeout");
     assert_eq!(result["freshness"]["refresh_reason"], "busy");
     assert_eq!(result["cursor"], read["cursor"]);
+    assert_read_shape(&result);
+    fs::write(
+        f.home.join(".beans/config.toml"),
+        "[git]\nlock_timeout='50ms'\n",
+    )
+    .unwrap();
+    let not_attempted = f
+        .command(&[
+            "channel",
+            "send",
+            "waiting",
+            "--key",
+            "busy",
+            "--description",
+            "not written",
+        ])
+        .output()
+        .unwrap();
+    assert!(!not_attempted.status.success());
+    let not_attempted: Value = serde_json::from_slice(&not_attempted.stdout).unwrap();
+    assert_eq!(not_attempted["delivery"], "not_attempted");
+    assert!(not_attempted["id"].is_null());
+    let no_cursor = f.ok(&[
+        "channel",
+        "wait",
+        &f.channel,
+        "--timeout",
+        "1",
+        "--interval",
+        "1",
+    ]);
+    assert_read_shape(&no_cursor);
+    assert_eq!(no_cursor["status"], "timeout");
+    assert_eq!(no_cursor["cursor"]["channel"], f.channel);
+    assert!(no_cursor["messages"].as_array().unwrap().is_empty());
     let waiting = f
         .command(&[
             "channel",
@@ -271,4 +306,170 @@ fn large_cursor_resumes_from_file_and_stdin_and_nonmembers_join_first() {
         .unwrap();
     assert!(!rejected.status.success());
     assert!(String::from_utf8_lossy(&rejected.stderr).contains("join first"));
+}
+
+fn assert_read_shape(result: &Value) {
+    assert!(result["messages"].is_array());
+    assert!(result["unread"].is_array());
+    assert!(result["warnings"].is_array());
+    assert!(result["freshness"].is_object());
+    assert!(result.get("cursor").is_some());
+}
+
+#[test]
+fn named_join_and_ack_return_canonical_channel_ids() {
+    let f = Fixture::new();
+    let joined = f.ok(&["channel", "join", "waiting", "--participant", "other"]);
+    assert_eq!(joined["id"], f.channel);
+    let unchanged = f.ok(&["channel", "join", "waiting"]);
+    assert_eq!(unchanged["id"], f.channel);
+    let sent = f.ok(&[
+        "channel",
+        "send",
+        "waiting",
+        "--key",
+        "question",
+        "--description",
+        "Please inspect.",
+    ]);
+    let acknowledged = f.ok(&[
+        "channel",
+        "ack",
+        "waiting",
+        "--message",
+        sent["id"].as_str().unwrap(),
+        "--actor",
+        "other",
+    ]);
+    assert_eq!(acknowledged["id"], f.channel);
+    let read = f.ok(&[
+        "--no-fetch",
+        "channel",
+        "read",
+        "waiting",
+        "--cursor",
+        "null",
+    ]);
+    assert_read_shape(&read);
+    assert_eq!(read["messages"].as_array().unwrap().len(), 1);
+}
+
+#[test]
+fn detached_head_reports_recovery_and_preserves_an_empty_observation_cursor() {
+    let f = Fixture::new();
+    f.git(&["checkout", "--quiet", "--detach"]);
+    let rejected = f
+        .command(&["channel", "wait", "waiting", "--timeout", "1"])
+        .output()
+        .unwrap();
+    assert!(!rejected.status.success());
+    assert!(String::from_utf8_lossy(&rejected.stderr).contains("detached HEAD"));
+    let result: Value = serde_json::from_slice(&rejected.stdout).unwrap();
+    assert_read_shape(&result);
+    assert_eq!(result["status"], "sync_error");
+    assert_eq!(result["cursor"]["channel"], f.channel);
+    assert_eq!(result["cursor"]["seen"], serde_json::json!([]));
+    f.git(&["checkout", "--quiet", "main"]);
+    let resumed = f.ok(&[
+        "channel",
+        "wait",
+        "waiting",
+        "--cursor",
+        &result["cursor"].to_string(),
+        "--timeout",
+        "1",
+    ]);
+    assert_eq!(resumed["status"], "timeout");
+    assert_read_shape(&resumed);
+}
+
+impl Fixture {
+    fn replica(&self) -> PathBuf {
+        let home = self.root.join("replica");
+        fs::create_dir(&home).unwrap();
+        let output = Command::new("git")
+            .arg("clone")
+            .arg(self.root.join("remote.git"))
+            .arg(home.join("hub"))
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        home
+    }
+}
+
+#[test]
+fn dirty_and_diverged_hubs_report_unapplied_remote_state_even_when_throttled() {
+    for dirty in [true, false] {
+        let f = Fixture::new();
+        let replica = f.replica();
+        if dirty {
+            fs::write(f.hub().join("draft.md"), "authored local content").unwrap();
+        } else {
+            f.ok(&[
+                "--no-sync",
+                "channel",
+                "send",
+                "waiting",
+                "--key",
+                "offline",
+                "--description",
+                "Local message.",
+            ]);
+        }
+        let sent = success(
+            f.command(&[
+                "channel",
+                "send",
+                "waiting",
+                "--key",
+                "remote",
+                "--description",
+                "Remote message.",
+            ])
+            .env("BEANS_HOME", &replica)
+            .output()
+            .unwrap(),
+        );
+        let read = f.ok(&["channel", "read", "waiting"]);
+        assert_eq!(
+            read["freshness"]["refresh_reason"],
+            if dirty { "stale" } else { "failed" }
+        );
+        assert!(read["freshness"]["sync_error"].is_string());
+        assert!(
+            !read["messages"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|message| message["id"] == sent["id"])
+        );
+        let cached = f.ok(&["channel", "read", "waiting"]);
+        assert_eq!(cached["freshness"]["refresh_reason"], "stale");
+        assert_eq!(cached["freshness"]["refresh_skipped"], true);
+        assert!(cached["freshness"]["sync_error"].is_string());
+    }
+}
+
+#[test]
+fn wait_refreshes_membership_before_deciding_whether_the_actor_has_joined() {
+    let f = Fixture::new();
+    let replica = f.replica();
+    success(
+        f.command(&["channel", "join", "waiting", "--participant", "invited"])
+            .env("BEANS_HOME", replica)
+            .output()
+            .unwrap(),
+    );
+    let result = f.ok(&[
+        "channel",
+        "wait",
+        "waiting",
+        "--actor",
+        "invited",
+        "--timeout",
+        "1",
+    ]);
+    assert_eq!(result["status"], "timeout");
+    assert_read_shape(&result);
 }

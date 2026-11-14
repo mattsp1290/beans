@@ -5,7 +5,7 @@ use crate::{
         memory::{self, MemoryDocument, MemoryMetadata},
     },
     gitops::{Operation, check_hub_write_path, remove_hub_file, write_hub_file},
-    vault::{Index, LoadOptions, NoteData, Resolved},
+    vault::{Index, LoadOptions, NoteData, NoteKind, Resolved},
 };
 use std::path::{Path, PathBuf};
 #[derive(Clone, Debug)]
@@ -247,7 +247,15 @@ impl Operation for ContentMutation {
                     unreachable!()
                 };
                 let refs = ix.issue_backlinks(&n.graph.basename, true);
-                if !*force && !refs.is_empty() {
+                let blocking = refs.iter().any(|link| {
+                    !ix.lookup(&link.from).is_some_and(|source| {
+                        matches!(
+                            source.graph.kind,
+                            NoteKind::Channel | NoteKind::ChannelMessage
+                        )
+                    })
+                });
+                if !*force && blocking {
                     return Err(Error::new(
                         "issue is referenced; use --force to delete and remove structural links"
                             .into(),

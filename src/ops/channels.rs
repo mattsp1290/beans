@@ -1,7 +1,7 @@
 //! Immutable, independently replayable channel records under the shared Git boundary.
 use crate::{
     domain::{
-        channel::{self, Acknowledgement, Channel, ChannelView, Membership, Message},
+        channel::{self, Acknowledgement, Channel, ChannelView, Delivery, Membership, Message},
         frontmatter::Error,
     },
     gitops::{Operation, check_hub_write_path, write_hub_file},
@@ -294,15 +294,18 @@ pub struct ChannelMutation {
     phase: MutationPhase,
 }
 impl ChannelMutation {
-    pub fn failure_delivery(&self) -> &'static str {
+    pub fn failure_delivery(&self) -> Delivery {
         match self.phase {
-            MutationPhase::Prepared => "not_attempted",
-            MutationPhase::Validating => "rejected",
-            MutationPhase::Writing => "uncertain",
+            MutationPhase::Prepared => Delivery::NotAttempted,
+            MutationPhase::Validating => Delivery::Rejected,
+            MutationPhase::Writing => Delivery::Uncertain,
         }
     }
     pub fn id(&self) -> &str {
         &self.id
+    }
+    pub fn failure_id(&self) -> Option<&str> {
+        (!self.id.is_empty()).then_some(&self.id)
     }
     pub fn new(resolved: Resolved, actor: String, change: ChannelChange) -> Result<Self, Error> {
         channel::identity(&actor)?;
@@ -315,11 +318,9 @@ impl ChannelMutation {
             ChannelChange::Send { channel, key, .. } => {
                 channel::component(channel)?;
                 channel::identity(key)?;
-                channel::message_id(channel, &actor, key)
+                String::new()
             }
-            ChannelChange::Join { channel, .. } | ChannelChange::Ack { channel, .. } => {
-                channel.clone()
-            }
+            ChannelChange::Join { .. } | ChannelChange::Ack { .. } => String::new(),
         };
         Ok(Self {
             resolved,
@@ -426,7 +427,22 @@ impl ChannelMutation {
 }
 impl Operation for ChannelMutation {
     fn subject(&self) -> String {
-        format!("bn: channel {}", self.id)
+        let reference = if self.id.is_empty() {
+            match &self.change {
+                ChannelChange::Send { channel, .. }
+                | ChannelChange::Join { channel, .. }
+                | ChannelChange::Ack { channel, .. } => channel.as_str(),
+                ChannelChange::Create { name, .. } => name.as_str(),
+            }
+        } else {
+            &self.id
+        };
+        format!("bn: channel {reference}")
+    }
+    fn after_rebase(&mut self, operation_present: bool) {
+        if !operation_present {
+            self.phase = MutationPhase::Validating;
+        }
     }
     fn apply(&mut self, hub: &Path) -> Result<Vec<PathBuf>, Error> {
         if !matches!(self.phase, MutationPhase::Writing) {
@@ -440,6 +456,7 @@ impl Operation for ChannelMutation {
             } => self.create(hub, &name, &members, issue.as_deref()),
             ChannelChange::Join { channel, actor } => {
                 let (root, view) = self.resolve(hub, &channel, actor.is_none())?;
+                self.id = view.channel.id.clone();
                 let actor = actor.as_ref().unwrap_or(&self.actor);
                 channel::identity(actor)?;
                 if view.members.contains(actor) {
@@ -513,6 +530,7 @@ impl Operation for ChannelMutation {
             }
             ChannelChange::Ack { channel, messages } => {
                 let (root, view) = self.resolve(hub, &channel, false)?;
+                self.id = view.channel.id.clone();
                 let mut paths = vec![];
                 let unique: BTreeSet<_> = messages.iter().collect();
                 for id in &unique {
@@ -522,6 +540,13 @@ impl Operation for ChannelMutation {
                 }
                 self.phase = MutationPhase::Writing;
                 for id in unique {
+                    if view
+                        .acknowledged
+                        .get(&self.actor)
+                        .is_some_and(|ids| ids.contains(id))
+                    {
+                        continue;
+                    }
                     let ack = Acknowledgement {
                         channel: view.channel.id.clone(),
                         actor: self.actor.clone(),
@@ -643,12 +668,12 @@ mod tests {
         let temp = Temp::new();
         let id = create(&temp.0);
         let mut original = send(&id, "key", "original");
-        assert_eq!(original.failure_delivery(), "not_attempted");
+        assert_eq!(original.failure_delivery(), Delivery::NotAttempted);
         original.apply(&temp.0).unwrap();
-        assert_eq!(original.failure_delivery(), "uncertain");
+        assert_eq!(original.failure_delivery(), Delivery::Uncertain);
         let mut conflicting = send(&id, "key", "different");
         assert!(conflicting.apply(&temp.0).is_err());
-        assert_eq!(conflicting.failure_delivery(), "rejected");
+        assert_eq!(conflicting.failure_delivery(), Delivery::Rejected);
     }
     #[test]
     fn sending_by_name_uses_the_resolved_channel_identity() {
@@ -728,6 +753,65 @@ mod tests {
                 .len(),
             1
         );
+    }
+    #[test]
+    fn discarded_attempt_revalidates_without_retaining_uncertain_delivery() {
+        let temp = Temp::new();
+        let channel = create(&temp.0);
+        let mut original = send(&channel, "retry", "original");
+        assert_eq!(original.failure_id(), None);
+        original.apply(&temp.0).unwrap();
+        assert_eq!(original.failure_delivery(), Delivery::Uncertain);
+        let mut conflicting = send(&channel, "retry", "different");
+        conflicting.phase = MutationPhase::Writing;
+        conflicting.after_rebase(false);
+        assert!(conflicting.apply(&temp.0).is_err());
+        assert_eq!(conflicting.failure_delivery(), Delivery::Rejected);
+        assert_eq!(conflicting.failure_id(), Some(original.id()));
+    }
+    #[test]
+    fn membership_and_ack_extensions_do_not_break_idempotent_receipts() {
+        let temp = Temp::new();
+        let channel = create(&temp.0);
+        let mut sent = send(&channel, "hello", "question");
+        sent.apply(&temp.0).unwrap();
+        let mut join = ChannelMutation::new(
+            resolved(),
+            "a".into(),
+            ChannelChange::Join {
+                channel: channel.clone(),
+                actor: Some("c".into()),
+            },
+        )
+        .unwrap();
+        join.apply(&temp.0).unwrap();
+        let root = temp.0.join("projects/test/channels").join(&channel);
+        std::fs::write(
+            root.join("members")
+                .join(format!("{}.md", channel::digest(&["c"]))),
+            channel::encode(
+                &serde_json::json!({"channel":channel,"actor":"c","future":"metadata"}),
+                "",
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        let mut ack = ChannelMutation::new(
+            resolved(),
+            "b".into(),
+            ChannelChange::Ack {
+                channel: channel.clone(),
+                messages: vec![sent.id.clone()],
+            },
+        )
+        .unwrap();
+        ack.apply(&temp.0).unwrap();
+        std::fs::write(root.join("acks").join(channel::digest(&["b"])).join(format!("{}.md", sent.id)),
+            channel::encode(&serde_json::json!({"channel":channel,"actor":"b","message":sent.id,"future":"metadata"}), "").unwrap()).unwrap();
+        let loaded = ChannelStore::resolve(&temp.0, "test", &channel).unwrap();
+        assert!(loaded.members.contains("c"));
+        assert!(loaded.acknowledged["b"].contains(sent.id()));
+        assert!(ack.apply(&temp.0).unwrap().is_empty());
     }
     #[test]
     fn reply_order_is_topological_and_cycles_are_rejected() {

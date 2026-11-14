@@ -220,7 +220,10 @@ impl NoteGraph {
                         .entry(link.to.clone())
                         .or_default()
                         .push(link.clone());
-                } else {
+                } else if !matches!(
+                    self.order[i].kind,
+                    NoteKind::Channel | NoteKind::ChannelMessage
+                ) {
                     unresolved.push(Warning {
                         path: self.order[i].path.clone(),
                         error: Error::from_bytes(

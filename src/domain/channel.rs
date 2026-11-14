@@ -29,13 +29,11 @@ pub struct Message {
     pub body: String,
 }
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
 pub struct Membership {
     pub channel: String,
     pub actor: String,
 }
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
 pub struct Acknowledgement {
     pub channel: String,
     pub actor: String,
@@ -46,6 +44,15 @@ pub struct Acknowledgement {
 pub struct Cursor {
     pub channel: String,
     pub seen: BTreeSet<String>,
+}
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum Delivery {
+    Published,
+    Local,
+    NotAttempted,
+    Rejected,
+    Uncertain,
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct ReadResult {
