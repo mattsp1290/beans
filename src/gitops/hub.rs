@@ -31,6 +31,8 @@ pub struct Hub {
     pub no_sync: bool,
     pub throttle: std::time::Duration,
 }
+#[path = "channel_refresh.rs"]
+mod channel_refresh;
 #[path = "hub_git.rs"]
 mod hub_git;
 #[path = "hub_state.rs"]

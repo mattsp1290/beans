@@ -14,6 +14,8 @@ pub enum NoteKind {
     Plan,
     Handoff,
     Prompt,
+    Channel,
+    ChannelMessage,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -25,6 +27,7 @@ pub enum LinkKind {
     Embed,
     HandoffIssue,
     PromptIssue,
+    ChannelIssue,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RawLink {
@@ -145,6 +148,8 @@ impl NoteGraph {
                         NoteKind::Plan => "plan",
                         NoteKind::Handoff => "handoff",
                         NoteKind::Prompt => "prompt",
+                        NoteKind::Channel => "channel",
+                        NoteKind::ChannelMessage => "channel_message",
                         NoteKind::Doc | NoteKind::Memory => unreachable!(),
                     };
                     duplicates.push(Warning {

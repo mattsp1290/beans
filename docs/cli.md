@@ -274,3 +274,7 @@ Failure preserves necessary local commits and recovery evidence for `bn sync` an
 
 See [Git write coordination](git-coordination.md) for clone-scoped state, bounded
 lock waits and Git execution, user policy, legacy journal recovery and stderr timings.
+
+## Channel conversations
+
+`bn channel create`, `list`, `join`, `send`, `read`, `ack`, and `wait` provide stable project conversations. Every send requires an idempotency `--key`. Reads never acknowledge. `read` returns a channel-bound exact-ID cursor, which `read --cursor` and `wait --cursor` accept as JSON. `wait` refreshes remote state without publishing and reports message arrivals, timeout, or synchronization failure. See [Agent channels](channels.md) for command examples, JSON outcomes, membership, and delivery guarantees.

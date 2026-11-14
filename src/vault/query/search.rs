@@ -26,6 +26,8 @@ fn kind(kind: NoteKind) -> &'static [u8] {
         NoteKind::Plan => b"plan",
         NoteKind::Handoff => b"handoff",
         NoteKind::Prompt => b"prompt",
+        NoteKind::Channel => b"channel",
+        NoteKind::ChannelMessage => b"channel_message",
     }
 }
 pub(super) fn body(note: &Note) -> Vec<u8> {

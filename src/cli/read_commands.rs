@@ -198,7 +198,7 @@ pub fn execute(
             ))
         }
         "doctor" => {
-            let warnings: Vec<_> = ix
+            let mut warnings: Vec<_> = ix
                 .graph
                 .warnings()
                 .iter()
@@ -208,12 +208,21 @@ pub fn execute(
                         || String::from_utf8_lossy(&w.path)
                             .starts_with(&format!("projects/{}/", String::from_utf8_lossy(project)))
                 })
+                .map(|w| serde_json::json!({"path":String::from_utf8_lossy(&w.path),"message":w.error.to_string()}))
                 .collect();
+            for name in ix
+                .projects
+                .keys()
+                .filter(|name| project.is_empty() || name.as_slice() == project)
+            {
+                match crate::ops::ChannelStore::scan(&ix.hub_dir, &String::from_utf8_lossy(name)) {
+                    Ok(catalog) => warnings.extend(catalog.warnings.iter().map(|warning| serde_json::json!({"path":warning.path,"message":warning.message}))),
+                    Err(error) => warnings.push(serde_json::json!({"path":format!("projects/{}/channels",String::from_utf8_lossy(name)),"message":error.to_string()})),
+                }
+            }
             let cycles = ix.cycles();
             let ok = warnings.is_empty() && cycles.is_empty();
-            output(
-                &serde_json::json!({"warnings":warnings.iter().map(|w|serde_json::json!({"path":String::from_utf8_lossy(&w.path),"message":w.error.to_string()})).collect::<Vec<_>>(),"cycles":cycles,"ok":ok}),
-            )?;
+            output(&serde_json::json!({"warnings":warnings,"cycles":cycles,"ok":ok}))?;
             if ok {
                 Ok(())
             } else {
