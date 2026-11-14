@@ -12,6 +12,7 @@ fn diagnostic_backpressure_does_not_delay_commit_or_change_stdout() {
     .unwrap();
     let at = std::time::Instant::now();
     let mut child = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args([
             "--json",
             "--project",
@@ -72,6 +73,7 @@ fn setup_clone_queries_and_orphan_checks_use_finite_policy() {
         fs::set_permissions(tools.join("git"), fs::Permissions::from_mode(0o755)).unwrap();
         let target = s.path("new-clone");
         let mut command = Command::new(env!("CARGO_BIN_EXE_bn"));
+        command.env("BN_NO_UPDATE_CHECK", "1");
         if matches!(phase, "clone" | "ls-remote") {
             command.arg("--hub").arg(&target);
             if phase == "clone" {
@@ -169,6 +171,7 @@ fn refresh_reports_fresh_and_busy_without_waiting_or_recovery() {
     );
 }
 
+#[cfg(target_os = "linux")]
 #[test]
 fn saturated_stderr_never_holds_transaction_or_delays_error_exit() {
     use std::os::fd::{AsRawFd, FromRawFd};
@@ -218,6 +221,7 @@ fn saturated_stderr_never_holds_transaction_or_delays_error_exit() {
             );
             let at = std::time::Instant::now();
             let mut child = Command::new(env!("CARGO_BIN_EXE_bn"))
+                .env("BN_NO_UPDATE_CHECK", "1")
                 .args([
                     "--json",
                     "--project",

@@ -35,7 +35,7 @@ def create(bn: Path, destination: Path | None = None) -> dict[str, str]:
     for key in ("BN_CONFIG", "BEANS_HUB", "BEANS_PROJECT", "BN_ACTOR", "CODEX_HOME"):
         env.pop(key, None)
     beans_home = root / "beans-home"
-    env.update({"BEANS_HOME": str(beans_home), "BEANS_HUB": str(hub), "BN_ACTOR": "eval", "BEANS_PROJECT": "fixture", "GIT_CONFIG_GLOBAL": str(root / "gitconfig"), "GIT_TERMINAL_PROMPT": "0", "GIT_SSH_COMMAND": "ssh -o BatchMode=yes"})
+    env.update({"BN_NO_UPDATE_CHECK": "1", "BEANS_HOME": str(beans_home), "BEANS_HUB": str(hub), "BN_ACTOR": "eval", "BEANS_PROJECT": "fixture", "GIT_CONFIG_GLOBAL": str(root / "gitconfig"), "GIT_TERMINAL_PROMPT": "0", "GIT_SSH_COMMAND": "ssh -o BatchMode=yes"})
     initialized_hub = json.loads(run([str(bn), "init", str(hub_remote), "--hub", str(hub), "--json"], source, env))
     if root not in Path(initialized_hub["config"]).resolve().parents:
         raise RuntimeError("bn init config escaped fixture root")

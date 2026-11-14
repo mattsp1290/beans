@@ -12,6 +12,8 @@ use std::{
 mod fetch;
 mod install;
 mod manifest;
+mod notice;
+pub(crate) use notice::startup as check_for_updates;
 mod version;
 
 pub(crate) use install::cargo_bins;

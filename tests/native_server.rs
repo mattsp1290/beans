@@ -9,3 +9,6 @@ mod lifecycle;
 mod markdown;
 #[path = "native_server/repairs.rs"]
 mod repairs;
+
+#[path = "native_server/channels.rs"]
+mod channels;

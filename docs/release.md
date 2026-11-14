@@ -154,3 +154,25 @@ remain ignored and must never be committed.
 
 The pre-redesign tags `v0.1.0` and `v0.1.1` remain historical Git references
 without GitHub releases.
+
+## Automatic CLI update notices
+
+Every CLI invocation checks the local update cache before executing, including
+help, version, and unknown commands. A check older than one hour refreshes the
+latest release manifest. The first command after expiry can spend up to one
+second checking. The command continues if the network, curl, manifest, or cache
+is unavailable. Failed attempts also receive the one-hour TTL.
+
+A validated newer version produces a stderr notice that asks agents to run
+`bn upgrade`, or `make install` for Cargo and source installations. The notice
+never changes JSON stdout, the command result, or the installed binary. A cached
+newer version keeps producing the notice until the CLI is current. Development
+versions without a comparable release version do not produce an update claim.
+
+The cache is `$BEANS_HOME/cache/update-check.json`, or
+`~/.beans/cache/update-check.json` by default. It is local to that Beans home,
+uses a nonblocking lock, and never touches the hub. Concurrent commands skip a
+busy check. A successful cached result survives a later failed refresh. Changing
+`BN_RELEASE_BASE_URL` expires the cache for the previous source. Set
+`BN_NO_UPDATE_CHECK=1` for offline test runs or to disable automatic notices.
+Explicit `bn upgrade --check` remains available and does not use this TTL.

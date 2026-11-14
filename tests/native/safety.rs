@@ -108,6 +108,7 @@ fn bounded_snapshot_descriptors_index_every_project_under_low_process_limit() {
         fs::write(dir.join("issues").join(format!("{project}-abcd-note.md")), format!("---\nid: {project}-abcd\ntitle: Note {i}\ntype: task\nstatus: open\npriority: 2\ncreated: 2026-01-01T00:00:00Z\nupdated: 2026-01-01T00:00:00Z\n---\nOriginal body {i}\n")).unwrap();
     }
     let mut command = Command::new(env!("CARGO_BIN_EXE_bn"));
+    command.env("BN_NO_UPDATE_CHECK", "1");
     command
         .args([
             "--json",
@@ -244,7 +245,7 @@ fn status_replay_records_latest_transition_and_adjacent_note_without_forging_old
         &hub,
         "pre-push",
         &format!(
-            "test ! -f '{}' || exit 0\ntouch '{}'\nBEANS_HOME='{}' BN_ACTOR='Other Writer' '{}' --hub '{}' --project demo update '{}' --status ready_for_merge",
+            "test ! -f '{}' || exit 0\ntouch '{}'\nBN_NO_UPDATE_CHECK=1 BEANS_HOME='{}' BN_ACTOR='Other Writer' '{}' --hub '{}' --project demo update '{}' --status ready_for_merge",
             raced.display(),
             raced.display(),
             s.path("other-home").display(),
@@ -335,6 +336,7 @@ fn status_reports_read_only_resolved_identity_and_explicit_project_precedence() 
         );
     }
     let unscoped = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args(["--json", "status"])
         .env("BEANS_HOME", s.path("home"))
         .env_remove("BEANS_PROJECT")

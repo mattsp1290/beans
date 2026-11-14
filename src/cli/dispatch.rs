@@ -30,7 +30,7 @@ pub(super) fn values(m: &ArgMatches, k: &str) -> Vec<String> {
         .map(|v| v.cloned().collect())
         .unwrap_or_default()
 }
-fn optional(m: &ArgMatches, k: &str) -> Option<String> {
+pub(super) fn optional(m: &ArgMatches, k: &str) -> Option<String> {
     m.try_get_one::<String>(k).ok().flatten().cloned()
 }
 pub(super) fn output(value: &serde_json::Value) -> Result<(), Error> {
@@ -53,6 +53,8 @@ pub(super) fn note_json(note: &Note) -> serde_json::Value {
             v["log"] = serde_json::to_value(&d.log).unwrap();
             v
         }
+        NoteData::Channel(d) => serde_json::to_value(d.as_ref()).unwrap(),
+        NoteData::ChannelMessage(d) => serde_json::to_value(d.as_ref()).unwrap(),
         NoteData::Handoff(d) => serde_json::to_value(&d.metadata).unwrap(),
         NoteData::Prompt(d) => serde_json::to_value(&d.metadata).unwrap(),
         NoteData::Memory(d) => serde_json::to_value(&d.metadata).unwrap(),
@@ -159,6 +161,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
         ("dep", "add" | "remove")
             | ("request", "create" | "update" | "link" | "unlink")
             | ("prompt", "create" | "update" | "link" | "unlink")
+            | ("channel", "create" | "join" | "send" | "ack")
             | (
                 "handoff",
                 "create" | "attach" | "detach" | "archive" | "restore"
@@ -169,7 +172,7 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
             | ("import", "bd")
     );
     if !write
-        && name != "doctor"
+        && !matches!(name, "doctor" | "channel")
         && !hub.no_sync
         && !flag(root, "no-fetch")
         && let Err(e) = hub.refresh()
@@ -327,6 +330,16 @@ pub fn execute(root: &ArgMatches, hub: &Hub, actor: &str) -> Result<(), Error> {
     }
     if name == "request" || name == "handoff" {
         return super::record_commands::execute(name, m, hub, resolved, actor, explicit, json);
+    }
+    if name == "channel" {
+        return super::channel_commands::execute(
+            m,
+            hub,
+            resolved,
+            actor,
+            json,
+            flag(root, "no-fetch"),
+        );
     }
     if name == "prompt" {
         return super::prompt_commands::execute(m, hub, resolved, actor, explicit, json);

@@ -78,6 +78,7 @@ fn initialization_excludes_other_home_and_partial_clone_writer() {
     fs::set_permissions(tools.join("git"), fs::Permissions::from_mode(0o755)).unwrap();
     let spawn = |home: &str, args: &[&str]| {
         Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args(["--branch", "main", "--hub"])
             .arg(s.path("target"))
             .args(args)

@@ -54,6 +54,12 @@ impl Hub {
             .is_empty())
     }
     pub fn preflight(&self) -> Result<(), Error> {
+        self.preflight_using(|args, phase| self.raw_git(args, phase))
+    }
+    pub(super) fn preflight_using(
+        &self,
+        run: impl Fn(&[&str], &str) -> Result<crate::gitops::GitOutput, Error>,
+    ) -> Result<(), Error> {
         for marker in ["rebase-merge", "rebase-apply", "MERGE_HEAD"] {
             if self.dir.join(".git").join(marker).exists() {
                 return Err(Error::new(
@@ -62,7 +68,7 @@ impl Hub {
                 .categorized(ErrorCategory::GitConflict));
             }
         }
-        let output = self.raw_git(["symbolic-ref", "--short", "-q", "HEAD"], "symbolic-ref")?;
+        let output = run(&["symbolic-ref", "--short", "-q", "HEAD"], "symbolic-ref")?;
         if output.status.code() == Some(1) {
             return Err(Error::new(
                 "hub is on a detached HEAD; checkout the configured hub branch".into(),

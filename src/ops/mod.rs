@@ -29,3 +29,6 @@ mod import;
 pub use import::ImportMutation;
 
 pub mod projects;
+
+pub mod channels;
+pub use channels::{ChannelChange, ChannelMutation, ChannelStore};

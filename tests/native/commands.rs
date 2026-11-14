@@ -581,6 +581,7 @@ fn stdin_bodies_and_atomic_validation_preserve_new_and_existing_projects() {
         .to_owned();
     let stdin_run = |args: &[&str], body: &str| {
         let mut c = Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args(args)
             .env("BEANS_HOME", s.path("home"))
             .env("BEANS_PROJECT", "demo")

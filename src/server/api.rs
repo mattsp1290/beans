@@ -192,7 +192,7 @@ pub fn handle(app: &App, method: &Method, uri: &Uri, body: &[u8]) -> Response {
                 return match files::read(&app.hub.dir,&path) {Ok(bytes)=>files::hub_asset_response(&path,bytes),Err(_)=>error(404,"not_found","asset unavailable")};
             }
             if !path.ends_with(".md") { path.push_str(".md"); }
-            if let Some(note) = index.note_by_path(path.as_bytes()).filter(|n| matches!(n.graph.kind, NoteKind::Doc | NoteKind::Memory | NoteKind::Handoff)) {
+            if let Some(note) = index.note_by_path(path.as_bytes()).filter(|n| matches!(n.graph.kind, NoteKind::Doc | NoteKind::Memory | NoteKind::Handoff | NoteKind::Channel | NoteKind::ChannelMessage)) {
                 if files::read(&app.hub.dir,&path).is_err() { return error(404,"not_found","doc unavailable"); }
                 json_response(wire::note(&index,note,true))
             } else { error(404,"not_found","doc not found") }

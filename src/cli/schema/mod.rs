@@ -1,3 +1,4 @@
+mod channels;
 mod content;
 mod handoffs;
 mod issues;
@@ -16,6 +17,7 @@ pub(super) fn commands() -> Vec<clap::Command> {
             )
             .arg(clap::Arg::new("port").long("port").default_value("3000")),
     ];
+    commands.extend(channels::commands());
     commands.extend(issues::commands());
     commands.extend(requests::commands());
     commands.extend(handoffs::commands());

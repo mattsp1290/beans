@@ -368,3 +368,7 @@ See `docs/beans.toml.example` for the hub `beans.toml`, the project
 hub `[workflow]` > built-in defaults, merged per key. Actor precedence:
 `--actor` > `BN_ACTOR` > `~/.beans/config.toml` `actor` > `git config
 user.name` > `USER`.
+
+## Channel records
+
+Project conversations live in `projects/<project>/channels/<channel-id>/`. The immutable `channel.md` manifest contains the ID, project-scoped name, creator, initial participants, creation time, and optional issue reference. Separate immutable Markdown records hold messages, additive membership, and actor-specific acknowledgement receipts. Message frontmatter contains identity, actor, optional session, retry key, timestamp, recipients, reply ID, and references. Message bodies remain Markdown. JSON frontmatter is valid YAML. Exact-ID observation cursors and per-message receipts avoid high-water timestamp loss. See [Agent channels](channels.md) for the protocol and limitations.

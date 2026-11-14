@@ -20,6 +20,8 @@ pub enum NoteData {
     Memory(Box<MemoryDocument>),
     Handoff(Box<HandoffDocument>),
     Prompt(Box<PromptDocument>),
+    Channel(Box<crate::domain::channel::Channel>),
+    ChannelMessage(Box<crate::domain::channel::Message>),
     Plan(Box<Plan>),
     Doc(Box<DocMetadata>),
 }
@@ -247,6 +249,58 @@ impl Note {
                     raw,
                 )
             }
+            NoteKind::Channel => {
+                let doc = crate::domain::channel::parse_channel(bytes)?;
+                let mut raw = Vec::new();
+                if let Some(issue) = &doc.issue {
+                    raw.push(RawLink {
+                        target: Link::parse(issue).target.as_bytes().into(),
+                        kind: LinkKind::ChannelIssue,
+                    });
+                }
+                let id = doc.id.as_bytes().to_vec();
+                let title = doc.name.as_bytes().to_vec();
+                (
+                    NoteData::Channel(Box::new(doc)),
+                    Some(id),
+                    vec![],
+                    title,
+                    None,
+                    vec![],
+                    vec![],
+                    raw,
+                )
+            }
+            NoteKind::ChannelMessage => {
+                let doc = crate::domain::channel::parse_message(bytes)?;
+                let body = doc.body.as_bytes().to_vec();
+                let mut raw = links(&body);
+                raw.push(RawLink {
+                    target: doc.channel.as_bytes().into(),
+                    kind: LinkKind::Body,
+                });
+                if let Some(reply) = &doc.reply_to {
+                    raw.push(RawLink {
+                        target: reply.as_bytes().into(),
+                        kind: LinkKind::Body,
+                    });
+                }
+                for reference in &doc.references {
+                    raw.extend(links(reference.as_bytes()));
+                }
+                let id = doc.id.as_bytes().to_vec();
+                let title = format!("{} in {}", doc.actor, doc.channel).into_bytes();
+                (
+                    NoteData::ChannelMessage(Box::new(doc)),
+                    Some(id),
+                    vec![],
+                    title,
+                    None,
+                    vec![],
+                    body,
+                    raw,
+                )
+            }
             NoteKind::Doc | NoteKind::Plan => unreachable!(),
         };
         // Derive issue/memory projects from the last `projects` path
@@ -266,6 +320,9 @@ impl Note {
         note.description = description;
         note.body = body;
         note.source = bytes.into();
+        if kind == NoteKind::Channel {
+            note.graph.basename = id.clone().unwrap_or_default();
+        }
         note.graph.id = id;
         note.graph.aliases = aliases;
         note.graph.raw_out = raw;

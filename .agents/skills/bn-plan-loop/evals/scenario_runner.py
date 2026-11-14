@@ -36,7 +36,7 @@ class Scenario:
         self.env = os.environ.copy()
         for key in ("BN_CONFIG", "BEANS_HUB", "BEANS_PROJECT", "BN_ACTOR", "CODEX_HOME"):
             self.env.pop(key, None)
-        self.env.update({"BEANS_HOME": str(self.root / "beans-home"), "BEANS_HUB": str(self.hub), "BEANS_PROJECT": "fixture", "BN_ACTOR": "executor", "GIT_CONFIG_GLOBAL": str(self.root / "gitconfig"), "GIT_TERMINAL_PROMPT": "0", "GIT_SSH_COMMAND": "ssh -o BatchMode=yes", "BN_PLAN_LOOP_SCENARIO_TRACE": str(self.trace)})
+        self.env.update({"BN_NO_UPDATE_CHECK": "1", "BEANS_HOME": str(self.root / "beans-home"), "BEANS_HUB": str(self.hub), "BEANS_PROJECT": "fixture", "BN_ACTOR": "executor", "GIT_CONFIG_GLOBAL": str(self.root / "gitconfig"), "GIT_TERMINAL_PROMPT": "0", "GIT_SSH_COMMAND": "ssh -o BatchMode=yes", "BN_PLAN_LOOP_SCENARIO_TRACE": str(self.trace)})
         self.session_number = 0; self.session: subprocess.Popen[str] | None = None
         self.run_dir = self.root / "run"; self.incarnation = str(self.repo.resolve())
         self.resume_session()

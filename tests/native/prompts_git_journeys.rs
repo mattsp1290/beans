@@ -40,6 +40,7 @@ fn prompt_path(sandbox: &Sandbox, id: &str) -> PathBuf {
 
 fn cli_child(sandbox: &Sandbox, args: &[&str]) -> Child {
     Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args(args)
         .env("BEANS_HOME", sandbox.path("home"))
         .env("BEANS_PROJECT", "demo")

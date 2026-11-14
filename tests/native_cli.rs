@@ -66,6 +66,7 @@ impl Sandbox {
     }
     fn cli(&self, args: &[&str]) -> Output {
         Command::new(env!("CARGO_BIN_EXE_bn"))
+            .env("BN_NO_UPDATE_CHECK", "1")
             .args(args)
             .env("BEANS_HOME", self.path("home"))
             .env("BEANS_PROJECT", "demo")
@@ -80,6 +81,7 @@ impl Sandbox {
         let git_home = self.path("identity-home");
         fs::create_dir_all(&git_home).unwrap();
         let mut command = Command::new(env!("CARGO_BIN_EXE_bn"));
+        command.env("BN_NO_UPDATE_CHECK", "1");
         command
             .args(args)
             .env("BEANS_HOME", self.path("home"))
@@ -587,6 +589,7 @@ fn native_branch_discovery_config_unknowns_and_overrides_survive_init() {
     let workflow = s.path("workflow.yaml");
     fs::write(&workflow, "workflow:\n  statuses: [queued, working, completed]\n  default: queued\n  active: [queued]\n  terminal: [completed]\n").unwrap();
     let out = Command::new(env!("CARGO_BIN_EXE_bn"))
+        .env("BN_NO_UPDATE_CHECK", "1")
         .args([
             "--hub",
             s.path("home/hub").to_str().unwrap(),
@@ -711,7 +714,7 @@ fn native_issue_note_replay_keeps_both_writers_and_frozen_primary_log() {
     let competitor = s.clone_hub(&remote, "competitor");
     let marker = s.path("raced");
     let text = format!(
-        "test ! -f '{}' || exit 0\ntouch '{}'\nBEANS_HOME='{}' BN_ACTOR='Other Writer' '{}' --hub '{}' --project demo note '{}' 'competing native note'",
+        "test ! -f '{}' || exit 0\ntouch '{}'\nBN_NO_UPDATE_CHECK=1 BEANS_HOME='{}' BN_ACTOR='Other Writer' '{}' --hub '{}' --project demo note '{}' 'competing native note'",
         marker.display(),
         marker.display(),
         s.path("other-home").display(),

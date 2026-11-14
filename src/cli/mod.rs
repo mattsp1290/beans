@@ -1,5 +1,6 @@
 //! Native command adapters over shared hub operations.
 mod actor;
+mod channel_commands;
 pub use actor::Actor;
 mod commands;
 pub use commands::{command, execute};

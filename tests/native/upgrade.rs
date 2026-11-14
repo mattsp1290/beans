@@ -92,6 +92,7 @@ impl Releases {
     }
     fn command(&self, base: &str, args: &[&str]) -> Command {
         let mut command = Command::new(&self.bn);
+        command.env("BN_NO_UPDATE_CHECK", "1");
         command
             .args(args)
             .env("BN_RELEASE_BASE_URL", base)

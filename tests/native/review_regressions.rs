@@ -13,6 +13,7 @@ fn json(s: &Sandbox, args: &[&str]) -> serde_json::Value {
 }
 fn cli_in(s: &Sandbox, cwd: &Path, args: &[&str], project: bool) -> Output {
     let mut command = Command::new(env!("CARGO_BIN_EXE_bn"));
+    command.env("BN_NO_UPDATE_CHECK", "1");
     command
         .args(args)
         .env("BEANS_HOME", s.path("home"))
